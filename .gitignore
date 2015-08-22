@@ -1,0 +1,13 @@
+*.o
+*screen*.bmp
+*.exe
+*.swp*
+*.a
+bin/*log*
+bin/*screen*bmp
+.s*
+CMakeFiles/*
+CMakeCache.txt
+cmake_install.cmake
+bin/bd
+tags
