@@ -12,7 +12,15 @@ menu = {
 function menu.load()
     menu.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 24)
     menu.items = {"play", "view progress", "quit"}
-    menu.active_index = 0
+    menu.active_index = 1
+end
+
+function menu.keypressed(key)
+    if key == "up" and menu.active_index + 1 <= #menu.items then
+        menu.active_index = menu.active_index + 1
+    elseif key == "down" and menu.active_index - 1 >= 1 then
+        menu.active_index = menu.active_index - 1
+    end
 end
 
 function menu.update()
@@ -31,7 +39,6 @@ function menu.draw()
         x = (w - menu.font:getWidth(k)) / 2
         if (menu.active_index == i) then
             love.graphics.setColor(menu.inactive_color)
-            print "eq!"
         else
             love.graphics.setColor(menu.active_color)
         end
@@ -57,6 +64,7 @@ function love.keypressed(key)
     if key == "escape" then
         love.event.quit()
     end
+    menu.keypressed()
 end
 
 function love.draw()
