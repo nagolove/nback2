@@ -16,10 +16,10 @@ function menu.load()
 end
 
 function menu.keypressed(key)
-    if key == "up" and menu.active_index + 1 <= #menu.items then
-        menu.active_index = menu.active_index + 1
-    elseif key == "down" and menu.active_index - 1 >= 1 then
+    if key == "up" and menu.active_index - 1 >= 1 then
         menu.active_index = menu.active_index - 1
+    elseif key == "down" and menu.active_index + 1 <= #menu.items then
+        menu.active_index = menu.active_index + 1
     end
 end
 
@@ -61,10 +61,10 @@ function love.update()
 end
 
 function love.keypressed(key)
+    menu.keypressed(key)
     if key == "escape" then
         love.event.quit()
     end
-    menu.keypressed()
 end
 
 function love.draw()
