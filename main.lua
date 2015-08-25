@@ -1,5 +1,6 @@
-﻿require "math"
-require "table"
+﻿local math = require "math"
+local table = require "table"
+local inspect = require "inspect"
 
 lume = require "lume"
 lovebird = require "lovebird"
@@ -86,8 +87,8 @@ nback = {
 
 function nback.generate_pos(len)
     ret = {}
-    for i = 0, len, 1 do
-        table.insert(ret, {math.random(1, nback.dim), math.random(1, nback.dim)})
+    for i = 1, len, 1 do
+        table.insert(ret, {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)})
     end
     return ret
 end
@@ -96,6 +97,15 @@ function nback.load()
 end
 
 function nback.update()
+end
+
+function nback.start()
+    print("generate_pos()")
+    nback.pos_signals = nback.generate_pos(nback.sig_count)
+    nback.current_sig = 1
+end
+
+function nback.stop()
 end
 
 function nback.quit()
@@ -107,9 +117,10 @@ function nback.keypressed(key)
         nback.quit()
     elseif key == " " then
         nback.is_run = not nback.is_run
-        if nback.is_run == true then
-            print("generate_pos()")
-            nback.pos_signals = nback.generate_pos(nback.sig_count)
+        if nback.is_run then 
+            nback.start()
+        else
+            nback.stop()
         end
     end
 end
@@ -135,11 +146,9 @@ function nback.draw()
 
     if nback.is_run then
         g.setColor(nback.pos_color)
-        for i in pairs(nback.pos_signals) do
-            print("sig", i)
-        end
-        x, y = table.unpack(nback.pos_signals[nback.current_sig])
-        g.rectangle("fill", x, y, nback.cell_width, nback.cell_width)
+        x, y = unpack(nback.pos_signals[nback.current_sig])
+        g.rectangle("fill", x0 + x * nback.cell_width, y0 + y * nback.cell_width,
+            nback.cell_width, nback.cell_width)
     end
 
     g.pop()
