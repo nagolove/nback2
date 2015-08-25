@@ -7,19 +7,34 @@ tween = require "tween"
 menu = {
     active_color = {255, 255, 255, 255},
     inactive_color = {100, 200, 70, 255},
+    active_index = 1
 }
+
+function menu.play()
+    print("play")
+end
+
+function menu.quit()
+    love.event.quit()
+end
+
+function menu.view_progress()
+end
 
 function menu.load()
     menu.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 24)
     menu.items = {"play", "view progress", "quit"}
-    menu.active_index = 1
+    menu.actions = { menu.play, menu.view_progress, menu.quit }
 end
 
 function menu.keypressed(key)
+    print("pressed", key)
     if key == "up" and menu.active_index - 1 >= 1 then
         menu.active_index = menu.active_index - 1
     elseif key == "down" and menu.active_index + 1 <= #menu.items then
         menu.active_index = menu.active_index + 1
+    elseif key == "return" or key == " " then
+        menu.actions[menu.active_index]()
     end
 end
 
