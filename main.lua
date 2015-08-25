@@ -1,4 +1,5 @@
 ﻿require "math"
+require "table"
 
 lume = require "lume"
 lovebird = require "lovebird"
@@ -72,7 +73,24 @@ function menu.draw()
     love.graphics.pop()
 end
 
-nback = {}
+nback = {
+    dim = 5,
+    cell_width = 90, --width of game field in pixels
+    background_color = {20, 40, 80, 255},
+    field_color = {20, 80, 80, 255},
+    pos_color = {200, 80, 80, 255},
+    current_sig = 1,
+    sig_count = 10,
+    is_run = false,
+}
+
+function nback.generate_pos(len)
+    ret = {}
+    for i = 0, len, 1 do
+        table.insert(ret, {math.random(1, nback.dim), math.random(1, nback.dim)})
+    end
+    return ret
+end
 
 function nback.load()
 end
@@ -87,10 +105,44 @@ end
 function nback.keypressed(key)
     if key == "escape" then
         nback.quit()
+    elseif key == " " then
+        nback.is_run = not nback.is_run
+        if nback.is_run == true then
+            print("generate_pos()")
+            nback.pos_signals = nback.generate_pos(nback.sig_count)
+        end
     end
 end
 
 function nback.draw()
+    w, h = love.graphics.getDimensions()
+    x0 = (w - nback.dim * nback.cell_width) / 2
+    y0 = (h - nback.dim * nback.cell_width) / 2
+
+    local g = love.graphics
+    g.push("all")
+
+    g.setBackgroundColor(nback.background_color)
+    g.clear()
+    g.setColor(nback.field_color)
+
+    for i = 0, nback.dim, 1 do
+        g.line(x0, y0 + i * nback.cell_width, 
+            x0 + nback.dim * nback.cell_width, y0 + i * nback.cell_width)
+        g.line(x0 + i * nback.cell_width, y0,
+            x0 + i * nback.cell_width, y0 + nback.dim * nback.cell_width)
+    end
+
+    if nback.is_run then
+        g.setColor(nback.pos_color)
+        for i in pairs(nback.pos_signals) do
+            print("sig", i)
+        end
+        x, y = table.unpack(nback.pos_signals[nback.current_sig])
+        g.rectangle("fill", x, y, nback.cell_width, nback.cell_width)
+    end
+
+    g.pop()
 end
 
 function love.load()
