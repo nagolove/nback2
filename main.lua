@@ -1,11 +1,11 @@
 ﻿local math = require "math"
 local table = require "table"
-local inspect = require "inspect"
 local string = require "string"
 
-lume = require "lume"
-lovebird = require "lovebird"
-tween = require "tween"
+local inspect = require "inspect"
+local lume = require "lume"
+local lovebird = require "lovebird"
+local tween = require "tween"
 
 current_state = {}
 menu = {
@@ -82,14 +82,17 @@ nback = {
     field_color = {20, 80, 80, 255},
     pos_color = {200, 80, 80, 255},
     current_sig = 1,
-    sig_count = 10,
+    sig_count = 5, -- number of signals. 
+    level = 1,
     is_run = false,
     pause_time = 1, -- delay beetween signals, in secs
 }
 
-function nback.generate_pos(len)
+function nback.generate_pos(count)
     ret = {}
-    for i = 1, len, 1 do
+    ratio = 1.5
+    --TODO code with properly filling signals
+    for i = 1, count, 1 do
         table.insert(ret, {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)})
     end
     return ret
@@ -105,13 +108,13 @@ function nback.update()
         print("diff", time - nback.timestamp)
         if (time - nback.timestamp >= nback.pause_time) then
             nback.timestamp = love.timer.getTime()
-            if (nback.current_sig <= nback.sig_count) then
+            if (nback.current_sig <= #nback.pos_signals) then
                 nback.current_sig = nback.current_sig + 1
                 print("step")
             end
         end
 
-        if nback.current_sig == nback.sig_count then
+        if nback.current_sig == #nback.pos_signals then
             nback.stop()
         end
     end
@@ -173,15 +176,17 @@ function nback.draw()
     if nback.is_run then
         g.setColor(nback.pos_color)
         x, y = unpack(nback.pos_signals[nback.current_sig])
-        g.rectangle("fill", x0 + x * nback.cell_width, y0 + y * nback.cell_width,
-            nback.cell_width, nback.cell_width)
+        border = 5
+        g.rectangle("fill", x0 + x * nback.cell_width + border, 
+            y0 + y * nback.cell_width + border,
+            nback.cell_width - border * 2, nback.cell_width - border * 2)
     end
     --
 
     --draw upper text - progress of evaluated signals
     love.graphics.setFont(nback.font)
     love.graphics.setColor(nback.pos_color)
-    text = string.format("%d / %d", nback.current_sig, nback.sig_count)
+    text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
     x = (w - nback.font:getWidth(text)) / 2
     y = y0 - nback.font:getHeight()
     love.graphics.print(text, x, y)
