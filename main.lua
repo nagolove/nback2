@@ -1,7 +1,8 @@
 ﻿local math = require "math"
+local os = require "os"
 local table = require "table"
 local string = require "string"
-
+local debug = require "debug"
 local inspect = require "inspect"
 local lume = require "lume"
 local lovebird = require "lovebird"
@@ -83,23 +84,61 @@ nback = {
     pos_color = {200, 80, 80, 255},
     current_sig = 1,
     sig_count = 5, -- number of signals. 
-    level = 1,
+    level = 2,
     is_run = false,
     pause_time = 1, -- delay beetween signals, in secs
 }
 
-function nback.generate_pos(count)
+function nback.gen_tuple()
+    return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
+end
+
+function nback.generate_pos(sig_count)
     ret = {}
-    ratio = 1.5
-    --TODO code with properly filling signals
-    for i = 1, count, 1 do
-        table.insert(ret, {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)})
+    ratio = 4
+    range = {1, 3}
+    count = sig_count
+
+    for i = 1, ratio * sig_count, 1 do
+        table.insert(ret, {-1, -1})
     end
+    repeat
+        i = 1
+        repeat
+            if count > 0 then
+                prob = math.random(unpack(range))
+                if prob == range[2] then
+                    if i + nback.level <= #ret and ret[i][1] == -1 and ret[i + nback.level][1] == -1 then
+                        tuple = nback.gen_tuple()
+                        ret[i] = lume.clone(tuple)
+                        ret[i + nback.level] = lume.clone(tuple)
+                        count = count - 1
+                    end
+                end
+            end
+            i = i + 1
+            print(inspect(ret))
+        until i > #ret
+    until count == 0
+
+    for i = 1, #ret, 1 do
+        if ret[i][1] == -1 then
+            repeat
+                ret[i] = nback.gen_tuple()
+            until not (i + nback.level <= #ret and 
+                    ret[i][1] == ret[i + nback.level][1] and 
+                    ret[i][2] == ret[i + nback.level][2])
+        end
+    end
+
+    print(inspect(ret))
+
     return ret
 end
 
 function nback.load()
     nback.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
+    math.randomseed(os.time())
 end
 
 function nback.update()
@@ -123,6 +162,7 @@ end
 function nback.start()
     print("generate_pos()")
     nback.pos_signals = nback.generate_pos(nback.sig_count)
+    print(inspect(nback.pos_signals))
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
 end
@@ -140,10 +180,13 @@ function nback.keypressed(key)
     if key == "escape" then
         nback.quit()
     elseif key == " " then
-        nback.is_run = not nback.is_run
-        if nback.is_run then 
+        print("kp")
+        if not nback.is_run then 
+            nback.is_run = true
+            print("start")
             nback.start()
         else
+            nback.is_run = false
             nback.stop()
         end
     end
@@ -178,19 +221,19 @@ function nback.draw()
         x, y = unpack(nback.pos_signals[nback.current_sig])
         border = 5
         g.rectangle("fill", x0 + x * nback.cell_width + border, 
-            y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
-    end
-    --
+        y0 + y * nback.cell_width + border,
+        nback.cell_width - border * 2, nback.cell_width - border * 2)
+        --
 
-    --draw upper text - progress of evaluated signals
-    love.graphics.setFont(nback.font)
-    love.graphics.setColor(nback.pos_color)
-    text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
-    x = (w - nback.font:getWidth(text)) / 2
-    y = y0 - nback.font:getHeight()
-    love.graphics.print(text, x, y)
-    --
+        --draw upper text - progress of evaluated signals
+        love.graphics.setFont(nback.font)
+        love.graphics.setColor(nback.pos_color)
+        text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
+        x = (w - nback.font:getWidth(text)) / 2
+        y = y0 - nback.font:getHeight()
+        love.graphics.print(text, x, y)
+        --
+    end
 
     g.pop()
 end
