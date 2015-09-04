@@ -13,11 +13,10 @@ menu = {
     active_color = {255, 255, 255, 255},
     inactive_color = {100, 200, 70, 255},
     active_index = 1,
-    background_color = {20, 40, 80, 255}
+    background_color = {20, 40, 80, 255},
 }
 
 function menu.play()
-    print("play")
     current_state = nback
 end
 
@@ -59,29 +58,28 @@ function menu.update()
 end
 
 function menu.draw()
-    --for setFont() and colors
-    love.graphics.push("all")
+    local g = love.graphics
+    g.push("all")
 
-    w, h = love.graphics.getDimensions()
+    w, h = g.getDimensions()
     y = (h - #menu.items * menu.font:getHeight()) / 2
 
-    love.graphics.setFont(menu.font)
-    love.graphics.setBackgroundColor(menu.background_color)
-    love.graphics.clear()
+    g.setFont(menu.font)
+    g.setBackgroundColor(menu.background_color)
+    g.clear()
 
     for i, k in ipairs(menu.items) do
         x = (w - menu.font:getWidth(k)) / 2
         if (menu.active_index == i) then
-            love.graphics.setColor(menu.inactive_color)
+            g.setColor(menu.inactive_color)
         else
-            love.graphics.setColor(menu.active_color)
+            g.setColor(menu.active_color)
         end
-        love.graphics.print(k, x, y)
+        g.print(k, x, y)
         y = y + menu.font:getHeight()
     end
 
-    --restore settings
-    love.graphics.pop()
+    g.pop()
 end
 
 nback = {
@@ -94,7 +92,8 @@ nback = {
     sig_count = 5, -- number of signals. 
     level = 2,
     is_run = false,
-    pause_time = 1, -- delay beetween signals, in secs
+    pause_time = 1, -- delay beetween signals, in seconds
+    central_text = "",
 }
 
 function nback.gen_tuple()
@@ -202,11 +201,12 @@ function nback.keypressed(key)
 end
 
 function nback.draw()
-    w, h = love.graphics.getDimensions()
+    local g = love.graphics
+
+    w, h = g.getDimensions()
     x0 = (w - nback.dim * nback.cell_width) / 2
     y0 = (h - nback.dim * nback.cell_width) / 2
 
-    local g = love.graphics
     g.push("all")
 
     --draw background
@@ -235,14 +235,16 @@ function nback.draw()
         --
 
         --draw upper text - progress of evaluated signals
-        love.graphics.setFont(nback.font)
-        love.graphics.setColor(nback.pos_color)
+        g.setFont(nback.font)
+        g.setColor(nback.pos_color)
         text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
         x = (w - nback.font:getWidth(text)) / 2
         y = y0 - nback.font:getHeight()
-        love.graphics.print(text, x, y)
+        g.print(text, x, y)
         --
     end
+
+    
 
     g.pop()
 end
