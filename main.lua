@@ -17,6 +17,7 @@ menu = {
 }
 
 function menu.play()
+    nback.central_text = "Press Space to new round"
     current_state = nback
 end
 
@@ -146,6 +147,7 @@ end
 
 function nback.load()
     nback.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
+    nback.central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42)
     math.randomseed(os.time())
 end
 
@@ -162,6 +164,7 @@ function nback.update()
         end
 
         if nback.current_sig == #nback.pos_signals then
+            nback.central_text = "Press Space to new round"
             nback.stop()
         end
     end
@@ -173,6 +176,7 @@ function nback.start()
     print(inspect(nback.pos_signals))
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
+    nback.central_text = ""
 end
 
 function nback.stop()
@@ -244,7 +248,11 @@ function nback.draw()
         --
     end
 
-    
+    g.setFont(nback.central_font)
+    g.setColor(nback.pos_color)
+    x = (w - nback.central_font:getWidth(nback.central_text)) / 2
+    y = (h - nback.central_font:getHeight()) / 2
+    g.print(nback.central_text, x, y)
 
     g.pop()
 end
