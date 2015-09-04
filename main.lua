@@ -36,10 +36,18 @@ end
 
 function menu.keypressed(key)
     print("pressed", key)
-    if key == "up" and menu.active_index - 1 >= 1 then
-        menu.active_index = menu.active_index - 1
-    elseif key == "down" and menu.active_index + 1 <= #menu.items then
-        menu.active_index = menu.active_index + 1
+    if key == "up" then
+        if menu.active_index - 1 >= 1 then
+            menu.active_index = menu.active_index - 1
+        else
+            menu.active_index = #menu.actions
+        end
+    elseif key == "down" then
+        if menu.active_index + 1 <= #menu.items then
+            menu.active_index = menu.active_index + 1
+        else
+            menu.active_index = 1
+        end
     elseif key == "escape" then
         menu.quit()
     elseif key == "return" or key == " " then
@@ -102,6 +110,7 @@ function nback.generate_pos(sig_count)
     for i = 1, ratio * sig_count, 1 do
         table.insert(ret, {-1, -1})
     end
+
     repeat
         i = 1
         repeat
