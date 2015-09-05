@@ -89,12 +89,14 @@ nback = {
     background_color = {20, 40, 80, 255},
     field_color = {20, 80, 80, 255},
     pos_color = {200, 80, 80, 255},
+    sound_text_color = {255, 255, 0, 255},
     current_sig = 1,
     sig_count = 5, -- number of signals. 
     level = 2,
     is_run = false,
     pause_time = 1, -- delay beetween signals, in seconds
     central_text = "",
+    use_sound_text = ""
 }
 
 function nback.gen_tuple()
@@ -177,6 +179,7 @@ function nback.start()
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
     nback.central_text = ""
+    nback.use_sound_text = "For enable sound - press S"
 end
 
 function nback.stop()
@@ -228,8 +231,8 @@ function nback.draw()
     end
     --
 
-    -- draw active signal quad
     if nback.is_run then
+        -- draw active signal quad
         g.setColor(nback.pos_color)
         x, y = unpack(nback.pos_signals[nback.current_sig])
         border = 5
@@ -248,11 +251,22 @@ function nback.draw()
         --
     end
 
+    -- draw central_text - Press Space key
     g.setFont(nback.central_font)
     g.setColor(nback.pos_color)
     x = (w - nback.central_font:getWidth(nback.central_text)) / 2
     y = (h - nback.central_font:getHeight()) / 2
     g.print(nback.central_text, x, y)
+    --
+
+    -- draw use_sound_text
+    g.setFont(nback.font)
+    g.setColor(nback.sound_text_color)
+    x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+    local field_h = nback.dim * nback.cell_width
+    y = y0 + field_h + nback.font:getHeight()
+    g.print(nback.use_sound_text, x, y)
+    --
 
     g.pop()
 end
