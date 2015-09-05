@@ -17,7 +17,7 @@ menu = {
 }
 
 function menu.play()
-    nback.central_text = "Press Space to new round"
+    nback.leave()
     current_state = nback
 end
 
@@ -89,15 +89,31 @@ nback = {
     background_color = {20, 40, 80, 255},
     field_color = {20, 80, 80, 255},
     pos_color = {200, 80, 80, 255},
-    sound_text_color = {255, 255, 0, 255},
+    sound_text_color_disabled = {255, 255, 0, 255},
+    sound_text_color_enabled = {0, 240, 0, 255},
     current_sig = 1,
     sig_count = 5, -- number of signals. 
     level = 2,
     is_run = false,
     pause_time = 1, -- delay beetween signals, in seconds
     central_text = "",
-    use_sound_text = ""
+    use_sound_text = "",
+    use_sound = true
 }
+
+function nback.leave()
+    nback.central_text = "Press Space to new round"
+    nback.change_sound();
+end
+
+function nback.change_sound()
+    if nback.use_sound then
+        nback.use_sound_text = "For enable sound - press S"
+    else
+        nback.use_sound_text = "For disable sound - press S"
+    end
+    nback.use_sound = not nback.use_sound
+end
 
 function nback.gen_tuple()
     return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
@@ -179,7 +195,7 @@ function nback.start()
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
     nback.central_text = ""
-    nback.use_sound_text = "For enable sound - press S"
+    nback.use_sound_text = ""
 end
 
 function nback.stop()
@@ -204,6 +220,8 @@ function nback.keypressed(key)
             nback.is_run = false
             nback.stop()
         end
+    elseif key == "s" then
+        nback.change_sound()
     end
 end
 
@@ -260,12 +278,25 @@ function nback.draw()
     --
 
     -- draw use_sound_text
-    g.setFont(nback.font)
-    g.setColor(nback.sound_text_color)
-    x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-    local field_h = nback.dim * nback.cell_width
-    y = y0 + field_h + nback.font:getHeight()
-    g.print(nback.use_sound_text, x, y)
+    if not nback.use_sound then
+        -- draw with disabled color
+        g.setFont(nback.font)
+        g.setColor(nback.sound_text_color_disabled)
+        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+        local field_h = nback.dim * nback.cell_width
+        y = y0 + field_h + nback.font:getHeight()
+        g.print(nback.use_sound_text, x, y)
+        --
+    else
+        -- draw with enabled color
+        g.setFont(nback.font)
+        g.setColor(nback.sound_text_color_enabled)
+        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+        local field_h = nback.dim * nback.cell_width
+        y = y0 + field_h + nback.font:getHeight()
+        g.print(nback.use_sound_text, x, y)
+        --
+    end
     --
 
     g.pop()
