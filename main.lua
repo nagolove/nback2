@@ -12,12 +12,12 @@ current_state = {}
 menu = {
     active_color = {255, 255, 255, 255},
     inactive_color = {100, 200, 70, 255},
-    active_index = 1,
+    active_item = 1,
     background_color = {20, 40, 80, 255},
 }
 
 function menu.play()
-    nback.leave()
+    nback.enter()
     current_state = nback
 end
 
@@ -37,21 +37,21 @@ end
 function menu.keypressed(key)
     print("pressed", key)
     if key == "up" then
-        if menu.active_index - 1 >= 1 then
-            menu.active_index = menu.active_index - 1
+        if menu.active_item - 1 >= 1 then
+            menu.active_item = menu.active_item - 1
         else
-            menu.active_index = #menu.actions
+            menu.active_item = #menu.actions
         end
     elseif key == "down" then
-        if menu.active_index + 1 <= #menu.items then
-            menu.active_index = menu.active_index + 1
+        if menu.active_item + 1 <= #menu.items then
+            menu.active_item = menu.active_item + 1
         else
-            menu.active_index = 1
+            menu.active_item = 1
         end
     elseif key == "escape" then
         menu.quit()
     elseif key == "return" or key == " " then
-        menu.actions[menu.active_index]()
+        menu.actions[menu.active_item]()
     end
 end
 
@@ -71,7 +71,7 @@ function menu.draw()
 
     for i, k in ipairs(menu.items) do
         x = (w - menu.font:getWidth(k)) / 2
-        if (menu.active_index == i) then
+        if (menu.active_item == i) then
             g.setColor(menu.inactive_color)
         else
             g.setColor(menu.active_color)
@@ -98,10 +98,16 @@ nback = {
     pause_time = 1, -- delay beetween signals, in seconds
     central_text = "",
     use_sound_text = "",
-    use_sound = true
+    use_sound = true,
+    save_name = "nback-v0.1.lua",
 }
 
 function nback.leave()
+end
+
+function nback.enter()
+    data, size = love.filesystem.read(nback.save_name)
+    nback.set_statistic = lume.deserialize(data)
     nback.central_text = "Press Space to new round"
     nback.change_sound();
 end
@@ -200,6 +206,11 @@ end
 
 function nback.stop()
     nback.is_run = false
+    nback.save_statistic()
+end
+
+function nback.save_statistic()
+    love.filesystem.write("nback-0.1.lua", lume.serialize(nback.set_statistic))
 end
 
 function nback.quit()
@@ -211,10 +222,8 @@ function nback.keypressed(key)
     if key == "escape" then
         nback.quit()
     elseif key == " " then
-        print("kp")
         if not nback.is_run then 
             nback.is_run = true
-            print("start")
             nback.start()
         else
             nback.is_run = false
@@ -222,6 +231,19 @@ function nback.keypressed(key)
         end
     elseif key == "s" then
         nback.change_sound()
+    elseif key == "a" then
+        nback.check_position()
+    end
+end
+
+function tuple_cmp(a, b)
+    return a[1] == b[1] and a[2] == b[2]
+end
+
+function nback.check_position()
+    if nback.current_sig + nback.level <= #nback.pos_signals and
+        tuple_cmp(nback.pos_signals[nback.current_sig], nback.pos_signals[nback.current_sig]) then
+        nback.set_statistic.successful = nback.set_statistic.successful + 1
     end
 end
 
