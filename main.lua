@@ -85,29 +85,29 @@ end
 
 nback = {
     dim = 5,
-    cell_width = 90, --width of game field in pixels
+    cell_width = 90,                                -- width of game field in pixels
     background_color = {20, 40, 80, 255},
     field_color = {20, 80, 80, 255},
     pos_color = {200, 80, 80, 255},
     sound_text_color_disabled = {255, 255, 0, 255},
     sound_text_color_enabled = {0, 240, 0, 255},
     current_sig = 1,
-    sig_count = 5, -- number of signals. 
+    sig_count = 5,                                  -- number of signals.
     level = 2,
     is_run = false,
-    pause_time = 1, -- delay beetween signals, in seconds
+    pause_time = 1,                                 -- delay beetween signals, in seconds
     central_text = "",
     use_sound_text = "",
     use_sound = true,
     save_name = "nback-v0.1.lua",
+    set_statistic = { successful_count = 0 },       -- statistic which loaded from file and saved
 }
-
-function nback.leave()
-end
 
 function nback.enter()
     data, size = love.filesystem.read(nback.save_name)
-    nback.set_statistic = lume.deserialize(data)
+    if data ~= nil then
+        nback.set_statistic = lume.deserialize(data)
+    end
     nback.central_text = "Press Space to new round"
     nback.change_sound();
 end
@@ -206,11 +206,7 @@ end
 
 function nback.stop()
     nback.is_run = false
-    nback.save_statistic()
-end
-
-function nback.save_statistic()
-    love.filesystem.write("nback-0.1.lua", lume.serialize(nback.set_statistic))
+    love.filesystem.write(nback.save_name, lume.serialize(nback.set_statistic))
 end
 
 function nback.quit()
@@ -243,7 +239,7 @@ end
 function nback.check_position()
     if nback.current_sig + nback.level <= #nback.pos_signals and
         tuple_cmp(nback.pos_signals[nback.current_sig], nback.pos_signals[nback.current_sig]) then
-        nback.set_statistic.successful = nback.set_statistic.successful + 1
+        nback.set_statistic.successful_count = nback.set_statistic.successful_count + 1
     end
 end
 
