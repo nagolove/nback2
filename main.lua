@@ -91,6 +91,7 @@ nback = {
     pos_color = {200, 80, 80, 255},
     sound_text_color_disabled = {255, 255, 0, 255},
     sound_text_color_enabled = {0, 240, 0, 255},
+    statistic_color = {0, 240, 0, 255},
     current_sig = 1,
     sig_count = 5,                                  -- number of signals.
     level = 2,
@@ -100,14 +101,14 @@ nback = {
     use_sound_text = "",
     use_sound = true,
     save_name = "nback-v0.1.lua",
-    set_statistic = { successful_count = 0 },       -- statistic which loaded from file and saved
+    set_statistic = {                               -- statistic which saving to file
+        successful_count = 0,
+        mistake_count = 0,
+    },
+    show_statistic = false,
 }
 
 function nback.enter()
-    data, size = love.filesystem.read(nback.save_name)
-    if data ~= nil then
-        nback.set_statistic = lume.deserialize(data)
-    end
     nback.central_text = "Press Space to new round"
     nback.change_sound();
 end
@@ -178,17 +179,16 @@ end
 function nback.update()
     if nback.is_run then
         time = love.timer.getTime()
-        print("diff", time - nback.timestamp)
         if (time - nback.timestamp >= nback.pause_time) then
             nback.timestamp = love.timer.getTime()
             if (nback.current_sig <= #nback.pos_signals) then
                 nback.current_sig = nback.current_sig + 1
-                print("step")
             end
         end
 
         if nback.current_sig == #nback.pos_signals then
             nback.central_text = "Press Space to new round"
+            nback.show_statistic = true
             nback.stop()
         end
     end
@@ -202,6 +202,8 @@ function nback.start()
     nback.timestamp = love.timer.getTime()
     nback.central_text = ""
     nback.use_sound_text = ""
+    nback.set_statistic.successful_count = 0
+    nback.set_statistic.mistake_count = 0
 end
 
 function nback.stop()
@@ -239,7 +241,12 @@ end
 function nback.check_position()
     if nback.current_sig + nback.level <= #nback.pos_signals and
         tuple_cmp(nback.pos_signals[nback.current_sig], nback.pos_signals[nback.current_sig]) then
+        --print(inspect(nback))
+        print(nback.set_statistic.successful_count)
         nback.set_statistic.successful_count = nback.set_statistic.successful_count + 1
+    else
+        print("mistake!")
+        nback.set_statistic.mistake_count = nback.set_statistic.mistake_count + 1
     end
 end
 
@@ -314,6 +321,22 @@ function nback.draw()
         y = y0 + field_h + nback.font:getHeight()
         g.print(nback.use_sound_text, x, y)
         --
+    end
+    --
+
+    -- draw statistic of a set
+    if nback.show_statistic then
+        g.setFont(nback.font)
+        g.setColor(nback.statistic_color)
+        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+        local field_h = nback.dim * nback.cell_width
+        y = y0 + field_h + nback.font:getHeight()
+
+        g.print(string.format("Set results:"), x, y)
+        y = y + nback.font:getHeight()
+        local p = nback.set_statistic.successful_count / nback.sig_count * 100
+        g.print(string.format("hits %d mistakes %d successful %d%%", nback.set_statistic.successful_count,
+            nback.set_statistic.mistake_count, p), x, y)
     end
     --
 
