@@ -84,22 +84,25 @@ function menu.draw()
 end
 
 nback = {
-    dim = 5,
-    cell_width = 90,                                -- width of game field in pixels
+    -- colors section
     background_color = {20, 40, 80, 255},
     field_color = {20, 80, 80, 255},
     pos_color = {200, 80, 80, 255},
     sound_text_color_disabled = {255, 255, 0, 255},
     sound_text_color_enabled = {0, 240, 0, 255},
     statistic_color = {0, 240, 0, 255},
+    -- end of colors section
+    dim = 5,
+    cell_width = 90,                                -- width of game field in pixels
     current_sig = 1,
-    sig_count = 5,                                  -- number of signals.
+    sig_count = 7,                                  -- number of signals.
     level = 2,
     is_run = false,
     pause_time = 1,                                 -- delay beetween signals, in seconds
     central_text = "",
     use_sound_text = "",
     use_sound = true,
+    can_press = false,
     save_name = "nback-v0.1.lua",
     set_statistic = {                               -- statistic which saving to file
         successful_count = 0,
@@ -150,7 +153,6 @@ function nback.generate_pos(sig_count)
                 end
             end
             i = i + 1
-            print(inspect(ret))
         until i > #ret
     until count == 0
 
@@ -182,6 +184,7 @@ function nback.update()
             nback.timestamp = love.timer.getTime()
             if (nback.current_sig <= #nback.pos_signals) then
                 nback.current_sig = nback.current_sig + 1
+                nback.can_press = true
             end
         end
 
@@ -249,13 +252,16 @@ end
 function nback.check_position()
     if not nback.is_run then return end
 
-    if nback.current_sig - nback.level >= 1 then
+    if nback.current_sig - nback.level > 1 then
         if tuple_cmp(nback.pos_signals[nback.current_sig], 
                      nback.pos_signals[nback.current_sig - nback.level]) then
             --print(inspect(nback))
-            print("hit!")
-            print(nback.set_statistic.successful_count)
-            nback.set_statistic.successful_count = nback.set_statistic.successful_count + 1
+            if nback.can_press then
+                print("hit!")
+                print(nback.set_statistic.successful_count)
+                nback.set_statistic.successful_count = nback.set_statistic.successful_count + 1
+                nback.can_press = false
+            end
         else
             print("mistake!")
             nback.set_statistic.mistake_count = nback.set_statistic.mistake_count + 1
