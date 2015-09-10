@@ -95,10 +95,10 @@ nback = {
     dim = 5,
     cell_width = 90,                                -- width of game field in pixels
     current_sig = 1,
-    sig_count = 7,                                  -- number of signals.
+    sig_count = 3,                                  -- number of signals.
     level = 2,
     is_run = false,
-    pause_time = 1,                                 -- delay beetween signals, in seconds
+    pause_time = 0.1,                                 -- delay beetween signals, in seconds
     central_text = "",
     use_sound_text = "",
     use_sound = true,
@@ -173,6 +173,7 @@ end
 function nback.load()
     nback.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
     nback.central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42)
+    nback.statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20)
     math.randomseed(os.time())
 end
 
@@ -341,17 +342,16 @@ function nback.draw()
 
     -- draw statistic of a set
     if nback.show_statistic then
-        g.setFont(nback.font)
+        g.setFont(nback.statistic_font)
         g.setColor(nback.statistic_color)
-        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        local field_h = nback.dim * nback.cell_width
-        y = y0 + field_h + nback.font:getHeight()
 
-        g.print(string.format("Set results:"), x, y)
-        y = y + nback.font:getHeight()
-        local p = nback.set_statistic.hits  / nback.sig_count * 100
-        g.print(string.format("hits %d mistakes %d successful %d%%", nback.set_statistic.hits ,
-            nback.set_statistic.mistake_count, p), x, y)
+        y = y0 + nback.statistic_font:getHeight()
+        g.printf(string.format("Set results:"), 0, y, w, "center")
+
+        y = y + nback.statistic_font:getHeight()
+        local percent = nback.set_statistic.hits  / nback.sig_count * 100
+        g.printf(string.format("hits %d/%d successful %d%%", nback.set_statistic.hits ,
+            nback.sig_count, percent), 0, y, w, "center")
     end
     --
 
