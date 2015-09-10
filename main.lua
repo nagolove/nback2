@@ -143,9 +143,8 @@ function nback.generate_pos(sig_count)
                 prob = math.random(unpack(range))
                 if prob == range[2] then
                     if i + nback.level <= #ret and ret[i][1] == -1 and ret[i + nback.level][1] == -1 then
-                        tuple = nback.gen_tuple()
-                        ret[i] = lume.clone(tuple)
-                        ret[i + nback.level] = lume.clone(tuple)
+                        ret[i] = nback.gen_tuple()
+                        ret[i + nback.level] = lume.clone(ret[i])
                         count = count - 1
                     end
                 end
@@ -208,7 +207,16 @@ end
 
 function nback.stop()
     nback.is_run = false
-    love.filesystem.write(nback.save_name, lume.serialize(nback.set_statistic))
+    --TODO Not work properly!
+    local data, size = love.filesystem.read(nback.save_name)
+    local history = {}
+    if data ~= nil then
+        history = lume.deserialize(data)
+    end
+    local add = { date = os.date("*t"), stat = nback.set_statistic }
+    table.insert(history, {add})
+    --love.filesystem.write(nback.save_name, lume.serialize(nback.set_statistic))
+    love.filesystem.write(nback.save_name, lume.serialize(add))
 end
 
 function nback.quit()
@@ -239,14 +247,19 @@ function tuple_cmp(a, b)
 end
 
 function nback.check_position()
-    if nback.current_sig + nback.level <= #nback.pos_signals and
-        tuple_cmp(nback.pos_signals[nback.current_sig], nback.pos_signals[nback.current_sig]) then
-        --print(inspect(nback))
-        print(nback.set_statistic.successful_count)
-        nback.set_statistic.successful_count = nback.set_statistic.successful_count + 1
-    else
-        print("mistake!")
-        nback.set_statistic.mistake_count = nback.set_statistic.mistake_count + 1
+    if not nback.is_run then return end
+
+    if nback.current_sig - nback.level >= 1 then
+        if tuple_cmp(nback.pos_signals[nback.current_sig], 
+                     nback.pos_signals[nback.current_sig - nback.level]) then
+            --print(inspect(nback))
+            print("hit!")
+            print(nback.set_statistic.successful_count)
+            nback.set_statistic.successful_count = nback.set_statistic.successful_count + 1
+        else
+            print("mistake!")
+            nback.set_statistic.mistake_count = nback.set_statistic.mistake_count + 1
+        end
     end
 end
 
