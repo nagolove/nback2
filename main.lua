@@ -105,8 +105,7 @@ nback = {
     can_press = false,
     save_name = "nback-v0.1.lua",
     set_statistic = {                               -- statistic which saving to file
-        successful_count = 0,
-        mistake_count = 0,
+        hits = 0,
     },
     show_statistic = false,
 }
@@ -204,7 +203,7 @@ function nback.start()
     nback.timestamp = love.timer.getTime()
     nback.central_text = ""
     nback.use_sound_text = ""
-    nback.set_statistic.successful_count = 0
+    nback.set_statistic.hits  = 0
     nback.set_statistic.mistake_count = 0
 end
 
@@ -258,13 +257,10 @@ function nback.check_position()
             --print(inspect(nback))
             if nback.can_press then
                 print("hit!")
-                print(nback.set_statistic.successful_count)
-                nback.set_statistic.successful_count = nback.set_statistic.successful_count + 1
+                print(nback.set_statistic.hits )
+                nback.set_statistic.hits  = nback.set_statistic.hits  + 1
                 nback.can_press = false
             end
-        else
-            print("mistake!")
-            nback.set_statistic.mistake_count = nback.set_statistic.mistake_count + 1
         end
     end
 end
@@ -353,8 +349,8 @@ function nback.draw()
 
         g.print(string.format("Set results:"), x, y)
         y = y + nback.font:getHeight()
-        local p = nback.set_statistic.successful_count / nback.sig_count * 100
-        g.print(string.format("hits %d mistakes %d successful %d%%", nback.set_statistic.successful_count,
+        local p = nback.set_statistic.hits  / nback.sig_count * 100
+        g.print(string.format("hits %d mistakes %d successful %d%%", nback.set_statistic.hits ,
             nback.set_statistic.mistake_count, p), x, y)
     end
     --
