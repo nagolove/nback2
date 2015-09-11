@@ -205,7 +205,7 @@ function nback.start()
     nback.central_text = ""
     nback.use_sound_text = ""
     nback.set_statistic.hits  = 0
-    nback.set_statistic.mistake_count = 0
+    nback.show_statistic = false
 end
 
 function nback.stop()
