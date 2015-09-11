@@ -22,6 +22,7 @@ function menu.play()
 end
 
 function menu.view_progress()
+    current_state = pviewer
 end
 
 function menu.quit()
@@ -108,6 +109,30 @@ nback = {
     },
     show_statistic = false,
 }
+
+pviewer = {
+    background_color = {20, 40, 80, 255},
+}
+
+function pviewer.update()
+end
+
+function pviewer.load()
+end
+
+function pviewer.draw()
+    local g = love.graphics
+
+    g.push("all")
+    g.setBackgroundColor(pviewer.background_color)
+    g.pop()
+end
+
+function pviewer.keypressed(key)
+    if key == "escape" then
+        current_state = menu
+    end
+end
 
 function nback.enter()
     nback.central_text = "Press Space to new round"
@@ -211,7 +236,7 @@ end
 function nback.stop()
     nback.is_run = false
 
-    if nback.current_sig == #nback.pos_signals then
+    if nback.pos_signals and nback.current_sig == #nback.pos_signals then
         local data, size = love.filesystem.read(nback.save_name)
         local history = {}
         if data ~= nil then
