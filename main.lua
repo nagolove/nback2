@@ -128,17 +128,17 @@ function nback.gen_tuple()
 end
 
 function nback.generate_pos(sig_count)
-    ret = {}
-    ratio = 4
-    range = {1, 3}
-    count = sig_count
+    local ret = {}
+    local ratio = 4
+    local range = {1, 3}
+    local count = sig_count
 
     for i = 1, ratio * sig_count, 1 do
         table.insert(ret, {-1, -1})
     end
 
     repeat
-        i = 1
+        local i = 1
         repeat
             if count > 0 then
                 prob = math.random(unpack(range))
@@ -268,10 +268,9 @@ end
 
 function nback.draw()
     local g = love.graphics
-
-    w, h = g.getDimensions()
-    x0 = (w - nback.dim * nback.cell_width) / 2
-    y0 = (h - nback.dim * nback.cell_width) / 2
+    local w, h = g.getDimensions()
+    local x0 = (w - nback.dim * nback.cell_width) / 2
+    local y0 = (h - nback.dim * nback.cell_width) / 2
 
     g.push("all")
 
@@ -293,7 +292,7 @@ function nback.draw()
     if nback.is_run then
         -- draw active signal quad
         g.setColor(nback.pos_color)
-        x, y = unpack(nback.pos_signals[nback.current_sig])
+        local x, y = unpack(nback.pos_signals[nback.current_sig])
         border = 5
         g.rectangle("fill", x0 + x * nback.cell_width + border, 
         y0 + y * nback.cell_width + border,
