@@ -70,13 +70,12 @@ function menu.draw()
     g.clear()
 
     for i, k in ipairs(menu.items) do
-        x = (w - menu.font:getWidth(k)) / 2
         if (menu.active_item == i) then
             g.setColor(menu.inactive_color)
         else
             g.setColor(menu.active_color)
         end
-        g.print(k, x, y)
+        g.printf(k, 0, y, w, "center")
         y = y + menu.font:getHeight()
     end
 
@@ -197,6 +196,7 @@ function nback.update()
 end
 
 function nback.start()
+    nback.is_run = true
     print("generate_pos()")
     nback.pos_signals = nback.generate_pos(nback.sig_count)
     print(inspect(nback.pos_signals))
@@ -210,16 +210,18 @@ end
 
 function nback.stop()
     nback.is_run = false
-    --TODO Not work properly!
-    local data, size = love.filesystem.read(nback.save_name)
-    local history = {}
-    if data ~= nil then
-        history = lume.deserialize(data)
+
+    if nback.current_sig == #nback.pos_signals then
+        local data, size = love.filesystem.read(nback.save_name)
+        local history = {}
+        if data ~= nil then
+            history = lume.deserialize(data)
+        end
+        local add = { date = os.date("*t"), stat = nback.set_statistic }
+        print("history", inspect(history))
+        table.insert(history, add)
+        love.filesystem.write(nback.save_name, lume.serialize(history))
     end
-    local add = { date = os.date("*t"), stat = nback.set_statistic }
-    table.insert(history, {add})
-    --love.filesystem.write(nback.save_name, lume.serialize(nback.set_statistic))
-    love.filesystem.write(nback.save_name, lume.serialize(add))
 end
 
 function nback.quit()
@@ -232,10 +234,8 @@ function nback.keypressed(key)
         nback.quit()
     elseif key == " " then
         if not nback.is_run then 
-            nback.is_run = true
             nback.start()
         else
-            nback.is_run = false
             nback.stop()
         end
     elseif key == "s" then
