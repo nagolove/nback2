@@ -22,6 +22,7 @@ function menu.play()
 end
 
 function menu.view_progress()
+    pviewer.load()
     current_state = pviewer
 end
 
@@ -83,48 +84,49 @@ function menu.draw()
     g.pop()
 end
 
-nback = {
-    -- colors section
-    background_color = {20, 40, 80, 255},
-    field_color = {20, 80, 80, 255},
-    pos_color = {200, 80, 80, 255},
-    sound_text_color_disabled = {255, 255, 0, 255},
-    sound_text_color_enabled = {0, 240, 0, 255},
-    statistic_color = {0, 240, 0, 255},
-    -- end of colors section
-    dim = 5,
-    cell_width = 90,                                -- width of game field in pixels
-    current_sig = 1,
-    sig_count = 3,                                  -- number of signals.
-    level = 2,
-    is_run = false,
-    pause_time = 0.1,                                 -- delay beetween signals, in seconds
-    central_text = "",
-    use_sound_text = "",
-    use_sound = true,
-    can_press = false,
-    save_name = "nback-v0.1.lua",
-    set_statistic = {                               -- statistic which saving to file
-        hits = 0,
-    },
-    show_statistic = false,
-}
-
 pviewer = {
     background_color = {20, 40, 80, 255},
+    line_color = {200, 80, 80, 255},
+    data = {},
 }
 
 function pviewer.update()
 end
 
 function pviewer.load()
+    local tmp, size = love.filesystem.read(nback.save_name)
+    if tmp ~= nil then
+        pviewer.data = lume.deserialize(tmp)
+    end
+end
+
+function draw_axis(point, dir, color, width)
+
 end
 
 function pviewer.draw()
     local g = love.graphics
+    local w, h = g.getDimensions()
+    local border = 60 --border in pixels for drawing chart
+    local r = {x1 = border, y1 = border, x2 = w - border, y2 = h - border}
 
     g.push("all")
+
     g.setBackgroundColor(pviewer.background_color)
+    g.clear()
+
+    g.setLineStyle("smooth")
+    g.setColor(pviewer.line_color)
+    g.setLineWidth(2)
+    
+    --draw axis x
+    g.line(r.x1, r.y2, r.x2, r.y2)
+    --
+
+    --draw axis y
+    g.line(r.x1, r.y2, r.x1, r.y1)
+    --
+
     g.pop()
 end
 
@@ -133,6 +135,33 @@ function pviewer.keypressed(key)
         current_state = menu
     end
 end
+
+nback = {
+                                                    -- colors section
+    background_color = {20, 40, 80, 255},
+    field_color = {20, 80, 80, 255},
+    pos_color = {200, 80, 80, 255},
+    sound_text_color_disabled = {255, 255, 0, 255},
+    sound_text_color_enabled = {0, 240, 0, 255},
+    statistic_color = {0, 240, 0, 255},
+                                                    -- end of colors section
+    dim = 5,
+    cell_width = 90,                                -- width of game field in pixels
+    current_sig = 1,
+    sig_count = 3,                                  -- number of signals.
+    level = 2,
+    is_run = false,
+    pause_time = 0.1,                               -- delay beetween signals, in seconds
+    central_text = "",
+    use_sound_text = "",
+    use_sound = true,
+    can_press = false,
+    save_name = "nback-v0.1.lua",
+    statistic = {                                   -- statistic which saving to file
+        hits = 0,
+    },
+    show_statistic = false,
+}
 
 function nback.enter()
     nback.central_text = "Press Space to new round"
@@ -189,7 +218,7 @@ function nback.generate_pos(sig_count)
         end
     end
 
-    print(inspect(ret))
+    print("positions", inspect(ret))
 
     return ret
 end
@@ -199,6 +228,13 @@ function nback.load()
     nback.central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42)
     nback.statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20)
     math.randomseed(os.time())
+
+    nback.sounds = {}
+    wave_path = "sfx/alphabet/"
+    wave_files = love.filesystem.getDirectoryItems(wave_path)
+    for k, v in pairs(wave_files) do
+        table.insert(nback.sounds, love.audio.newSource(wave_path .. v))
+    end
 end
 
 function nback.update()
@@ -222,14 +258,13 @@ end
 
 function nback.start()
     nback.is_run = true
-    print("generate_pos()")
     nback.pos_signals = nback.generate_pos(nback.sig_count)
     print(inspect(nback.pos_signals))
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
     nback.central_text = ""
     nback.use_sound_text = ""
-    nback.set_statistic.hits  = 0
+    nback.statistic.hits  = 0
     nback.show_statistic = false
 end
 
@@ -242,8 +277,8 @@ function nback.stop()
         if data ~= nil then
             history = lume.deserialize(data)
         end
-        local add = { date = os.date("*t"), stat = nback.set_statistic }
-        print("history", inspect(history))
+        local add = { date = os.date("*t"), stat = nback.statistic }
+        --print("history", inspect(history))
         table.insert(history, add)
         love.filesystem.write(nback.save_name, lume.serialize(history))
     end
@@ -283,8 +318,8 @@ function nback.check_position()
             --print(inspect(nback))
             if nback.can_press then
                 print("hit!")
-                print(nback.set_statistic.hits )
-                nback.set_statistic.hits  = nback.set_statistic.hits  + 1
+                print(nback.statistic.hits )
+                nback.statistic.hits  = nback.statistic.hits  + 1
                 nback.can_press = false
             end
         end
@@ -373,8 +408,8 @@ function nback.draw()
         g.printf(string.format("Set results:"), 0, y, w, "center")
 
         y = y + nback.statistic_font:getHeight()
-        local percent = nback.set_statistic.hits  / nback.sig_count * 100
-        g.printf(string.format("hits %d/%d successful %d%%", nback.set_statistic.hits ,
+        local percent = nback.statistic.hits  / nback.sig_count * 100
+        g.printf(string.format("hits %d/%d successful %d%%", nback.statistic.hits ,
             nback.sig_count, percent), 0, y, w, "center")
     end
     --
@@ -388,6 +423,7 @@ function love.load()
 
     menu.load()
     nback.load()
+    pviewer.load()
 
     current_state = menu
 end
