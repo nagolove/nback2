@@ -137,14 +137,14 @@ function pviewer.keypressed(key)
 end
 
 nback = {
-                                                    -- colors section
+    -- colors section
     background_color = {20, 40, 80, 255},
     field_color = {20, 80, 80, 255},
     pos_color = {200, 80, 80, 255},
     sound_text_color_disabled = {255, 255, 0, 255},
     sound_text_color_enabled = {0, 240, 0, 255},
     statistic_color = {0, 240, 0, 255},
-                                                    -- end of colors section
+    -- end of colors section
     dim = 5,
     cell_width = 90,                                -- width of game field in pixels
     current_sig = 1,
@@ -161,6 +161,7 @@ nback = {
         hits = 0,
     },
     show_statistic = false,
+    sounds = {},
 }
 
 function nback.enter()
@@ -229,10 +230,8 @@ function nback.load()
     nback.statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20)
     math.randomseed(os.time())
 
-    nback.sounds = {}
     wave_path = "sfx/alphabet/"
-    wave_files = love.filesystem.getDirectoryItems(wave_path)
-    for k, v in pairs(wave_files) do
+    for k, v in pairs(love.filesystem.getDirectoryItems(wave_path)) do
         table.insert(nback.sounds, love.audio.newSource(wave_path .. v))
     end
 end
