@@ -100,10 +100,6 @@ function pviewer.load()
     end
 end
 
-function draw_axis(point, dir, color, width)
-
-end
-
 function pviewer.draw()
     local g = love.graphics
     local w, h = g.getDimensions()
@@ -119,14 +115,6 @@ function pviewer.draw()
     g.setColor(pviewer.line_color)
     g.setLineWidth(2)
     
-    --draw axis x
-    g.line(r.x1, r.y2, r.x2, r.y2)
-    --
-
-    --draw axis y
-    g.line(r.x1, r.y2, r.x1, r.y1)
-    --
-
     g.pop()
 end
 
