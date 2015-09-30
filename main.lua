@@ -182,6 +182,14 @@ function nback.gen_tuple()
     return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
 end
 
+function nback.generate_sound(sig_count)
+    ret = {}
+
+    return ret
+end
+
+--function generate_nback(ratio, rand_range, sig_count, ge
+
 function nback.generate_pos(sig_count)
     local ret = {}
     local ratio = 4
