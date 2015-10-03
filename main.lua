@@ -86,7 +86,9 @@ end
 
 pviewer = {
     background_color = {20, 40, 80, 255},
-    line_color = {200, 80, 80, 255},
+    scroll_tip_text_color = {0, 240, 0, 255},
+    scroll_tip_text = "For scrolling table use ↓↑ arrows",
+    chart_color = {200, 80, 80, 255},
     data = {},
 }
 
@@ -98,6 +100,10 @@ function pviewer.load()
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
     end
+
+    pviewer.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
+    pviewer.scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
+    print(inspect(pviewer.data))
 end
 
 function draw_axis(point, dir, color, width)
@@ -107,7 +113,7 @@ end
 function pviewer.draw()
     local g = love.graphics
     local w, h = g.getDimensions()
-    local border = 60 --border in pixels for drawing chart
+    local border = 80 --border in pixels for drawing chart
     local r = {x1 = border, y1 = border, x2 = w - border, y2 = h - border}
 
     g.push("all")
@@ -115,18 +121,28 @@ function pviewer.draw()
     g.setBackgroundColor(pviewer.background_color)
     g.clear()
 
-    g.setLineStyle("smooth")
-    g.setColor(pviewer.line_color)
-    g.setLineWidth(2)
+    --drawing of scroll_tip_text
+    g.setColor(pviewer.scroll_tip_text_color)
+    g.setFont(pviewer.scrool_tip_font)
+    g.printf(pviewer.scroll_tip_text, r.x1, border / 2, r.x2 - r.x1, "center")
+    -- end of drawing
+
+    --drawing of chart list
+    g.setFont(pviewer.font)
+    g.setColor(pviewer.chart_color)
+    --g.setScissor(unpack(r))
+    local y = r.y1
+    for k, v in ipairs(pviewer.data) do
+        local s = string.format("%d.%d.%d %d", 
+            v.date.day,
+            v.date.month,
+            v.date.year,
+            v.stat.hits)
+        g.print(s, r.x1, y)
+        y = y + pviewer.font:getHeight()
+    end
+    -- end of drawing
     
-    --draw axis x
-    g.line(r.x1, r.y2, r.x2, r.y2)
-    --
-
-    --draw axis y
-    g.line(r.x1, r.y2, r.x1, r.y1)
-    --
-
     g.pop()
 end
 
