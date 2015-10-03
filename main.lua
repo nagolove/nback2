@@ -88,6 +88,8 @@ pviewer = {
     background_color = {20, 40, 80, 255},
     scroll_tip_text_color = {0, 240, 0, 255},
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
+    header_color = {255, 255, 255, 255},
+    header_text = "", 
     chart_color = {200, 80, 80, 255},
     data = {},
 }
@@ -124,8 +126,14 @@ function pviewer.draw()
     --drawing of scroll_tip_text
     g.setColor(pviewer.scroll_tip_text_color)
     g.setFont(pviewer.scrool_tip_font)
-    g.printf(pviewer.scroll_tip_text, r.x1, border / 2, r.x2 - r.x1, "center")
-    -- end of drawing
+    g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + border / 2, r.x2 - r.x1, "center")
+    -- 
+
+    --drawing of header fo chart
+    g.setColor(pviewer.scroll_tip_text_color)
+    g.setFont(pviewer.scrool_tip_font)
+    g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + border / 2, r.x2 - r.x1, "center")
+    -- 
 
     --drawing of chart list
     g.setFont(pviewer.font)
@@ -138,10 +146,10 @@ function pviewer.draw()
             v.date.month,
             v.date.year,
             v.stat.hits)
-        g.print(s, r.x1, y)
+        g.printf(s, r.x1, y, r.x2 - r.x1, "center")
         y = y + pviewer.font:getHeight()
     end
-    -- end of drawing
+    -- 
     
     g.pop()
 end
