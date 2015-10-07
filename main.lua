@@ -113,7 +113,6 @@ end
 
 function draw_chart()
     local g = love.graphics
-    local w, h = g.getDimensions()
 
     g.setFont(pviewer.font)
     g.setColor(pviewer.chart_color)
