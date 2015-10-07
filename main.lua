@@ -118,22 +118,23 @@ function draw_chart()
 
     g.setFont(pviewer.font)
     g.setColor(pviewer.chart_color)
-    --g.setScissor(unpack(r))
-    local y = r.y1
+    
+    local y = pviewer.border
     local s
+
     for k, v in ipairs(pviewer.data) do
         s = string.format("%.2d.%.2d.%d", 
         v.date.day,
         v.date.month,
         v.date.year)
-        g.printf(s, r.x1, y, r.x2 - r.x1)
+        g.print(s, r.x1, y)
         y = y + pviewer.font:getHeight()
     end
 
     local deltax = pviewer.font:getWidth(s)
-
-    local y = r.y1
+    local y = pviewer.border
     g.setColor(pviewer.header_color)
+
     for k, v in ipairs(pviewer.data) do
         s = " / "
         g.print(s, r.x1 + deltax, y)
@@ -141,10 +142,9 @@ function draw_chart()
     end
 
     deltax = deltax + pviewer.font:getWidth(s)
-
     g.setColor(pviewer.chart_color)
-    --g.setScissor(unpack(r))
-    local y = r.y1
+    local y = pviewer.border
+
     for k, v in ipairs(pviewer.data) do
         s = string.format("%.2d", v.stat.hits)
         g.print(s, r.x1 + deltax, y)
