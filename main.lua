@@ -114,7 +114,6 @@ end
 function draw_chart()
     local g = love.graphics
     local w, h = g.getDimensions()
-    local r = {x1 = 0, y1 = pviewer.border, x2 = w, y2 = h}
 
     g.setFont(pviewer.font)
     g.setColor(pviewer.chart_color)
@@ -127,7 +126,7 @@ function draw_chart()
         v.date.day,
         v.date.month,
         v.date.year)
-        g.print(s, r.x1, y)
+        g.print(s, 0, y)
         y = y + pviewer.font:getHeight()
     end
 
@@ -137,7 +136,7 @@ function draw_chart()
 
     for k, v in ipairs(pviewer.data) do
         s = " / "
-        g.print(s, r.x1 + deltax, y)
+        g.print(s, 0 + deltax, y)
         y = y + pviewer.font:getHeight()
     end
 
@@ -147,7 +146,7 @@ function draw_chart()
 
     for k, v in ipairs(pviewer.data) do
         s = string.format("%.2d", v.stat.hits)
-        g.print(s, r.x1 + deltax, y)
+        g.print(s, 0 + deltax, y)
         y = y + pviewer.font:getHeight()
     end
 end
@@ -174,14 +173,13 @@ function pviewer.draw()
     g.printf("date / hits", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
+    --drawing chart
     g.setCanvas(pviewer.rt)
     pviewer.rt:clear()
     draw_chart()
     g.setCanvas()
-
-    local chart_line = "11.09.2015 / 00"
-    local chart_line_w = pviewer.font:getWidth(chart_line)
-    g.draw(pviewer.rt, (w - chart_line_w) / 2, 0)
+    g.draw(pviewer.rt, (w - pviewer.font:getWidth("11.09.2015 / 00")) / 2, 0)
+    --
 
     g.pop()
 end
