@@ -140,17 +140,39 @@ function pviewer.draw()
     g.setColor(pviewer.chart_color)
     --g.setScissor(unpack(r))
     local y = r.y1
+    local s
     for k, v in ipairs(pviewer.data) do
-        local s = string.format("%.2d.%.2d.%d %d", 
+        s = string.format("%.2d.%.2d.%d", 
             v.date.day,
             v.date.month,
-            v.date.year,
-            v.stat.hits)
+            v.date.year)
         g.printf(s, r.x1, y, r.x2 - r.x1, "center")
         y = y + pviewer.font:getHeight()
     end
+
+    local deltax = pviewer.font:getWidth(s)
+
+    local y = r.y1
+    g.setColor(pviewer.header_color)
+    for k, v in ipairs(pviewer.data) do
+        s = g.print("/", r.x1 + deltax, y)
+        y = y + pviewer.font:getHeight()
+    end
+
+    deltax = deltax + pviewer.font:getWidth("/")
+
+    g.setColor(pviewer.chart_color)
+    --g.setScissor(unpack(r))
+    local y = r.y1
+    for k, v in ipairs(pviewer.data) do
+        s = string.format("%d", v.stat.hits)
+        g.printf(s, r.x1 + deltax, y, r.x2 - r.x1, "center")
+        y = y + pviewer.font:getHeight()
+    end
+
+
     -- 
-    
+
     g.pop()
 end
 
