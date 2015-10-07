@@ -92,6 +92,7 @@ pviewer = {
     header_text = "", 
     chart_color = {200, 80, 80, 255},
     data = {},
+    border = 80, --border in pixels for drawing chart
 }
 
 function pviewer.update()
@@ -106,36 +107,15 @@ function pviewer.load()
     pviewer.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
     pviewer.scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
     print(inspect(pviewer.data))
+
+    pviewer.rt = love.graphics.newCanvas(love.graphics.getDimensions())
 end
 
-function draw_axis(point, dir, color, width)
-
-end
-
-function pviewer.draw()
+function draw_chart()
     local g = love.graphics
     local w, h = g.getDimensions()
-    local border = 80 --border in pixels for drawing chart
-    local r = {x1 = border, y1 = border, x2 = w - border, y2 = h - border}
+    local r = {x1 = 0, y1 = pviewer.border, x2 = w, y2 = h}
 
-    g.push("all")
-
-    g.setBackgroundColor(pviewer.background_color)
-    g.clear()
-
-    --drawing scroll_tip_text
-    g.setColor(pviewer.scroll_tip_text_color)
-    g.setFont(pviewer.scrool_tip_font)
-    g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + border / 2, r.x2 - r.x1, "center")
-    -- 
-
-    --drawing chart header
-    g.setColor(pviewer.header_color)
-    g.setFont(pviewer.font)
-    g.printf("date / hits", r.x1, r.y1 - border / 2, r.x2 - r.x1, "center")
-    -- 
-
-    --drawing chart list
     g.setFont(pviewer.font)
     g.setColor(pviewer.chart_color)
     --g.setScissor(unpack(r))
@@ -143,10 +123,10 @@ function pviewer.draw()
     local s
     for k, v in ipairs(pviewer.data) do
         s = string.format("%.2d.%.2d.%d", 
-            v.date.day,
-            v.date.month,
-            v.date.year)
-        g.printf(s, r.x1, y, r.x2 - r.x1, "left")
+        v.date.day,
+        v.date.month,
+        v.date.year)
+        g.printf(s, r.x1, y, r.x2 - r.x1)
         y = y + pviewer.font:getHeight()
     end
 
@@ -167,11 +147,41 @@ function pviewer.draw()
     local y = r.y1
     for k, v in ipairs(pviewer.data) do
         s = string.format("%.2d", v.stat.hits)
-        g.printf(s, r.x1 + deltax, y, r.x2 - r.x1, "left")
+        g.print(s, r.x1 + deltax, y)
         y = y + pviewer.font:getHeight()
     end
+end
 
+function pviewer.draw()
+    local g = love.graphics
+    local w, h = g.getDimensions()
+    local r = {x1 = pviewer.border, y1 = pviewer.border, x2 = w - pviewer.border, y2 = h - pviewer.border}
+
+    g.push("all")
+
+    g.setBackgroundColor(pviewer.background_color)
+    g.clear()
+
+    --drawing scroll_tip_text
+    g.setColor(pviewer.scroll_tip_text_color)
+    g.setFont(pviewer.scrool_tip_font)
+    g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
+
+    --drawing chart header
+    g.setColor(pviewer.header_color)
+    g.setFont(pviewer.font)
+    g.printf("date / hits", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    -- 
+
+    g.setCanvas(pviewer.rt)
+    pviewer.rt:clear()
+    draw_chart()
+    g.setCanvas()
+
+    local chart_line = "11.09.2015 / 00"
+    local chart_line_w = pviewer.font:getWidth(chart_line)
+    g.draw(pviewer.rt, (w - chart_line_w) / 2, 0)
 
     g.pop()
 end
