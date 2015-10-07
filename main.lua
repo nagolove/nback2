@@ -88,7 +88,7 @@ pviewer = {
     background_color = {20, 40, 80, 255},
     scroll_tip_text_color = {0, 240, 0, 255},
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
-    header_color = {255, 255, 255, 255},
+    header_color = {255, 255, 0, 255},
     header_text = "", 
     chart_color = {200, 80, 80, 255},
     data = {},
@@ -123,25 +123,25 @@ function pviewer.draw()
     g.setBackgroundColor(pviewer.background_color)
     g.clear()
 
-    --drawing of scroll_tip_text
+    --drawing scroll_tip_text
     g.setColor(pviewer.scroll_tip_text_color)
     g.setFont(pviewer.scrool_tip_font)
     g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + border / 2, r.x2 - r.x1, "center")
     -- 
 
-    --drawing of header fo chart
-    g.setColor(pviewer.scroll_tip_text_color)
-    g.setFont(pviewer.scrool_tip_font)
-    g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + border / 2, r.x2 - r.x1, "center")
+    --drawing chart header
+    g.setColor(pviewer.header_color)
+    g.setFont(pviewer.font)
+    g.printf("date / hits", r.x1, r.y1 - border / 2, r.x2 - r.x1, "center")
     -- 
 
-    --drawing of chart list
+    --drawing chart list
     g.setFont(pviewer.font)
     g.setColor(pviewer.chart_color)
     --g.setScissor(unpack(r))
     local y = r.y1
     for k, v in ipairs(pviewer.data) do
-        local s = string.format("%d.%d.%d %d", 
+        local s = string.format("%.2d.%.2d.%d %d", 
             v.date.day,
             v.date.month,
             v.date.year,
