@@ -134,7 +134,7 @@ function draw_chart()
     g.setColor(pviewer.header_color)
 
     for k, v in ipairs(pviewer.data) do
-        s = " / "
+        s = "  /  "
         g.print(s, 0 + deltax, y)
         y = y + pviewer.font:getHeight()
     end
@@ -144,7 +144,7 @@ function draw_chart()
     local y = pviewer.border
 
     for k, v in ipairs(pviewer.data) do
-        s = string.format("%.2d", v.stat.hits)
+        s = string.format("%.2d %%", v.stat.hits)
         g.print(s, 0 + deltax, y)
         y = y + pviewer.font:getHeight()
     end
@@ -169,7 +169,7 @@ function pviewer.draw()
     --drawing chart header
     g.setColor(pviewer.header_color)
     g.setFont(pviewer.font)
-    g.printf("date / hits", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    g.printf("date / rating", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
     --drawing chart
@@ -177,7 +177,7 @@ function pviewer.draw()
     pviewer.rt:clear()
     draw_chart()
     g.setCanvas()
-    g.draw(pviewer.rt, (w - pviewer.font:getWidth("11.09.2015 / 00")) / 2, 0)
+    g.draw(pviewer.rt, (w - pviewer.font:getWidth("11.09.2015  /  00 %")) / 2, 0)
     --
 
     g.pop()
