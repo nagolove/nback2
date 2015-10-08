@@ -376,9 +376,8 @@ function nback.stop()
         if data ~= nil then
             history = lume.deserialize(data)
         end
-        local add = { date = os.date("*t"), stat = nback.statistic }
         --print("history", inspect(history))
-        table.insert(history, add)
+        table.insert(history, { date = os.date("*t"), stat = nback.statistic })
         love.filesystem.write(nback.save_name, lume.serialize(history))
     end
 end
@@ -401,6 +400,8 @@ function nback.keypressed(key)
         nback.change_sound()
     elseif key == "a" then
         nback.check_position()
+    elseif key == "l" then
+        nback.check_sound()
     end
 end
 
@@ -423,6 +424,9 @@ function nback.check_position()
             end
         end
     end
+end
+
+function nback.check_sound()
 end
 
 function nback.draw()
