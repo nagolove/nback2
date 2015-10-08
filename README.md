@@ -1,6 +1,6 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is a [nback](https://en.wikipedia.org/wiki/N-back) training game.
 
 ### What is this repository for? ###
 
