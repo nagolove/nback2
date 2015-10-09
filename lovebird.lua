@@ -9,7 +9,7 @@
 
 local socket = require "socket"
 
-local lovebird = { _version = "0.3.0" }
+local lovebird = { _version = "0.4.0" }
 
 lovebird.loadstring = loadstring or load
 lovebird.inited = false
@@ -36,6 +36,9 @@ if req.parsedbody.input then
   local str = req.parsedbody.input
   if lovebird.echoinput then
     lovebird.pushline({ type = 'input', str = str })
+  end
+  if str:find("^=") then
+    str = "print(" .. str:sub(2) .. ")"
   end
   xpcall(function() assert(lovebird.loadstring(str, "input"))() end,
          lovebird.onerror)
