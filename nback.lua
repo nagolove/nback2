@@ -35,7 +35,13 @@ local nback = {
 
 function nback.start()
     nback.is_run = true
-    nback.pos_signals = nback.generate_pos(nback.sig_count)
+    nback.pos_signals = generate_nback(nback.sig_count, 
+        function()
+            return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
+        end,
+        function(a, b)
+            return  a[1] == b[1] and a[2] == b[2]
+        end)
     print(inspect(nback.pos_signals))
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
@@ -59,19 +65,7 @@ function nback.change_sound()
     nback.use_sound = not nback.use_sound
 end
 
-function nback.gen_tuple()
-    return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
-end
-
-function nback.generate_sound(sig_count)
-    ret = {}
-
-    return ret
-end
-
---function generate_nback(ratio, rand_range, sig_count, ge
-
-function nback.generate_pos(sig_count)
+function generate_nback(sig_count, gen, cmp)
     local ret = {}
     local ratio = 4
     local range = {1, 3}
@@ -89,7 +83,7 @@ function nback.generate_pos(sig_count)
                 prob = math.random(unpack(range))
                 if prob == range[2] then
                     if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
-                        ret[i] = nback.gen_tuple()
+                        ret[i] = gen()
                         ret[i + nback.level] = lume.clone(ret[i])
                         count = count - 1
                     end
@@ -102,10 +96,8 @@ function nback.generate_pos(sig_count)
     for i = 1, #ret, 1 do
         if ret[i] == null then
             repeat
-                ret[i] = nback.gen_tuple()
-            until not (i + nback.level <= #ret and 
-                    ret[i][1] == ret[i + nback.level][1] and 
-                    ret[i][2] == ret[i + nback.level][2])
+                ret[i] = gen()
+            until not (i + nback.level <= #ret and cmp(ret[i], ret[i + nback.level]))
         end
     end
 
