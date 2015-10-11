@@ -76,9 +76,10 @@ function nback.generate_pos(sig_count)
     local ratio = 4
     local range = {1, 3}
     local count = sig_count
+    local null = {}
 
     for i = 1, ratio * sig_count, 1 do
-        table.insert(ret, {-1, -1})
+        table.insert(ret, null)
     end
 
     repeat
@@ -87,7 +88,7 @@ function nback.generate_pos(sig_count)
             if count > 0 then
                 prob = math.random(unpack(range))
                 if prob == range[2] then
-                    if i + nback.level <= #ret and ret[i][1] == -1 and ret[i + nback.level][1] == -1 then
+                    if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
                         ret[i] = nback.gen_tuple()
                         ret[i + nback.level] = lume.clone(ret[i])
                         count = count - 1
@@ -99,7 +100,7 @@ function nback.generate_pos(sig_count)
     until count == 0
 
     for i = 1, #ret, 1 do
-        if ret[i][1] == -1 then
+        if ret[i] == null then
             repeat
                 ret[i] = nback.gen_tuple()
             until not (i + nback.level <= #ret and 
