@@ -17,12 +17,12 @@ end
 
 function menu.play()
     nback.enter()
-    current_state = nback
+    states.push(nback)
 end
 
 function menu.view_progress()
     pviewer.load()
-    current_state = pviewer
+    states.push(pviewer)
 end
 
 function menu.quit()
@@ -30,7 +30,7 @@ function menu.quit()
 end
 
 function menu.help()
-    current_state = help
+    states.push(help)
 end
 
 function menu.keypressed(key)

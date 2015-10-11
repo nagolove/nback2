@@ -103,7 +103,7 @@ end
 
 function pviewer.keypressed(key)
     if key == "escape" then
-        current_state = menu
+        states.pop()
     end
 end
 

@@ -30,7 +30,7 @@ end
 
 function help.keypressed(key)
     if key == "escape" then
-        current_state = menu
+        states.pop()
     end
 end
 

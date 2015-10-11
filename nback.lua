@@ -161,7 +161,7 @@ end
 
 function nback.quit()
     nback.stop()
-    current_state = menu
+    states.pop()
 end
 
 function nback.keypressed(key)

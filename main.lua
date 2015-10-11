@@ -8,7 +8,21 @@ local lume = require "lume"
 local lovebird = require "lovebird"
 local tween = require "tween"
 
-current_state = {}
+states = {
+    a = {}
+}
+
+function states.push(s)
+    states.a[#states.a + 1] = s
+end
+
+function states.pop()
+    states.a[#states.a] = nil
+end
+
+function states.top()
+    return states.a[#states.a]
+end
 
 local nback = require "nback"
 local menu = require "menu"
@@ -24,18 +38,18 @@ function love.load()
     pviewer.load()
     help.load()
 
-    current_state = menu
+    states.push(menu)
 end
 
 function love.update()
     lovebird.update()
-    current_state.update()
+    states.top().update()
 end
 
 function love.keypressed(key)
-    current_state.keypressed(key)
+    states.top().keypressed(key)
 end
 
 function love.draw()
-    current_state.draw()
+    states.top().draw()
 end
