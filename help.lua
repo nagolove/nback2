@@ -4,7 +4,7 @@
 }
 
 function help.load()
-    help.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
+    help.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15)
 end
 
 function help.draw()

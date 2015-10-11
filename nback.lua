@@ -33,6 +33,18 @@ local nback = {
     sounds = {},
 }
 
+function nback.start()
+    nback.is_run = true
+    nback.pos_signals = nback.generate_pos(nback.sig_count)
+    print(inspect(nback.pos_signals))
+    nback.current_sig = 1
+    nback.timestamp = love.timer.getTime()
+    nback.central_text = ""
+    nback.use_sound_text = ""
+    nback.statistic.hits  = 0
+    nback.show_statistic = false
+end
+
 function nback.enter()
     nback.central_text = "Press Space to new round"
     nback.change_sound();
@@ -130,18 +142,6 @@ function nback.update()
             nback.stop()
         end
     end
-end
-
-function nback.start()
-    nback.is_run = true
-    nback.pos_signals = nback.generate_pos(nback.sig_count)
-    print(inspect(nback.pos_signals))
-    nback.current_sig = 1
-    nback.timestamp = love.timer.getTime()
-    nback.central_text = ""
-    nback.use_sound_text = ""
-    nback.statistic.hits  = 0
-    nback.show_statistic = false
 end
 
 function nback.stop()
