@@ -35,6 +35,7 @@ local nback = {
 
 function nback.start()
     nback.is_run = true
+
     nback.pos_signals = generate_nback(nback.sig_count, 
         function()
             return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
@@ -43,6 +44,16 @@ function nback.start()
             return  a[1] == b[1] and a[2] == b[2]
         end)
     print(inspect(nback.pos_signals))
+
+    nback.sound_signals = generate_nback(nback.sig_count, 
+        function()
+            return math.random(1, #nback.sounds)
+        end,
+        function(a, b)
+            return a == b
+        end)
+    print(inspect(nback.sound_signals))
+
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
     nback.central_text = ""
@@ -84,7 +95,11 @@ function generate_nback(sig_count, gen, cmp)
                 if prob == range[2] then
                     if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
                         ret[i] = gen()
-                        ret[i + nback.level] = lume.clone(ret[i])
+                        if type(ret[i]) == "table" then
+                            ret[i + nback.level] = lume.clone(ret[i])
+                        else
+                            ret[i + nback.level] = ret[i]
+                        end
                         count = count - 1
                     end
                 end
