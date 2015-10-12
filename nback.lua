@@ -43,7 +43,6 @@ function nback.start()
         function(a, b)
             return  a[1] == b[1] and a[2] == b[2]
         end)
-    print(inspect(nback.pos_signals))
 
     nback.sound_signals = generate_nback(nback.sig_count, 
         function()
@@ -52,7 +51,6 @@ function nback.start()
         function(a, b)
             return a == b
         end)
-    print(inspect(nback.sound_signals))
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
