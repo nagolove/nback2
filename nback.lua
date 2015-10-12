@@ -20,7 +20,7 @@ local nback = {
     sig_count = 3,                                  -- number of signals.
     level = 2,
     is_run = false,
-    pause_time = 0.1,                               -- delay beetween signals, in seconds
+    pause_time = 1.5,                               -- delay beetween signals, in seconds
     central_text = "",
     use_sound_text = "",
     use_sound = true,
@@ -136,9 +136,14 @@ function nback.update()
         time = love.timer.getTime()
         if (time - nback.timestamp >= nback.pause_time) then
             nback.timestamp = love.timer.getTime()
+
             if (nback.current_sig <= #nback.pos_signals) then
                 nback.current_sig = nback.current_sig + 1
                 nback.can_press = true
+            end
+            
+            if nback.use_sound then
+                nback.sounds[nback.sound_signals[nback.current_sig]]:play()
             end
         end
 
@@ -210,6 +215,18 @@ function nback.check_position()
 end
 
 function nback.check_sound()
+    if not nback.is_run then return end
+
+    if nback.current_sig - nback.level > 1 then
+        if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
+            if nback.can_press then
+                print("sound hit!")
+                print(nback.statistic.hits )
+                nback.statistic.hits  = nback.statistic.hits  + 1
+                nback.can_press = false
+            end
+        end
+    end
 end
 
 function nback.draw()
