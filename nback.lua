@@ -185,6 +185,14 @@ function nback.keypressed(key)
     elseif key == "l" then
         nback.check_sound()
     end
+
+    if not nback.is_run then
+        if key == "left" and nback.level > 2 then
+            nback.level = nback.level - 1
+        elseif key == "right" and nback.level < 8 then
+            nback.level = nback.level + 1
+        end
+    end
 end
 
 function tuple_cmp(a, b)
@@ -264,6 +272,16 @@ function nback.draw()
         y = y0 - nback.font:getHeight()
         g.print(text, x, y)
         --
+    else
+        --draw nback level setup invitation
+        g.setFont(nback.font)
+        --FIXME Dissonance with color and variable name
+        g.setColor(colors.sound_text_enabled) 
+        local y = 20
+        g.printf(string.format("nback level is %d", nback.level),
+            0, y, w, "center")
+        y = y + nback.font:getHeight()
+        g.printf("Use ←→ arrows to setup", 0, y, w, "center")
     end
 
     -- draw central_text - Press Space key
