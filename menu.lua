@@ -2,11 +2,10 @@
 local nback = require "nback"
 local help = require "help"
 
+local colors = require "colors"
+
 local menu = {
-    active_color = {255, 255, 255, 255},
-    inactive_color = {100, 200, 70, 255},
     active_item = 1,
-    background_color = {20, 40, 80, 255},
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32),
 }
 
@@ -64,14 +63,14 @@ function menu.draw()
     y = (h - #menu.items * menu.font:getHeight()) / 2
 
     g.setFont(menu.font)
-    g.setBackgroundColor(menu.background_color)
+    g.setBackgroundColor(colors.background)
     g.clear()
 
     for i, k in ipairs(menu.items) do
         if (menu.active_item == i) then
-            g.setColor(menu.inactive_color)
+            g.setColor(colors.inactive)
         else
-            g.setColor(menu.active_color)
+            g.setColor(colors.active)
         end
         g.printf(k, 0, y, w, "center")
         y = y + menu.font:getHeight()

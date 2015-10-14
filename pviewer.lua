@@ -2,13 +2,11 @@
 local nback = require "nback"
 local lume = require "lume"
 
+local colors = require "colors"
+
 local pviewer = {
-    background_color = {20, 40, 80, 255},
-    scroll_tip_text_color = {0, 240, 0, 255},
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
-    header_color = {255, 255, 0, 255},
     header_text = "", 
-    chart_color = {200, 80, 80, 255},
     data = {},
     border = 80, --border in pixels for drawing chart
     update = function() end,
@@ -30,7 +28,7 @@ function draw_chart()
     local g = love.graphics
 
     g.setFont(pviewer.font)
-    g.setColor(pviewer.chart_color)
+    g.setColor(colors.chart)
     
     local y = pviewer.border
     local s
@@ -46,7 +44,7 @@ function draw_chart()
 
     local deltax = pviewer.font:getWidth(s)
     local y = pviewer.border
-    g.setColor(pviewer.header_color)
+    g.setColor(colors.header)
 
     for k, v in ipairs(pviewer.data) do
         s = "  /  "
@@ -55,7 +53,7 @@ function draw_chart()
     end
 
     deltax = deltax + pviewer.font:getWidth(s)
-    g.setColor(pviewer.chart_color)
+    g.setColor(colors.chart)
     local y = pviewer.border
 
     for k, v in ipairs(pviewer.data) do
@@ -72,17 +70,17 @@ function pviewer.draw()
 
     g.push("all")
 
-    g.setBackgroundColor(pviewer.background_color)
+    g.setBackgroundColor(colors.background)
     g.clear()
 
     --drawing scroll_tip_text
-    g.setColor(pviewer.scroll_tip_text_color)
+    g.setColor(colors.scroll_tip_text)
     g.setFont(pviewer.scrool_tip_font)
     g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
     --drawing chart header
-    g.setColor(pviewer.header_color)
+    g.setColor(colors.header)
     g.setFont(pviewer.font)
     g.printf("date / rating", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
