@@ -31,6 +31,9 @@ local nback = {
     },
     show_statistic = false,
     sounds = {},
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
+    central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
+    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
 }
 
 function nback.start()
@@ -120,9 +123,6 @@ function generate_nback(sig_count, gen, cmp)
 end
 
 function nback.load()
-    nback.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
-    nback.central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42)
-    nback.statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20)
     math.randomseed(os.time())
 
     wave_path = "sfx/alphabet/"

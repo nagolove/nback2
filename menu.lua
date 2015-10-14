@@ -7,10 +7,10 @@ local menu = {
     inactive_color = {100, 200, 70, 255},
     active_item = 1,
     background_color = {20, 40, 80, 255},
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32),
 }
 
 function menu.load()
-    menu.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32)
     menu.items = {"play", "view progress", "help", "quit"}
     menu.actions = { menu.play, menu.view_progress, menu.help, menu.quit }
 end

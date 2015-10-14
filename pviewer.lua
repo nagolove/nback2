@@ -11,19 +11,16 @@ local pviewer = {
     chart_color = {200, 80, 80, 255},
     data = {},
     border = 80, --border in pixels for drawing chart
+    update = function() end,
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
+    scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
 }
-
-function pviewer.update()
-end
 
 function pviewer.load()
     local tmp, size = love.filesystem.read(nback.save_name)
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
     end
-
-    pviewer.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
-    pviewer.scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13)
     print(inspect(pviewer.data))
 
     pviewer.rt = love.graphics.newCanvas(love.graphics.getDimensions())
