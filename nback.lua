@@ -5,15 +5,9 @@ local os = require "os"
 local string = require "string"
 local table = require "table"
 
+local colors = require "colors"
+
 local nback = {
-    -- colors section
-    background_color = {20, 40, 80, 255},
-    field_color = {20, 80, 80, 255},
-    pos_color = {200, 80, 80, 255},
-    sound_text_color_disabled = {255, 255, 0, 255},
-    sound_text_color_enabled = {0, 240, 0, 255},
-    statistic_color = {0, 240, 0, 255},
-    -- end of colors section
     dim = 5,
     cell_width = 90,                                -- width of game field in pixels
     current_sig = 1,
@@ -217,7 +211,7 @@ end
 function nback.check_sound()
     if not nback.is_run then return end
 
-    if nback.current_sig - nback.level > 1 then
+    if nback.use_sound and nback.current_sig - nback.level > 1 then
         if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
             if nback.can_press then
                 print("sound hit!")
@@ -238,12 +232,12 @@ function nback.draw()
     g.push("all")
 
     --draw background
-    g.setBackgroundColor(nback.background_color)
+    g.setBackgroundColor(colors.background)
     g.clear()
     --
 
     --draw game field grid
-    g.setColor(nback.field_color)
+    g.setColor(colors.field)
     for i = 0, nback.dim, 1 do
         g.line(x0, y0 + i * nback.cell_width, 
             x0 + nback.dim * nback.cell_width, y0 + i * nback.cell_width)
@@ -254,7 +248,7 @@ function nback.draw()
 
     if nback.is_run then
         -- draw active signal quad
-        g.setColor(nback.pos_color)
+        g.setColor(colors.signal)
         local x, y = unpack(nback.pos_signals[nback.current_sig])
         border = 5
         g.rectangle("fill", x0 + x * nback.cell_width + border, 
@@ -264,7 +258,7 @@ function nback.draw()
 
         --draw upper text - progress of evaluated signals
         g.setFont(nback.font)
-        g.setColor(nback.pos_color)
+        g.setColor(colors.signal)
         text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
         x = (w - nback.font:getWidth(text)) / 2
         y = y0 - nback.font:getHeight()
@@ -274,7 +268,7 @@ function nback.draw()
 
     -- draw central_text - Press Space key
     g.setFont(nback.central_font)
-    g.setColor(nback.pos_color)
+    g.setColor(colors.signal)
     x = (w - nback.central_font:getWidth(nback.central_text)) / 2
     y = (h - nback.central_font:getHeight()) / 2
     g.print(nback.central_text, x, y)
@@ -284,7 +278,7 @@ function nback.draw()
     if not nback.use_sound then
         -- draw with disabled color
         g.setFont(nback.font)
-        g.setColor(nback.sound_text_color_disabled)
+        g.setColor(colors.sound_text_disabled)
         x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
         local field_h = nback.dim * nback.cell_width
         y = y0 + field_h + nback.font:getHeight()
@@ -293,7 +287,7 @@ function nback.draw()
     else
         -- draw with enabled color
         g.setFont(nback.font)
-        g.setColor(nback.sound_text_color_enabled)
+        g.setColor(colors.sound_text_enabled)
         x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
         local field_h = nback.dim * nback.cell_width
         y = y0 + field_h + nback.font:getHeight()
@@ -305,7 +299,7 @@ function nback.draw()
     -- draw statistic of a set
     if nback.show_statistic then
         g.setFont(nback.statistic_font)
-        g.setColor(nback.statistic_color)
+        g.setColor(colors.statistic)
 
         y = y0 + nback.statistic_font:getHeight()
         g.printf(string.format("Set results:"), 0, y, w, "center")
