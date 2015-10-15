@@ -63,6 +63,8 @@ function nback.enter()
 end
 
 function nback.change_sound()
+    if nback.is_run then return end
+
     if nback.use_sound then
         nback.use_sound_text = "For enable sound - press S"
     else
@@ -293,24 +295,26 @@ function nback.draw()
     --
 
     -- draw use_sound_text
-    if not nback.use_sound then
-        -- draw with disabled color
-        g.setFont(nback.font)
-        g.setColor(colors.sound_text_disabled)
-        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        local field_h = nback.dim * nback.cell_width
-        y = y0 + field_h + nback.font:getHeight()
-        g.print(nback.use_sound_text, x, y)
-        --
-    else
-        -- draw with enabled color
-        g.setFont(nback.font)
-        g.setColor(colors.sound_text_enabled)
-        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        local field_h = nback.dim * nback.cell_width
-        y = y0 + field_h + nback.font:getHeight()
-        g.print(nback.use_sound_text, x, y)
-        --
+    if not nback.is_run then
+        if nback.use_sound then
+            -- draw with enabled color
+            g.setFont(nback.font)
+            g.setColor(colors.sound_text_enabled)
+            x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+            local field_h = nback.dim * nback.cell_width
+            y = y0 + field_h + nback.font:getHeight()
+            g.print(nback.use_sound_text, x, y)
+            --
+        else
+            -- draw with disabled color
+            g.setFont(nback.font)
+            g.setColor(colors.sound_text_disabled)
+            x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+            local field_h = nback.dim * nback.cell_width
+            y = y0 + field_h + nback.font:getHeight()
+            g.print(nback.use_sound_text, x, y)
+            --
+        end
     end
     --
 
