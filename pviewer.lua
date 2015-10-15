@@ -7,9 +7,11 @@ local colors = require "colors"
 local pviewer = {
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
     header_text = "", 
-    data = {},
+    data = {}, -- games history which loading from file
     border = 80, --border in pixels for drawing chart
+
     update = function() end,
+
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
     scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
 }
@@ -82,7 +84,7 @@ function pviewer.draw()
     --drawing chart header
     g.setColor(colors.header)
     g.setFont(pviewer.font)
-    g.printf("date / rating", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    g.printf("date / nlevel/ rating / with sound", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
     --drawing chart

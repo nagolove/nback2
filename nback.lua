@@ -161,7 +161,10 @@ function nback.stop()
             history = lume.deserialize(data)
         end
         --print("history", inspect(history))
-        table.insert(history, { date = os.date("*t"), stat = nback.statistic })
+        table.insert(history, { date = os.date("*t"), 
+                                stat = nback.statistic,
+                                nlevel = nback.level,
+                                use_sound = nback.use_sound})
         love.filesystem.write(nback.save_name, lume.serialize(history))
     end
 end
