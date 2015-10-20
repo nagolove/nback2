@@ -27,14 +27,29 @@ function pviewer.load()
 end
 
 function draw_chart()
+
+    local s
+    local deltax = 0
+    local y = pviewer.border
     local g = love.graphics
+
+    function draw_slash()
+        g.setColor(colors.header)
+        
+        deltax = pviewer.font:getWidth(s)
+        y = pviewer.border
+
+        for k, v in ipairs(pviewer.data) do
+            s = "  /  "
+            g.print(s, 0 + deltax, y)
+            y = y + pviewer.font:getHeight()
+        end
+    end
 
     g.setFont(pviewer.font)
     g.setColor(colors.chart)
-    
-    local y = pviewer.border
-    local s
 
+    -- draw date column
     for k, v in ipairs(pviewer.data) do
         s = string.format("%.2d.%.2d.%d", 
         v.date.day,
@@ -43,26 +58,23 @@ function draw_chart()
         g.print(s, 0, y)
         y = y + pviewer.font:getHeight()
     end
+    --
+    
+    draw_slash()
 
-    local deltax = pviewer.font:getWidth(s)
-    local y = pviewer.border
-    g.setColor(colors.header)
-
-    for k, v in ipairs(pviewer.data) do
-        s = "  /  "
-        g.print(s, 0 + deltax, y)
-        y = y + pviewer.font:getHeight()
-    end
-
+    -- draw rating column
     deltax = deltax + pviewer.font:getWidth(s)
     g.setColor(colors.chart)
-    local y = pviewer.border
+    y = pviewer.border
 
     for k, v in ipairs(pviewer.data) do
         s = string.format("%.2d %%", v.stat.hits)
         g.print(s, 0 + deltax, y)
         y = y + pviewer.font:getHeight()
     end
+    --
+
+    draw_slash()
 end
 
 function pviewer.draw()

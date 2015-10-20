@@ -11,7 +11,7 @@ local nback = {
     dim = 5,
     cell_width = 90,                                -- width of game field in pixels
     current_sig = 1,
-    sig_count = 3,                                  -- number of signals.
+    sig_count = 6,                                  -- number of signals.
     level = 2,
     is_run = false,
     pause_time = 1.5,                               -- delay beetween signals, in seconds
@@ -40,6 +40,7 @@ function nback.start()
         function(a, b)
             return  a[1] == b[1] and a[2] == b[2]
         end)
+    print("pos", inspect(nback.pos_signals))
 
     nback.sound_signals = generate_nback(nback.sig_count, 
         function()
@@ -48,6 +49,7 @@ function nback.start()
         function(a, b)
             return a == b
         end)
+    print("snd", inspect(nback.sound_signals))
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
@@ -112,8 +114,6 @@ function generate_nback(sig_count, gen, cmp)
             until not (i + nback.level <= #ret and cmp(ret[i], ret[i + nback.level]))
         end
     end
-
-    print("positions", inspect(ret))
 
     return ret
 end
@@ -330,9 +330,8 @@ function nback.draw()
         g.printf(string.format("Set results:"), 0, y, w, "center")
 
         y = y + nback.statistic_font:getHeight()
-        local percent = nback.statistic.hits  / nback.sig_count * 100
-        g.printf(string.format("hits %d/%d successful %d%%", nback.statistic.hits ,
-            nback.sig_count, percent), 0, y, w, "center")
+        local percent = nback.sig_count / nback.statistic.hits * 100
+        g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
     end
     --
 
