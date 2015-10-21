@@ -64,15 +64,15 @@ function draw_chart()
     end)
     draw_slash()
     draw_column(colors.chart, function(k, v)
+        return string.format("%.2d%%", v.stat.hits)
+    end)
+    draw_slash()
+    draw_column(colors.chart, function(k, v)
         if v.use_sound then
             return "yes"
         else
             return "no"
         end
-    end)
-    draw_slash()
-    draw_column(colors.chart, function(k, v)
-        return string.format("%.2d %%", v.stat.hits)
     end)
 
     return deltax
