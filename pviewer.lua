@@ -9,6 +9,7 @@ local pviewer = {
     header_text = "", 
     data = {}, -- games history which loading from file
     border = 80, --y axis border in pixels for drawing chart
+    scrollx = 0,
 
     update = function() end,
 
@@ -21,7 +22,7 @@ function pviewer.load()
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
     end
-    print(inspect(pviewer.data))
+    --print(inspect(pviewer.data))
 
     pviewer.rt = love.graphics.newCanvas(love.graphics.getDimensions())
 end
@@ -104,8 +105,11 @@ function pviewer.draw()
     g.setCanvas(pviewer.rt)
     pviewer.rt:clear()
     local chart_width = draw_chart()
+    local x = (w - chart_width) / 2
     g.setCanvas()
-    g.draw(pviewer.rt, (w - chart_width) / 2, pviewer.border)
+    g.setScissor(x, pviewer.border, chart_width, h - 2 * pviewer.border)
+    g.draw(pviewer.rt, x, pviewer.border + pviewer.scrollx)
+    g.setScissor()
     --
 
     g.pop()
@@ -114,6 +118,16 @@ end
 function pviewer.keypressed(key)
     if key == "escape" then
         states.pop()
+    elseif key == "up" then
+        local t = pviewer.scrollx - pviewer.font:getHeight() 
+        local l = (#pviewer.data - 3) 
+        --local l = math.max(#pviewer.data - 3, #pviewer.data)
+        if t >= - l * pviewer.font:getHeight() then
+            pviewer.scrollx = t
+        end
+        print("scrollx", pviewer.scrollx)
+    elseif key == "down" then
+        pviewer.scrollx = pviewer.scrollx + pviewer.font:getHeight()
     end
 end
 
