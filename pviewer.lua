@@ -12,7 +12,7 @@ local pviewer = {
 
     update = function() end,
 
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
     scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
 }
 
@@ -26,16 +26,15 @@ function pviewer.load()
     pviewer.rt = love.graphics.newCanvas(love.graphics.getDimensions())
 end
 
-function draw_chart2()
+function draw_chart()
 
     local deltax = 0
     local g = love.graphics
 
     function draw_column(color, func)
-
         g.setFont(pviewer.font)
         g.setColor(color)
-
+        --g.setColor(colors.header)
         local dx = 0
         local y = 0
         for k, v in ipairs(pviewer.data) do
@@ -58,6 +57,18 @@ function draw_chart2()
         v.date.day,
         v.date.month,
         v.date.year)
+    end)
+    draw_slash()
+    draw_column(colors.chart, function(k, v)
+        return string.format("%d", v.nlevel)
+    end)
+    draw_slash()
+    draw_column(colors.chart, function(k, v)
+        if v.use_sound then
+            return "yes"
+        else
+            return "no"
+        end
     end)
     draw_slash()
     draw_column(colors.chart, function(k, v)
@@ -86,13 +97,13 @@ function pviewer.draw()
     --drawing chart header
     g.setColor(colors.header)
     g.setFont(pviewer.font)
-    g.printf("date / nlevel/ rating / with sound", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    g.printf("date / nlevel / rating / with sound", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
     --drawing chart
     g.setCanvas(pviewer.rt)
     pviewer.rt:clear()
-    local chart_width = draw_chart2()
+    local chart_width = draw_chart()
     g.setCanvas()
     g.draw(pviewer.rt, (w - chart_width) / 2, pviewer.border)
     --
