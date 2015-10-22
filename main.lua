@@ -1,12 +1,4 @@
-﻿local math = require "math"
-local os = require "os"
-local table = require "table"
-local string = require "string"
-local debug = require "debug"
-local inspect = require "inspect"
-local lume = require "lume"
-local lovebird = require "lovebird"
-local tween = require "tween"
+﻿local lovebird = require "lovebird"
 
 states = {
     a = {}
@@ -31,6 +23,8 @@ local help = require "help"
 
 function love.load()
     lovebird.update()
+    lovebird.maxlines = 500
+
     love.window.setTitle("nback trainer!")
 
     menu.load()
@@ -41,9 +35,9 @@ function love.load()
     states.push(menu)
 end
 
-function love.update()
+function love.update(dt)
     lovebird.update()
-    states.top().update()
+    states.top().update(dt)
 end
 
 function love.keypressed(key)
