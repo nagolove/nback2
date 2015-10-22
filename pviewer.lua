@@ -11,8 +11,6 @@ local pviewer = {
     border = 80, --y axis border in pixels for drawing chart
     scrollx = 0,
 
-    update = function() end,
-
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
     scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
 }
@@ -118,16 +116,22 @@ end
 function pviewer.keypressed(key)
     if key == "escape" then
         states.pop()
-    elseif key == "up" then
+    end
+end
+
+function pviewer.update(dt)
+    local kb = love.keyboard
+    local l = #pviewer.data / 2
+    if kb.isDown("up") then
         local t = pviewer.scrollx - pviewer.font:getHeight() 
-        local l = (#pviewer.data - 3) 
-        --local l = math.max(#pviewer.data - 3, #pviewer.data)
         if t >= - l * pviewer.font:getHeight() then
             pviewer.scrollx = t
         end
-        print("scrollx", pviewer.scrollx)
-    elseif key == "down" then
-        pviewer.scrollx = pviewer.scrollx + pviewer.font:getHeight()
+    elseif kb.isDown("down") then
+        local t = pviewer.scrollx + pviewer.font:getHeight() 
+        if t <= l * pviewer.font:getHeight() then
+            pviewer.scrollx = t
+        end
     end
 end
 
