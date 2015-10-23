@@ -182,6 +182,7 @@ function nback.keypressed(key)
             nback.start()
         else
             nback.stop()
+            nback.enter()
         end
     elseif key == "s" then
         nback.change_sound()
@@ -241,6 +242,20 @@ function nback.draw()
     local w, h = g.getDimensions()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
+
+    function draw_statistic()
+        if nback.show_statistic then
+            g.setFont(nback.statistic_font)
+            g.setColor(colors.statistic)
+
+            y = y0 + nback.statistic_font:getHeight()
+            g.printf(string.format("Set results:"), 0, y, w, "center")
+
+            y = y + nback.statistic_font:getHeight()
+            local percent = nback.sig_count / nback.statistic.hits * 100
+            g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
+        end
+    end
 
     g.push("all")
 
@@ -321,19 +336,7 @@ function nback.draw()
     end
     --
 
-    -- draw statistic of a set
-    if nback.show_statistic then
-        g.setFont(nback.statistic_font)
-        g.setColor(colors.statistic)
-
-        y = y0 + nback.statistic_font:getHeight()
-        g.printf(string.format("Set results:"), 0, y, w, "center")
-
-        y = y + nback.statistic_font:getHeight()
-        local percent = nback.sig_count / nback.statistic.hits * 100
-        g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
-    end
-    --
+    draw_statistic()
 
     g.pop()
 end
