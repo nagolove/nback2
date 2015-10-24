@@ -85,11 +85,6 @@ function nback.start()
     nback.show_statistic = false
 end
 
-function nback.enter()
-    nback.central_text = "Press Space to new round"
-    nback.change_sound();
-end
-
 function nback.change_sound()
     if nback.is_run then return end
 
@@ -173,26 +168,33 @@ function nback.update()
             nback.central_text = "Press Space to new round"
             nback.show_statistic = true
             nback.stop()
+            nback.write()
+            nback.prepare()
         end
     end
 end
 
+function nback.prepare()
+    nback.central_text = "Press Space to new round"
+    nback.change_sound();
+end
+
+function nback.write()
+    local data, size = love.filesystem.read(nback.save_name)
+    local history = {}
+    if data ~= nil then
+        history = lume.deserialize(data)
+    end
+    --print("history", inspect(history))
+    table.insert(history, { date = os.date("*t"), 
+    stat = nback.statistic,
+    nlevel = nback.level,
+    use_sound = nback.use_sound})
+    love.filesystem.write(nback.save_name, lume.serialize(history))
+end
+
 function nback.stop()
     nback.is_run = false
-
-    if nback.pos_signals and nback.current_sig == #nback.pos_signals then
-        local data, size = love.filesystem.read(nback.save_name)
-        local history = {}
-        if data ~= nil then
-            history = lume.deserialize(data)
-        end
-        --print("history", inspect(history))
-        table.insert(history, { date = os.date("*t"), 
-                                stat = nback.statistic,
-                                nlevel = nback.level,
-                                use_sound = nback.use_sound})
-        love.filesystem.write(nback.save_name, lume.serialize(history))
-    end
 end
 
 function nback.quit()
@@ -208,7 +210,7 @@ function nback.keypressed(key)
             nback.start()
         else
             nback.stop()
-            nback.enter()
+            nback.prepare()
         end
     elseif key == "s" then
         nback.change_sound()
@@ -360,19 +362,14 @@ function nback.draw()
         draw_upper_text()
     else
         draw_level_setup()
-    end
-
-    draw_central_text()
-
-    -- draw use_sound_text
-    if not nback.is_run then
         if nback.use_sound then
             draw_enabled_sound()
         else
             draw_disabled_sound()
         end
     end
-    --
+
+    draw_central_text()
 
     if nback.show_statistic then
         draw_statistic()

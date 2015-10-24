@@ -15,7 +15,7 @@ function menu.load()
 end
 
 function menu.play()
-    nback.enter()
+    nback.prepare()
     states.push(nback)
 end
 
