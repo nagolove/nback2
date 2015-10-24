@@ -2,7 +2,7 @@
 local nback = require "nback"
 local lume = require "lume"
 
-local colors = require "colors"
+local pallete = require "pallete"
 
 local pviewer = {
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
@@ -33,7 +33,7 @@ function draw_chart()
     function draw_column(color, func)
         g.setFont(pviewer.font)
         g.setColor(color)
-        --g.setColor(colors.header)
+        --g.setColor(pallete.header)
         local dx = 0
         local y = 0
         for k, v in ipairs(pviewer.data) do
@@ -46,27 +46,27 @@ function draw_chart()
     end
 
     function draw_slash()
-        draw_column(colors.header, function(k, v)
+        draw_column(pallete.header, function(k, v)
             return " / "
         end)
     end
 
-    draw_column(colors.chart, function(k, v)
+    draw_column(pallete.chart, function(k, v)
         return string.format("%.2d.%.2d.%d", 
         v.date.day,
         v.date.month,
         v.date.year)
     end)
     draw_slash()
-    draw_column(colors.chart, function(k, v)
+    draw_column(pallete.chart, function(k, v)
         return string.format("%d", v.nlevel)
     end)
     draw_slash()
-    draw_column(colors.chart, function(k, v)
+    draw_column(pallete.chart, function(k, v)
         return string.format("%.2d%%", v.stat.hits)
     end)
     draw_slash()
-    draw_column(colors.chart, function(k, v)
+    draw_column(pallete.chart, function(k, v)
         if v.use_sound then
             return "yes"
         else
@@ -84,17 +84,17 @@ function pviewer.draw()
 
     g.push("all")
 
-    g.setBackgroundColor(colors.background)
+    g.setBackgroundColor(pallete.background)
     g.clear()
 
     --drawing scroll_tip_text
-    g.setColor(colors.scroll_tip_text)
+    g.setColor(pallete.scroll_tip_text)
     g.setFont(pviewer.scrool_tip_font)
     g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
     --drawing chart header
-    g.setColor(colors.header)
+    g.setColor(pallete.header)
     g.setFont(pviewer.font)
     g.printf("date / nlevel / rating / with sound", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     -- 

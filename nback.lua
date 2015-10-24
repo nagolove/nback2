@@ -5,7 +5,30 @@ local os = require "os"
 local string = require "string"
 local table = require "table"
 
-local colors = require "colors"
+local pallete = require "pallete"
+
+state_stack = {}
+
+function state_stack:new()
+
+    local self = {
+        a = {}
+    }
+
+    function self:push(s)
+        self.a[#self.a + 1] = s
+    end
+
+    function self.pop()
+        self.a[#self.a] = nil
+    end
+
+    function self.top()
+        return self.a[#self.a]
+    end
+
+    return self
+end
 
 local nback = {
     dim = 5,
@@ -26,8 +49,11 @@ local nback = {
     show_statistic = false,
     sounds = {},
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
+
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+
+    to_draw = state_stack:new()
 }
 
 function nback.start()
@@ -244,99 +270,113 @@ function nback.draw()
     local y0 = (h - nback.dim * nback.cell_width) / 2
 
     function draw_statistic()
-        if nback.show_statistic then
-            g.setFont(nback.statistic_font)
-            g.setColor(colors.statistic)
+        g.setFont(nback.statistic_font)
+        g.setColor(pallete.statistic)
 
-            y = y0 + nback.statistic_font:getHeight()
-            g.printf(string.format("Set results:"), 0, y, w, "center")
+        y = y0 + nback.statistic_font:getHeight()
+        g.printf(string.format("Set results:"), 0, y, w, "center")
 
-            y = y + nback.statistic_font:getHeight()
-            local percent = nback.sig_count / nback.statistic.hits * 100
-            g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
+        y = y + nback.statistic_font:getHeight()
+        local percent = nback.sig_count / nback.statistic.hits * 100
+        g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
+    end
+
+    function draw_field()
+        g.setColor(pallete.field)
+        for i = 0, nback.dim, 1 do
+            g.line(x0, y0 + i * nback.cell_width, 
+            x0 + nback.dim * nback.cell_width, y0 + i * nback.cell_width)
+            g.line(x0 + i * nback.cell_width, y0,
+            x0 + i * nback.cell_width, y0 + nback.dim * nback.cell_width)
         end
     end
 
-    g.push("all")
-
-    --draw background
-    g.setBackgroundColor(colors.background)
-    g.clear()
-    --
-
-    --draw game field grid
-    g.setColor(colors.field)
-    for i = 0, nback.dim, 1 do
-        g.line(x0, y0 + i * nback.cell_width, 
-            x0 + nback.dim * nback.cell_width, y0 + i * nback.cell_width)
-        g.line(x0 + i * nback.cell_width, y0,
-            x0 + i * nback.cell_width, y0 + nback.dim * nback.cell_width)
+    function draw_upper_text()
+        g.setFont(nback.font)
+        g.setColor(pallete.signal)
+        text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
+        x = (w - nback.font:getWidth(text)) / 2
+        y = y0 - nback.font:getHeight()
+        g.print(text, x, y)
     end
-    --
 
-    if nback.is_run then
-        -- draw active signal quad
-        g.setColor(colors.signal)
+    function draw_active_quad()
+        g.setColor(pallete.signal)
         local x, y = unpack(nback.pos_signals[nback.current_sig])
         border = 5
         g.rectangle("fill", x0 + x * nback.cell_width + border, 
         y0 + y * nback.cell_width + border,
         nback.cell_width - border * 2, nback.cell_width - border * 2)
-        --
+    end
 
-        --draw upper text - progress of evaluated signals
-        g.setFont(nback.font)
-        g.setColor(colors.signal)
-        text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
-        x = (w - nback.font:getWidth(text)) / 2
-        y = y0 - nback.font:getHeight()
-        g.print(text, x, y)
-        --
-    else
-        --draw nback level setup invitation
+    function draw_level_setup()
         g.setFont(nback.font)
         --FIXME Dissonance with color and variable name
-        g.setColor(colors.sound_text_enabled) 
+        g.setColor(pallete.sound_text_enabled) 
         local y = 20
         g.printf(string.format("nback level is %d", nback.level),
-            0, y, w, "center")
+        0, y, w, "center")
         y = y + nback.font:getHeight()
         g.printf("Use ←→ arrows to setup", 0, y, w, "center")
     end
 
-    -- draw central_text - Press Space key
-    g.setFont(nback.central_font)
-    g.setColor(colors.signal)
-    x = (w - nback.central_font:getWidth(nback.central_text)) / 2
-    y = (h - nback.central_font:getHeight()) / 2
-    g.print(nback.central_text, x, y)
+    function draw_central_text()
+        g.setFont(nback.central_font)
+        g.setColor(pallete.signal)
+        x = (w - nback.central_font:getWidth(nback.central_text)) / 2
+        y = (h - nback.central_font:getHeight()) / 2
+        g.print(nback.central_text, x, y)
+    end
+
+    function draw_enabled_sound()
+        g.setFont(nback.font)
+        g.setColor(pallete.sound_text_enabled)
+        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+        local field_h = nback.dim * nback.cell_width
+        y = y0 + field_h + nback.font:getHeight()
+        g.print(nback.use_sound_text, x, y)
+    end
+
+    function draw_disabled_sound()
+        g.setFont(nback.font)
+        g.setColor(pallete.sound_text_disabled)
+        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+        local field_h = nback.dim * nback.cell_width
+        y = y0 + field_h + nback.font:getHeight()
+        g.print(nback.use_sound_text, x, y)
+    end
+
+    g.push("all")
+
+    --draw background
+    g.setBackgroundColor(pallete.background)
+    g.clear()
     --
+
+    draw_field()
+
+    if nback.is_run then
+        draw_active_quad()
+        draw_upper_text()
+    else
+        draw_level_setup()
+    end
+
+    draw_central_text()
 
     -- draw use_sound_text
     if not nback.is_run then
         if nback.use_sound then
-            -- draw with enabled color
-            g.setFont(nback.font)
-            g.setColor(colors.sound_text_enabled)
-            x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-            local field_h = nback.dim * nback.cell_width
-            y = y0 + field_h + nback.font:getHeight()
-            g.print(nback.use_sound_text, x, y)
-            --
+            draw_enabled_sound()
         else
-            -- draw with disabled color
-            g.setFont(nback.font)
-            g.setColor(colors.sound_text_disabled)
-            x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-            local field_h = nback.dim * nback.cell_width
-            y = y0 + field_h + nback.font:getHeight()
-            g.print(nback.use_sound_text, x, y)
-            --
+            draw_disabled_sound()
         end
     end
     --
 
-    draw_statistic()
+    if nback.show_statistic then
+        draw_statistic()
+    end
 
     g.pop()
 end
