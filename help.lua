@@ -17,7 +17,7 @@ function help.draw()
     g.setFont(help.font)
     local w, h = g.getDimensions()
     local y = 20
-    g.printf("Thhis is a bla-bla", 0, y, w, "center")
+    g.printf("This is a bla-bla", 0, y, w, "center")
     y = y + help.font:getHeight()
     g.printf("Put description here!", 0, y, w, "center")
 
