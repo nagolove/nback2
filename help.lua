@@ -1,4 +1,4 @@
-﻿local colors = require "colors"
+﻿local pallete = require "pallete"
 
 local help = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15),
@@ -11,7 +11,7 @@ function help.draw()
 
     g.push("all")
 
-    g.setBackgroundColor(colors.background)
+    g.setBackgroundColor(pallete.background)
     g.clear()
 
     g.setFont(help.font)
