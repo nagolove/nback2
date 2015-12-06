@@ -1,4 +1,4 @@
-﻿local pallete = require "pallete"
+﻿local colors = require "colors"
 
 local help = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15),
@@ -11,13 +11,13 @@ function help.draw()
 
     g.push("all")
 
-    g.setBackgroundColor(pallete.background)
+    g.setBackgroundColor(colors.background)
     g.clear()
 
     g.setFont(help.font)
     local w, h = g.getDimensions()
     local y = 20
-    g.printf("This is a bla-bla", 0, y, w, "center")
+    g.printf("Thhis is a bla-bla", 0, y, w, "center")
     y = y + help.font:getHeight()
     g.printf("Put description here!", 0, y, w, "center")
 

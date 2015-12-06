@@ -2,7 +2,7 @@
 local nback = require "nback"
 local help = require "help"
 
-local pallete = require "pallete"
+local colors = require "colors"
 
 local menu = {
     active_item = 1,
@@ -15,7 +15,7 @@ function menu.load()
 end
 
 function menu.play()
-    nback.prepare()
+    nback.enter()
     states.push(nback)
 end
 
@@ -63,14 +63,14 @@ function menu.draw()
     y = (h - #menu.items * menu.font:getHeight()) / 2
 
     g.setFont(menu.font)
-    g.setBackgroundColor(pallete.background)
+    g.setBackgroundColor(colors.background)
     g.clear()
 
     for i, k in ipairs(menu.items) do
         if (menu.active_item == i) then
-            g.setColor(pallete.inactive)
+            g.setColor(colors.inactive)
         else
-            g.setColor(pallete.active)
+            g.setColor(colors.active)
         end
         g.printf(k, 0, y, w, "center")
         y = y + menu.font:getHeight()

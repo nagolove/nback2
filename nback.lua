@@ -50,12 +50,9 @@ local nback = {
     show_statistic = false,
     sounds = {},
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
-
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
 
-    to_draw = state_stack:new(),
-    w, h = g.getDimensions(),
 }
 
 function nback.start()
@@ -85,6 +82,11 @@ function nback.start()
     nback.use_sound_text = ""
     nback.statistic.hits  = 0
     nback.show_statistic = false
+end
+
+function nback.enter()
+    nback.central_text = "Press Space to new round"
+    nback.change_sound();
 end
 
 function nback.change_sound()
@@ -170,33 +172,26 @@ function nback.update()
             nback.central_text = "Press Space to new round"
             nback.show_statistic = true
             nback.stop()
-            nback.write()
-            nback.prepare()
         end
     end
 end
 
-function nback.prepare()
-    nback.central_text = "Press Space to new round"
-    nback.change_sound();
-end
-
-function nback.write()
-    local data, size = love.filesystem.read(nback.save_name)
-    local history = {}
-    if data ~= nil then
-        history = lume.deserialize(data)
-    end
-    --print("history", inspect(history))
-    table.insert(history, { date = os.date("*t"), 
-    stat = nback.statistic,
-    nlevel = nback.level,
-    use_sound = nback.use_sound})
-    love.filesystem.write(nback.save_name, lume.serialize(history))
-end
-
 function nback.stop()
     nback.is_run = false
+
+    if nback.pos_signals and nback.current_sig == #nback.pos_signals then
+        local data, size = love.filesystem.read(nback.save_name)
+        local history = {}
+        if data ~= nil then
+            history = lume.deserialize(data)
+        end
+        --print("history", inspect(history))
+        table.insert(history, { date = os.date("*t"), 
+                                stat = nback.statistic,
+                                nlevel = nback.level,
+                                use_sound = nback.use_sound})
+        love.filesystem.write(nback.save_name, lume.serialize(history))
+    end
 end
 
 function nback.quit()
@@ -207,12 +202,12 @@ end
 function nback.keypressed(key)
     if key == "escape" then
         nback.quit()
-    elseif key == " " then
+    elseif key == " " or "enter" then
         if not nback.is_run then 
             nback.start()
         else
             nback.stop()
-            nback.prepare()
+            nback.enter()
         end
     elseif key == "s" then
         nback.change_sound()
@@ -268,84 +263,23 @@ function nback.check_sound()
 end
 
 function nback.draw()
+    print("w", w)
+    print("h", h)
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
 
     function draw_statistic()
-        g.setFont(nback.statistic_font)
-        g.setColor(pallete.statistic)
+        if nback.show_statistic then
+            g.setFont(nback.statistic_font)
 
-        y = y0 + nback.statistic_font:getHeight()
-        g.printf(string.format("Set results:"), 0, y, w, "center")
+            g.setColor(pallete.statistic)
+            y = y0 + nback.statistic_font:getHeight()
+            g.printf(string.format("Set results:"), 0, y, w, "center")
 
-        y = y + nback.statistic_font:getHeight()
-        local percent = nback.sig_count / nback.statistic.hits * 100
-        g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
-    end
-
-    function draw_field()
-        g.setColor(pallete.field)
-        for i = 0, nback.dim, 1 do
-            g.line(x0, y0 + i * nback.cell_width, 
-            x0 + nback.dim * nback.cell_width, y0 + i * nback.cell_width)
-            g.line(x0 + i * nback.cell_width, y0,
-            x0 + i * nback.cell_width, y0 + nback.dim * nback.cell_width)
+            y = y + nback.statistic_font:getHeight()
+            local percent = nback.sig_count / nback.statistic.hits * 100
+            g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
         end
-    end
-
-    function draw_upper_text()
-        g.setFont(nback.font)
-        g.setColor(pallete.signal)
-        text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
-        x = (w - nback.font:getWidth(text)) / 2
-        y = y0 - nback.font:getHeight()
-        g.print(text, x, y)
-    end
-
-    function draw_active_quad()
-        g.setColor(pallete.signal)
-        local x, y = unpack(nback.pos_signals[nback.current_sig])
-        border = 5
-        g.rectangle("fill", x0 + x * nback.cell_width + border, 
-        y0 + y * nback.cell_width + border,
-        nback.cell_width - border * 2, nback.cell_width - border * 2)
-    end
-
-    function draw_level_setup()
-        g.setFont(nback.font)
-        --FIXME Dissonance with color and variable name
-        g.setColor(pallete.sound_text_enabled) 
-        local y = 20
-        g.printf(string.format("nback level is %d", nback.level),
-        0, y, w, "center")
-        y = y + nback.font:getHeight()
-        g.printf("Use ←→ arrows to setup", 0, y, w, "center")
-    end
-
-    function draw_central_text()
-        g.setFont(nback.central_font)
-        g.setColor(pallete.signal)
-        x = (w - nback.central_font:getWidth(nback.central_text)) / 2
-        y = (h - nback.central_font:getHeight()) / 2
-        g.print(nback.central_text, x, y)
-    end
-
-    function draw_enabled_sound()
-        g.setFont(nback.font)
-        g.setColor(pallete.sound_text_enabled)
-        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        local field_h = nback.dim * nback.cell_width
-        y = y0 + field_h + nback.font:getHeight()
-        g.print(nback.use_sound_text, x, y)
-    end
-
-    function draw_disabled_sound()
-        g.setFont(nback.font)
-        g.setColor(pallete.sound_text_disabled)
-        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        local field_h = nback.dim * nback.cell_width
-        y = y0 + field_h + nback.font:getHeight()
-        g.print(nback.use_sound_text, x, y)
     end
 
     g.push("all")
@@ -355,25 +289,79 @@ function nback.draw()
     g.clear()
     --
 
-    draw_field()
+    --draw game field grid
+    g.setColor(pallete.field)
+    for i = 0, nback.dim, 1 do
+        g.line(x0, y0 + i * nback.cell_width, 
+            x0 + nback.dim * nback.cell_width, y0 + i * nback.cell_width)
+        g.line(x0 + i * nback.cell_width, y0,
+            x0 + i * nback.cell_width, y0 + nback.dim * nback.cell_width)
+    end
+    --
 
     if nback.is_run then
-        draw_active_quad()
-        draw_upper_text()
+        -- draw active signal quad
+        g.setColor(pallete.signal)
+        local x, y = unpack(nback.pos_signals[nback.current_sig])
+        border = 5
+        g.rectangle("fill", x0 + x * nback.cell_width + border, 
+        y0 + y * nback.cell_width + border,
+        nback.cell_width - border * 2, nback.cell_width - border * 2)
+        --
+
+        --draw upper text - progress of evaluated signals
+        g.setFont(nback.font)
+        g.setColor(pallete.signal)
+        text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
+        x = (w - nback.font:getWidth(text)) / 2
+        y = y0 - nback.font:getHeight()
+        g.print(text, x, y)
+        --
     else
-        draw_level_setup()
+        --draw nback level setup invitation
+        g.setFont(nback.font)
+        --FIXME Dissonance with color and variable name
+        g.setColor(pallete.sound_text_enabled) 
+        local y = 20
+        g.printf(string.format("nback level is %d", nback.level),
+            0, y, w, "center")
+        y = y + nback.font:getHeight()
+        g.printf("Use ←→ arrows to setup", 0, y, w, "center")
+    end
+
+    -- draw central_text - Press Space key
+    g.setFont(nback.central_font)
+    g.setColor(pallete.signal)
+    x = (w - nback.central_font:getWidth(nback.central_text)) / 2
+    y = (h - nback.central_font:getHeight()) / 2
+    g.print(nback.central_text, x, y)
+    --
+
+    -- draw use_sound_text
+    if not nback.is_run then
         if nback.use_sound then
-            draw_enabled_sound()
+            -- draw with enabled color
+            g.setFont(nback.font)
+            g.setColor(pallete.sound_text_enabled)
+            x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+            local field_h = nback.dim * nback.cell_width
+            y = y0 + field_h + nback.font:getHeight()
+            g.print(nback.use_sound_text, x, y)
+            --
         else
-            draw_disabled_sound()
+            -- draw with disabled color
+            g.setFont(nback.font)
+            g.setColor(pallete.sound_text_disabled)
+            x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
+            local field_h = nback.dim * nback.cell_width
+            y = y0 + field_h + nback.font:getHeight()
+            g.print(nback.use_sound_text, x, y)
+            --
         end
     end
+    --
 
-    draw_central_text()
-
-    if nback.show_statistic then
-        draw_statistic()
-    end
+    draw_statistic()
 
     g.pop()
 end
