@@ -8,6 +8,7 @@ local table = require "table"
 local pallete = require "pallete"
 
 state_stack = {}
+local g = love.graphics
 
 function state_stack:new()
 
@@ -53,7 +54,8 @@ local nback = {
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
 
-    to_draw = state_stack:new()
+    to_draw = state_stack:new(),
+    w, h = g.getDimensions(),
 }
 
 function nback.start()
@@ -266,8 +268,6 @@ function nback.check_sound()
 end
 
 function nback.draw()
-    local g = love.graphics
-    local w, h = g.getDimensions()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
 
