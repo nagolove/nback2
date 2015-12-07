@@ -268,6 +268,7 @@ function nback.draw()
     --print("h", h)
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
+    local field_h = nback.dim * nback.cell_width
 
     function draw_statistic()
         if nback.show_statistic then
@@ -293,10 +294,8 @@ function nback.draw()
     --draw game field grid
     g.setColor(pallete.field)
     for i = 0, nback.dim, 1 do
-        g.line(x0, y0 + i * nback.cell_width, 
-            x0 + nback.dim * nback.cell_width, y0 + i * nback.cell_width)
-        g.line(x0 + i * nback.cell_width, y0,
-            x0 + i * nback.cell_width, y0 + nback.dim * nback.cell_width)
+        g.line(x0, y0 + i * nback.cell_width, x0 + field_h, y0 + i * nback.cell_width)
+        g.line(x0 + i * nback.cell_width, y0, x0 + i * nback.cell_width, y0 + field_h)
     end
     --
 
@@ -338,27 +337,23 @@ function nback.draw()
     g.print(nback.central_text, x, y)
     --
 
-    local side_column_w = (w - nback.dim * nback.cell_width) / 2
+    local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
+    local side_column_w = (w - field_h) / 2
     g.setFont(nback.font)
     g.setColor(pallete.tip_text)
 
     -- draw left help text - press A to position
-    x = 0
-    y = (w - nback.font:getHeight()) / 2
-    g.printf("A: position", x, y, side_column_w, "center")
+    g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
     --
     
     -- draw right help text - press L to sound
-    x = w - side_column_w
-    y = (w - nback.font:getHeight()) / 2
-    g.printf("L: sound", x, y, side_column_w, "center")
+    g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
     --
 
     -- draw use_sound_text
     if not nback.is_run then
-        local field_h = nback.dim * nback.cell_width
         x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        y = y0 + field_h + nback.font:getHeight()
+        y = bottom_text_line_y
         g.setFont(nback.font)
 
         if nback.use_sound then
