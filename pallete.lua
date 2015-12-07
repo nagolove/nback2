@@ -11,6 +11,7 @@
     sound_text_disabled = {255, 255, 0, 255},
     sound_text_enabled = {0, 240, 0, 255},
     statistic = {0, 240, 0, 255},
+    tip_text = {255, 255, 255, 255},
 }
 
 return pallete
