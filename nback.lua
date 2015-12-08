@@ -357,13 +357,13 @@ function nback.draw()
 
     -- draw left&right help texts
     g.setFont(nback.font)
-    if nback.pos_pressed then
+    if nback.pos_pressed and nback.is_run then
         g.setColor(pallete.tip_text_alt)
     else 
         g.setColor(pallete.tip_text)
     end
     g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
-    if nback.snd_pressed then
+    if nback.snd_pressed and nback.is_run then
         g.setColor(pallete.tip_text_alt)
     else 
         g.setColor(pallete.tip_text)
