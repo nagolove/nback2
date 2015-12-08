@@ -254,9 +254,6 @@ function nback.check_sound()
 end
 
 function nback.draw()
-    --XXX Why w and h variables are alive?
-    --print("w", w)
-    --print("h", h)
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
     local field_h = nback.dim * nback.cell_width
@@ -335,17 +332,7 @@ function nback.draw()
             0, y, w, "center")
         y = y + nback.font:getHeight()
         g.printf("Use ←→ arrows to setup", 0, y, w, "center")
-    end
 
-    g.setFont(nback.font)
-    g.setColor(pallete.tip_text)
-
-    -- draw left help text - press A to position
-    g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
-    -- draw right help text - press L to sound
-    g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
-
-    if not nback.is_run then
         -- draw central_text - Press Space key
         local central_text = "Press Space to new round"
         g.setFont(nback.central_font)
@@ -357,7 +344,12 @@ function nback.draw()
 
         draw_use_sound_text()
     end
-    --
+
+    -- draw left&right help texts
+    g.setFont(nback.font)
+    g.setColor(pallete.tip_text)
+    g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
+    g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
 
     draw_statistic()
 
