@@ -208,10 +208,12 @@ function nback.keypressed(key)
         nback.check_sound()
     end
 
+    local minimum_nb_level = 2
+    local maximum_nb_level = 8
     if not nback.is_run then
-        if key == "left" and nback.level > 2 then
+        if key == "left" and nback.level > minimum_nb_level then
             nback.level = nback.level - 1
-        elseif key == "right" and nback.level < 8 then
+        elseif key == "right" and nback.level < maximum_nb_level then
             nback.level = nback.level + 1
         end
     end
