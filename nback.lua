@@ -39,7 +39,6 @@ local nback = {
     level = 2,
     is_run = false,
     pause_time = 1.5,                               -- delay beetween signals, in seconds
-    central_text = "",
     use_sound_text = "",
     use_sound = true,
     can_press = false,
@@ -78,14 +77,12 @@ function nback.start()
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
-    nback.central_text = ""
     nback.use_sound_text = ""
     nback.statistic.hits  = 0
     nback.show_statistic = false
 end
 
 function nback.enter()
-    nback.central_text = "Press Space to new round"
     nback.change_sound();
 end
 
@@ -169,7 +166,6 @@ function nback.update()
         end
 
         if nback.current_sig == #nback.pos_signals then
-            nback.central_text = "Press Space to new round"
             nback.show_statistic = true
             nback.stop()
         end
@@ -329,14 +325,6 @@ function nback.draw()
         g.printf("Use ←→ arrows to setup", 0, y, w, "center")
     end
 
-    -- draw central_text - Press Space key
-    g.setFont(nback.central_font)
-    g.setColor(pallete.signal)
-    x = (w - nback.central_font:getWidth(nback.central_text)) / 2
-    y = (h - nback.central_font:getHeight()) / 2
-    g.print(nback.central_text, x, y)
-    --
-
     local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
     local side_column_w = (w - field_h) / 2
     g.setFont(nback.font)
@@ -344,14 +332,20 @@ function nback.draw()
 
     -- draw left help text - press A to position
     g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
-    --
-    
     -- draw right help text - press L to sound
     g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
-    --
 
-    -- draw use_sound_text
     if not nback.is_run then
+        -- draw central_text - Press Space key
+        local central_text = "Press Space to new round"
+        g.setFont(nback.central_font)
+        g.setColor(pallete.signal)
+        x = (w - nback.central_font:getWidth(central_text)) / 2
+        y = (h - nback.central_font:getHeight()) / 2
+        g.print(central_text, x, y)
+        --
+
+        -- draw use_sound_text
         x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
         g.setFont(nback.font)
 
