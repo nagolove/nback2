@@ -52,7 +52,6 @@ local nback = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
-
 }
 
 function nback.start()
@@ -158,6 +157,9 @@ function nback.update()
             if nback.use_sound then
                 nback.sounds[nback.sound_signals[nback.current_sig]]:play()
             end
+
+            nback.pos_pressed = false
+            nback.snd_pressed = false
         end
 
         if nback.current_sig == #nback.pos_signals then
@@ -210,6 +212,7 @@ function nback.keypressed(key)
 
     local minimum_nb_level = 2
     local maximum_nb_level = 8
+
     if not nback.is_run then
         if key == "left" and nback.level > minimum_nb_level then
             nback.level = nback.level - 1
@@ -219,12 +222,15 @@ function nback.keypressed(key)
     end
 end
 
-function tuple_cmp(a, b)
-    return a[1] == b[1] and a[2] == b[2]
-end
-
 function nback.check_position()
+
+    function tuple_cmp(a, b)
+        return a[1] == b[1] and a[2] == b[2]
+    end
+
     if not nback.is_run then return end
+
+    nback.pos_pressed = true
 
     if nback.current_sig - nback.level > 1 then
         if tuple_cmp(nback.pos_signals[nback.current_sig], 
@@ -242,6 +248,8 @@ end
 
 function nback.check_sound()
     if not nback.is_run then return end
+
+    nback.snd_pressed = true
 
     if nback.use_sound and nback.current_sig - nback.level > 1 then
         if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
@@ -265,13 +273,13 @@ function nback.draw()
     function draw_statistic()
         if nback.show_statistic then
             g.setFont(nback.statistic_font)
-
             g.setColor(pallete.statistic)
+
             y = y0 + nback.statistic_font:getHeight()
             g.printf(string.format("Set results:"), 0, y, w, "center")
 
-            y = y + nback.statistic_font:getHeight()
             local percent = nback.sig_count / nback.statistic.hits * 100
+            y = y + nback.statistic_font:getHeight()
             g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
         end
     end
@@ -349,8 +357,17 @@ function nback.draw()
 
     -- draw left&right help texts
     g.setFont(nback.font)
-    g.setColor(pallete.tip_text)
+    if nback.pos_pressed then
+        g.setColor(pallete.tip_text_alt)
+    else 
+        g.setColor(pallete.tip_text)
+    end
     g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
+    if nback.snd_pressed then
+        g.setColor(pallete.tip_text_alt)
+    else 
+        g.setColor(pallete.tip_text)
+    end
     g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
 
     draw_statistic()
