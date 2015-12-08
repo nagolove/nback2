@@ -41,7 +41,6 @@ local nback = {
     level = 2,
     is_run = false,
     pause_time = 1.5,                               -- delay beetween signals, in seconds
-    use_sound_text = "",
     use_sound = true,
     can_press = false,
     save_name = "nback-v0.1.lua",
@@ -90,12 +89,6 @@ end
 
 function nback.change_sound()
     if nback.is_run then return end
-
-    if nback.use_sound then
-        nback.use_sound_text = "For enable sound - press S"
-    else
-        nback.use_sound_text = "For disable sound - press S"
-    end
     nback.use_sound = not nback.use_sound
 end
 
@@ -267,6 +260,8 @@ function nback.draw()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
     local field_h = nback.dim * nback.cell_width
+    local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
+    local side_column_w = (w - field_h) / 2
 
     function draw_statistic()
         if nback.show_statistic then
@@ -280,6 +275,21 @@ function nback.draw()
             local percent = nback.sig_count / nback.statistic.hits * 100
             g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
         end
+    end
+
+    function draw_use_sound_text()
+        local use_sound_text = "For enable sound - press S"
+
+        g.setFont(nback.font)
+
+        if nback.use_sound then
+            g.setColor(pallete.tip_text_alt)
+        else
+            g.setColor(pallete.tip_text)
+            use_sound_text = "For disable sound - press S"
+        end
+
+        g.print(use_sound_text, (w - nback.font:getWidth(use_sound_text)) / 2, bottom_text_line_y)
     end
 
     g.push("all")
@@ -319,7 +329,7 @@ function nback.draw()
         --draw nback level setup invitation
         g.setFont(nback.font)
         --FIXME Dissonance with color and variable name
-        g.setColor(pallete.sound_text_enabled) 
+        g.setColor(pallete.tip_text) 
         local y = 20
         g.printf(string.format("nback level is %d", nback.level),
             0, y, w, "center")
@@ -327,8 +337,6 @@ function nback.draw()
         g.printf("Use ←→ arrows to setup", 0, y, w, "center")
     end
 
-    local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
-    local side_column_w = (w - field_h) / 2
     g.setFont(nback.font)
     g.setColor(pallete.tip_text)
 
@@ -347,17 +355,7 @@ function nback.draw()
         g.print(central_text, x, y)
         --
 
-        -- draw use_sound_text
-        x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        g.setFont(nback.font)
-
-        if nback.use_sound then
-            g.setColor(pallete.tip_text_alt)
-        else
-            g.setColor(pallete.tip_text)
-        end
-
-        g.print(nback.use_sound_text, x, bottom_text_line_y)
+        draw_use_sound_text()
     end
     --
 
