@@ -353,18 +353,15 @@ function nback.draw()
     -- draw use_sound_text
     if not nback.is_run then
         x = (w - nback.font:getWidth(nback.use_sound_text)) / 2
-        y = bottom_text_line_y
         g.setFont(nback.font)
 
         if nback.use_sound then
-            -- draw with enabled color
-            g.setColor(pallete.sound_text_enabled)
+            g.setColor(pallete.tip_text_alt)
         else
-            -- draw with disabled color
-            g.setColor(pallete.sound_text_disabled)
+            g.setColor(pallete.tip_text)
         end
 
-        g.print(nback.use_sound_text, x, y)
+        g.print(nback.use_sound_text, x, bottom_text_line_y)
     end
     --
 
