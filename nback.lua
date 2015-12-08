@@ -7,8 +7,10 @@ local table = require "table"
 
 local pallete = require "pallete"
 
-state_stack = {}
 local g = love.graphics
+local w, h = g.getDimensions()
+
+state_stack = {}
 
 function state_stack:new()
 

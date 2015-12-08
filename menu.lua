@@ -59,7 +59,7 @@ function menu.draw()
     local g = love.graphics
     g.push("all")
 
-    w, h = g.getDimensions()
+    local w, h = g.getDimensions()
     y = (h - #menu.items * menu.font:getHeight()) / 2
 
     g.setFont(menu.font)
