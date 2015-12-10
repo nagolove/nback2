@@ -318,10 +318,10 @@ function nback.draw()
         -- draw active signal quad
         g.setColor(pallete.signal)
         local x, y = unpack(nback.pos_signals[nback.current_sig])
-        border = 5
+        local border = 5
         g.rectangle("fill", x0 + x * nback.cell_width + border, 
-        y0 + y * nback.cell_width + border,
-        nback.cell_width - border * 2, nback.cell_width - border * 2)
+            y0 + y * nback.cell_width + border,
+            nback.cell_width - border * 2, nback.cell_width - border * 2)
         --
 
         --draw upper text - progress of evaluated signals
@@ -370,6 +370,12 @@ function nback.draw()
     end
     g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
 
+    -- draw escape tip
+    g.setFont(nback.font)
+    g.setColor(pallete.tip_text)
+    g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
+    --
+    
     draw_statistic()
 
     g.pop()

@@ -21,6 +21,8 @@ function help.draw()
     y = y + help.font:getHeight()
     g.printf("Put description here!", 0, y, w, "center")
 
+    g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
+
     g.pop()
 end
 
