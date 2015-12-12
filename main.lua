@@ -16,10 +16,11 @@ function states.top()
     return states.a[#states.a]
 end
 
-local nback = require "nback"
-local menu = require "menu"
-local pviewer = require "pviewer"
 local help = require "help"
+local layout = require "layout"
+local menu = require "menu"
+local nback = require "nback"
+local pviewer = require "pviewer"
 
 function love.load()
     lovebird.update()
@@ -46,4 +47,5 @@ end
 
 function love.draw()
     states.top().draw()
+    layout.draw()
 end
