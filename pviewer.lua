@@ -110,6 +110,7 @@ function pviewer.draw()
     g.setScissor()
     --
 
+    --XXX
     --g.printf("Escape - to go back", 0, pviewer.font:getHeight(), w, "center")
 
     g.pop()
