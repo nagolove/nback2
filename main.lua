@@ -28,6 +28,8 @@ function love.load()
 
     love.window.setTitle("nback trainer!")
 
+    layout.init()
+
     menu.load()
     nback.load()
     pviewer.load()
