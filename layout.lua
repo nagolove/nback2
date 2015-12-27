@@ -14,19 +14,27 @@ function layout.draw()
     g.print("layout", 100, 100)
 end
 
-function splith(table, ...)
-    assert((#{...}) % 2 == 0)
-    --print((#...  - 1) % 2)
-    --assert((#...  - 1) % 2 == 0)
-    local widht_sum = 0
-    --for i, v in ipairs({...}) do
-    local last = #{...}
-    local a = {...}
-    for i = (#a / 2), #a, 1 do
+function print_table(t)
+    print("-- table")
+    for i, v in ipairs(t) do
         print(i, v)
-        widht_sum = widht_sum + tonumber(a[i])
     end
     print("--")
+end
+
+function splith(table, ...)
+    assert((#{...}) % 2 == 0)
+
+    local a = {...}
+
+    -- sum of arguments should be equal 1
+    local widht_sum = 0
+    for i = (#a / 2) + 1, #a, 1 do
+        widht_sum = widht_sum + a[i]
+    end
+    assert(widht_sum == 1)
+
+    print("--", widht_sum)
     print("widht_sum", widht_sum)
 end
 
