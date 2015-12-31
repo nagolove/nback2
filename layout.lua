@@ -15,7 +15,7 @@ function layout.draw()
     g.print("layout", 100, 100)
 end
 
-function splith(table, ...)
+function splith(layout, ...)
     assert((#{...}) % 2 == 0)
 
     local a = {...}
@@ -27,12 +27,20 @@ function splith(table, ...)
     end
     assert(widht_sum == 1)
 
+    local columns_count = #a / 2
+
     --TODO Put your great code here!
     for i = 1, #a / 2, 1 do
-        print(i, a[i])
-        --XXX Not work properly
-        table["" .. tostring(table[i])] = 1
+        local koef = a[#a / 2 + i]
+        local t = { 
+            x = (1 - koef) * layout.w, 
+            y = 0, 
+            w = koef * layout.w, 
+            h = layout.h
+        }
+        layout[a[i]] = t
     end
+
 end
 
 function splitv(t, ...)
