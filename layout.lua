@@ -1,21 +1,44 @@
 ﻿local inspect = require "inspect"
+local pallete = require "pallete"
 
 local g = love.graphics
 
 layout = {
-    bottom_line_y, --How to put piexls here?
+    bottom_line_y, -- How to put piexls here?
     font = g.newFont(13),
 }
 
 function split(name, sublayout, linetype)
 end
 
+function draw_rect(layout)
+    print("-- draw_rect")
+    for k, v in pairs(layout) do
+        if type(v) == "table" and v.x ~= nil and v.y ~= nil and v.w ~= nil and v.h ~= nil then
+
+            local l = v
+
+            g.push("all")
+            g.setColor(pallete.debug_line)
+            g.setLineWidth(3)
+            g.rectangle("line", l.x, l.y, l.w, l.h)
+            g.pop()
+
+            draw_rect(v)
+        end
+        print("k", k, "v", v)
+    end
+    print("--")
+end
+
 function layout.draw()
     g.setFont(layout.font)
     g.print("layout", 100, 100)
+
+    draw_rect(layout)
 end
 
-function splith(layout, ...)
+function splitv(layout, ...)
     assert((#{...}) % 2 == 0)
 
     local a = {...}
@@ -43,7 +66,7 @@ function splith(layout, ...)
 
 end
 
-function splitv(t, ...)
+function splith(t, ...)
     t.k = 1
     t["l"] = 1
 end

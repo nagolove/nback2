@@ -16,6 +16,8 @@
 
     tip_text_alt = {255, 255, 0, 255},
     tip_text = {0, 240, 0, 255},
+
+    debug_line = {100, 200, 50, 255},
 }
 
 return pallete
