@@ -53,19 +53,21 @@ function splitv(layout, ...)
     assert(widht_sum == 1)
 
     local columns_count = #a / 2
+    local x = 0
 
-    for i = 1, #a / 2, 1 do
-        local koef = a[#a / 2 + i]
+    for i = 1, columns_count, 1 do
+        local koef = a[columns_count + i]
+        print("koef", koef)
         local t = { 
-            x = (1 - koef) * layout.w, 
+            x = x,
             y = 0, 
             w = koef * layout.w, 
             h = layout.h
         }
+        x = x + koef * layout.w
         print("put a[i]", a[i])
         layout[a[i]] = t
     end
-
 end
 
 function splith(t, ...)
