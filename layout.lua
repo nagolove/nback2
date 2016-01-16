@@ -19,7 +19,11 @@ function draw_rect(layout)
             local l = v
 
             g.push("all")
-            --g.scale(0.5, 0.5)
+
+            g.setFont(layout.font)
+            g.setColor(pallete.debug_font)
+            g.printf(k, l.x, l.y, l.w, "center")
+
             g.setColor(pallete.debug_line)
             g.setLineWidth(3)
             g.rectangle("line", l.x, l.y, l.w, l.h)
@@ -34,9 +38,6 @@ function draw_rect(layout)
 end
 
 function layout.draw()
-    g.setFont(layout.font)
-    g.print("layout", 100, 100)
-
     draw_rect(layout)
 end
 
@@ -57,7 +58,6 @@ function splitv(layout, ...)
 
     for i = 1, columns_count, 1 do
         local koef = a[columns_count + i]
-        print("koef", koef)
         local t = { 
             x = x,
             y = 0, 
@@ -65,14 +65,36 @@ function splitv(layout, ...)
             h = layout.h
         }
         x = x + koef * layout.w
-        print("put a[i]", a[i])
         layout[a[i]] = t
     end
 end
 
 function splith(t, ...)
-    t.k = 1
-    t["l"] = 1
+    assert((#{...}) % 2 == 0)
+
+    local a = {...}
+
+    -- sum of numeric arguments should be equal 1
+    local height_sum = 0
+    for i = (#a / 2) + 1, #a, 1 do
+        height_sum = height_sum + a[i]
+    end
+    assert(height_sum == 1)
+
+    local rows_count = #a / 2
+    local y = 0
+
+    for i = 1, rows_count, 1 do
+        local koef = a[rows_count + i]
+        local t = { 
+            x = 0,
+            y = y, 
+            w = layout.w,
+            h = koef * layout.h
+        }
+        y = y + koef * layout.h
+        layout[a[i]] = t
+    end
 end
 
 function check_layout(l)

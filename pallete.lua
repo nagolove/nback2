@@ -18,6 +18,7 @@
     tip_text = {0, 240, 0, 255},
 
     debug_line = {100, 200, 50, 255},
+    debug_font = {140, 140, 140, 255},
 }
 
 return pallete
