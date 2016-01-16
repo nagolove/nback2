@@ -19,14 +19,16 @@ function draw_rect(layout)
             local l = v
 
             g.push("all")
+            --g.scale(0.5, 0.5)
             g.setColor(pallete.debug_line)
             g.setLineWidth(3)
             g.rectangle("line", l.x, l.y, l.w, l.h)
             g.pop()
 
+            print(string.format("%s (%d, %d, %d, %d)", k, l.x, l.y, l.w, l.h))
+
             draw_rect(v)
         end
-        print("k", k, "v", v)
     end
     print("--")
 end
@@ -52,7 +54,6 @@ function splitv(layout, ...)
 
     local columns_count = #a / 2
 
-    --TODO Put your great code here!
     for i = 1, #a / 2, 1 do
         local koef = a[#a / 2 + i]
         local t = { 
@@ -61,6 +62,7 @@ function splitv(layout, ...)
             w = koef * layout.w, 
             h = layout.h
         }
+        print("put a[i]", a[i])
         layout[a[i]] = t
     end
 
