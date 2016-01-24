@@ -8,10 +8,7 @@ layout = {
     font = g.newFont(13),
 }
 
-function split(name, sublayout, linetype)
-end
-
-function draw_rect(layout)
+function draw(layout)
     print("-- draw_rect")
     for k, v in pairs(layout) do
         if type(v) == "table" and v.x ~= nil and v.y ~= nil and v.w ~= nil and v.h ~= nil then
@@ -31,14 +28,14 @@ function draw_rect(layout)
 
             print(string.format("%s (%d, %d, %d, %d)", k, l.x, l.y, l.w, l.h))
 
-            draw_rect(v)
+            draw(v)
         end
     end
     print("--")
 end
 
 function layout.draw()
-    draw_rect(layout)
+    draw(layout)
 end
 
 function splitv(layout, ...)
