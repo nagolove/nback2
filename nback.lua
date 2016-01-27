@@ -98,7 +98,7 @@ function generate_nback(sig_count, gen, cmp)
     local count = sig_count
     local null = {}
 
-    for i = 1, ratio * sig_count, 1 do
+    for i = 1, ratio * sig_count do
         table.insert(ret, null)
     end
 
@@ -123,7 +123,7 @@ function generate_nback(sig_count, gen, cmp)
         until i > #ret
     until count == 0
 
-    for i = 1, #ret, 1 do
+    for i = 1, #ret do
         if ret[i] == null then
             repeat
                 ret[i] = gen()
@@ -308,7 +308,7 @@ function nback.draw()
 
     --draw game field grid
     g.setColor(pallete.field)
-    for i = 0, nback.dim, 1 do
+    for i = 0, nback.dim do
         g.line(x0, y0 + i * nback.cell_width, x0 + field_h, y0 + i * nback.cell_width)
         g.line(x0 + i * nback.cell_width, y0, x0 + i * nback.cell_width, y0 + field_h)
     end

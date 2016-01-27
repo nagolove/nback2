@@ -45,7 +45,7 @@ function splitv(layout, ...)
 
     -- sum of numeric arguments should be equal 1
     local widht_sum = 0
-    for i = (#a / 2) + 1, #a, 1 do
+    for i = (#a / 2) + 1, #a do
         widht_sum = widht_sum + a[i]
     end
     assert(widht_sum == 1)
@@ -53,7 +53,7 @@ function splitv(layout, ...)
     local columns_count = #a / 2
     local x = 0
 
-    for i = 1, columns_count, 1 do
+    for i = 1, columns_count do
         local koef = a[columns_count + i]
         local t = { 
             x = x,
@@ -73,7 +73,7 @@ function splith(t, ...)
 
     -- sum of numeric arguments should be equal 1
     local height_sum = 0
-    for i = (#a / 2) + 1, #a, 1 do
+    for i = (#a / 2) + 1, #a do
         height_sum = height_sum + a[i]
     end
     assert(height_sum == 1)
@@ -81,7 +81,7 @@ function splith(t, ...)
     local rows_count = #a / 2
     local y = 0
 
-    for i = 1, rows_count, 1 do
+    for i = 1, rows_count do
         local koef = a[rows_count + i]
         local t = { 
             x = 0,
