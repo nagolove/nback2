@@ -145,7 +145,7 @@ end
 
 function nback.update()
     if nback.is_run then
-        time = love.timer.getTime()
+        local time = love.timer.getTime()
         if (time - nback.timestamp >= nback.pause_time) then
             nback.timestamp = love.timer.getTime()
 
