@@ -41,13 +41,16 @@ function love.load()
 end
 
 function love.update(dt)
-    lurker.update()
     lovebird.update()
     states.top().update(dt)
 end
 
 function love.keypressed(key)
-    states.top().keypressed(key)
+    if key == "`" then
+        lurker.scan()
+    else
+        states.top().keypressed(key)
+    end
 end
 
 function love.draw()
