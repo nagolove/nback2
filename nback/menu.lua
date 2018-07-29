@@ -47,7 +47,7 @@ function menu.keypressed(key)
         end
     elseif key == "escape" then
         menu.quit()
-    elseif key == "return" or key == " " then
+    elseif key == "return" or key == "space" and not (love.keyboard.isDown("ralt", "lalt")) then
         menu.actions[menu.active_item]()
     end
 end

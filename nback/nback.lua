@@ -195,7 +195,7 @@ end
 function nback.keypressed(key)
     if key == "escape" then
         nback.quit()
-    elseif key == "space" or key == "return" then
+    elseif key == "space" or key == "return" and not (love.keyboard.isDown("ralt", "lalt")) then
         if not nback.is_run then 
             nback.start()
         else
@@ -271,6 +271,11 @@ function nback.check_color()
 end
 
 function nback.check_form()
+end
+
+function nback.resize(neww, newh)
+    w = neww
+    h = newh
 end
 
 function nback.draw()

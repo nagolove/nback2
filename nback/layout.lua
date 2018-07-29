@@ -100,6 +100,10 @@ function check_layout(l)
     print("--")
 end
 
+function layout.resize(neww, newh)
+    layout.init()
+end
+
 function layout.intersect(l, fname, sname)
 end
 

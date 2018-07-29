@@ -41,8 +41,19 @@ function love.load()
 end
 
 function love.update(dt)
+    if love.keyboard.isDown("ralt", "lalt") and love.keyboard.isDown("return") then
+        love.window.setFullscreen(not love.window.getFullscreen())
+    end
+
     lovebird.update()
     states.top().update(dt)
+end
+
+function love.resize(w, h)
+    for k, v in pairs(states.a) do
+        if v["resize"] then v.resize(w, h) end
+    end
+    layout.resize(w, h)
 end
 
 function love.keypressed(key)
