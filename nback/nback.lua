@@ -35,7 +35,7 @@ end
 
 local nback = {
     dim = 5,
-    cell_width = 90,                                -- width of game field in pixels
+    cell_width = 100,                                -- width of game field in pixels
     current_sig = 1,
     sig_count = 6,                                  -- number of signals.
     level = 2,
@@ -106,7 +106,7 @@ function generate_nback(sig_count, gen, cmp)
         local i = 1
         repeat
             if count > 0 then
-                prob = math.random(unpack(range))
+                local prob = math.random(unpack(range))
                 if prob == range[2] then
                     if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
                         ret[i] = gen()
@@ -195,19 +195,23 @@ end
 function nback.keypressed(key)
     if key == "escape" then
         nback.quit()
-    elseif key == " " or key == "return" then
+    elseif key == "space" or key == "return" then
         if not nback.is_run then 
             nback.start()
         else
             nback.stop()
             nback.enter()
         end
-    elseif key == "s" then
-        nback.change_sound()
-    elseif key == "a" then
+    --elseif key == "s" then
+        --nback.change_sound()
+    elseif key == "p" then
         nback.check_position()
-    elseif key == "l" then
+    elseif key == "s" then
         nback.check_sound()
+    elseif key == "f" then
+        nback.check_form()
+    elseif key == "c" then
+        nback.check_color()
     end
 
     local minimum_nb_level = 2
@@ -261,6 +265,12 @@ function nback.check_sound()
             end
         end
     end
+end
+
+function nback.check_color()
+end
+
+function nback.check_form()
 end
 
 function nback.draw()
