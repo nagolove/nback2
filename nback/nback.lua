@@ -80,6 +80,8 @@ function nback.start()
     nback.use_sound_text = ""
     nback.statistic.hits  = 0
     nback.show_statistic = false
+
+    debug_print_init()
 end
 
 function nback.enter()
@@ -137,9 +139,9 @@ end
 function nback.load()
     math.randomseed(os.time())
 
-    wave_path = "sfx/alphabet/"
+    wave_path = "sfx/alphabet"
     for k, v in pairs(love.filesystem.getDirectoryItems(wave_path)) do
-        table.insert(nback.sounds, love.audio.newSource(wave_path .. v))
+        table.insert(nback.sounds, love.audio.newSource(wave_path .. "/" .. v))
     end
 end
 
@@ -278,6 +280,66 @@ function nback.resize(neww, newh)
     h = newh
 end
 
+local debug_print_y = 0
+local debug_signal_colors = {}
+
+function debug_print_init()
+    for i = 1, #signals do
+        signal_colors[#signal_colors + 1] = inactive_color -- default color
+    end
+
+    for k, v in pairs(signals) do
+        if k + nback.level < #signals then
+            if comparator(v, signals[k + nback.level]) then
+                local color = active_color
+                --color[1] = color[1] + math.random(1, 255)
+                color[1] = math.random(1, 255)
+                signal_colors[k + nback.level] = color
+                signal_colors[k] = color
+            end
+            print("debug_print_init")
+        end
+    end
+
+end
+
+function debug_print_signals()
+    local oldcolor = {g.getColor()}
+    local active_color = pallete.active
+    local inactive_color = pallete.inactive
+    local ww, hh = 16, 16
+    local gap = 2
+    local y = debug_print_y
+    
+    function draw(colors)
+        local x = 5
+        for k, v in pairs(colors) do
+            g.setColor(v)
+            g.rectangle("fill", x, y, ww, hh)
+            g.print(string.format("%d", k), x, y)
+            x = x + ww + gap
+        end
+    end
+
+    draw(nback.debug_pos_colors)
+    draw(nback.debug_color_colors)
+    draw(nback.debug_form_colors)
+    draw(nback.debug_sound_colors)
+
+    g.setColor(oldcolor)
+end
+
+function debug_print_text(text)
+    local color = {g.getColor()}
+    g.setColor(255, 255, 0)
+    g.print(text, 5, debug_print_y)
+    local font = g.getFont()
+    if font then
+        debug_print_y = debug_print_y + font:getHeight()
+    end
+    g.setColor(unpack(color))
+end
+
 function nback.draw()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
@@ -285,6 +347,7 @@ function nback.draw()
     local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
     local side_column_w = (w - field_h) / 2
 
+    -- рисовать статистику после конца сета
     function draw_statistic()
         if nback.show_statistic then
             g.setFont(nback.statistic_font)
@@ -330,6 +393,11 @@ function nback.draw()
     --
 
     if nback.is_run then
+        debug_print_y = 0
+        debug_print_text(inspect(nback.pos_signals))
+        debug_print_text(inspect(nback.sound_signals))
+        debug_print_signals()
+
         -- draw active signal quad
         g.setColor(pallete.signal)
         local x, y = unpack(nback.pos_signals[nback.current_sig])

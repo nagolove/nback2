@@ -9,7 +9,7 @@ layout = {
 }
 
 function draw(layout)
-    print("-- draw_rect")
+    --print("-- draw_rect")
     for k, v in pairs(layout) do
         if type(v) == "table" and v.x ~= nil and v.y ~= nil and v.w ~= nil and v.h ~= nil then
 
@@ -26,12 +26,12 @@ function draw(layout)
             g.rectangle("line", l.x, l.y, l.w, l.h)
             g.pop()
 
-            print(string.format("%s (%d, %d, %d, %d)", k, l.x, l.y, l.w, l.h))
+            --print(string.format("%s (%d, %d, %d, %d)", k, l.x, l.y, l.w, l.h))
 
             draw(v)
         end
     end
-    print("--")
+    --print("--")
 end
 
 function layout.draw()
