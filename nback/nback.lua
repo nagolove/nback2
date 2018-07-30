@@ -65,7 +65,15 @@ function nback.start()
             return  a[1] == b[1] and a[2] == b[2]
         end)
     print("pos", inspect(nback.pos_signals))
-
+    nback.form_signal = generate_nback(nback.sig_count,
+        function()
+            local arr = {"triangleup", "triangledown", "triangleupdown", "quad", "circle", "rhombus"}
+            return arr[math.random(1, 6)]
+        end,
+        function(a, b)
+            return a == b
+        end)
+    print("form", inspect(nback.form_signal))
     nback.sound_signals = generate_nback(nback.sig_count, 
         function()
             return math.random(1, #nback.sounds)
@@ -281,50 +289,59 @@ function nback.resize(neww, newh)
 end
 
 local debug_print_y = 0
-local debug_signal_colors = {}
 
 function debug_print_init()
-    for i = 1, #signals do
-        signal_colors[#signal_colors + 1] = inactive_color -- default color
+    nback.debug_pos_colors = {}
+    for i = 1, #nback.pos_signals do
+        nback.debug_pos_colors[#nback.debug_pos_colors + 1] = pallete.inactive -- default color
+    end
+    print("debug_pos_colors", inspect(nback.debug_pos_colors))
+    print("#debug_pos_colors", #nback.debug_pos_colors)
+
+    local comparator = function(a, b)
+        return a[1] == b[1] and a[2] == b[2]
     end
 
-    for k, v in pairs(signals) do
-        if k + nback.level < #signals then
-            if comparator(v, signals[k + nback.level]) then
-                local color = active_color
+    for k, v in pairs(nback.pos_signals) do
+        if k + nback.level < #nback.pos_signals then
+            if comparator(v, nback.pos_signals[k + nback.level]) then
+                local color = pallete.active
                 --color[1] = color[1] + math.random(1, 255)
-                color[1] = math.random(1, 255)
-                signal_colors[k + nback.level] = color
-                signal_colors[k] = color
+                color[1] = lume.clamp(100 + math.random(1, 255), 1, 255)
+
+                nback.debug_pos_colors[k + nback.level] = color
+                nback.debug_pos_colors[k] = color
             end
-            print("debug_print_init")
         end
     end
 
+    print("debug_pos_colors", inspect(nback.debug_pos_colors))
 end
 
 function debug_print_signals()
     local oldcolor = {g.getColor()}
-    local active_color = pallete.active
-    local inactive_color = pallete.inactive
     local ww, hh = 16, 16
     local gap = 2
-    local y = debug_print_y
     
-    function draw(colors)
+    function draw(debug_colors)
         local x = 5
-        for k, v in pairs(colors) do
-            g.setColor(v)
+        print("debug_print_signals", inspect(debug_colors))
+        for k, v in pairs(debug_colors) do
+            print("debug_print_signals(), v = ", inspect(v))
+            --g.setColor(v)
             g.rectangle("fill", x, y, ww, hh)
-            g.print(string.format("%d", k), x, y)
+            g.print(tostring(k), x, debug_print_y)
             x = x + ww + gap
         end
+        debug_print_y = debug_print_y + hh
     end
 
     draw(nback.debug_pos_colors)
-    draw(nback.debug_color_colors)
-    draw(nback.debug_form_colors)
-    draw(nback.debug_sound_colors)
+    --[[
+       [draw(nback.debug_color_colors)
+       [draw(nback.debug_form_colors)
+       [draw(nback.debug_sound_colors)
+       ]]
 
     g.setColor(oldcolor)
 end
@@ -396,7 +413,10 @@ function nback.draw()
         debug_print_y = 0
         debug_print_text(inspect(nback.pos_signals))
         debug_print_text(inspect(nback.sound_signals))
-        debug_print_signals()
+        debug_print_text("--------------")
+        --debug_print_signals()
+        --debug_print_signals()
+        debug_print_text("--------------")
 
         -- draw active signal quad
         g.setColor(pallete.signal)
