@@ -1,4 +1,4 @@
-﻿local inspect = require "inspect"
+﻿local inspect = require "libs.inspect"
 local pallete = require "pallete"
 
 local g = love.graphics
@@ -95,9 +95,9 @@ function splith(t, ...)
 end
 
 function check_layout(l)
-    print("-- checking layout format")
+    print("----------------- checking layout format")
     print(inspect(layout))
-    print("--")
+    print("----------------- end cheking layout format")
 end
 
 function layout.resize(neww, newh)

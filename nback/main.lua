@@ -23,6 +23,9 @@ local layout = require "layout"
 local menu = require "menu"
 local nback = require "nback"
 local pviewer = require "pviewer"
+local colorpicker = require "colorpicker"
+
+local picker = nil
 
 function love.load()
     lovebird.update()
@@ -44,6 +47,9 @@ function love.update(dt)
     if love.keyboard.isDown("ralt", "lalt") and love.keyboard.isDown("return") then
         love.window.setFullscreen(not love.window.getFullscreen())
     end
+    if picker then
+        picker:update(dt)
+    end
 
     lovebird.update()
     states.top().update(dt)
@@ -59,12 +65,28 @@ end
 function love.keypressed(key)
     if key == "`" then
         lurker.scan()
+    elseif key == "1" then
+        if not picker then
+            picker = colorpicker:new()
+        else
+            picker = nil
+            print("picker deleted")
+        end
     else
         states.top().keypressed(key)
     end
 end
 
+function love.mousepressed(x, y, button, istouch)
+    if picker then
+        picker:mousepressed(x, y, button, istouch)
+    end
+end
+
 function love.draw()
+    if picker then
+        picker:draw()
+    end
     states.top().draw()
     layout.draw()
 end

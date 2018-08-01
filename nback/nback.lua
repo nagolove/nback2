@@ -45,7 +45,10 @@ local nback = {
     can_press = false,
     save_name = "nback-v0.1.lua",
     statistic = {                                   -- statistic which saving to file
-        hits = 0,
+        pos_hits = 0,
+        color_hits = 0,
+        sound_hits = 0,
+        form_hits = 0
     },
     show_statistic = false,
     sounds = {},
@@ -55,8 +58,10 @@ local nback = {
 }
 
 function nback.start()
+    nback.pause = false
     nback.is_run = true
 
+    print("start")
     nback.pos_signals = generate_nback(nback.sig_count, 
         function()
             return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
@@ -65,9 +70,9 @@ function nback.start()
             return  a[1] == b[1] and a[2] == b[2]
         end)
     print("pos", inspect(nback.pos_signals))
-    nback.form_signal = generate_nback(nback.sig_count,
+    nback.form_signals = generate_nback(nback.sig_count,
         function()
-            local arr = {"triangleup", "triangledown", "triangleupdown", "quad", "circle", "rhombus"}
+            local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
             return arr[math.random(1, 6)]
         end,
         function(a, b)
@@ -82,18 +87,38 @@ function nback.start()
             return a == b
         end)
     print("snd", inspect(nback.sound_signals))
+    --[[
+       [nback.color_signals = generate_nback(nback.sig_count,
+       [    function()
+       [        local constants = {["brown"] = {0, 255, 0, 255},
+       [            ["green"] = {300, 255, 0, 255},
+       [            ["blue"] = {0, 255, 80, 255},
+       [            ["red"] = {0, 255, 10, 255},
+       [            ["yellow"] = {220, 25, 0, 255},
+       [            ["purple"] = {0, 25, 0, 255},
+       [        }
+       [        local arr = {"brown", "green", "blue", "red", "yellow", "purple"}
+       [        local addr = arr[math.random(1, 6)]
+       [        print("addr", addr)
+       [        --return constants[addr]
+       [        return {0, 200, 100, 255}
+       [    end,
+       [    function(a, b)
+       [        return a[1] == b[1] and a[2] == b[2] and a[3] == b[3] and a[4] == b[4]
+       [    end)
+       ]]
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
     nback.use_sound_text = ""
-    nback.statistic.hits  = 0
+    nback.statistic.pos_hits  = 0
     nback.show_statistic = false
 
     debug_print_init()
 end
 
 function nback.enter()
-    nback.change_sound();
+    --nback.change_sound();
 end
 
 function nback.change_sound()
@@ -154,6 +179,8 @@ function nback.load()
 end
 
 function nback.update()
+    if nback.pause then return end
+
     if nback.is_run then
         local time = love.timer.getTime()
         if (time - nback.timestamp >= nback.pause_time) then
@@ -214,6 +241,13 @@ function nback.keypressed(key)
         end
     --elseif key == "s" then
         --nback.change_sound()
+    elseif key == "0" then
+        nback.pause = not nback.pause
+    elseif key == "9" then
+        nback.show_statistic = not nback.show_statistic
+        if nback.show_statistic then
+            nback.pause = true
+        end
     elseif key == "p" then
         nback.check_position()
     elseif key == "s" then
@@ -252,8 +286,8 @@ function nback.check_position()
             --print(inspect(nback))
             if nback.can_press then
                 print("hit!")
-                print(nback.statistic.hits )
-                nback.statistic.hits  = nback.statistic.hits  + 1
+                print(nback.statistic.pos_hits )
+                nback.statistic.pos_hits  = nback.statistic.pos_hits  + 1
                 nback.can_press = false
             end
         end
@@ -269,8 +303,8 @@ function nback.check_sound()
         if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
             if nback.can_press then
                 print("sound hit!")
-                print(nback.statistic.hits )
-                nback.statistic.hits  = nback.statistic.hits  + 1
+                print(nback.statistic.pos_hits )
+                nback.statistic.sound_hits  = nback.statistic.sound_hits  + 1
                 nback.can_press = false
             end
         end
@@ -281,6 +315,21 @@ function nback.check_color()
 end
 
 function nback.check_form()
+    if not nback.is_run then return end
+
+    --nback.pos_pressed = true
+
+    if nback.current_sig - nback.level > 1 then
+        if back.form_signals[nback.current_sig] == nback.form_signals[nback.current_sig - nback.level] then
+            --print(inspect(nback))
+            if nback.can_press then
+                print("hit!")
+                --print(nback.statistic.pos_hits )
+                nback.statistic.form_hits  = nback.statistic.form_hits  + 1
+                nback.can_press = false
+            end
+        end
+    end
 end
 
 function nback.resize(neww, newh)
@@ -292,8 +341,15 @@ local debug_print_y = 0
 
 function debug_print_init()
     nback.debug_pos_colors = {}
-    for i = 1, #nback.pos_signals do
+    nback.debug_form_colors = {}
+    nback.debug_color_colors = {}
+    nback.debug_sound_colors = {}
+
+    for i = 1, nback.sig_count do
         nback.debug_pos_colors[#nback.debug_pos_colors + 1] = pallete.inactive -- default color
+        nback.debug_form_colors[#nback.debug_form_colors + 1] = pallete.inactive -- default color
+        nback.debug_color_colors[#nback.debug_color_colors + 1] = pallete.inactive -- default color
+        nback.debug_sound_colors[#nback.debug_sound_colors + 1] = pallete.inactive -- default color
     end
     print("debug_pos_colors", inspect(nback.debug_pos_colors))
     print("#debug_pos_colors", #nback.debug_pos_colors)
@@ -305,12 +361,17 @@ function debug_print_init()
     for k, v in pairs(nback.pos_signals) do
         if k + nback.level < #nback.pos_signals then
             if comparator(v, nback.pos_signals[k + nback.level]) then
-                local color = pallete.active
+                local color = {255, 0, 0}
                 --color[1] = color[1] + math.random(1, 255)
-                color[1] = lume.clamp(100 + math.random(1, 255), 1, 255)
+                --color[1] = lume.clamp(100 + math.random(1, 255), 1, 255)
 
                 nback.debug_pos_colors[k + nback.level] = color
                 nback.debug_pos_colors[k] = color
+                print("-----------")
+                print(inspect(nback.debug_pos_colors[k + nback.level]))
+                print(inspect(nback.debug_pos_colors[k]))
+                print("color", inspect(color))
+                --print("same signals in debug_print_init()")
             end
         end
     end
@@ -322,21 +383,14 @@ function debug_print_signals()
     local oldcolor = {g.getColor()}
     local ww, hh = 16, 16
     local gap = 2
-    
-    function draw(debug_colors)
-        local x = 5
-        print("debug_print_signals", inspect(debug_colors))
-        for k, v in pairs(debug_colors) do
-            print("debug_print_signals(), v = ", inspect(v))
-            --g.setColor(v)
-            g.rectangle("fill", x, y, ww, hh)
-            g.print(tostring(k), x, debug_print_y)
-            x = x + ww + gap
-        end
-        debug_print_y = debug_print_y + hh
+    local x = 5
+    for k, v in pairs(nback.debug_pos_colors) do
+        g.setColor(v)
+        g.rectangle("fill", x, debug_print_y, ww, hh)
+        --g.print(tostring(k), x, debug_print_y)
+        x = x + ww + gap
     end
-
-    draw(nback.debug_pos_colors)
+    debug_print_y = debug_print_y + hh
     --[[
        [draw(nback.debug_color_colors)
        [draw(nback.debug_form_colors)
@@ -373,9 +427,9 @@ function nback.draw()
             y = y0 + nback.statistic_font:getHeight()
             g.printf(string.format("Set results:"), 0, y, w, "center")
 
-            local percent = nback.sig_count / nback.statistic.hits * 100
-            y = y + nback.statistic_font:getHeight()
-            g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
+            --local percent = nback.sig_count / nback.statistic.pos_hits * 100
+            --y = y + nback.statistic_font:getHeight()
+            --g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
         end
     end
 
@@ -409,12 +463,32 @@ function nback.draw()
     end
     --
 
+    function draw_signal_form(formtype, x, y, w, h)
+        if formtype == "quad" then
+            g.rectangle("fill", x, y, w, h)
+        elseif formtype == "circle" then
+            g.circle("fill", x + w / 2, y + h / 2, w / 2)
+        elseif formtype == "trup" then
+            g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
+        elseif formtype == "trdown" then
+            g.polygon("fill", {x, y + h / 3, x + w / 2, y + h, x + w, y + h / 3})
+        elseif formtype == "trupdown" then
+            g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
+            g.polygon("fill", {x, y + h / 3, x + w / 2, y + h, x + w, y + h / 3})
+        elseif formtype == "rhombus" then
+            g.polygon("fill", {x, y + h / 2, x + w / 2, y + h,  x + w, y + h / 2, x + w / 2, y})
+        end
+    end
+
     if nback.is_run then
         debug_print_y = 0
         debug_print_text(inspect(nback.pos_signals))
         debug_print_text(inspect(nback.sound_signals))
+        debug_print_text(inspect(nback.form_signals))
+        debug_print_text(string.format("current_sig %d", nback.current_sig))
+        --debug_print_text(inspect(nback.color_signals))
         debug_print_text("--------------")
-        --debug_print_signals()
+        debug_print_signals()
         --debug_print_signals()
         debug_print_text("--------------")
 
@@ -422,8 +496,10 @@ function nback.draw()
         g.setColor(pallete.signal)
         local x, y = unpack(nback.pos_signals[nback.current_sig])
         local border = 5
-        g.rectangle("fill", x0 + x * nback.cell_width + border, 
-            y0 + y * nback.cell_width + border,
+        --g.rectangle("fill", x0 + x * nback.cell_width + border, 
+            --y0 + y * nback.cell_width + border,
+            --nback.cell_width - border * 2, nback.cell_width - border * 2)
+        draw_signal_form(nback.form_signals[nback.current_sig], x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
             nback.cell_width - border * 2, nback.cell_width - border * 2)
         --
 

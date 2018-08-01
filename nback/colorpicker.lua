@@ -6,16 +6,17 @@ local colorpicker = class("colorpicker")
 
 function colorpicker:init()
     print(string.format("Colorpicker created"))
-    self.color = {200, 100, 135}
+    self.color = {200, 100, 135, 255}
     self.rslider = {value = self.color[1], min = 0, max = 255}
     self.gslider = {value = self.color[2], min = 0, max = 255}
     self.bslider = {value = self.color[3], min = 0, max = 255}
+    self.aslider = {value = self.color[4], min = 0, max = 255}
 end
 
 function colorpicker:mousepressed(x, y, button, istouch)
     if button == 2 then
         print("color copied to clpbrd")
-        love.system.setClipboardText(string.format("%s, %s, %s", self.color[1], self.color[2], self.color[3]))
+        love.system.setClipboardText(string.format("{%s, %s, %s, %s}", self.color[1], self.color[2], self.color[3], self.color[4]))
     end
 end
     
@@ -23,6 +24,10 @@ function colorpicker:mousereleased(x, y, button, istouch)
 end
 
 function colorpicker:mousemoved(x, y, dx, dy, istouch)
+end
+
+function pack(...)
+    return {...}
 end
 
 function colorpicker:draw()
@@ -46,6 +51,9 @@ function colorpicker:draw()
     cornery = cornery + sliderh
     suit.Slider(self.bslider, cornerx, cornery, pickerwidth, sliderh)
     lg.print(string.format("%d", self.color[3]), cornerx + pickerwidth, cornery)
+    cornery = cornery + sliderh
+    suit.Slider(self.aslider, cornerx, cornery, pickerwidth, sliderh)
+    --lg.print(string.format("%d", self.color[4]), cornerx + pickerwidth, cornery)
 
     suit.draw()
 end
