@@ -84,9 +84,9 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
+    states.top().draw()
+    layout.draw()
     if picker then
         picker:draw()
     end
-    states.top().draw()
-    layout.draw()
 end

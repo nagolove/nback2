@@ -33,6 +33,15 @@ function state_stack:new()
     return self
 end
 
+local color_constants = {
+        ["brown"] = {136, 55, 41},
+        ["green"] = {72, 180, 66},
+        ["blue"] = {27, 30, 249},
+        ["red"] = {241, 30, 27},
+        ["yellow"] = {231, 227, 11},
+        ["purple"] = {128, 7, 128},
+}
+
 local nback = {
     dim = 5,
     cell_width = 100,                                -- width of game field in pixels
@@ -87,26 +96,21 @@ function nback.start()
             return a == b
         end)
     print("snd", inspect(nback.sound_signals))
-    --[[
-       [nback.color_signals = generate_nback(nback.sig_count,
-       [    function()
-       [        local constants = {["brown"] = {0, 255, 0, 255},
-       [            ["green"] = {300, 255, 0, 255},
-       [            ["blue"] = {0, 255, 80, 255},
-       [            ["red"] = {0, 255, 10, 255},
-       [            ["yellow"] = {220, 25, 0, 255},
-       [            ["purple"] = {0, 25, 0, 255},
-       [        }
-       [        local arr = {"brown", "green", "blue", "red", "yellow", "purple"}
-       [        local addr = arr[math.random(1, 6)]
-       [        print("addr", addr)
-       [        --return constants[addr]
-       [        return {0, 200, 100, 255}
-       [    end,
-       [    function(a, b)
-       [        return a[1] == b[1] and a[2] == b[2] and a[3] == b[3] and a[4] == b[4]
-       [    end)
-       ]]
+    nback.color_signals = generate_nback(nback.sig_count,
+        function()
+            local arr = {}
+            for k, _ in pairs(color_constants) do
+                arr[#arr + 1] = k
+            end
+            local addr = arr[math.random(1, 6)]
+            print("addr", addr)
+            return addr
+        end,
+        function(a, b)
+            print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
+            return a == b
+        end)
+    print("color", inspect(nback.color_signals))
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
@@ -320,7 +324,7 @@ function nback.check_form()
     --nback.pos_pressed = true
 
     if nback.current_sig - nback.level > 1 then
-        if back.form_signals[nback.current_sig] == nback.form_signals[nback.current_sig - nback.level] then
+        if nback.form_signals[nback.current_sig] == nback.form_signals[nback.current_sig - nback.level] then
             --print(inspect(nback))
             if nback.can_press then
                 print("hit!")
@@ -420,7 +424,6 @@ function nback.draw()
 
     -- рисовать статистику после конца сета
     function draw_statistic()
-        if nback.show_statistic then
             g.setFont(nback.statistic_font)
             g.setColor(pallete.statistic)
 
@@ -430,7 +433,6 @@ function nback.draw()
             --local percent = nback.sig_count / nback.statistic.pos_hits * 100
             --y = y + nback.statistic_font:getHeight()
             --g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
-        end
     end
 
     function draw_use_sound_text()
@@ -482,9 +484,10 @@ function nback.draw()
 
     if nback.is_run then
         debug_print_y = 0
-        debug_print_text(inspect(nback.pos_signals))
-        debug_print_text(inspect(nback.sound_signals))
-        debug_print_text(inspect(nback.form_signals))
+        debug_print_text("pos " .. inspect(nback.pos_signals))
+        debug_print_text("sound " .. inspect(nback.sound_signals))
+        debug_print_text("form " .. inspect(nback.form_signals))
+        debug_print_text("color " .. inspect(nback.color_signals))
         debug_print_text(string.format("current_sig %d", nback.current_sig))
         --debug_print_text(inspect(nback.color_signals))
         debug_print_text("--------------")
@@ -493,7 +496,8 @@ function nback.draw()
         debug_print_text("--------------")
 
         -- draw active signal quad
-        g.setColor(pallete.signal)
+        --g.setColor(pallete.signal)
+        g.setColor(color_constants[nback.color_signals[nback.current_sig]])
         local x, y = unpack(nback.pos_signals[nback.current_sig])
         local border = 5
         --g.rectangle("fill", x0 + x * nback.cell_width + border, 
@@ -555,7 +559,7 @@ function nback.draw()
     g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
     --
     
-    draw_statistic()
+    if nback.show_statistic then draw_statistic() end
 
     g.pop()
 end
