@@ -1,4 +1,8 @@
-﻿local inspect = require "libs.inspect"
+﻿--[[
+   [ Напиши документацию к модулю, балбес!
+
+   ]]
+local inspect = require "libs.inspect"
 local pallete = require "pallete"
 
 local g = love.graphics
@@ -38,6 +42,11 @@ function layout.draw()
     draw(layout)
 end
 
+--[[
+   [ Делит вертикально экран на полосы с названиями. Сумма последних аргументов должна быть
+   равна еденице. Пример вызова:
+   splitv(layout, "left", "center", "right", 0.3, 0.4, 0.3)
+   ]]
 function splitv(layout, ...)
     assert((#{...}) % 2 == 0)
 
@@ -66,6 +75,11 @@ function splitv(layout, ...)
     end
 end
 
+--[[
+   [ Делит горизонтально экран на полосы с названиями. Сумма последних аргументов должна быть
+   равна еденице. Пример вызова:
+    splith(layout, "top", "center", "bottom", 0.2, 0.6, 0.2)
+   ]]
 function splith(t, ...)
     assert((#{...}) % 2 == 0)
 
@@ -113,7 +127,9 @@ function layout.init()
     layout.w, layout.h = g.getDimensions()
 
     splitv(layout, "left", "center", "right", 0.3, 0.4, 0.3)
+    --splitv(layout, "navigation_panel", "map_area", "instruments", 0.3, 0.4, 0.3)
     splith(layout, "top", "center", "bottom", 0.2, 0.6, 0.2)
+    --splith(layout, "1", "2", "3", 0.45, 0.1, 0.45)
 
     check_layout(layout)
 end

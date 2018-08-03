@@ -4,6 +4,7 @@ local math = require "math"
 local os = require "os"
 local string = require "string"
 local table = require "table"
+local class = require "libs.30log"
 
 local pallete = require "pallete"
 
@@ -183,7 +184,12 @@ function nback.load()
 end
 
 function nback.update()
-    if nback.pause then return end
+    if nback.pause then 
+         nback.timestamp = love.timer.getTime()
+        -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
+        -- если продолжительноть паузы больше nback.pause_time?
+        return 
+    end
 
     if nback.is_run then
         local time = love.timer.getTime()
@@ -290,7 +296,7 @@ function nback.check_position()
             --print(inspect(nback))
             if nback.can_press then
                 print("hit!")
-                print(nback.statistic.pos_hits )
+                print(nback.statistic.pos_hits)
                 nback.statistic.pos_hits  = nback.statistic.pos_hits  + 1
                 nback.can_press = false
             end
@@ -307,7 +313,7 @@ function nback.check_sound()
         if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
             if nback.can_press then
                 print("sound hit!")
-                print(nback.statistic.pos_hits )
+                print(nback.statistic.sound_hits)
                 nback.statistic.sound_hits  = nback.statistic.sound_hits  + 1
                 nback.can_press = false
             end
@@ -316,6 +322,20 @@ function nback.check_sound()
 end
 
 function nback.check_color()
+    if not nback.is_run then return end
+
+    nback.color_pressed = true
+
+    if nback.current_sig - nback.level > 1 then
+        if nback.color_signals[nback.current_sig] == nback.color_signals[nback.current_sig - nback.level] then
+            if nback.can_press then
+                print("color hit!")
+                print(nback.statistic.color_hits)
+                nback.statistic.color_hits = nback.statistic.color_hits + 1
+                nback.can_press = false
+            end
+        end
+    end
 end
 
 function nback.check_form()
@@ -415,6 +435,8 @@ function debug_print_text(text)
     g.setColor(unpack(color))
 end
 
+local AlignedLabels = class("AlignedLabels")
+
 function nback.draw()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
@@ -447,7 +469,7 @@ function nback.draw()
             use_sound_text = "For disable sound - press S"
         end
 
-        g.print(use_sound_text, (w - nback.font:getWidth(use_sound_text)) / 2, bottom_text_line_y)
+        --g.print(use_sound_text, (w - nback.font:getWidth(use_sound_text)) / 2, bottom_text_line_y)
     end
 
     g.push("all")
@@ -489,6 +511,7 @@ function nback.draw()
         debug_print_text("form " .. inspect(nback.form_signals))
         debug_print_text("color " .. inspect(nback.color_signals))
         debug_print_text(string.format("current_sig %d", nback.current_sig))
+        debug_print_text("nback.can_press = " .. tostring(nback.can_press))
         --debug_print_text(inspect(nback.color_signals))
         debug_print_text("--------------")
         debug_print_signals()
@@ -545,13 +568,22 @@ function nback.draw()
     else 
         g.setColor(pallete.tip_text)
     end
-    g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
-    if nback.snd_pressed and nback.is_run then
-        g.setColor(pallete.tip_text_alt)
-    else 
-        g.setColor(pallete.tip_text)
-    end
-    g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
+    --[[
+       [if nback.snd_pressed and nback.is_run then
+       [    g.setColor(pallete.tip_text_alt)
+       [else 
+       [    g.setColor(pallete.tip_text)
+       [end
+       ]]
+    local keys_tip = AlignedLabels:new(nback.font, w)
+    keys_tip:add("P: position")
+    keys_tip:add("S: sound")
+    keys_tip:add("F: form")
+    keys_tip:add("C: color")
+    keys_tip:draw(0, bottom_text_line_y)
+
+    --g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
+    --g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
 
     -- draw escape tip
     g.setFont(nback.font)
@@ -562,6 +594,36 @@ function nback.draw()
     if nback.show_statistic then draw_statistic() end
 
     g.pop()
+end
+
+function AlignedLabels:init(font, screenwidth)
+    self.screenwidth = screenwidth
+    self.font = font
+    self.data = {}
+    self.maxlen = 0
+end
+
+function AlignedLabels:add(text)
+    assert(type(text) == "string")
+    self.data[#self.data + 1] = text
+    if text:len() > self.maxlen then
+        self.maxlen = text:len()
+    end
+end
+
+function AlignedLabels:draw(x, y)
+    local dw = self.screenwidth / (#self.data + 1)
+    local i = x + dw
+    local f = g.getFont()
+    g.setFont(self.font)
+    for k, v in pairs(self.data) do
+        --print(string.format("i = %d, dw = %d", i, dw))
+        --print("AlignedLabels:draw()")
+        --print(v, i - self.font:getWidth(v) / 2, y)
+        g.print(v, i - self.font:getWidth(v) / 2, y)
+        i = i + dw
+    end
+    g.setFont(f)
 end
 
 return nback
