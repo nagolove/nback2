@@ -184,6 +184,11 @@ function nback.load()
 end
 
 function nback.update()
+    nback.position_press = false
+    nback.sound_pressed = false
+    nback.form_pressed = false
+    nback.color_pressed = false
+
     if nback.pause then 
          nback.timestamp = love.timer.getTime()
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
@@ -260,12 +265,16 @@ function nback.keypressed(key)
         end
     elseif key == "p" then
         nback.check_position()
+        nback.position_press = true
     elseif key == "s" then
         nback.check_sound()
+        nback.sound_pressed = true
     elseif key == "f" then
         nback.check_form()
+        nback.form_pressed = true
     elseif key == "c" then
         nback.check_color()
+        nback.color_pressed = true
     end
 
     local minimum_nb_level = 2
@@ -576,10 +585,28 @@ function nback.draw()
        [end
        ]]
     local keys_tip = AlignedLabels:new(nback.font, w)
-    keys_tip:add("P: position")
-    keys_tip:add("S: sound")
-    keys_tip:add("F: form")
-    keys_tip:add("C: color")
+    local pressed_color = pallete.active
+    local unpressed_color = pallete.inactive
+    if nback.sound_pressed then
+        keys_tip:add("S: sound", pressed_color)
+    else
+        keys_tip:add("S: sound", unpressed_color)
+    end
+    if nback.color_pressed then
+        keys_tip:add("C: color", pressed_color)
+    else
+        keys_tip:add("C: color", unpressed_color)
+    end
+    if nback.form_pressed then
+        keys_tip:add("F: form", pressed_color)
+    else
+        keys_tip:add("F: form", unpressed_color)
+    end
+    if nback.position_pressed then
+        keys_tip:add("P: position", pressed_color)
+    else
+        keys_tip:add("P: position", unpressed_color)
+    end
     keys_tip:draw(0, bottom_text_line_y)
 
     --g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
@@ -596,16 +623,19 @@ function nback.draw()
     g.pop()
 end
 
-function AlignedLabels:init(font, screenwidth)
+function AlignedLabels:init(font, screenwidth, color)
     self.screenwidth = screenwidth
     self.font = font
     self.data = {}
+    self.colors = {}
+    self.default_color = color or {255, 255, 255, 255}
     self.maxlen = 0
 end
 
-function AlignedLabels:add(text)
+function AlignedLabels:add(text, color)
     assert(type(text) == "string")
     self.data[#self.data + 1] = text
+    self.colors[#self.colors + 1] = color or self.default_color
     if text:len() > self.maxlen then
         self.maxlen = text:len()
     end
@@ -615,15 +645,18 @@ function AlignedLabels:draw(x, y)
     local dw = self.screenwidth / (#self.data + 1)
     local i = x + dw
     local f = g.getFont()
+    local c = {g.getColor()}
     g.setFont(self.font)
     for k, v in pairs(self.data) do
         --print(string.format("i = %d, dw = %d", i, dw))
         --print("AlignedLabels:draw()")
         --print(v, i - self.font:getWidth(v) / 2, y)
+        g.setColor(self.colors[k])
         g.print(v, i - self.font:getWidth(v) / 2, y)
         i = i + dw
     end
     g.setFont(f)
+    g.setColor(c)
 end
 
 return nback
