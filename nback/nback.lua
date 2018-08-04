@@ -184,11 +184,6 @@ function nback.load()
 end
 
 function nback.update()
-    nback.position_press = false
-    nback.sound_pressed = false
-    nback.form_pressed = false
-    nback.color_pressed = false
-
     if nback.pause then 
          nback.timestamp = love.timer.getTime()
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
@@ -211,7 +206,9 @@ function nback.update()
             end
 
             nback.pos_pressed = false
-            nback.snd_pressed = false
+            nback.sound_pressed = false
+            nback.form_pressed = false
+            nback.color_pressed = false
         end
 
         if nback.current_sig == #nback.pos_signals then
@@ -244,6 +241,20 @@ function nback.quit()
     states.pop()
 end
 
+function nback.keyrelease(key)
+    --[[
+       [if key == "p" then
+       [    nback.pos_pressed = false
+       [elseif key == "s" then
+       [    nback.sound_pressed = false
+       [elseif key == "f" then
+       [    nback.form_pressed = false
+       [elseif key = "c" then
+       [    nback.color_pressed = false
+       [end
+       ]]
+end
+
 function nback.keypressed(key)
     if key == "escape" then
         nback.quit()
@@ -265,16 +276,12 @@ function nback.keypressed(key)
         end
     elseif key == "p" then
         nback.check_position()
-        nback.position_press = true
     elseif key == "s" then
         nback.check_sound()
-        nback.sound_pressed = true
     elseif key == "f" then
         nback.check_form()
-        nback.form_pressed = true
     elseif key == "c" then
         nback.check_color()
-        nback.color_pressed = true
     end
 
     local minimum_nb_level = 2
@@ -296,7 +303,6 @@ function nback.check_position()
     end
 
     if not nback.is_run then return end
-
     nback.pos_pressed = true
 
     if nback.current_sig - nback.level > 1 then
@@ -316,7 +322,7 @@ end
 function nback.check_sound()
     if not nback.is_run then return end
 
-    nback.snd_pressed = true
+    nback.sound_pressed = true
 
     if nback.use_sound and nback.current_sig - nback.level > 1 then
         if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
@@ -350,7 +356,7 @@ end
 function nback.check_form()
     if not nback.is_run then return end
 
-    --nback.pos_pressed = true
+    nback.form_pressed = true
 
     if nback.current_sig - nback.level > 1 then
         if nback.form_signals[nback.current_sig] == nback.form_signals[nback.current_sig - nback.level] then
@@ -578,7 +584,7 @@ function nback.draw()
         g.setColor(pallete.tip_text)
     end
     --[[
-       [if nback.snd_pressed and nback.is_run then
+       [if nback.sound_pressed and nback.is_run then
        [    g.setColor(pallete.tip_text_alt)
        [else 
        [    g.setColor(pallete.tip_text)
@@ -602,11 +608,12 @@ function nback.draw()
     else
         keys_tip:add("F: form", unpressed_color)
     end
-    if nback.position_pressed then
+    if nback.pos_pressed then
         keys_tip:add("P: position", pressed_color)
     else
         keys_tip:add("P: position", unpressed_color)
     end
+    keys_tip:add("kek", {200, 0, 200}, "kak", {0, 200, 0})
     keys_tip:draw(0, bottom_text_line_y)
 
     --g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
@@ -632,12 +639,41 @@ function AlignedLabels:init(font, screenwidth, color)
     self.maxlen = 0
 end
 
-function AlignedLabels:add(text, color)
-    assert(type(text) == "string")
-    self.data[#self.data + 1] = text
-    self.colors[#self.colors + 1] = color or self.default_color
-    if text:len() > self.maxlen then
-        self.maxlen = text:len()
+function check_color_t(t)
+    if t[1] and t[2] and t[3] and t[4] and 
+        t[1] >= 0 and t[1] <= 255 and
+        t[2] >= 0 and t[2] <= 255 and
+        t[3] >= 0 and t[3] <= 255 and
+        t[4] >= 0 and t[4] <= 255 then 
+            return true
+    elseif t[1] and t[2] and t[3] and 
+        t[1] >= 0 and t[1] <= 255 and
+        t[2] >= 0 and t[2] <= 255 and
+        t[3] >= 0 and t[3] <= 255 then 
+            return true
+    else
+            return false
+    end
+end
+
+-- ... - list of pairs of color and text
+-- AlignedLabels:add("helllo", {200, 100, 10}, "wwww", {0, 0, 100})
+function AlignedLabels:add(...)
+    --assert(type(text) == "string")
+    local args = {...}
+    local nargs = select("#", ...)
+    if nargs > 2 then
+        for i = 1, nargs do
+            self.data[#self.data + 1] = select(i, ...)
+            assert(check_color_t(select(i + 1, ...)))
+            self.colors[#self.colors + 1] = select(i + 1, ...)
+            if text:len() > self.maxlen then
+                self.maxlen = text:len()
+            end
+        end
+    else
+        self.data[#self.data + 1] = select(1, ...)
+        self.colors[#self.colors + 1] = select(i + 1, ...) or self.default_color
     end
 end
 
