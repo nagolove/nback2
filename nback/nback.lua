@@ -594,26 +594,25 @@ function nback.draw()
     local pressed_color = pallete.active
     local unpressed_color = pallete.inactive
     if nback.sound_pressed then
-        keys_tip:add("S: sound", pressed_color)
+        keys_tip:add("Sound", pressed_color)
     else
-        keys_tip:add("S: sound", unpressed_color)
+        keys_tip:add("S", {200, 0, 200}, "ound", unpressed_color)
     end
     if nback.color_pressed then
-        keys_tip:add("C: color", pressed_color)
+        keys_tip:add("Color", pressed_color)
     else
-        keys_tip:add("C: color", unpressed_color)
+        keys_tip:add("C", {200, 0, 200}, "olor", unpressed_color)
     end
     if nback.form_pressed then
-        keys_tip:add("F: form", pressed_color)
+        keys_tip:add("Form", pressed_color)
     else
-        keys_tip:add("F: form", unpressed_color)
+        keys_tip:add("F", {200, 0, 200}, "orm", unpressed_color)
     end
     if nback.pos_pressed then
-        keys_tip:add("P: position", pressed_color)
+        keys_tip:add("Position", pressed_color)
     else
-        keys_tip:add("P: position", unpressed_color)
+        keys_tip:add("P", {200, 0, 200}, "osition", unpressed_color)
     end
-    keys_tip:add("kek", {200, 0, 200}, "kak", {0, 200, 0})
     keys_tip:draw(0, bottom_text_line_y)
 
     --g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
@@ -631,8 +630,12 @@ function nback.draw()
 end
 
 function AlignedLabels:init(font, screenwidth, color)
-    self.screenwidth = screenwidth
-    self.font = font
+    self:clear(font, screenwidth, color)
+end
+
+function AlignedLabels:clear(font, screenwidth, color)
+    self.screenwidth = screenwidth or self.screenwidth
+    self.font = font or self.font
     self.data = {}
     self.colors = {}
     self.default_color = color or {255, 255, 255, 255}
@@ -658,22 +661,32 @@ end
 
 -- ... - list of pairs of color and text
 -- AlignedLabels:add("helllo", {200, 100, 10}, "wwww", {0, 0, 100})
+-- плохо, что функция не проверяет параметры на количество и тип
 function AlignedLabels:add(...)
     --assert(type(text) == "string")
     local args = {...}
     local nargs = select("#", ...)
+    --print("AlignedLabels:add() args = " .. inspect(args))
     if nargs > 2 then
-        for i = 1, nargs do
-            self.data[#self.data + 1] = select(i, ...)
-            assert(check_color_t(select(i + 1, ...)))
-            self.colors[#self.colors + 1] = select(i + 1, ...)
-            if text:len() > self.maxlen then
-                self.maxlen = text:len()
-            end
+        local colored_text_data = {}
+        local colors = {}
+        local text_len = 0
+        for i = 1, nargs, 2 do
+            local text = select(i, ...)
+            local color = select(i + 1, ...)
+            text_len = text_len + text:len()
+            colored_text_data[#colored_text_data + 1] = text
+            colors[#colors + 1] = color
+        end
+        self.data[#self.data + 1] = colored_text_data
+        --assert(check_color_t(select(i + 1, ...)))
+        self.colors[#self.colors + 1] = colors
+        if text_len > self.maxlen then
+            self.maxlen = text_len
         end
     else
         self.data[#self.data + 1] = select(1, ...)
-        self.colors[#self.colors + 1] = select(i + 1, ...) or self.default_color
+        self.colors[#self.colors + 1] = select(2, ...) or self.default_color
     end
 end
 
@@ -687,9 +700,27 @@ function AlignedLabels:draw(x, y)
         --print(string.format("i = %d, dw = %d", i, dw))
         --print("AlignedLabels:draw()")
         --print(v, i - self.font:getWidth(v) / 2, y)
-        g.setColor(self.colors[k])
-        g.print(v, i - self.font:getWidth(v) / 2, y)
-        i = i + dw
+        if type(v) == "string" then
+            g.setColor(self.colors[k])
+            g.print(v, i - self.font:getWidth(v) / 2, y)
+            i = i + dw
+        elseif type(v) == "table" then
+            local width = 0
+            for _, g in pairs(v) do
+                width = width + self.font:getWidth(g)
+            end
+            assert(#v == #self.colors[k])
+            local xpos = i - width / 2
+            for j, p in pairs(v) do
+                --print(type(self.colors[k]), inspect(self.colors[k]), k, j)
+                g.setColor(self.colors[k][j])
+                g.print(p, xpos, y)
+                xpos = xpos + self.font:getWidth(p)
+            end
+            i = i + dw
+        else
+            error(string.format("Incorrect type %s in self.data"))
+        end
     end
     g.setFont(f)
     g.setColor(c)
