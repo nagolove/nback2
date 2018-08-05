@@ -257,7 +257,12 @@ end
 
 function nback.keypressed(key)
     if key == "escape" then
-        nback.quit()
+        if nback.is_run then
+            nback.show_statistic = true
+            nback.stop()
+        else
+            nback.quit()
+        end
     elseif key == "space" or key == "return" and not (love.keyboard.isDown("ralt", "lalt")) then
         if not nback.is_run then 
             nback.start()
