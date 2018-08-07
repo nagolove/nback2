@@ -15,7 +15,7 @@ local pviewer = {
     scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
 }
 
-function pviewer.load()
+function pviewer.init()
     local tmp, size = love.filesystem.read(nback.save_name)
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)

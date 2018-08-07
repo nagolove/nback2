@@ -35,22 +35,22 @@ function state_stack:new()
 end
 
 local color_constants = {
-        ["brown"] = {136, 55, 41},
-        ["green"] = {72, 180, 66},
-        ["blue"] = {27, 30, 249},
-        ["red"] = {241, 30, 27},
-        ["yellow"] = {231, 227, 11},
-        ["purple"] = {128, 7, 128},
+        ["brown"] = {136 / 255, 55 / 255, 41 / 255},
+        ["green"] = {72 / 255, 180 / 255, 66 / 255},
+        ["blue"] = {27 / 255, 30 / 255, 249 / 255},
+        ["red"] = {241 / 255, 30 / 255, 27 / 255},
+        ["yellow"] = {231 / 255, 227 / 255, 11 / 255},
+        ["purple"] = {128 / 255, 7 / 255, 128 / 255},
 }
 
 local nback = {
     dim = 5,
-    cell_width = 100,                                -- width of game field in pixels
+    cell_width = 100,  -- width of game field in pixels
     current_sig = 1,
     sig_count = 6,                                  -- number of signals.
     level = 2,
     is_run = false,
-    pause_time = 1.5,                               -- delay beetween signals, in seconds
+    pause_time = 1.5, -- delay beetween signals, in seconds
     use_sound = true,
     can_press = false,
     save_name = "nback-v0.1.lua",
@@ -88,7 +88,7 @@ function nback.start()
         function(a, b)
             return a == b
         end)
-    print("form", inspect(nback.form_signal))
+    print("form", inspect(nback.form_signals))
     nback.sound_signals = generate_nback(nback.sig_count, 
         function()
             return math.random(1, #nback.sounds)
@@ -118,6 +118,19 @@ function nback.start()
     nback.use_sound_text = ""
     nback.statistic.pos_hits  = 0
     nback.show_statistic = false
+
+    function create_array(len)
+        local ret = {}
+        for i = 1, len do
+            ret[#ret + 1] = false
+        end
+        return ret
+    end
+
+    nback.pos_pressed_arr = create_array(#nback.pos_signals)
+    nback.color_pressed_arr = create_array(#nback.color_signals)
+    nback.form_pressed_arr = create_array(#nback.form_signals)
+    nback.sound_pressed_arr = create_array(#nback.sound_signals)
 
     debug_print_init()
 end
@@ -174,13 +187,15 @@ function generate_nback(sig_count, gen, cmp)
     return ret
 end
 
-function nback.load()
+function nback.init()
     math.randomseed(os.time())
 
     wave_path = "sfx/alphabet"
     for k, v in pairs(love.filesystem.getDirectoryItems(wave_path)) do
-        table.insert(nback.sounds, love.audio.newSource(wave_path .. "/" .. v))
+        table.insert(nback.sounds, love.audio.newSource(wave_path .. "/" .. v, "static"))
     end
+
+    nback.resize(g.getDimensions())
 end
 
 function nback.update()
@@ -308,8 +323,9 @@ function nback.check_position()
     end
 
     if not nback.is_run then return end
-    nback.pos_pressed = true
 
+    nback.pos_pressed = true
+    nback.pos_pressed_arr[nback.current_sig] = true
     if nback.current_sig - nback.level > 1 then
         if tuple_cmp(nback.pos_signals[nback.current_sig], 
                      nback.pos_signals[nback.current_sig - nback.level]) then
@@ -328,7 +344,7 @@ function nback.check_sound()
     if not nback.is_run then return end
 
     nback.sound_pressed = true
-
+    nback.sound_pressed_arr[nback.current_sig] = true
     if nback.use_sound and nback.current_sig - nback.level > 1 then
         if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
             if nback.can_press then
@@ -345,7 +361,7 @@ function nback.check_color()
     if not nback.is_run then return end
 
     nback.color_pressed = true
-
+    nback.color_pressed_arr[nback.current_sig] = true
     if nback.current_sig - nback.level > 1 then
         if nback.color_signals[nback.current_sig] == nback.color_signals[nback.current_sig - nback.level] then
             if nback.can_press then
@@ -362,7 +378,7 @@ function nback.check_form()
     if not nback.is_run then return end
 
     nback.form_pressed = true
-
+    nback.form_pressed_arr[nback.current_sig] = true
     if nback.current_sig - nback.level > 1 then
         if nback.form_signals[nback.current_sig] == nback.form_signals[nback.current_sig - nback.level] then
             --print(inspect(nback))
@@ -379,6 +395,8 @@ end
 function nback.resize(neww, newh)
     w = neww
     h = newh
+    local pixels_border = 130
+    nback.cell_width = (newh - pixels_border) / nback.dim
 end
 
 local debug_print_y = 0
@@ -461,16 +479,64 @@ function nback.draw()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
     local field_h = nback.dim * nback.cell_width
-    local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
+    --local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
+    local bottom_text_line_y = h - nback.font:getHeight() * 3
     local side_column_w = (w - field_h) / 2
 
     -- рисовать статистику после конца сета
     function draw_statistic()
-            g.setFont(nback.statistic_font)
             g.setColor(pallete.statistic)
 
             y = y0 + nback.statistic_font:getHeight()
             g.printf(string.format("Set results:"), 0, y, w, "center")
+
+            local width_k = 3 / 4
+            local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
+            local x = (w - w * width_k) / 2
+            local y = 200
+            local hit_color = {200 / 255, 10 / 255, 10 / 255}
+            --print("x", x)
+            --print("screenW = ", w)
+            --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
+
+            function make_hit_arr(signals, comparator)
+                local ret = {}
+                for k, v in pairs(signals) do
+                    ret[#ret + 1] = k > nback.level and comparator(v, signals[k - nback.level]) then
+                end
+                return ret
+            end
+
+            pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
+            sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
+            form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+            color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
+
+            function draw_hit_rects(arr)
+                for k, v in pairs(arr) do
+                    local border = 2
+                    if v then
+                        g.setColor(hit_color)
+                        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border*2, rect_size - border*2)
+                    end
+                    g.setColor(pallete.field)
+                    g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
+                end
+                y = y + rect_size + 6
+            end
+
+            g.setColor({0.5, 0.5, 0.5})
+            g.setFont(nback.statistic_font)
+            for k, v in pairs(nback.pos_pressed_arr) do
+                local delta = (rect_size - g.getFont():getWidth(tostring(k))) / 2
+                g.print(tostring(k), x + rect_size * (k - 1) + delta, y)
+            end
+            y = y + g.getFont():getHeight() * 1.5
+
+            draw_hit_rects(nback.pos_pressed_arr)
+            draw_hit_rects(nback.sound_pressed_arr)
+            draw_hit_rects(nback.color_pressed_arr)
+            draw_hit_rects(nback.form_pressed_arr)
 
             --local percent = nback.sig_count / nback.statistic.pos_hits * 100
             --y = y + nback.statistic_font:getHeight()
@@ -500,9 +566,17 @@ function nback.draw()
     --
 
     --draw game field grid
-    g.setColor(pallete.field)
+    local field_color = pallete.field
+    if nback.show_statistic then
+        -- FIXME Not work properly!
+        -- effect on next drawing in draw_statistic()
+        --field_color[4] = 0.2
+    end
+    g.setColor(field_color)
     for i = 0, nback.dim do
+        -- horizontal
         g.line(x0, y0 + i * nback.cell_width, x0 + field_h, y0 + i * nback.cell_width)
+        -- vertical
         g.line(x0 + i * nback.cell_width, y0, x0 + i * nback.cell_width, y0 + field_h)
     end
     --
@@ -563,7 +637,7 @@ function nback.draw()
         g.setFont(nback.font)
         --FIXME Dissonance with color and variable name
         g.setColor(pallete.tip_text) 
-        local y = 20
+        local y = 10
         g.printf(string.format("nback level is %d", nback.level),
             0, y, w, "center")
         y = y + nback.font:getHeight()
@@ -598,6 +672,7 @@ function nback.draw()
     local keys_tip = AlignedLabels:new(nback.font, w)
     local pressed_color = pallete.active
     local unpressed_color = pallete.inactive
+
     if nback.sound_pressed then
         keys_tip:add("Sound", pressed_color)
     else
@@ -619,9 +694,6 @@ function nback.draw()
         keys_tip:add("P", {200, 0, 200}, "osition", unpressed_color)
     end
     keys_tip:draw(0, bottom_text_line_y)
-
-    --g.printf("A: position", 0, bottom_text_line_y, side_column_w, "center")
-    --g.printf("L: sound", w - side_column_w, bottom_text_line_y, side_column_w, "center")
 
     -- draw escape tip
     g.setFont(nback.font)
@@ -702,9 +774,6 @@ function AlignedLabels:draw(x, y)
     local c = {g.getColor()}
     g.setFont(self.font)
     for k, v in pairs(self.data) do
-        --print(string.format("i = %d, dw = %d", i, dw))
-        --print("AlignedLabels:draw()")
-        --print(v, i - self.font:getWidth(v) / 2, y)
         if type(v) == "string" then
             g.setColor(self.colors[k])
             g.print(v, i - self.font:getWidth(v) / 2, y)

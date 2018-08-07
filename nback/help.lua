@@ -2,7 +2,7 @@
 
 local help = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15),
-    load = function() end,
+    init = function() end,
     update = function() end,
 }
 

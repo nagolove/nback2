@@ -35,10 +35,10 @@ function love.load()
 
     layout.init()
 
-    menu.load()
-    nback.load()
-    pviewer.load()
-    help.load()
+    menu.init()
+    nback.init()
+    pviewer.init()
+    help.init()
 
     states.push(menu)
 end

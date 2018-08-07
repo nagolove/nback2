@@ -9,7 +9,7 @@ local menu = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32),
 }
 
-function menu.load()
+function menu.init()
     menu.items = {"play", "view progress", "help", "quit"}
     menu.actions = { menu.play, menu.view_progress, menu.help, menu.quit }
 end

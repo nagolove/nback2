@@ -6,11 +6,11 @@ local colorpicker = class("colorpicker")
 
 function colorpicker:init()
     print(string.format("Colorpicker created"))
-    self.color = {200, 100, 135, 255}
-    self.rslider = {value = self.color[1], min = 0, max = 255}
-    self.gslider = {value = self.color[2], min = 0, max = 255}
-    self.bslider = {value = self.color[3], min = 0, max = 255}
-    self.aslider = {value = self.color[4], min = 0, max = 255}
+    self.color = {0.5, 0.5, 0.5, 1}
+    self.rslider = {value = self.color[1], min = 0, max = 1}
+    self.gslider = {value = self.color[2], min = 0, max = 1}
+    self.bslider = {value = self.color[3], min = 0, max = 1}
+    self.aslider = {value = self.color[4], min = 0, max = 1}
 end
 
 function colorpicker:mousepressed(x, y, button, istouch)
