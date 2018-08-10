@@ -11,6 +11,8 @@ function states.push(s)
 end
 
 function states.pop()
+    local last = states.a[#states.a]
+    if last.leave then last.leave() end
     states.a[#states.a] = nil
 end
 
@@ -84,7 +86,8 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
-    states.top().draw()
+    local dr_func = states.top().draw()
+    if dr_func then dr_func() end
     --layout.draw()
     if picker then
         picker:draw()

@@ -1,4 +1,5 @@
 ﻿local pallete = require "pallete"
+local nback = require "nback"
 
 local help = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15),
@@ -22,7 +23,7 @@ function help.draw()
     g.printf("Put description here!", 0, y, w, "center")
 
     --FIXME Not work, using nil table nback here
-    g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
+    --g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
 
     g.pop()
 end

@@ -20,7 +20,6 @@ function menu.play()
 end
 
 function menu.view_progress()
-    pviewer.load()
     states.push(pviewer)
 end
 

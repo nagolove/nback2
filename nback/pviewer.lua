@@ -45,11 +45,6 @@ function draw_chart()
         deltax = deltax + dx
     end
 
-    function draw_slash()
-        draw_column(pallete.header, function(k, v)
-            return " / "
-        end)
-    end
 
     draw_column(pallete.chart, function(k, v)
         return string.format("%.2d.%.2d.%d", 
@@ -57,15 +52,15 @@ function draw_chart()
         v.date.month,
         v.date.year)
     end)
-    draw_slash()
+    draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
         return string.format("%d", v.nlevel)
     end)
-    draw_slash()
+    draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
-        return string.format("%.2d%%", v.stat.hits)
+        return string.format("%.2d%%", v.statistic.success)
     end)
-    draw_slash()
+    draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
         if v.use_sound then
             return "yes"
@@ -101,13 +96,20 @@ function pviewer.draw()
 
     --drawing chart
     g.setCanvas(pviewer.rt)
-    pviewer.rt:clear()
-    local chart_width = draw_chart()
-    local x = (w - chart_width) / 2
-    g.setCanvas()
-    g.setScissor(x, pviewer.border, chart_width, h - 2 * pviewer.border)
-    g.draw(pviewer.rt, x, pviewer.border + pviewer.scrollx)
-    g.setScissor()
+    print("pviever " .. inspect(pviewer))
+    --pviewer.rt:clear()
+   
+
+    
+    --local chart_width = draw_chart()
+
+
+
+    --local x = (w - chart_width) / 2
+    --g.setCanvas()
+    --g.setScissor(x, pviewer.border, chart_width, h - 2 * pviewer.border)
+    --g.draw(pviewer.rt, x, pviewer.border + pviewer.scrollx)
+    --g.setScissor()
     --
 
     --XXX

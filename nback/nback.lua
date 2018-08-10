@@ -11,29 +11,6 @@ local pallete = require "pallete"
 local g = love.graphics
 local w, h = g.getDimensions()
 
-state_stack = {}
-
-function state_stack:new()
-
-    local self = {
-        a = {}
-    }
-
-    function self:push(s)
-        self.a[#self.a + 1] = s
-    end
-
-    function self.pop()
-        self.a[#self.a] = nil
-    end
-
-    function self.top()
-        return self.a[#self.a]
-    end
-
-    return self
-end
-
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
         ["green"] = {72 / 255, 180 / 255, 66 / 255},
@@ -58,7 +35,8 @@ local nback = {
         pos_hits = 0,
         color_hits = 0,
         sound_hits = 0,
-        form_hits = 0
+        form_hits = 0,
+        success = 0,
     },
     show_statistic = false,
     sounds = {},
@@ -115,7 +93,6 @@ function nback.start()
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
-    nback.use_sound_text = ""
     nback.statistic.pos_hits  = 0
     nback.show_statistic = false
 
@@ -138,9 +115,8 @@ end
 function nback.enter()
 end
 
-function nback.change_sound()
-    if nback.is_run then return end
-    nback.use_sound = not nback.use_sound
+function nback.leave()
+    nback.show_statistic = false
 end
 
 function generate_nback(sig_count, gen, cmp)
@@ -236,7 +212,6 @@ function nback.update()
         end
 
         if nback.current_sig == #nback.pos_signals then
-            nback.show_statistic = true
             nback.stop()
         end
     end
@@ -297,8 +272,6 @@ function nback.keypressed(key)
         if not nback.is_run then 
             nback.start()
         end
-    --elseif key == "s" then
-        --nback.change_sound()
     elseif key == "0" then
         nback.pause = not nback.pause
     elseif key == "9" then
@@ -370,7 +343,7 @@ function nback.check_sound()
 
     nback.sound_pressed = true
     nback.sound_pressed_arr[nback.current_sig] = true
-    if nback.use_sound and nback.current_sig - nback.level > 1 then
+    if nback.current_sig - nback.level > 1 then
         if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
             if nback.can_press then
                 print("sound hit!")
@@ -659,8 +632,10 @@ function nback.draw()
         --
     else
 
+        if nback.show_statistic then 
+            draw_statistic()
+        else
         --if not nback.show_statistic then
-        do
             --draw nback level setup invitation
             g.setFont(nback.font)
             --FIXME Dissonance with color and variable name
@@ -720,8 +695,6 @@ function nback.draw()
     g.printf("Escape - go to menu", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
     --
     
-    if nback.show_statistic then draw_statistic() end
-
     g.pop()
 end
 
