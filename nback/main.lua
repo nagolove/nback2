@@ -31,7 +31,7 @@ function love.load()
     lovebird.update()
     lovebird.maxlines = 500
 
-    love.window.setTitle("nback trainer!")
+    love.window.setTitle("nback")
 
     layout.init()
 
@@ -85,7 +85,7 @@ end
 
 function love.draw()
     states.top().draw()
-    layout.draw()
+    --layout.draw()
     if picker then
         picker:draw()
     end

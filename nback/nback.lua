@@ -136,7 +136,6 @@ function nback.start()
 end
 
 function nback.enter()
-    --nback.change_sound();
 end
 
 function nback.change_sound()
@@ -196,6 +195,16 @@ function nback.init()
     end
 
     nback.resize(g.getDimensions())
+    
+    local data, _ = love.filesystem.read("settings.lua")
+    if data then
+        local settings = lume.deserialize(data, "all")
+        print("settings loaded", inspect(settings))
+        nback.level = settings.level
+        nback.pause_time = settings.level
+        nback.volume = settings.volume
+    end
+    love.audio.setVolume(nback.volume)
 end
 
 function nback.update()
@@ -235,6 +244,7 @@ end
 
 function nback.stop()
     nback.is_run = false
+    nback.show_statistic = true
 
     if nback.pos_signals and nback.current_sig == #nback.pos_signals then
         local data, size = love.filesystem.read(nback.save_name)
@@ -252,6 +262,11 @@ function nback.stop()
 end
 
 function nback.quit()
+    local settings_str = lume.serialize { 
+        ["volume"] = love.audio.getVolume(), 
+        ["level"] = nback.level, 
+        ["pause_time"] = nback.pause_time }
+    ok, msg = love.filesystem.write("settings.lua", settings_str, settings_str:len())
     nback.stop()
     states.pop()
 end
@@ -270,10 +285,10 @@ function nback.keyrelease(key)
        ]]
 end
 
+-- key or scancode?
 function nback.keypressed(key)
     if key == "escape" then
         if nback.is_run then
-            nback.show_statistic = true
             nback.stop()
         else
             nback.quit()
@@ -281,9 +296,6 @@ function nback.keypressed(key)
     elseif key == "space" or key == "return" and not (love.keyboard.isDown("ralt", "lalt")) then
         if not nback.is_run then 
             nback.start()
-        else
-            nback.stop()
-            nback.enter()
         end
     --elseif key == "s" then
         --nback.change_sound()
@@ -305,14 +317,27 @@ function nback.keypressed(key)
     end
 
     local minimum_nb_level = 2
-    local maximum_nb_level = 8
+    local maximum_nb_level = 4
 
-    if not nback.is_run then
+    if not nback.is_run and not nback.show_statistic then
         if key == "left" and nback.level > minimum_nb_level then
             nback.level = nback.level - 1
         elseif key == "right" and nback.level < maximum_nb_level then
             nback.level = nback.level + 1
         end
+        if key == "up" and nback.pause_time < 3 then
+            nback.pause_time = nback.pause_time + 0.2
+        elseif key == "down" and nback.pause_time > 0.6 then
+            nback.pause_time = nback.pause_time - 0.2
+        end
+    end
+
+    if key == "-" then 
+        print("love.audio.getVolume() = ", love.audio.getVolume())
+        love.audio.setVolume(love.audio.getVolume() - 0.05)
+    elseif key == "=" then
+        print("love.audio.getVolume() = ", love.audio.getVolume())
+        love.audio.setVolume(love.audio.getVolume() + 0.05)
     end
 end
 
@@ -502,25 +527,27 @@ function nback.draw()
             function make_hit_arr(signals, comparator)
                 local ret = {}
                 for k, v in pairs(signals) do
-                    ret[#ret + 1] = k > nback.level and comparator(v, signals[k - nback.level]) then
+                    ret[#ret + 1] = k > nback.level and comparator(v, signals[k - nback.level])
                 end
                 return ret
             end
 
-            pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
-            sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
-            form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
-            color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
-
-            function draw_hit_rects(arr)
+            function draw_hit_rects(arr, eq)
                 for k, v in pairs(arr) do
                     local border = 2
-                    if v then
-                        g.setColor(hit_color)
-                        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border*2, rect_size - border*2)
-                    end
                     g.setColor(pallete.field)
                     g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
+                    g.setColor(pallete.inactive)
+                    g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+                    if v then
+                        g.setColor(hit_color)
+                        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+                    end
+                    if eq[k] then
+                        local radius = 4
+                        g.setColor({0, 0, 0})
+                        g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
+                    end
                 end
                 y = y + rect_size + 6
             end
@@ -532,30 +559,31 @@ function nback.draw()
                 g.print(tostring(k), x + rect_size * (k - 1) + delta, y)
             end
             y = y + g.getFont():getHeight() * 1.5
+            local freeze_y = y
 
-            draw_hit_rects(nback.pos_pressed_arr)
-            draw_hit_rects(nback.sound_pressed_arr)
-            draw_hit_rects(nback.color_pressed_arr)
-            draw_hit_rects(nback.form_pressed_arr)
+            local pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
+            local sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
+            local color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
+            local form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+
+            draw_hit_rects(nback.sound_pressed_arr, sound_eq)
+            draw_hit_rects(nback.color_pressed_arr, color_eq)
+            draw_hit_rects(nback.form_pressed_arr, form_eq)
+            draw_hit_rects(nback.pos_pressed_arr, pos_eq)
+
+            g.setColor({200 / 255, 0, 200 / 255})
+            g.setFont(nback.font)
+            local y = freeze_y
+            local delta = (rect_size - g.getFont():getHeight()) / 2
+            function print_signal_type(str)
+                g.print(str, x - g.getFont():getWidth(str) - 10, y + delta)
+                y = y + rect_size + 6
+            end
+            print_signal_type("S") print_signal_type("C") print_signal_type("F") print_signal_type("P")
 
             --local percent = nback.sig_count / nback.statistic.pos_hits * 100
             --y = y + nback.statistic_font:getHeight()
             --g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
-    end
-
-    function draw_use_sound_text()
-        local use_sound_text = "For enable sound - press S"
-
-        g.setFont(nback.font)
-
-        if nback.use_sound then
-            g.setColor(pallete.tip_text_alt)
-        else
-            g.setColor(pallete.tip_text)
-            use_sound_text = "For disable sound - press S"
-        end
-
-        --g.print(use_sound_text, (w - nback.font:getWidth(use_sound_text)) / 2, bottom_text_line_y)
     end
 
     g.push("all")
@@ -567,6 +595,7 @@ function nback.draw()
 
     --draw game field grid
     local field_color = pallete.field
+    -- set up game field alpha color
     if nback.show_statistic then
         -- FIXME Not work properly!
         -- effect on next drawing in draw_statistic()
@@ -587,7 +616,8 @@ function nback.draw()
         elseif formtype == "circle" then
             g.circle("fill", x + w / 2, y + h / 2, w / 2)
         elseif formtype == "trup" then
-            g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
+            --g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
+            g.polygon("fill", {x, y + h * (2.2 / 3), x + w / 2, y, x + w, y + h * (2.2 / 3)})
         elseif formtype == "trdown" then
             g.polygon("fill", {x, y + h / 3, x + w / 2, y + h, x + w, y + h / 3})
         elseif formtype == "trupdown" then
@@ -598,20 +628,15 @@ function nback.draw()
         end
     end
 
-    if nback.is_run then
-        debug_print_y = 0
-        debug_print_text("pos " .. inspect(nback.pos_signals))
-        debug_print_text("sound " .. inspect(nback.sound_signals))
-        debug_print_text("form " .. inspect(nback.form_signals))
-        debug_print_text("color " .. inspect(nback.color_signals))
-        debug_print_text(string.format("current_sig %d", nback.current_sig))
-        debug_print_text("nback.can_press = " .. tostring(nback.can_press))
-        --debug_print_text(inspect(nback.color_signals))
-        debug_print_text("--------------")
-        debug_print_signals()
-        --debug_print_signals()
-        debug_print_text("--------------")
+    debug_print_y = 0
+    debug_print_text("pos " .. inspect(nback.pos_signals))
+    debug_print_text("sound " .. inspect(nback.sound_signals))
+    debug_print_text("form " .. inspect(nback.form_signals))
+    debug_print_text("color " .. inspect(nback.color_signals))
+    debug_print_text("current_sig = " .. nback.current_sig)
+    debug_print_text("nback.can_press = " .. tostring(nback.can_press))
 
+    if nback.is_run then
         -- draw active signal quad
         --g.setColor(pallete.signal)
         g.setColor(color_constants[nback.color_signals[nback.current_sig]])
@@ -633,72 +658,66 @@ function nback.draw()
         g.print(text, x, y)
         --
     else
-        --draw nback level setup invitation
-        g.setFont(nback.font)
-        --FIXME Dissonance with color and variable name
-        g.setColor(pallete.tip_text) 
-        local y = 10
-        g.printf(string.format("nback level is %d", nback.level),
-            0, y, w, "center")
-        y = y + nback.font:getHeight()
-        g.printf("Use ←→ arrows to setup", 0, y, w, "center")
+
+        --if not nback.show_statistic then
+        do
+            --draw nback level setup invitation
+            g.setFont(nback.font)
+            --FIXME Dissonance with color and variable name
+            g.setColor(pallete.tip_text) 
+            local y = (h - g.getFont():getHeight() * 4) / 2.5
+            g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
+            y = y + nback.font:getHeight()
+            g.printf("Use ←→ arrows to setup", 0, y, w, "center")
+            y = y + nback.font:getHeight()
+            g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
+            y = y + nback.font:getHeight()
+            g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
+        end
 
         -- draw central_text - Press Space key
         local central_text = "Press Space to new round"
         g.setFont(nback.central_font)
         g.setColor(pallete.signal)
         x = (w - nback.central_font:getWidth(central_text)) / 2
-        y = (h - nback.central_font:getHeight()) / 2
+        --y = h - nback.central_font:getHeight() * 2
+        y = y0 + (nback.dim - 1) * nback.cell_width
         g.print(central_text, x, y)
         --
-
-        draw_use_sound_text()
     end
 
-    -- draw left&right help texts
+    -- draw bottom line hotkeys tips texts
     g.setFont(nback.font)
-    if nback.pos_pressed and nback.is_run then
-        g.setColor(pallete.tip_text_alt)
-    else 
-        g.setColor(pallete.tip_text)
-    end
-    --[[
-       [if nback.sound_pressed and nback.is_run then
-       [    g.setColor(pallete.tip_text_alt)
-       [else 
-       [    g.setColor(pallete.tip_text)
-       [end
-       ]]
     local keys_tip = AlignedLabels:new(nback.font, w)
     local pressed_color = pallete.active
     local unpressed_color = pallete.inactive
-
     if nback.sound_pressed then
         keys_tip:add("Sound", pressed_color)
     else
-        keys_tip:add("S", {200, 0, 200}, "ound", unpressed_color)
+        keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
     end
     if nback.color_pressed then
         keys_tip:add("Color", pressed_color)
     else
-        keys_tip:add("C", {200, 0, 200}, "olor", unpressed_color)
+        keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
     end
     if nback.form_pressed then
         keys_tip:add("Form", pressed_color)
     else
-        keys_tip:add("F", {200, 0, 200}, "orm", unpressed_color)
+        keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
     end
     if nback.pos_pressed then
         keys_tip:add("Position", pressed_color)
     else
-        keys_tip:add("P", {200, 0, 200}, "osition", unpressed_color)
+        keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
     end
     keys_tip:draw(0, bottom_text_line_y)
+    --
 
     -- draw escape tip
     g.setFont(nback.font)
     g.setColor(pallete.tip_text)
-    g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
+    g.printf("Escape - go to menu", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
     --
     
     if nback.show_statistic then draw_statistic() end
