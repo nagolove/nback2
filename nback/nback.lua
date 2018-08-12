@@ -20,6 +20,102 @@ local color_constants = {
         ["purple"] = {128 / 255, 7 / 255, 128 / 255},
 }
 
+local AlignedLabels = class("AlignedLabels")
+
+function AlignedLabels:init(font, screenwidth, color)
+    self:clear(font, screenwidth, color)
+end
+
+function AlignedLabels:clear(font, screenwidth, color)
+    self.screenwidth = screenwidth or self.screenwidth
+    self.font = font or self.font
+    self.data = {}
+    self.colors = {}
+    self.default_color = color or {255, 255, 255, 255}
+    self.maxlen = 0
+end
+
+function check_color_t(t)
+    if t[1] and t[2] and t[3] and t[4] and 
+        t[1] >= 0 and t[1] <= 255 and
+        t[2] >= 0 and t[2] <= 255 and
+        t[3] >= 0 and t[3] <= 255 and
+        t[4] >= 0 and t[4] <= 255 then 
+            return true
+    elseif t[1] and t[2] and t[3] and 
+        t[1] >= 0 and t[1] <= 255 and
+        t[2] >= 0 and t[2] <= 255 and
+        t[3] >= 0 and t[3] <= 255 then 
+            return true
+    else
+            return false
+    end
+end
+
+-- ... - list of pairs of color and text
+-- AlignedLabels:add("helllo", {200, 100, 10}, "wwww", {0, 0, 100})
+-- плохо, что функция не проверяет параметры на количество и тип
+function AlignedLabels:add(...)
+    --assert(type(text) == "string")
+    local args = {...}
+    local nargs = select("#", ...)
+    --print("AlignedLabels:add() args = " .. inspect(args))
+    if nargs > 2 then
+        local colored_text_data = {}
+        local colors = {}
+        local text_len = 0
+        for i = 1, nargs, 2 do
+            local text = select(i, ...)
+            local color = select(i + 1, ...)
+            text_len = text_len + text:len()
+            colored_text_data[#colored_text_data + 1] = text
+            colors[#colors + 1] = color
+        end
+        self.data[#self.data + 1] = colored_text_data
+        --assert(check_color_t(select(i + 1, ...)))
+        self.colors[#self.colors + 1] = colors
+        if text_len > self.maxlen then
+            self.maxlen = text_len
+        end
+    else
+        self.data[#self.data + 1] = select(1, ...)
+        self.colors[#self.colors + 1] = select(2, ...) or self.default_color
+    end
+end
+
+function AlignedLabels:draw(x, y)
+    local dw = self.screenwidth / (#self.data + 1)
+    local i = x + dw
+    local f = g.getFont()
+    local c = {g.getColor()}
+    g.setFont(self.font)
+    for k, v in pairs(self.data) do
+        if type(v) == "string" then
+            g.setColor(self.colors[k])
+            g.print(v, i - self.font:getWidth(v) / 2, y)
+            i = i + dw
+        elseif type(v) == "table" then
+            local width = 0
+            for _, g in pairs(v) do
+                width = width + self.font:getWidth(g)
+            end
+            assert(#v == #self.colors[k])
+            local xpos = i - width / 2
+            for j, p in pairs(v) do
+                --print(type(self.colors[k]), inspect(self.colors[k]), k, j)
+                g.setColor(self.colors[k][j])
+                g.print(p, xpos, y)
+                xpos = xpos + self.font:getWidth(p)
+            end
+            i = i + dw
+        else
+            error(string.format("Incorrect type %s in self.data"))
+        end
+    end
+    g.setFont(f)
+    g.setColor(c)
+end
+
 local nback = {
     dim = 5,
     cell_width = 100,  -- width of game field in pixels
@@ -471,8 +567,6 @@ function debug_print_text(text)
     g.setColor(unpack(color))
 end
 
-local AlignedLabels = class("AlignedLabels")
-
 function nback.draw()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
@@ -483,10 +577,15 @@ function nback.draw()
 
     -- рисовать статистику после конца сета
     function draw_statistic()
+            g.setFont(nback.font)
             g.setColor(pallete.statistic)
 
-            y = y0 + nback.statistic_font:getHeight()
+            y = y0 + nback.font:getHeight()
             g.printf(string.format("Set results:"), 0, y, w, "center")
+            y = y + nback.font:getHeight()
+            g.printf(string.format("level %d", nback.level), 0, y, w, "center")
+            y = y + nback.font:getHeight()
+            g.printf(string.format("delay time %.1f sec", nback.pause_time), 0, y, w, "center")
 
             local width_k = 3 / 4
             local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
@@ -538,6 +637,7 @@ function nback.draw()
             local sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
             local color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
             local form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+
 
             draw_hit_rects(nback.sound_pressed_arr, sound_eq)
             draw_hit_rects(nback.color_pressed_arr, color_eq)
@@ -632,11 +732,10 @@ function nback.draw()
         --
     else
 
+        --draw statistic or level setup invitation
         if nback.show_statistic then 
             draw_statistic()
         else
-        --if not nback.show_statistic then
-            --draw nback level setup invitation
             g.setFont(nback.font)
             --FIXME Dissonance with color and variable name
             g.setColor(pallete.tip_text) 
@@ -644,7 +743,7 @@ function nback.draw()
             g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
             y = y + nback.font:getHeight()
             g.printf("Use ←→ arrows to setup", 0, y, w, "center")
-            y = y + nback.font:getHeight()
+            y = y + nback.font:getHeight() * 2
             g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
             y = y + nback.font:getHeight()
             g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
@@ -696,100 +795,6 @@ function nback.draw()
     --
     
     g.pop()
-end
-
-function AlignedLabels:init(font, screenwidth, color)
-    self:clear(font, screenwidth, color)
-end
-
-function AlignedLabels:clear(font, screenwidth, color)
-    self.screenwidth = screenwidth or self.screenwidth
-    self.font = font or self.font
-    self.data = {}
-    self.colors = {}
-    self.default_color = color or {255, 255, 255, 255}
-    self.maxlen = 0
-end
-
-function check_color_t(t)
-    if t[1] and t[2] and t[3] and t[4] and 
-        t[1] >= 0 and t[1] <= 255 and
-        t[2] >= 0 and t[2] <= 255 and
-        t[3] >= 0 and t[3] <= 255 and
-        t[4] >= 0 and t[4] <= 255 then 
-            return true
-    elseif t[1] and t[2] and t[3] and 
-        t[1] >= 0 and t[1] <= 255 and
-        t[2] >= 0 and t[2] <= 255 and
-        t[3] >= 0 and t[3] <= 255 then 
-            return true
-    else
-            return false
-    end
-end
-
--- ... - list of pairs of color and text
--- AlignedLabels:add("helllo", {200, 100, 10}, "wwww", {0, 0, 100})
--- плохо, что функция не проверяет параметры на количество и тип
-function AlignedLabels:add(...)
-    --assert(type(text) == "string")
-    local args = {...}
-    local nargs = select("#", ...)
-    --print("AlignedLabels:add() args = " .. inspect(args))
-    if nargs > 2 then
-        local colored_text_data = {}
-        local colors = {}
-        local text_len = 0
-        for i = 1, nargs, 2 do
-            local text = select(i, ...)
-            local color = select(i + 1, ...)
-            text_len = text_len + text:len()
-            colored_text_data[#colored_text_data + 1] = text
-            colors[#colors + 1] = color
-        end
-        self.data[#self.data + 1] = colored_text_data
-        --assert(check_color_t(select(i + 1, ...)))
-        self.colors[#self.colors + 1] = colors
-        if text_len > self.maxlen then
-            self.maxlen = text_len
-        end
-    else
-        self.data[#self.data + 1] = select(1, ...)
-        self.colors[#self.colors + 1] = select(2, ...) or self.default_color
-    end
-end
-
-function AlignedLabels:draw(x, y)
-    local dw = self.screenwidth / (#self.data + 1)
-    local i = x + dw
-    local f = g.getFont()
-    local c = {g.getColor()}
-    g.setFont(self.font)
-    for k, v in pairs(self.data) do
-        if type(v) == "string" then
-            g.setColor(self.colors[k])
-            g.print(v, i - self.font:getWidth(v) / 2, y)
-            i = i + dw
-        elseif type(v) == "table" then
-            local width = 0
-            for _, g in pairs(v) do
-                width = width + self.font:getWidth(g)
-            end
-            assert(#v == #self.colors[k])
-            local xpos = i - width / 2
-            for j, p in pairs(v) do
-                --print(type(self.colors[k]), inspect(self.colors[k]), k, j)
-                g.setColor(self.colors[k][j])
-                g.print(p, xpos, y)
-                xpos = xpos + self.font:getWidth(p)
-            end
-            i = i + dw
-        else
-            error(string.format("Incorrect type %s in self.data"))
-        end
-    end
-    g.setFont(f)
-    g.setColor(c)
 end
 
 return nback
