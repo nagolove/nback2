@@ -124,7 +124,6 @@ local nback = {
     level = 2,
     is_run = false,
     pause_time = 1.5, -- delay beetween signals, in seconds
-    use_sound = true,
     can_press = false,
     save_name = "nback-v0.1.lua",
     statistic = {                                   -- statistic which saving to file
@@ -298,9 +297,7 @@ function nback.update()
                 nback.can_press = true
             end
             
-            if nback.use_sound then
-                nback.sounds[nback.sound_signals[nback.current_sig]]:play()
-            end
+            nback.sounds[nback.sound_signals[nback.current_sig]]:play()
 
             nback.pos_pressed = false
             nback.sound_pressed = false
@@ -327,8 +324,7 @@ function nback.stop()
         --print("history", inspect(history))
         table.insert(history, { date = os.date("*t"), 
                                 stat = nback.statistic,
-                                nlevel = nback.level,
-                                use_sound = nback.use_sound})
+                                nlevel = nback.level})
         love.filesystem.write(nback.save_name, lume.serialize(history))
     end
 end
