@@ -591,7 +591,8 @@ function nback.draw()
             local width_k = 3 / 4
             local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
             local x = (w - w * width_k) / 2
-            local y = 200
+            local starty = 200
+            local y = starty
             local hit_color = {200 / 255, 10 / 255, 10 / 255}
             local border = 2
             --print("x", x)
@@ -685,17 +686,21 @@ function nback.draw()
             g.setColor({200 / 255, 0, 200 / 255})
             g.setFont(nback.font)
 
-            g.print(string.format("%.3f", calc_percent(sound_eq, nback.sound_pressed_arr)), sx, y + delta)
+            local sound_percent = calc_percent(sound_eq, nback.sound_pressed_arr)
+            g.print(string.format("%.3f", sound_percent), sx, y + delta)
             y = y + rect_size + 6
-            g.print(string.format("%.3f", calc_percent(color_eq, nback.color_pressed_arr)), sx, y + delta)
+            local color_percent = calc_percent(color_eq, nback.color_pressed_arr)
+            g.print(string.format("%.3f", color_percent), sx, y + delta)
             y = y + rect_size + 6
-            g.print(string.format("%.3f", calc_percent(form_eq, nback.form_pressed_arr)), sx, y + delta)
+            local form_percent = calc_percent(form_eq, nback.form_pressed_arr)
+            g.print(string.format("%.3f", form_percent), sx, y + delta)
             y = y + rect_size + 6
-            g.print(string.format("%.3f", calc_percent(pos_eq, nback.pos_pressed_arr)), sx, y + delta)
+            local pos_percent = calc_percent(pos_eq, nback.pos_pressed_arr)
+            g.print(string.format("%.3f", pos_percent), sx, y + delta)
 
-            --local percent = nback.sig_count / nback.statistic.pos_hits * 100
-            --y = y + nback.statistic_font:getHeight()
-            --g.printf(string.format("rating %d%%", percent), 0, y, w, "center")
+            local percent = (sound_percent + color_percent + form_percent + pos_percent) / 4
+            y = starty + 4 * (rect_size + 20)
+            g.printf(string.format("rating %0.3f", percent), 0, y, w, "center")
     end
 
     g.push("all")
