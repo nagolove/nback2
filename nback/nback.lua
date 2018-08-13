@@ -200,6 +200,7 @@ function nback.start()
         return ret
     end
 
+    -- массивы хранящие булевские значения - нажат сигнал вот время обработки или нет?
     nback.pos_pressed_arr = create_array(#nback.pos_signals)
     nback.color_pressed_arr = create_array(#nback.color_signals)
     nback.form_pressed_arr = create_array(#nback.form_signals)
@@ -592,10 +593,12 @@ function nback.draw()
             local x = (w - w * width_k) / 2
             local y = 200
             local hit_color = {200 / 255, 10 / 255, 10 / 255}
+            local border = 2
             --print("x", x)
             --print("screenW = ", w)
             --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
 
+            -- return array of boolean values in succesful indices
             function make_hit_arr(signals, comparator)
                 local ret = {}
                 for k, v in pairs(signals) do
@@ -606,7 +609,6 @@ function nback.draw()
 
             function draw_hit_rects(arr, eq)
                 for k, v in pairs(arr) do
-                    local border = 2
                     g.setColor(pallete.field)
                     g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
                     g.setColor(pallete.inactive)
@@ -615,6 +617,7 @@ function nback.draw()
                         g.setColor(hit_color)
                         g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
                     end
+                    -- draw circle in center of quad if it is successful
                     if eq[k] then
                         local radius = 4
                         g.setColor({0, 0, 0})
@@ -624,6 +627,7 @@ function nback.draw()
                 y = y + rect_size + 6
             end
 
+            -- drawing horizontal string with signal numbers
             g.setColor({0.5, 0.5, 0.5})
             g.setFont(nback.statistic_font)
             for k, v in pairs(nback.pos_pressed_arr) do
@@ -631,6 +635,7 @@ function nback.draw()
                 g.print(tostring(k), x + rect_size * (k - 1) + delta, y)
             end
             y = y + g.getFont():getHeight() * 1.5
+            ----------------------------------------
             local freeze_y = y
 
             local pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
@@ -638,21 +643,55 @@ function nback.draw()
             local color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
             local form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
 
-
             draw_hit_rects(nback.sound_pressed_arr, sound_eq)
             draw_hit_rects(nback.color_pressed_arr, color_eq)
             draw_hit_rects(nback.form_pressed_arr, form_eq)
-            draw_hit_rects(nback.pos_pressed_arr, pos_eq)
+            local sx = draw_hit_rects(nback.pos_pressed_arr, pos_eq)
 
+            -- drawing left column with letters
             g.setColor({200 / 255, 0, 200 / 255})
             g.setFont(nback.font)
             local y = freeze_y
             local delta = (rect_size - g.getFont():getHeight()) / 2
+            local gap = 10
+
             function print_signal_type(str)
-                g.print(str, x - g.getFont():getWidth(str) - 10, y + delta)
+                g.print(str, x - g.getFont():getWidth(str) - gap, y + delta)
                 y = y + rect_size + 6
             end
-            print_signal_type("S") print_signal_type("C") print_signal_type("F") print_signal_type("P")
+
+            print_signal_type("S") 
+            print_signal_type("C") 
+            print_signal_type("F") 
+            print_signal_type("P")
+            ----------------------
+
+            function calc_percent(eq, pressed_arr)
+                local p = 0
+                local success = 0
+                for k, v in pairs(eq) do
+                    if v then
+                        success = success + 1
+                    end
+                    if v and pressed_arr[k] then
+                        p = p + 1
+                    end
+                end
+                return p / success
+            end
+
+            local y = freeze_y
+            local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + gap
+            g.setColor({200 / 255, 0, 200 / 255})
+            g.setFont(nback.font)
+
+            g.print(string.format("%.3f", calc_percent(sound_eq, nback.sound_pressed_arr)), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.3f", calc_percent(color_eq, nback.color_pressed_arr)), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.3f", calc_percent(form_eq, nback.form_pressed_arr)), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.3f", calc_percent(pos_eq, nback.pos_pressed_arr)), sx, y + delta)
 
             --local percent = nback.sig_count / nback.statistic.pos_hits * 100
             --y = y + nback.statistic_font:getHeight()
