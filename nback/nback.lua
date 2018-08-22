@@ -288,32 +288,57 @@ function nback.update()
     end
 
     if nback.is_run then
-        local time = love.timer.getTime()
-        if (time - nback.timestamp >= nback.pause_time) then
-            nback.timestamp = love.timer.getTime()
+        if nback.current_sig < #nback.pos_signals then
+            local time = love.timer.getTime()
+            if (time - nback.timestamp >= nback.pause_time) then
+                nback.timestamp = love.timer.getTime()
 
-            if (nback.current_sig <= #nback.pos_signals) then
-                nback.current_sig = nback.current_sig + 1
-                nback.can_press = true
+                if (nback.current_sig <= #nback.pos_signals) then
+                    nback.current_sig = nback.current_sig + 1
+                    nback.can_press = true
+                end
+                
+                nback.sounds[nback.sound_signals[nback.current_sig]]:play()
+
+                nback.pos_pressed = false
+                nback.sound_pressed = false
+                nback.form_pressed = false
+                nback.color_pressed = false
             end
-            
-            nback.sounds[nback.sound_signals[nback.current_sig]]:play()
-
-            nback.pos_pressed = false
-            nback.sound_pressed = false
-            nback.form_pressed = false
-            nback.color_pressed = false
-        end
-
-        if nback.current_sig == #nback.pos_signals then
+        else
             nback.stop()
         end
     end
 end
 
+function calc_percent(eq, pressed_arr)
+    local p = 0
+    local success = 0
+    for k, v in pairs(eq) do
+        if v then
+            success = success + 1
+        end
+        if v and pressed_arr[k] then
+            p = p + 1
+        end
+    end
+    return p / success
+end
+
 function nback.stop()
     nback.is_run = false
     nback.show_statistic = true
+    nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
+    nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
+    nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
+    nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+
+    nback.sound_percent = calc_percent(sound_eq, nback.sound_pressed_arr)
+    nback.color_percent = calc_percent(color_eq, nback.color_pressed_arr)
+    nback.form_percent = calc_percent(form_eq, nback.form_pressed_arr)
+    nback.pos_percent = calc_percent(pos_eq, nback.pos_pressed_arr)
+
+    nback.percent = (sound_percent + color_percent + form_percent + pos_percent) / 4
 
     if nback.pos_signals and nback.current_sig == #nback.pos_signals then
         local data, size = love.filesystem.read(nback.save_name)
@@ -324,7 +349,9 @@ function nback.stop()
         --print("history", inspect(history))
         table.insert(history, { date = os.date("*t"), 
                                 stat = nback.statistic,
-                                nlevel = nback.level})
+                                nlevel = nback.level,
+                                pause = nback.pause_time,
+                                percent = nback.percent})
         love.filesystem.write(nback.save_name, lume.serialize(history))
     end
 end
@@ -564,6 +591,15 @@ function debug_print_text(text)
     g.setColor(unpack(color))
 end
 
+-- return array of boolean values in succesful indices
+function make_hit_arr(signals, comparator)
+    local ret = {}
+    for k, v in pairs(signals) do
+        ret[#ret + 1] = k > nback.level and comparator(v, signals[k - nback.level])
+    end
+    return ret
+end
+
 function nback.draw()
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2
@@ -582,7 +618,7 @@ function nback.draw()
             y = y + nback.font:getHeight()
             g.printf(string.format("level %d", nback.level), 0, y, w, "center")
             y = y + nback.font:getHeight()
-            g.printf(string.format("delay time %.1f sec", nback.pause_time), 0, y, w, "center")
+            g.printf(string.format("Pause time %.1f sec", nback.pause_time), 0, y, w, "center")
 
             local width_k = 3 / 4
             local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
@@ -594,15 +630,6 @@ function nback.draw()
             --print("x", x)
             --print("screenW = ", w)
             --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
-
-            -- return array of boolean values in succesful indices
-            function make_hit_arr(signals, comparator)
-                local ret = {}
-                for k, v in pairs(signals) do
-                    ret[#ret + 1] = k > nback.level and comparator(v, signals[k - nback.level])
-                end
-                return ret
-            end
 
             function draw_hit_rects(arr, eq)
                 for k, v in pairs(arr) do
@@ -635,11 +662,6 @@ function nback.draw()
             ----------------------------------------
             local freeze_y = y
 
-            local pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
-            local sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
-            local color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
-            local form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
-
             draw_hit_rects(nback.sound_pressed_arr, sound_eq)
             draw_hit_rects(nback.color_pressed_arr, color_eq)
             draw_hit_rects(nback.form_pressed_arr, form_eq)
@@ -663,40 +685,21 @@ function nback.draw()
             print_signal_type("P")
             ----------------------
 
-            function calc_percent(eq, pressed_arr)
-                local p = 0
-                local success = 0
-                for k, v in pairs(eq) do
-                    if v then
-                        success = success + 1
-                    end
-                    if v and pressed_arr[k] then
-                        p = p + 1
-                    end
-                end
-                return p / success
-            end
+            g.print(string.format("%.3f", nback.sound_percent), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.3f", nback.color_percent), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.3f", nback.form_percent), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.3f", nback.pos_percent), sx, y + delta)
 
             local y = freeze_y
             local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + gap
             g.setColor({200 / 255, 0, 200 / 255})
             g.setFont(nback.font)
 
-            local sound_percent = calc_percent(sound_eq, nback.sound_pressed_arr)
-            g.print(string.format("%.3f", sound_percent), sx, y + delta)
-            y = y + rect_size + 6
-            local color_percent = calc_percent(color_eq, nback.color_pressed_arr)
-            g.print(string.format("%.3f", color_percent), sx, y + delta)
-            y = y + rect_size + 6
-            local form_percent = calc_percent(form_eq, nback.form_pressed_arr)
-            g.print(string.format("%.3f", form_percent), sx, y + delta)
-            y = y + rect_size + 6
-            local pos_percent = calc_percent(pos_eq, nback.pos_pressed_arr)
-            g.print(string.format("%.3f", pos_percent), sx, y + delta)
-
-            local percent = (sound_percent + color_percent + form_percent + pos_percent) / 4
             y = starty + 4 * (rect_size + 20)
-            g.printf(string.format("rating %0.3f", percent), 0, y, w, "center")
+            g.printf(string.format("rating %0.3f", nback.percent), 0, y, w, "center")
     end
 
     g.push("all")
