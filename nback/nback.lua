@@ -333,12 +333,12 @@ function nback.stop()
     nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
     nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
 
-    nback.sound_percent = calc_percent(sound_eq, nback.sound_pressed_arr)
-    nback.color_percent = calc_percent(color_eq, nback.color_pressed_arr)
-    nback.form_percent = calc_percent(form_eq, nback.form_pressed_arr)
-    nback.pos_percent = calc_percent(pos_eq, nback.pos_pressed_arr)
+    nback.sound_percent = calc_percent(nback.sound_eq, nback.sound_pressed_arr)
+    nback.color_percent = calc_percent(nback.color_eq, nback.color_pressed_arr)
+    nback.form_percent = calc_percent(nback.form_eq, nback.form_pressed_arr)
+    nback.pos_percent = calc_percent(nback.pos_eq, nback.pos_pressed_arr)
 
-    nback.percent = (sound_percent + color_percent + form_percent + pos_percent) / 4
+    nback.percent = (nback.sound_percent + nback.color_percent + nback.form_percent + nback.pos_percent) / 4
 
     if nback.pos_signals and nback.current_sig == #nback.pos_signals then
         local data, size = love.filesystem.read(nback.save_name)
@@ -745,6 +745,7 @@ function nback.draw()
     end
 
     debug_print_y = 0
+    debug_print_text("fps " .. love.timer.getFPS())
     debug_print_text("pos " .. inspect(nback.pos_signals))
     debug_print_text("sound " .. inspect(nback.sound_signals))
     debug_print_text("form " .. inspect(nback.form_signals))
