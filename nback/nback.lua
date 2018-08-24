@@ -663,7 +663,10 @@ function nback.draw()
     end
     --
 
-    function draw_signal_form(formtype, x, y, w, h, color)
+    function draw_signal_form(formtype, xdim, ydim, color)
+        local border = 5
+        local x, y = x0 + xdim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
+        local w, h = nback.cell_width - border * 2, nback.cell_width - border * 2
         g.setColor(color)
         if formtype == "quad" then
             local delta = 10
@@ -745,30 +748,28 @@ function nback.draw()
 
     function debug_draw_signals()
         local x, y = 0, 1
-        local border = 5
         local color = {0.7, 0.7, 0}
-        draw_signal_form("trupdown", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
-        x = x + 1
-        y = y + 1
-        draw_signal_form("rhombus", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
-        x = x + 1
-        y = y + 1
-        draw_signal_form("trdown", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
-        x = x + 1
-        y = y - 1
-        draw_signal_form("trup", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
-        x = x + 1
-        y = y - 1
-        draw_signal_form("circle", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
-        x = x - 2
-        y = y - 1
-        draw_signal_form("quad", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
+
+        draw_signal_form("trupdown", 0, 1, color)
+        draw_signal_form("rhombus", 1, 2, color)
+        draw_signal_form("trdown", 2, 3, color)
+        draw_signal_form("trup", 3, 2, color)
+        draw_signal_form("circle", 4, 1, color)
+        draw_signal_form("quad", 2, 0, color)
+
+        draw_signal_form("quad", 5, 5, {0.2, 0.2, 1})
+        draw_signal_form("circle", 5, 5, {0.2, 0.2, 1})
+        draw_signal_form("trup", 5, 5, {0.2, 0.2, 1})
+        draw_signal_form("trdown", 5, 5, {0.2, 0.2, 1})
+        draw_signal_form("trupdown", 5, 5, {0.2, 0.2, 1})
+        draw_signal_form("rhombus", 5, 5, {0.2, 0.2, 1})
+
+        draw_signal_form("quad", 1, 5, {0.2, 0.2, 1})
+        draw_signal_form("circle", 1, 5, {0.2, 0.2, 1})
+        draw_signal_form("trup", 1, 5, {0.2, 0.2, 1})
+        draw_signal_form("trdown", 1, 5, {0.2, 0.2, 1})
+        draw_signal_form("trupdown", 1, 5, {0.2, 0.2, 1})
+        draw_signal_form("rhombus", 1, 5, {0.2, 0.2, 1})
     end
     if nback.is_run then debug_draw_signals() end
 
@@ -793,12 +794,10 @@ function nback.draw()
         -- draw active signal quad
         --g.setColor(pallete.signal)
         local x, y = unpack(nback.pos_signals[nback.current_sig])
-        local border = 5
         --g.rectangle("fill", x0 + x * nback.cell_width + border, 
             --y0 + y * nback.cell_width + border,
             --nback.cell_width - border * 2, nback.cell_width - border * 2)
-        draw_signal_form(nback.form_signals[nback.current_sig], x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2, color_constants[nback.color_signals[nback.current_sig]])
+        draw_signal_form(nback.form_signals[nback.current_sig], x, y, color_constants[nback.color_signals[nback.current_sig]])
         --
 
         --draw upper text - progress of evaluated signals
