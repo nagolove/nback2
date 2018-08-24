@@ -21,7 +21,6 @@ function states.top()
 end
 
 local help = require "help"
-local layout = require "layout"
 local menu = require "menu"
 local nback = require "nback"
 local pviewer = require "pviewer"
@@ -34,8 +33,6 @@ function love.load()
     lovebird.maxlines = 500
 
     love.window.setTitle("nback")
-
-    layout.init()
 
     menu.init()
     nback.init()
@@ -61,7 +58,6 @@ function love.resize(w, h)
     for k, v in pairs(states.a) do
         if v["resize"] then v.resize(w, h) end
     end
-    layout.resize(w, h)
 end
 
 function love.keypressed(key)
@@ -88,7 +84,6 @@ end
 function love.draw()
     local dr_func = states.top().draw()
     if dr_func then dr_func() end
-    --layout.draw()
     if picker then
         picker:draw()
     end

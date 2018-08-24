@@ -204,8 +204,6 @@ function nback.start()
     nback.color_pressed_arr = create_array(#nback.color_signals)
     nback.form_pressed_arr = create_array(#nback.form_signals)
     nback.sound_pressed_arr = create_array(#nback.sound_signals)
-
-    debug_print_init()
 end
 
 function nback.enter()
@@ -744,33 +742,33 @@ function nback.draw()
     debug_print_text("color " .. inspect(nback.color_signals))
     debug_print_text("current_sig = " .. nback.current_sig)
     debug_print_text("nback.can_press = " .. tostring(nback.can_press))
-    debug_print_signals()
 
     function debug_draw_signals()
         local x, y = 0, 1
         local border = 5
+        local color = {0.7, 0.7, 0}
         draw_signal_form("trupdown", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
+            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
         x = x + 1
         y = y + 1
         draw_signal_form("rhombus", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
+            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
         x = x + 1
         y = y + 1
         draw_signal_form("trdown", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
+            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
         x = x + 1
         y = y - 1
         draw_signal_form("trup", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
+            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
         x = x + 1
         y = y - 1
         draw_signal_form("circle", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
+            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
         x = x - 2
         y = y - 1
         draw_signal_form("quad", x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
+            nback.cell_width - border * 2, nback.cell_width - border * 2, color)
     end
     if nback.is_run then debug_draw_signals() end
 
