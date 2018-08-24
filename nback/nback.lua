@@ -137,7 +137,7 @@ local nback = {
     sounds = {},
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
-    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 10),
 }
 
 function nback.start()
@@ -217,7 +217,7 @@ end
 
 function generate_nback(sig_count, gen, cmp)
     local ret = {}
-    local ratio = 4
+    local ratio = 8 --TODO FIXME XXX
     local range = {1, 3}
     local count = sig_count
     local null = {}
@@ -666,7 +666,7 @@ function nback.draw()
             draw_hit_rects(nback.sound_pressed_arr, nback.sound_eq)
             draw_hit_rects(nback.color_pressed_arr, nback.color_eq)
             draw_hit_rects(nback.form_pressed_arr, nback.form_eq)
-            local sx = draw_hit_rects(nback.pos_pressed_arr, nback.pos_eq)
+            draw_hit_rects(nback.pos_pressed_arr, nback.pos_eq)
 
             -- drawing left column with letters
             g.setColor({200 / 255, 0, 200 / 255})
