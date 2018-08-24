@@ -520,70 +520,9 @@ end
 
 local debug_print_y = 0
 
-function debug_print_init()
-    nback.debug_pos_colors = {}
-    nback.debug_form_colors = {}
-    nback.debug_color_colors = {}
-    nback.debug_sound_colors = {}
-
-    for i = 1, nback.sig_count do
-        nback.debug_pos_colors[#nback.debug_pos_colors + 1] = pallete.inactive -- default color
-        nback.debug_form_colors[#nback.debug_form_colors + 1] = pallete.inactive -- default color
-        nback.debug_color_colors[#nback.debug_color_colors + 1] = pallete.inactive -- default color
-        nback.debug_sound_colors[#nback.debug_sound_colors + 1] = pallete.inactive -- default color
-    end
-    print("debug_pos_colors", inspect(nback.debug_pos_colors))
-    print("#debug_pos_colors", #nback.debug_pos_colors)
-
-    local comparator = function(a, b)
-        return a[1] == b[1] and a[2] == b[2]
-    end
-
-    for k, v in pairs(nback.pos_signals) do
-        if k + nback.level < #nback.pos_signals then
-            if comparator(v, nback.pos_signals[k + nback.level]) then
-                local color = {255, 0, 0}
-                --color[1] = color[1] + math.random(1, 255)
-                --color[1] = lume.clamp(100 + math.random(1, 255), 1, 255)
-
-                nback.debug_pos_colors[k + nback.level] = color
-                nback.debug_pos_colors[k] = color
-                print("-----------")
-                print(inspect(nback.debug_pos_colors[k + nback.level]))
-                print(inspect(nback.debug_pos_colors[k]))
-                print("color", inspect(color))
-                --print("same signals in debug_print_init()")
-            end
-        end
-    end
-
-    print("debug_pos_colors", inspect(nback.debug_pos_colors))
-end
-
-function debug_print_signals()
-    local oldcolor = {g.getColor()}
-    local ww, hh = 16, 16
-    local gap = 2
-    local x = 5
-    for k, v in pairs(nback.debug_pos_colors) do
-        g.setColor(v)
-        g.rectangle("fill", x, debug_print_y, ww, hh)
-        --g.print(tostring(k), x, debug_print_y)
-        x = x + ww + gap
-    end
-    debug_print_y = debug_print_y + hh
-    --[[
-       [draw(nback.debug_color_colors)
-       [draw(nback.debug_form_colors)
-       [draw(nback.debug_sound_colors)
-       ]]
-
-    g.setColor(oldcolor)
-end
-
 function debug_print_text(text)
     local color = {g.getColor()}
-    g.setColor(255, 255, 0)
+    g.setColor(1, 0.5, 0)
     g.print(text, 5, debug_print_y)
     local font = g.getFont()
     if font then
@@ -726,13 +665,15 @@ function nback.draw()
     end
     --
 
-    function draw_signal_form(formtype, x, y, w, h)
-        g.setColor(color_constants[nback.color_signals[nback.current_sig]])
+    function draw_signal_form(formtype, x, y, w, h, color)
+        g.setColor(color)
         if formtype == "quad" then
             local delta = 10
             g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
         elseif formtype == "circle" then
             g.circle("fill", x + w / 2, y + h / 2, w / 2)
+            g.setColor({1, 0, 1})
+            g.circle("fill", x + w / 2, y + h / 2, w / 2.3)
         elseif formtype == "trup" then
             --g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
             --g.polygon("fill", {x, y + h * (2.2 / 3), x + w / 2, y, x + w, y + h * (2.2 / 3)})
@@ -762,24 +703,22 @@ function nback.draw()
             g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
             g.polygon("fill", {x, y + h / 3, x + w / 2, y + h, x + w, y + h / 3})
             g.setColor({0, 1, 1})
-            local tri = {}
+            local tri_up, tri_down = {}, {}
             local rad = w / 2
             for i = 1, 3 do
                 local alpha = 2 * math.pi * i / 3
                 local sx = x + w / 2 + rad * math.sin(alpha)
                 local sy = y + h / 2 + rad * math.cos(alpha)
-                tri[#tri + 1] = sx
-                tri[#tri + 1] = sy
-            end
-            g.polygon("fill", tri)
-            for i = 1, 3 do
-                local alpha = 2 * math.pi * i / 3
+                tri_up[#tri_up + 1] = sx
+                tri_up[#tri_up + 1] = sy
+                local alpha = math.pi + 2 * math.pi * i / 3
                 local sx = x + w / 2 + rad * math.sin(alpha)
                 local sy = y + h / 2 + rad * math.cos(alpha)
-                tri[#tri + 1] = sx
-                tri[#tri + 1] = sy
+                tri_down[#tri_down + 1] = sx
+                tri_down[#tri_down + 1] = sy
             end
-            g.polygon("fill", tri)
+            g.polygon("fill", tri_up)
+            g.polygon("fill", tri_down)
         elseif formtype == "rhombus" then
             g.polygon("fill", {x, y + h / 2, x + w / 2, y + h,  x + w, y + h / 2, x + w / 2, y})
             g.setColor({0, 1, 1})
@@ -805,6 +744,7 @@ function nback.draw()
     debug_print_text("color " .. inspect(nback.color_signals))
     debug_print_text("current_sig = " .. nback.current_sig)
     debug_print_text("nback.can_press = " .. tostring(nback.can_press))
+    debug_print_signals()
 
     function debug_draw_signals()
         local x, y = 0, 1
@@ -833,6 +773,7 @@ function nback.draw()
             nback.cell_width - border * 2, nback.cell_width - border * 2)
     end
     if nback.is_run then debug_draw_signals() end
+
     function dr_circle()
         local x, y = 300, 300
         local rad = 150
@@ -859,7 +800,7 @@ function nback.draw()
             --y0 + y * nback.cell_width + border,
             --nback.cell_width - border * 2, nback.cell_width - border * 2)
         draw_signal_form(nback.form_signals[nback.current_sig], x0 + x * nback.cell_width + border, y0 + y * nback.cell_width + border,
-            nback.cell_width - border * 2, nback.cell_width - border * 2)
+            nback.cell_width - border * 2, nback.cell_width - border * 2, color_constants[nback.color_signals[nback.current_sig]])
         --
 
         --draw upper text - progress of evaluated signals
