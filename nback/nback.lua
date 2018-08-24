@@ -328,6 +328,7 @@ end
 function nback.stop()
     nback.is_run = false
     nback.show_statistic = true
+
     nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
     nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
     nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
@@ -662,10 +663,10 @@ function nback.draw()
             ----------------------------------------
             local freeze_y = y
 
-            draw_hit_rects(nback.sound_pressed_arr, sound_eq)
-            draw_hit_rects(nback.color_pressed_arr, color_eq)
-            draw_hit_rects(nback.form_pressed_arr, form_eq)
-            local sx = draw_hit_rects(nback.pos_pressed_arr, pos_eq)
+            draw_hit_rects(nback.sound_pressed_arr, nback.sound_eq)
+            draw_hit_rects(nback.color_pressed_arr, nback.color_eq)
+            draw_hit_rects(nback.form_pressed_arr, nback.form_eq)
+            local sx = draw_hit_rects(nback.pos_pressed_arr, nback.pos_eq)
 
             -- drawing left column with letters
             g.setColor({200 / 255, 0, 200 / 255})
@@ -685,21 +686,20 @@ function nback.draw()
             print_signal_type("P")
             ----------------------
 
-            g.print(string.format("%.3f", nback.sound_percent), sx, y + delta)
-            y = y + rect_size + 6
-            g.print(string.format("%.3f", nback.color_percent), sx, y + delta)
-            y = y + rect_size + 6
-            g.print(string.format("%.3f", nback.form_percent), sx, y + delta)
-            y = y + rect_size + 6
-            g.print(string.format("%.3f", nback.pos_percent), sx, y + delta)
-
             local y = freeze_y
             local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + gap
             g.setColor({200 / 255, 0, 200 / 255})
             g.setFont(nback.font)
+            g.print(string.format("%.2f", nback.sound_percent), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.2f", nback.color_percent), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.2f", nback.form_percent), sx, y + delta)
+            y = y + rect_size + 6
+            g.print(string.format("%.2f", nback.pos_percent), sx, y + delta)
 
             y = starty + 4 * (rect_size + 20)
-            g.printf(string.format("rating %0.3f", nback.percent), 0, y, w, "center")
+            g.printf(string.format("rating %0.2f", nback.percent), 0, y, w, "center")
     end
 
     g.push("all")
