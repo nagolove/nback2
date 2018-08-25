@@ -5,6 +5,7 @@ local os = require "os"
 local string = require "string"
 local table = require "table"
 local class = require "libs.30log"
+local Timer = require "libs.Timer"
 
 local pallete = require "pallete"
 
@@ -275,9 +276,10 @@ function nback.init()
         nback.volume = settings.volume
     end
     love.audio.setVolume(nback.volume)
+    nback.signal_anim_timer = Timer()
 end
 
-function nback.update()
+function nback.update(dt)
     if nback.pause then 
          nback.timestamp = love.timer.getTime()
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
@@ -307,6 +309,7 @@ function nback.update()
             nback.stop()
         end
     end
+    nback.signal_anim_timer:update(dt)
 end
 
 function calc_percent(eq, pressed_arr)
@@ -356,6 +359,7 @@ function nback.stop()
 end
 
 function nback.quit()
+    nback.signal_anim_timer:destroy()
     local settings_str = lume.serialize { 
         ["volume"] = love.audio.getVolume(), 
         ["level"] = nback.level, 
