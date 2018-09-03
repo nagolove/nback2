@@ -79,9 +79,6 @@ function pviewer.draw()
 
     g.push("all")
 
-    g.setBackgroundColor(pallete.background)
-    g.clear()
-
     --drawing scroll_tip_text
     g.setColor(pallete.scroll_tip_text)
     g.setFont(pviewer.scrool_tip_font)

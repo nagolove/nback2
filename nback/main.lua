@@ -1,4 +1,6 @@
 ﻿local lovebird = require "libs.lovebird"
+local pallete = require "pallete"
+local inspect = require "libs.inspect"
 local lume = require "libs.lume"
 local lurker = require "libs.lurker"
 
@@ -82,6 +84,11 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
+    local lc = {love.graphics.getBackgroundColor()}
+    print(inspect(pallete.background))
+    love.graphics.setBackgroundColor(pallete.background)
+    --print(inspect(lc))
+    love.graphics.clear()
     local dr_func = states.top().draw()
     if dr_func then dr_func() end
     if picker then

@@ -337,6 +337,8 @@ function nback.update(dt)
 end
 
 function calc_percent(eq, pressed_arr)
+    if not eq then return 0 end --XXX hack against crash
+
     local p = 0
     local success = 0
     for k, v in pairs(eq) do
@@ -664,11 +666,6 @@ function nback.draw()
 
     g.push("all")
 
-    --draw background
-    g.setBackgroundColor(pallete.background)
-    g.clear()
-    --
-
     --draw game field grid
     local field_color = pallete.field
     -- set up game field alpha color
@@ -818,7 +815,7 @@ function nback.draw()
             i = i + 1
         end
     end
-    dr_circle()
+    --dr_circle()
 
     if nback.is_run then
         -- draw active signal quad

@@ -12,9 +12,6 @@ function help.draw()
 
     g.push("all")
 
-    g.setBackgroundColor(pallete.background)
-    g.clear()
-
     g.setFont(help.font)
     local w, h = g.getDimensions()
     local y = 20

@@ -62,8 +62,6 @@ function menu.draw()
     y = (h - #menu.items * menu.font:getHeight()) / 2
 
     g.setFont(menu.font)
-    g.setBackgroundColor(pallete.background)
-    g.clear()
 
     for i, k in ipairs(menu.items) do
         if (menu.active_item == i) then

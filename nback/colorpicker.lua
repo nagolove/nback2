@@ -1,5 +1,6 @@
 local class = require "libs.30log"
 local suit = require "libs.suit"
+local inspect = require "libs.inspect"
 local lg = love.graphics
 
 local colorpicker = class("colorpicker")
@@ -36,6 +37,9 @@ function colorpicker:draw()
     local w, h = lg.getDimensions()
     local cornerx, cornery = (w - pickerwidth) / 2, h / 3
     local old = pack(lg.getColor())
+    --local lc = pack(lg.getColor(
+    --print("getColor()", inspect(lc))
+    --print("self.color", inspect(self.color))
     lg.setColor(self.color)
     lg.rectangle("fill", cornerx, cornery, pickerwidth, pickerheight, 3, 3)
     lg.setColor(old)
@@ -44,22 +48,24 @@ function colorpicker:draw()
 
     local sliderh = 16
     suit.Slider(self.rslider, cornerx, cornery, pickerwidth, sliderh)
-    lg.print(string.format("%d", self.color[1]), cornerx + pickerwidth, cornery)
+    lg.print(string.format("%3f", self.color[1]), cornerx + pickerwidth, cornery)
     cornery = cornery + sliderh
     suit.Slider(self.gslider, cornerx, cornery, pickerwidth, sliderh)
-    lg.print(string.format("%d", self.color[2]), cornerx + pickerwidth, cornery)
+    lg.print(string.format("%3f", self.color[2]), cornerx + pickerwidth, cornery)
     cornery = cornery + sliderh
     suit.Slider(self.bslider, cornerx, cornery, pickerwidth, sliderh)
-    lg.print(string.format("%d", self.color[3]), cornerx + pickerwidth, cornery)
+    lg.print(string.format("%3f", self.color[3]), cornerx + pickerwidth, cornery)
     cornery = cornery + sliderh
     suit.Slider(self.aslider, cornerx, cornery, pickerwidth, sliderh)
-    --lg.print(string.format("%d", self.color[4]), cornerx + pickerwidth, cornery)
+    if self.color[4] then   
+        lg.print(string.format("%3f", self.color[4]), cornerx + pickerwidth, cornery)
+    end
 
     suit.draw()
 end
 
 function colorpicker:update(dt)
-    self.color = {math.ceil(self.rslider.value), math.ceil(self.gslider.value), math.ceil(self.bslider.value)}
+    self.color = {self.rslider.value, self.gslider.value, self.bslider.value}
 end
 
 return colorpicker
