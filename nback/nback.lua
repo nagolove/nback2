@@ -141,20 +141,24 @@ local nback = {
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 10),
 }
 
-function nback.start()
-    print("start")
+function create_false_array(len)
+    local ret = {}
+    for i = 1, len do
+        ret[#ret + 1] = false
+    end
+    return ret
+end
 
-    nback.pause = false
-    nback.is_run = true
-
+function generate_signals()
     local color_arr = {}
     for k, _ in pairs(color_constants) do
         color_arr[#color_arr + 1] = k
     end
 
-    local i = 1
+    local i = 0
     local changed = false
     repeat
+        i = i + 1
         nback.pos_signals = generate_nback(nback.sig_count, 
             function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
             function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
@@ -190,32 +194,33 @@ function nback.start()
             n = n + (nback.color_eq[k] and 1 or 0)
             if n > 2 then
                 changed = true
+                print("changed")
             end
         end
-        print("once")
+        print("changed = " .. tostring(changed))
 
-        i = i + 1
-    until i <= 10 and not changed
+    until i >= 5 or not changed
     print("balanced for " .. i .. " iterations")
+end
+
+function nback.start()
+    print("start")
+
+    nback.pause = false
+    nback.is_run = true
+
+    generate_signals()
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
     nback.statistic.pos_hits  = 0
     nback.show_statistic = false
 
-    function create_array(len)
-        local ret = {}
-        for i = 1, len do
-            ret[#ret + 1] = false
-        end
-        return ret
-    end
-
     -- массивы хранящие булевские значения - нажат сигнал вот время обработки или нет?
-    nback.pos_pressed_arr = create_array(#nback.pos_signals)
-    nback.color_pressed_arr = create_array(#nback.color_signals)
-    nback.form_pressed_arr = create_array(#nback.form_signals)
-    nback.sound_pressed_arr = create_array(#nback.sound_signals)
+    nback.pos_pressed_arr = create_false_array(#nback.pos_signals)
+    nback.color_pressed_arr = create_false_array(#nback.color_signals)
+    nback.form_pressed_arr = create_false_array(#nback.form_signals)
+    nback.sound_pressed_arr = create_false_array(#nback.sound_signals)
 end
 
 function nback.enter()
