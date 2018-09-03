@@ -3,11 +3,12 @@ local lume = require "libs.lume"
 
 local pallete = require "pallete"
 local nback = require "nback"
+local lg = love.graphics
 
 local pviewer = {
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
     header_text = "", 
-    data = {}, -- games history which loading from file
+    data = {}, -- games history which loads from file
     border = 80, --y axis border in pixels for drawing chart
     scrollx = 0,
 
@@ -20,7 +21,9 @@ function pviewer.init()
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
     end
-    --print(inspect(pviewer.data))
+    print("*** begining of pviewer.data ***")
+    print(inspect(pviewer.data))
+    print("*** end of pviewer.data ***")
 
     pviewer.rt = love.graphics.newCanvas(love.graphics.getDimensions())
 end
@@ -28,7 +31,6 @@ end
 function draw_chart()
 
     local deltax = 0
-    local g = love.graphics
 
     function draw_column(color, func)
         g.setFont(pviewer.font)
@@ -41,6 +43,7 @@ function draw_chart()
             dx = math.max(dx, pviewer.font:getWidth(s))
             g.print(s, deltax, y)
             y = y + pviewer.font:getHeight()
+            print(k, inspect(v))
         end
         deltax = deltax + dx
     end
@@ -55,18 +58,12 @@ function draw_chart()
     draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
         return string.format("%d", v.nlevel)
+        --return "_"
     end)
     draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
-        return string.format("%.2d%%", v.statistic.success)
-    end)
-    draw_column(pallete.header, function(k, v) return " / " end)
-    draw_column(pallete.chart, function(k, v)
-        if v.use_sound then
-            return "yes"
-        else
-            return "no"
-        end
+        --return string.format("%.2d%%", v.percent)
+        return "_"
     end)
 
     return deltax
@@ -88,19 +85,15 @@ function pviewer.draw()
     --drawing chart header
     g.setColor(pallete.header)
     g.setFont(pviewer.font)
-    g.printf("date / nlevel / rating / with sound", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    g.printf("date / nlevel / rating", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
     --drawing chart
     g.setCanvas(pviewer.rt)
-    print("pviever " .. inspect(pviewer))
+    --print("pviever " .. inspect(pviewer))
     --pviewer.rt:clear()
-   
 
-    
     --local chart_width = draw_chart()
-
-
 
     --local x = (w - chart_width) / 2
     --g.setCanvas()

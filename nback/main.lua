@@ -85,9 +85,9 @@ end
 
 function love.draw()
     local lc = {love.graphics.getBackgroundColor()}
-    print(inspect(pallete.background))
-    love.graphics.setBackgroundColor(pallete.background)
+    --print(inspect(pallete.background))
     --print(inspect(lc))
+    love.graphics.setBackgroundColor(pallete.background)
     love.graphics.clear()
     local dr_func = states.top().draw()
     if dr_func then dr_func() end
