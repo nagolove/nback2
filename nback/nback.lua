@@ -303,7 +303,9 @@ function nback.update(dt)
                         nback.signal_anim_timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
                     end)
 
-                    nback.sounds[nback.sound_signals[nback.current_sig]]:play()
+                    local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
+                    --print("snd", inspect(nback.sound_signals[nback.current_sig]), snd:getVolume(), snd:getDuration())
+                    snd:play()
                 end
 
                 nback.pos_pressed = false
