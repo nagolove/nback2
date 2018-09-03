@@ -124,8 +124,8 @@ local nback = {
     sig_count = 6,                                  -- number of signals.
     level = 2,
     is_run = false,
-    pause_time = 1.5, -- delay beetween signals, in seconds
-    can_press = false,
+    pause_time = 2.5, -- delay beetween signals, in seconds
+    can_press = false, -- XXX FIXME зачем нужна эта переменная?
     save_name = "nback-v0.1.lua",
     statistic = {                                   -- statistic which saving to file
         pos_hits = 0,
@@ -258,6 +258,7 @@ function generate_nback(sig_count, gen, cmp)
 end
 
 function nback.init()
+    nback.signal_anim_timer = Timer()
     math.randomseed(os.time())
 
     wave_path = "sfx/alphabet"
@@ -276,7 +277,6 @@ function nback.init()
         nback.volume = settings.volume
     end
     love.audio.setVolume(nback.volume)
-    nback.signal_anim_timer = Timer()
 end
 
 function nback.update(dt)
@@ -296,9 +296,15 @@ function nback.update(dt)
                 if (nback.current_sig <= #nback.pos_signals) then
                     nback.current_sig = nback.current_sig + 1
                     nback.can_press = true
+
+                    nback.figure_alpha = {alpha = 1}
+                    local tween_time = 0.5
+                    nback.signal_anim_timer:after(nback.pause_time - tween_time, function()
+                        nback.signal_anim_timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
+                    end)
+
+                    nback.sounds[nback.sound_signals[nback.current_sig]]:play()
                 end
-                
-                nback.sounds[nback.sound_signals[nback.current_sig]]:play()
 
                 nback.pos_pressed = false
                 nback.sound_pressed = false
@@ -808,7 +814,11 @@ function nback.draw()
         --g.rectangle("fill", x0 + x * nback.cell_width + border, 
             --y0 + y * nback.cell_width + border,
             --nback.cell_width - border * 2, nback.cell_width - border * 2)
-        draw_signal_form(nback.form_signals[nback.current_sig], x, y, color_constants[nback.color_signals[nback.current_sig]])
+        local sig_color = color_constants[nback.color_signals[nback.current_sig]]
+        if nback.figure_alpha then
+            sig_color[4] = nback.figure_alpha.alpha
+        end
+        draw_signal_form(nback.form_signals[nback.current_sig], x, y, sig_color)
         --
 
         --draw upper text - progress of evaluated signals
