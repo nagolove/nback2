@@ -142,50 +142,61 @@ local nback = {
 }
 
 function nback.start()
+    print("start")
+
     nback.pause = false
     nback.is_run = true
 
-    print("start")
-    nback.pos_signals = generate_nback(nback.sig_count, 
-        function()
-            return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)}
-        end,
-        function(a, b)
-            return  a[1] == b[1] and a[2] == b[2]
-        end)
-    print("pos", inspect(nback.pos_signals))
-    nback.form_signals = generate_nback(nback.sig_count,
-        function()
-            local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
-            return arr[math.random(1, 6)]
-        end,
-        function(a, b)
-            return a == b
-        end)
-    print("form", inspect(nback.form_signals))
-    nback.sound_signals = generate_nback(nback.sig_count, 
-        function()
-            return math.random(1, #nback.sounds)
-        end,
-        function(a, b)
-            return a == b
-        end)
-    print("snd", inspect(nback.sound_signals))
-    nback.color_signals = generate_nback(nback.sig_count,
-        function()
-            local arr = {}
-            for k, _ in pairs(color_constants) do
-                arr[#arr + 1] = k
+    local color_arr = {}
+    for k, _ in pairs(color_constants) do
+        color_arr[#color_arr + 1] = k
+    end
+
+    local i = 1
+    local changed = false
+    repeat
+        nback.pos_signals = generate_nback(nback.sig_count, 
+            function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
+            function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
+        print("pos", inspect(nback.pos_signals))
+        nback.form_signals = generate_nback(nback.sig_count,
+            function()
+                local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
+                return arr[math.random(1, 6)]
+            end,
+            function(a, b) return a == b end)
+        print("form", inspect(nback.form_signals))
+        nback.sound_signals = generate_nback(nback.sig_count, 
+            function() return math.random(1, #nback.sounds) end,
+            function(a, b) return a == b end)
+        print("snd", inspect(nback.sound_signals))
+        nback.color_signals = generate_nback(nback.sig_count,
+            function() return color_arr[math.random(1, 6)] end,
+            function(a, b)
+                print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
+                return a == b end)
+        print("color", inspect(nback.color_signals))
+
+        nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
+        nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
+        nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
+        nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+
+        for k, v in pairs(nback.pos_eq) do
+            local n = 0
+            n = n + (v and 1 or 0)
+            n = n + (nback.sound_eq[k] and 1 or 0)
+            n = n + (nback.form_eq[k] and 1 or 0)
+            n = n + (nback.color_eq[k] and 1 or 0)
+            if n > 2 then
+                changed = true
             end
-            local addr = arr[math.random(1, 6)]
-            print("addr", addr)
-            return addr
-        end,
-        function(a, b)
-            print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
-            return a == b
-        end)
-    print("color", inspect(nback.color_signals))
+        end
+        print("once")
+
+        i = i + 1
+    until i <= 10 and not changed
+    print("balanced for " .. i .. " iterations")
 
     nback.current_sig = 1
     nback.timestamp = love.timer.getTime()
@@ -337,11 +348,6 @@ end
 function nback.stop()
     nback.is_run = false
     nback.show_statistic = true
-
-    nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
-    nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
-    nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
-    nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
 
     nback.sound_percent = calc_percent(nback.sound_eq, nback.sound_pressed_arr)
     nback.color_percent = calc_percent(nback.color_eq, nback.color_pressed_arr)
