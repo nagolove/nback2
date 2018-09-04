@@ -3,7 +3,8 @@ local lume = require "libs.lume"
 
 local pallete = require "pallete"
 local nback = require "nback"
-local lg = love.graphics
+local g = love.graphics
+local dbg = require "dbg"
 
 local pviewer = {
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
@@ -16,6 +17,8 @@ local pviewer = {
     scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
 }
 
+local w, h = g.getDimensions()
+
 function pviewer.init()
     local tmp, size = love.filesystem.read(nback.save_name)
     if tmp ~= nil then
@@ -25,7 +28,7 @@ function pviewer.init()
     print(inspect(pviewer.data))
     print("*** end of pviewer.data ***")
 
-    pviewer.rt = love.graphics.newCanvas(love.graphics.getDimensions())
+    pviewer.rt = love.graphics.newCanvas(w, h, {format = "normal", msaa = 2})
 end
 
 function draw_chart()
@@ -38,32 +41,46 @@ function draw_chart()
         --g.setColor(pallete.header)
         local dx = 0
         local y = 0
+        --print(inspect(pviewer.data))
         for k, v in ipairs(pviewer.data) do
+            if k > 10 then break end
             local s = func(k, v)
             dx = math.max(dx, pviewer.font:getWidth(s))
             g.print(s, deltax, y)
             y = y + pviewer.font:getHeight()
             print(k, inspect(v))
         end
+        --print("len " .. #pviewer.data)
         deltax = deltax + dx
     end
 
 
     draw_column(pallete.chart, function(k, v)
-        return string.format("%.2d.%.2d.%d", 
-        v.date.day,
-        v.date.month,
-        v.date.year)
+        return string.format("%.2d.%.2d.%d", v.date.day, v.date.month, v.date.year)
     end)
     draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
-        return string.format("%d", v.nlevel)
-        --return "_"
+        if v.level then
+            return string.format("%d", v.nlevel)
+        else
+            return "-" 
+        end
     end)
     draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
-        --return string.format("%.2d%%", v.percent)
-        return "_"
+        if v.percent then
+            return string.format("%.2d%%", v.percent)
+        else
+            return "-"
+        end
+    end)
+    draw_column(pallete.header, function(k, v) return " / " end)
+    draw_column(pallete.chart, function(k, v)
+        if v and v.pause then
+            return string.format("%d", v.pause)
+        else
+            return "_"
+        end
     end)
 
     return deltax
@@ -91,19 +108,21 @@ function pviewer.draw()
     --drawing chart
     g.setCanvas(pviewer.rt)
     --print("pviever " .. inspect(pviewer))
-    --pviewer.rt:clear()
+    g.clear()
 
-    --local chart_width = draw_chart()
+    local chart_width = draw_chart()
 
-    --local x = (w - chart_width) / 2
-    --g.setCanvas()
-    --g.setScissor(x, pviewer.border, chart_width, h - 2 * pviewer.border)
-    --g.draw(pviewer.rt, x, pviewer.border + pviewer.scrollx)
-    --g.setScissor()
+    local x = (w - chart_width) / 2
+    g.setCanvas()
+    g.setScissor(x, pviewer.border, chart_width, h - 2 * pviewer.border)
+    g.draw(pviewer.rt, x, pviewer.border + pviewer.scrollx)
+    g.setScissor()
     --
 
     --XXX
     --g.printf("Escape - to go back", 0, pviewer.font:getHeight(), w, "center")
+    dbg.clear()
+    dbg.print_text("fps " .. love.timer.getFPS())
 
     g.pop()
 end

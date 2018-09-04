@@ -6,6 +6,7 @@ local string = require "string"
 local table = require "table"
 local class = require "libs.30log"
 local Timer = require "libs.Timer"
+local dbg = require "dbg"
 
 local pallete = require "pallete"
 
@@ -541,19 +542,6 @@ function nback.resize(neww, newh)
     nback.cell_width = (newh - pixels_border) / nback.dim
 end
 
-local debug_print_y = 0
-
-function debug_print_text(text)
-    local color = {g.getColor()}
-    g.setColor(1, 0.5, 0)
-    g.print(text, 5, debug_print_y)
-    local font = g.getFont()
-    if font then
-        debug_print_y = debug_print_y + font:getHeight()
-    end
-    g.setColor(unpack(color))
-end
-
 -- return array of boolean values in succesful indices
 function make_hit_arr(signals, comparator)
     local ret = {}
@@ -757,14 +745,14 @@ function nback.draw()
         --draw_central_circle()
     end
 
-    debug_print_y = 0
-    debug_print_text("fps " .. love.timer.getFPS())
-    debug_print_text("pos " .. inspect(nback.pos_signals))
-    debug_print_text("sound " .. inspect(nback.sound_signals))
-    debug_print_text("form " .. inspect(nback.form_signals))
-    debug_print_text("color " .. inspect(nback.color_signals))
-    debug_print_text("current_sig = " .. nback.current_sig)
-    debug_print_text("nback.can_press = " .. tostring(nback.can_press))
+    debug.clear()
+    debug.print_text("fps " .. love.timer.getFPS())
+    debug.print_text("pos " .. inspect(nback.pos_signals))
+    debug.print_text("sound " .. inspect(nback.sound_signals))
+    debug.print_text("form " .. inspect(nback.form_signals))
+    debug.print_text("color " .. inspect(nback.color_signals))
+    debug.print_text("current_sig = " .. nback.current_sig)
+    debug.print_text("nback.can_press = " .. tostring(nback.can_press))
 
     function debug_draw_signals()
         local x, y = 0, 1
