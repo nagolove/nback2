@@ -127,7 +127,7 @@ local nback = {
     is_run = false,
     pause_time = 2.5, -- delay beetween signals, in seconds
     can_press = false, -- XXX FIXME зачем нужна эта переменная?
-    save_name = "nback-v0.1.lua",
+    save_name = "nback-v0.2.lua",
     statistic = {                                   -- statistic which saving to file
         pos_hits = 0,
         color_hits = 0,
@@ -745,14 +745,14 @@ function nback.draw()
         --draw_central_circle()
     end
 
-    debug.clear()
-    debug.print_text("fps " .. love.timer.getFPS())
-    debug.print_text("pos " .. inspect(nback.pos_signals))
-    debug.print_text("sound " .. inspect(nback.sound_signals))
-    debug.print_text("form " .. inspect(nback.form_signals))
-    debug.print_text("color " .. inspect(nback.color_signals))
-    debug.print_text("current_sig = " .. nback.current_sig)
-    debug.print_text("nback.can_press = " .. tostring(nback.can_press))
+    dbg.clear()
+    dbg.print_text("fps " .. love.timer.getFPS())
+    dbg.print_text("pos " .. inspect(nback.pos_signals))
+    dbg.print_text("sound " .. inspect(nback.sound_signals))
+    dbg.print_text("form " .. inspect(nback.form_signals))
+    dbg.print_text("color " .. inspect(nback.color_signals))
+    dbg.print_text("current_sig = " .. nback.current_sig)
+    dbg.print_text("nback.can_press = " .. tostring(nback.can_press))
 
     function debug_draw_signals()
         local x, y = 0, 1
