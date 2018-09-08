@@ -46,6 +46,9 @@ function pviewer.resize(neww, newh)
 end
 
 function draw_chart(k, j)
+    -- because k may be float value
+    if k < 1 then k = 1 end
+    k = math.floor(k)
 
     local deltax = 0
 
@@ -101,16 +104,14 @@ function draw_chart(k, j)
 end
 
 function draw_chart_header(r)
-    --g.setColor(pallete.header)
+    g.setColor({1, 1, 1})
     g.setFont(pviewer.font)
     local tbl = {}
     for k, v in pairs(columns_name) do
         if k == pviewer.sorted_by_column_num then
             tbl[#tbl + 1] = pallete.active
-            --tbl[#tbl + 1] = {0, 1, 1}
         else
             tbl[#tbl + 1] = pallete.header
-            --tbl[#tbl + 1] = {1, 0, 1}
         end
         if k ~= #columns_name then
             tbl[#tbl + 1] = v .. " / "
@@ -201,13 +202,13 @@ end
 
 function pviewer.move_up()
     if pviewer.start_line > 1 then
-        pviewer.start_line = pviewer.start_line - 1
+        pviewer.start_line = pviewer.start_line - 0.05
     end
 end
 
 function pviewer.move_down()
     if pviewer.start_line < #pviewer.data then
-        pviewer.start_line = pviewer.start_line + 1
+        pviewer.start_line = pviewer.start_line + 0.05
     end
 end
 
