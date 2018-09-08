@@ -49,55 +49,50 @@ function draw_chart()
 
     local deltax = 0
 
-    function draw_column(color, func)
-        g.setFont(pviewer.font)
+    -- draw column of table pviewer.data, from index k, to index j with func(v) access function
+    function draw_column(k, j, func)
+        local oldcolor = {g.getColor()}
         local dx = 0
         local y = 0
-        --print(inspect(pviewer.data))
-        for k, v in ipairs(pviewer.data) do
-            if k > 10 then break end --XXX
-            local s = func(k, v)
+        for i = k, j do
+            local s = func(pviewer.data[i])
             dx = math.max(dx, pviewer.font:getWidth(s))
             if pviewer.selected_item == k then
                 g.setColor({1, 1, 1, 1})
             else
-                g.setColor(color)
+                g.setColor(oldcolor)
             end
             g.print(s, deltax, y)
             y = y + pviewer.font:getHeight()
             --print(k, inspect(v))
         end
         --print("len " .. #pviewer.data)
+        g.setColor(oldcolor)
         deltax = deltax + dx
     end
 
-    draw_column(pallete.chart, function(k, v)
-        return string.format("%.2d.%.2d.%d", v.date.day, v.date.month, v.date.year)
-    end)
-    draw_column(pallete.header, function(k, v) return " / " end)
-    draw_column(pallete.chart, function(k, v)
-        if v.nlevel then
-            return string.format("%d", v.nlevel)
-        else
-            return "-" 
-        end
-    end)
-    draw_column(pallete.header, function(k, v) return " / " end)
-    draw_column(pallete.chart, function(k, v)
-        if v.percent then
-            return string.format("%.2f", v.percent)
-        else
-            return "-"
-        end
-    end)
-    draw_column(pallete.header, function(k, v) return " / " end)
-    draw_column(pallete.chart, function(k, v)
-        if v and v.pause then
-            return string.format("%.2f", v.pause)
-        else
-            return "_"
-        end
-    end)
+    g.setFont(pviewer.font)
+
+    g.setColor(pallete.chart)
+    draw_column(1, 10, function(v) return string.format("%.2d.%.2d.%d", v.date.day, v.date.month, v.date.year) end)
+
+    g.setColor(pallete.header)
+    draw_column(1, 10, function(v) return " / " end)
+
+    g.setColor(pallete.chart)
+    draw_column(1, 10, function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
+
+    g.setColor(pallete.header)
+    draw_column(1, 10, function(v) return " / " end)
+
+    g.setColor(pallete.chart)
+    draw_column(1, 10, function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
+
+    g.setColor(pallete.header)
+    draw_column(1, 10, function(v) return " / " end)
+
+    g.setColor(pallete.chart)
+    draw_column(1, 10, function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
 
     return deltax
 end
