@@ -164,21 +164,30 @@ end
 function pviewer.sort_by_column(idx)
     -- TODO sorting
     pviewer.sorted_by_column_num = idx
-    --[[
-       [table.sort(pviewer.data, function(a, b)
-       [    -- local columns_name = {"date", "nlevel", "rating", "pause"}
-       [    if columns_name[idx] == "date" then
-       [        --TODO not implemented
-       [    elseif columns_name[idx] == "nlevel" then
-       [        --TODO not implemented
-       [    elseif columns_name[idx] == "rating" then
-       [        --TODO not implemented
-       [    elseif columns_name[idx] == "pause" then
-       [        --TODO not implemented
-       [    end
-       [    return false
-       [end)
-       ]]
+    table.sort(pviewer.data, function(a, b)
+        -- local columns_name = {"date", "nlevel", "rating", "pause"}
+        if columns_name[idx] == "date" then
+            if a.date and b.date then
+                local t1 = a.date
+                local t2 = b.date
+                local a_sec = t1.year * 365 * 24 * 60 * 60 + t1.yday * 24 * 60 * 60 + t1.hour * 60 * 60 + t1.min * 60 + t1.sec
+                local b_sec = t2.year * 365 * 24 * 60 * 60 + t2.yday * 24 * 60 * 60 + t2.hour * 60 * 60 + t2.min * 60 + t2.sec
+                return a_sec < b_sec
+            end
+        elseif columns_name[idx] == "nlevel" then
+            if a.nlevel and b.nlevel then
+                return a.nlevel < b.nlevel
+            end
+        elseif columns_name[idx] == "rating" then
+            if a.percent and b.percent then
+                return a.percent < b.percent
+            end
+        elseif columns_name[idx] == "pause" then
+            if a.pause and b.pause then
+                return a.pause < b.pause
+            end
+        end
+    end)
 end
 
 function pviewer.keypressed(key)
