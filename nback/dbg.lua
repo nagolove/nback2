@@ -1,5 +1,7 @@
 
-local dbg = {}
+local dbg = {
+    show = true
+}
 
 local g = love.graphics
 local y = 0
@@ -9,6 +11,8 @@ function dbg.clear()
 end
 
 function dbg.print_text(text)
+    if not dbg.show then return end
+
     local color = {g.getColor()}
     g.setColor(1, 0.5, 0)
     g.print(text, 5, y)

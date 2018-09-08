@@ -3,6 +3,7 @@ local pallete = require "pallete"
 local inspect = require "libs.inspect"
 local lume = require "libs.lume"
 local lurker = require "libs.lurker"
+local dbg = require "dbg"
 
 states = {
     a = {}
@@ -72,6 +73,8 @@ function love.keypressed(key)
             picker = nil
             print("picker deleted")
         end
+    elseif key == "2" then
+        dbg.show = not dbg.show
     else
         states.top().keypressed(key)
     end
