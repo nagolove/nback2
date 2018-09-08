@@ -32,9 +32,16 @@ function pviewer.init()
     print(inspect(pviewer.data))
     print("*** end of pviewer.data ***")
     pviewer.sort_by_column(1)
+    pviewer.rt = g.newCanvas(w, h, {format = "normal", msaa = 4})
+    if not pviewer then
+        error("Canvas not supported!")
+    end
 end
 
-local print_num = 0
+function pviewer.resize(neww, newh)
+    w = newh
+    h = newh
+end
 
 function draw_chart()
 
@@ -62,7 +69,6 @@ function draw_chart()
         deltax = deltax + dx
     end
 
-
     draw_column(pallete.chart, function(k, v)
         return string.format("%.2d.%.2d.%d", v.date.day, v.date.month, v.date.year)
     end)
@@ -76,12 +82,6 @@ function draw_chart()
     end)
     draw_column(pallete.header, function(k, v) return " / " end)
     draw_column(pallete.chart, function(k, v)
-        --[[
-           [if print_num < 10 then
-           [    print(inspect(v))
-           [    print_num = print_num + 1
-           [end
-           ]]
         if v.percent then
             return string.format("%.2f", v.percent)
         else
@@ -101,7 +101,7 @@ function draw_chart()
 end
 
 function draw_chart_header(r)
-    --g.setColor(pallete.header)
+    g.setColor(pallete.header)
     g.setFont(pviewer.font)
     --g.printf("date / nlevel / rating / pause", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     local tbl = {}
@@ -123,7 +123,6 @@ function draw_chart_header(r)
 end
 
 function pviewer.draw()
-    local g = love.graphics
     local r = {x1 = pviewer.border, y1 = pviewer.border, x2 = w - pviewer.border, y2 = h - pviewer.border}
 
     g.push("all")
@@ -136,9 +135,16 @@ function pviewer.draw()
 
     draw_chart_header(r)
 
-    local chart_width = draw_chart()
+    g.setColor({1, 1, 1, 1})
+    g.setCanvas(pviewer.rt)
+    g.clear()
 
+    local chart_width = draw_chart()
     local x = (w - chart_width) / 2
+    g.setCanvas()
+
+    g.setColor({1, 1, 1, 1})
+    g.draw(pviewer.rt, x, y1)
 
     --XXX
     --g.printf("Escape - to go back", 0, pviewer.font:getHeight(), w, "center")

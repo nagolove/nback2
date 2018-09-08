@@ -372,6 +372,7 @@ function nback.stop()
         end
         --print("history", inspect(history))
         table.insert(history, { date = os.date("*t"), 
+                                time = os.time(os.date("*t")), 
                                 stat = nback.statistic,
                                 nlevel = nback.level,
                                 pause = nback.pause_time,
@@ -538,7 +539,7 @@ end
 function nback.resize(neww, newh)
     w = neww
     h = newh
-    local pixels_border = 130
+    local pixels_border = 130 -- size of border around main game field
     nback.cell_width = (newh - pixels_border) / nback.dim
 end
 
