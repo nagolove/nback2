@@ -16,9 +16,12 @@ local pviewer = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
     scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
     selected_item = 2,
+    start_line = 1,
+    sorted_by_column_num = 1
 }
 
 local w, h = g.getDimensions()
+local columns_name = {"date", "nlevel", "rating", "pause"}
 
 function pviewer.init()
     local tmp, size = love.filesystem.read(nback.save_name)
@@ -28,8 +31,7 @@ function pviewer.init()
     print("*** begining of pviewer.data ***")
     print(inspect(pviewer.data))
     print("*** end of pviewer.data ***")
-
-    pviewer.rt = love.graphics.newCanvas(w, h, {format = "rgba8", msaa = 4})
+    pviewer.sort_by_column(1)
 end
 
 local print_num = 0
@@ -40,7 +42,6 @@ function draw_chart()
 
     function draw_column(color, func)
         g.setFont(pviewer.font)
-        --g.setColor(pallete.header)
         local dx = 0
         local y = 0
         --print(inspect(pviewer.data))
@@ -99,9 +100,30 @@ function draw_chart()
     return deltax
 end
 
+function draw_chart_header(r)
+    --g.setColor(pallete.header)
+    g.setFont(pviewer.font)
+    --g.printf("date / nlevel / rating / pause", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    local tbl = {}
+    for k, v in pairs(columns_name) do
+        if k == pviewer.sorted_by_column then
+            tbl[#tbl + 1] = {1, 0, 0, 1}
+        else
+            --tbl[#tbl + 1] = pallete.header
+            tbl[#tbl + 1] = {0, 1, 1, 1}
+        end
+        if k ~= #columns_name then
+            tbl[#tbl + 1] = v .. " / "
+        else
+            tbl[#tbl + 1] = v
+        end
+    end
+    --print(inspect(tbl))
+    g.printf(tbl, r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+end
+
 function pviewer.draw()
     local g = love.graphics
-    local w, h = g.getDimensions()
     local r = {x1 = pviewer.border, y1 = pviewer.border, x2 = w - pviewer.border, y2 = h - pviewer.border}
 
     g.push("all")
@@ -112,68 +134,77 @@ function pviewer.draw()
     g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + pviewer.border / 2, r.x2 - r.x1, "center")
     -- 
 
-    --drawing chart header
-    g.setColor(pallete.header)
-    g.setFont(pviewer.font)
-    g.printf("date / nlevel / rating / pause", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
-    -- 
-
-    --drawing chart
-    g.setCanvas(pviewer.rt)
-    --print("pviever " .. inspect(pviewer))
-    g.clear()
+    draw_chart_header(r)
 
     local chart_width = draw_chart()
 
     local x = (w - chart_width) / 2
-    g.setCanvas()
-    g.setScissor(x, pviewer.border, chart_width, h - 2 * pviewer.border)
-    g.setColor({1, 1, 1})
-    g.draw(pviewer.rt, x, pviewer.border + pviewer.scrollx)
-    g.setScissor()
-    --
 
     --XXX
     --g.printf("Escape - to go back", 0, pviewer.font:getHeight(), w, "center")
     dbg.clear()
     dbg.print_text("fps " .. love.timer.getFPS())
+    dbg.print_text(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
 
     g.pop()
+end
+
+function pviewer.sort_by_column(idx)
+    -- TODO sorting
+    pviewer.sorted_by_column_num = idx
+    table.sort(pviewer.data, function(a, b)
+        -- local columns_name = {"date", "nlevel", "rating", "pause"}
+        if columns_name[idx] == "date" then
+            --TODO not implemented
+        elseif columns_name[idx] == "nlevel" then
+            --TODO not implemented
+        elseif columns_name[idx] == "rating" then
+            --TODO not implemented
+        elseif columns_name[idx] == "pause" then
+            --TODO not implemented
+        end
+        return false
+    end)
 end
 
 function pviewer.keypressed(key)
     if key == "escape" then
         states.pop()
-    elseif key == "up" then
-        if pviewer.selected_item > 1 then
-            pviewer.selected_item = pviewer.selected_item - 1
-        end
-    elseif key == "down" then
-        if pviewer.selected_item < #pviewer.data then
-            pviewer.selected_item = pviewer.selected_item + 1
-        end
     elseif key == "left" then
+        if pviewer.sorted_by_column_num - 1 < 1 then
+            pviewer.sort_by_column(#columns_name)
+        else
+            pviewer.sort_by_column(pviewer.sorted_by_column_num - 1)
+        end
     elseif key == "right" then
+        if pviewer.sorted_by_column_num + 1 > #columns_name then
+            pviewer.sort_by_column(1)
+        else
+            pviewer.sort_by_column(pviewer.sorted_by_column_num + 1)
+        end
     elseif key == "return" or key == "space" then
+    end
+end
+
+function pviewer.move_up()
+    if pviewer.start_line > 1 then
+        pviewer.start_line = pviewer.start_line - 1
+    end
+end
+
+function pviewer.move_down()
+    if pviewer.start_line < #pviewer.data then
+        pviewer.start_line = pviewer.start_line + 1
     end
 end
 
 function pviewer.update(dt)
     local kb = love.keyboard
-    local l = #pviewer.data / 2
-    --[[
-       [if kb.isDown("up") then
-       [    local t = pviewer.scrollx - pviewer.font:getHeight() 
-       [    if t >= - l * pviewer.font:getHeight() then
-       [        pviewer.scrollx = t
-       [    end
-       [elseif kb.isDown("down") then
-       [    local t = pviewer.scrollx + pviewer.font:getHeight() 
-       [    if t <= l * pviewer.font:getHeight() then
-       [        pviewer.scrollx = t
-       [    end
-       [end
-       ]]
+    if kb.isDown("up") then
+        pviewer.move_up()
+    elseif kb.isDown("down") then
+        pviewer.move_down()
+    end
 end
 
 return pviewer
