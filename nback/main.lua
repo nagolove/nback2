@@ -30,6 +30,7 @@ local pviewer = require "pviewer"
 local colorpicker = require "colorpicker"
 
 local picker = nil
+local to_resize = {}
 
 function love.load()
     lovebird.update()
@@ -41,6 +42,11 @@ function love.load()
     nback.init()
     pviewer.init()
     help.init()
+
+    to_resize[#to_resize + 1] = menu
+    to_resize[#to_resize + 1] = nback
+    to_resize[#to_resize + 1] = pviewer
+    to_resize[#to_resize + 1] = help
 
     states.push(menu)
 end
@@ -58,7 +64,7 @@ function love.update(dt)
 end
 
 function love.resize(w, h)
-    for k, v in pairs(states.a) do
+    for k, v in pairs(to_resize) do
         if v["resize"] then v.resize(w, h) end
     end
 end

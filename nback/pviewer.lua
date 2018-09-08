@@ -42,7 +42,7 @@ end
 function pviewer.resize(neww, newh)
     w = neww
     h = newh
-    print("pviewer resized")
+    print(string.format("pviewer resized to %d * %d", neww, newh))
 end
 
 function draw_chart(k, j)

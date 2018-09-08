@@ -520,6 +520,7 @@ function nback.check_form()
 end
 
 function nback.resize(neww, newh)
+    print(string.format("nback resized to %d * %d", neww, newh))
     w = neww
     h = newh
     local pixels_border = 130 -- size of border around main game field
