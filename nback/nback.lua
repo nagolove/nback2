@@ -37,23 +37,6 @@ function AlignedLabels:clear(font, screenwidth, color)
     self.maxlen = 0
 end
 
-function check_color_t(t)
-    if t[1] and t[2] and t[3] and t[4] and 
-        t[1] >= 0 and t[1] <= 255 and
-        t[2] >= 0 and t[2] <= 255 and
-        t[3] >= 0 and t[3] <= 255 and
-        t[4] >= 0 and t[4] <= 255 then 
-            return true
-    elseif t[1] and t[2] and t[3] and 
-        t[1] >= 0 and t[1] <= 255 and
-        t[2] >= 0 and t[2] <= 255 and
-        t[3] >= 0 and t[3] <= 255 then 
-            return true
-    else
-            return false
-    end
-end
-
 -- ... - list of pairs of color and text
 -- AlignedLabels:add("helllo", {200, 100, 10}, "wwww", {0, 0, 100})
 -- плохо, что функция не проверяет параметры на количество и тип

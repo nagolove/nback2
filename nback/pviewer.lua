@@ -9,7 +9,6 @@ local dbg = require "dbg"
 local pviewer = {
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
     header_text = "", 
-    data = {}, -- games history which loads from file
     border = 80, --y axis border in pixels for drawing chart
     scrollx = 0,
 
@@ -27,6 +26,8 @@ function pviewer.init()
     local tmp, size = love.filesystem.read(nback.save_name)
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
+    else
+        pviewer.data = {}
     end
     print("*** begining of pviewer.data ***")
     print(inspect(pviewer.data))
@@ -41,6 +42,7 @@ end
 function pviewer.resize(neww, newh)
     w = newh
     h = newh
+    print("pviewer resized")
 end
 
 function draw_chart()
@@ -53,7 +55,7 @@ function draw_chart()
         local y = 0
         --print(inspect(pviewer.data))
         for k, v in ipairs(pviewer.data) do
-            if k > 10 then break end
+            if k > 10 then break end --XXX
             local s = func(k, v)
             dx = math.max(dx, pviewer.font:getWidth(s))
             if pviewer.selected_item == k then
@@ -147,7 +149,8 @@ function pviewer.draw()
     g.draw(pviewer.rt, x, y1)
 
     --XXX
-    --g.printf("Escape - to go back", 0, pviewer.font:getHeight(), w, "center")
+    g.setColor({1, 1, 1, 1})
+    g.printf("Escape - to go back", 0, 20, w, "center")
     dbg.clear()
     dbg.print_text("fps " .. love.timer.getFPS())
     dbg.print_text(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))

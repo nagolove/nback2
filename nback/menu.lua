@@ -1,8 +1,10 @@
 ﻿local pviewer = require "pviewer"
 local nback = require "nback"
 local help = require "help"
-
 local pallete = require "pallete"
+
+local g = love.graphics
+local w, h = g.getDimensions()
 
 local menu = {
     active_item = 1,
@@ -12,6 +14,12 @@ local menu = {
 function menu.init()
     menu.items = {"play", "view progress", "help", "quit"}
     menu.actions = { menu.play, menu.view_progress, menu.help, menu.quit }
+end
+
+function menu.resize(neww, newh)
+    w = neww
+    h = newh
+    print("Menu resized!")
 end
 
 function menu.play()
@@ -46,7 +54,8 @@ function menu.keypressed(key)
         end
     elseif key == "escape" then
         menu.quit()
-    elseif key == "return" or key == "space" and not (love.keyboard.isDown("ralt", "lalt")) then
+    elseif key == "return" or key == "space" and not love.keyboard.isDown("ralt", "lalt") then
+        print("isDown(\"ralt\", \"lalt\") in menu", love.keyboard.isDown("ralt", "lalt"))
         menu.actions[menu.active_item]()
     end
 end
@@ -55,10 +64,8 @@ function menu.update()
 end
 
 function menu.draw()
-    local g = love.graphics
     g.push("all")
 
-    local w, h = g.getDimensions()
     y = (h - #menu.items * menu.font:getHeight()) / 2
 
     g.setFont(menu.font)
