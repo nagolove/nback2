@@ -40,20 +40,23 @@ function pviewer.init()
 end
 
 function pviewer.resize(neww, newh)
-    w = newh
+    w = neww
     h = newh
     print("pviewer resized")
 end
 
-function draw_chart()
+function draw_chart(k, j)
 
     local deltax = 0
 
     -- draw column of table pviewer.data, from index k, to index j with func(v) access function
-    function draw_column(k, j, func)
+    function draw_column(func)
         local oldcolor = {g.getColor()}
         local dx = 0
-        local y = 0
+        local y = 100 -- start y position
+        if k + j > #pviewer.data then
+            j = #pviewer.data
+        end
         for i = k, j do
             local s = func(pviewer.data[i])
             dx = math.max(dx, pviewer.font:getWidth(s))
@@ -74,40 +77,40 @@ function draw_chart()
     g.setFont(pviewer.font)
 
     g.setColor(pallete.chart)
-    draw_column(1, 10, function(v) return string.format("%.2d.%.2d.%d", v.date.day, v.date.month, v.date.year) end)
+    draw_column(function(v) return string.format("%.2d.%.2d.%d", v.date.day, v.date.month, v.date.year) end)
 
     g.setColor(pallete.header)
-    draw_column(1, 10, function(v) return " / " end)
+    draw_column(function(v) return " / " end)
 
     g.setColor(pallete.chart)
-    draw_column(1, 10, function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
+    draw_column(function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
 
     g.setColor(pallete.header)
-    draw_column(1, 10, function(v) return " / " end)
+    draw_column(function(v) return " / " end)
 
     g.setColor(pallete.chart)
-    draw_column(1, 10, function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
+    draw_column(function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
 
     g.setColor(pallete.header)
-    draw_column(1, 10, function(v) return " / " end)
+    draw_column(function(v) return " / " end)
 
     g.setColor(pallete.chart)
-    draw_column(1, 10, function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
+    draw_column(function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
 
     return deltax
 end
 
 function draw_chart_header(r)
-    g.setColor(pallete.header)
+    --g.setColor(pallete.header)
     g.setFont(pviewer.font)
-    --g.printf("date / nlevel / rating / pause", r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
     local tbl = {}
     for k, v in pairs(columns_name) do
-        if k == pviewer.sorted_by_column then
-            tbl[#tbl + 1] = {1, 0, 0, 1}
+        if k == pviewer.sorted_by_column_num then
+            tbl[#tbl + 1] = pallete.active
+            --tbl[#tbl + 1] = {0, 1, 1}
         else
-            --tbl[#tbl + 1] = pallete.header
-            tbl[#tbl + 1] = {0, 1, 1, 1}
+            tbl[#tbl + 1] = pallete.header
+            --tbl[#tbl + 1] = {1, 0, 1}
         end
         if k ~= #columns_name then
             tbl[#tbl + 1] = v .. " / "
@@ -115,7 +118,6 @@ function draw_chart_header(r)
             tbl[#tbl + 1] = v
         end
     end
-    --print(inspect(tbl))
     g.printf(tbl, r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
 end
 
@@ -132,20 +134,25 @@ function pviewer.draw()
 
     draw_chart_header(r)
 
+    function get_max_lines_printed()
+        return (h - 100) / pviewer.font:getHeight()
+    end
+
     g.setColor({1, 1, 1, 1})
     g.setCanvas(pviewer.rt)
     g.clear()
 
-    local chart_width = draw_chart()
+    local chart_width = draw_chart(pviewer.start_line, pviewer.start_line + get_max_lines_printed())
     local x = (w - chart_width) / 2
     g.setCanvas()
 
     g.setColor({1, 1, 1, 1})
-    g.draw(pviewer.rt, x, y1)
+    g.draw(pviewer.rt, (w - chart_width) / 2, y1)
 
     --XXX
     g.setColor({1, 1, 1, 1})
-    g.printf("Escape - to go back", 0, 20, w, "center")
+    --g.printf("Escape - to go back", 0, 20, w, "center")
+    
     dbg.clear()
     dbg.print_text("fps " .. love.timer.getFPS())
     dbg.print_text(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
@@ -156,19 +163,21 @@ end
 function pviewer.sort_by_column(idx)
     -- TODO sorting
     pviewer.sorted_by_column_num = idx
-    table.sort(pviewer.data, function(a, b)
-        -- local columns_name = {"date", "nlevel", "rating", "pause"}
-        if columns_name[idx] == "date" then
-            --TODO not implemented
-        elseif columns_name[idx] == "nlevel" then
-            --TODO not implemented
-        elseif columns_name[idx] == "rating" then
-            --TODO not implemented
-        elseif columns_name[idx] == "pause" then
-            --TODO not implemented
-        end
-        return false
-    end)
+    --[[
+       [table.sort(pviewer.data, function(a, b)
+       [    -- local columns_name = {"date", "nlevel", "rating", "pause"}
+       [    if columns_name[idx] == "date" then
+       [        --TODO not implemented
+       [    elseif columns_name[idx] == "nlevel" then
+       [        --TODO not implemented
+       [    elseif columns_name[idx] == "rating" then
+       [        --TODO not implemented
+       [    elseif columns_name[idx] == "pause" then
+       [        --TODO not implemented
+       [    end
+       [    return false
+       [end)
+       ]]
 end
 
 function pviewer.keypressed(key)
