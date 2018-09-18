@@ -10,6 +10,9 @@ states = {
 }
 
 function states.push(s)
+    local prev = states.top()
+    if prev and prev.leave then prev.leave() end
+    if s.enter then s.enter() end
     states.a[#states.a + 1] = s
 end
 

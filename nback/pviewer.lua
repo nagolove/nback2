@@ -23,6 +23,13 @@ local w, h = g.getDimensions()
 local columns_name = {"date", "nlevel", "rating", "pause"}
 
 function pviewer.init()
+    pviewer.rt = g.newCanvas(w, h, {format = "normal", msaa = 4})
+    if not pviewer then
+        error("Canvas not supported!")
+    end
+end
+
+function pviewer.enter()
     local tmp, size = love.filesystem.read(nback.save_name)
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
@@ -32,11 +39,7 @@ function pviewer.init()
     print("*** begining of pviewer.data ***")
     print(inspect(pviewer.data))
     print("*** end of pviewer.data ***")
-    pviewer.sort_by_column(1)
-    pviewer.rt = g.newCanvas(w, h, {format = "normal", msaa = 4})
-    if not pviewer then
-        error("Canvas not supported!")
-    end
+    --pviewer.sort_by_column(1)
 end
 
 function pviewer.resize(neww, newh)
