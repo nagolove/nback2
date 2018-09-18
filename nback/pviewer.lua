@@ -63,11 +63,13 @@ function draw_chart(k, j)
         for i = k, j do
             local s = func(pviewer.data[i])
             dx = math.max(dx, pviewer.font:getWidth(s))
-            if pviewer.selected_item == k then
-                g.setColor({1, 1, 1, 1})
-            else
-                g.setColor(oldcolor)
-            end
+            --[[
+               [if pviewer.selected_item == k then
+               [    g.setColor({1, 1, 1, 1})
+               [else
+               [    g.setColor(oldcolor)
+               [end
+               ]]
             g.print(s, deltax, y)
             y = y + pviewer.font:getHeight()
             --print(k, inspect(v))
@@ -162,10 +164,8 @@ function pviewer.draw()
 end
 
 function pviewer.sort_by_column(idx)
-    -- TODO sorting
     pviewer.sorted_by_column_num = idx
     table.sort(pviewer.data, function(a, b)
-        -- local columns_name = {"date", "nlevel", "rating", "pause"}
         if columns_name[idx] == "date" then
             if a.date and b.date then
                 local t1 = a.date
