@@ -73,8 +73,17 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key)
+    print(key)
     if key == "`" then
         lurker.scan()
+    elseif key == "f12" then
+        local i = 0
+        local fname
+        repeat
+            i = i + 1
+            fname = love.filesystem.getInfo("screenshot" .. i .. ".png")
+        until not fname
+        love.graphics.captureScreenshot("screenshot" .. i .. ".png")
     elseif key == "1" then
         if not picker then
             picker = colorpicker:new()
