@@ -258,7 +258,7 @@ function generate_nback(sig_count, gen, cmp)
 end
 
 function nback.init()
-    nback.signal_anim_timer = Timer()
+    nback.timer = Timer()
     math.randomseed(os.time())
 
     wave_path = "sfx/alphabet"
@@ -299,8 +299,8 @@ function nback.update(dt)
 
                     nback.figure_alpha = {alpha = 1}
                     local tween_time = 0.5
-                    nback.signal_anim_timer:after(nback.pause_time - tween_time, function()
-                        nback.signal_anim_timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
+                    nback.timer:after(nback.pause_time - tween_time, function()
+                        nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
                     end)
 
                     local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
@@ -317,7 +317,7 @@ function nback.update(dt)
             nback.stop()
         end
     end
-    nback.signal_anim_timer:update(dt)
+    nback.timer:update(dt)
 end
 
 function calc_percent(eq, pressed_arr)
@@ -365,7 +365,7 @@ function nback.stop()
 end
 
 function nback.quit()
-    nback.signal_anim_timer:destroy()
+    nback.timer:destroy()
     local settings_str = lume.serialize { 
         ["volume"] = love.audio.getVolume(), 
         ["level"] = nback.level, 

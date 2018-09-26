@@ -30,6 +30,7 @@ function pviewer.init()
 end
 
 function pviewer.enter()
+    print("pviewer.enter()")
     local tmp, size = love.filesystem.read(nback.save_name)
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
@@ -85,7 +86,7 @@ function draw_chart(k, j)
     g.setFont(pviewer.font)
 
     g.setColor(pallete.chart)
-    draw_column(function(v) return string.format("%.2d.%.2d.%d", v.date.day, v.date.month, v.date.year) end)
+    draw_column(function(v) return string.format("%.2d.%.2d.%d %d:%d:%d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
 
     g.setColor(pallete.header)
     draw_column(function(v) return " / " end)
