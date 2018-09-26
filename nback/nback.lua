@@ -7,8 +7,8 @@ local table = require "table"
 local class = require "libs.30log"
 local Timer = require "libs.Timer"
 local dbg = require "dbg"
-
 local pallete = require "pallete"
+local bhupur = require "bhupur"
 
 local g = love.graphics
 local w, h = g.getDimensions()
@@ -525,6 +525,7 @@ function nback.resize(neww, newh)
     h = newh
     local pixels_border = 130 -- size of border around main game field
     nback.cell_width = (newh - pixels_border) / nback.dim
+    nback.bhupur_h = nback.cell_width * nback.dim 
 end
 
 -- return array of boolean values in succesful indices
@@ -537,8 +538,9 @@ function make_hit_arr(signals, comparator)
 end
 
 function nback.draw()
+    local delta = 20 -- for avoiding intersection between field and bottom lines of text
     local x0 = (w - nback.dim * nback.cell_width) / 2
-    local y0 = (h - nback.dim * nback.cell_width) / 2
+    local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
     local field_h = nback.dim * nback.cell_width
     --local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
     local bottom_text_line_y = h - nback.font:getHeight() * 3
@@ -549,7 +551,7 @@ function nback.draw()
             g.setFont(nback.font)
             g.setColor(pallete.statistic)
 
-            y = y0 + nback.font:getHeight()
+            local y = y0 + nback.font:getHeight()
             g.printf(string.format("Set results:"), 0, y, w, "center")
             y = y + nback.font:getHeight()
             g.printf(string.format("level %d", nback.level), 0, y, w, "center")
@@ -869,6 +871,9 @@ function nback.draw()
     end
     keys_tip:draw(0, bottom_text_line_y)
     --
+
+    local delta = 5
+    bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
 
     -- draw escape tip
     g.setFont(nback.font)
