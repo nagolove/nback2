@@ -354,8 +354,9 @@ function nback.stop()
             history = lume.deserialize(data)
         end
         --print("history", inspect(history))
-        table.insert(history, { date = os.date("*t"), 
-                                time = os.time(os.date("*t")), 
+        local d = os.date("*t")
+        table.insert(history, { date = d, 
+                                time = os.time(d), 
                                 stat = nback.statistic,
                                 nlevel = nback.level,
                                 pause = nback.pause_time,
@@ -656,7 +657,9 @@ function nback.draw()
         -- vertical
         g.line(x0 + i * nback.cell_width, y0, x0 + i * nback.cell_width, y0 + field_h)
     end
-    --
+
+    local delta = 5
+    bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
 
     function draw_signal_form(formtype, xdim, ydim, color)
         local border = 5
@@ -871,9 +874,6 @@ function nback.draw()
     end
     keys_tip:draw(0, bottom_text_line_y)
     --
-
-    local delta = 5
-    bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
 
     -- draw escape tip
     g.setFont(nback.font)
