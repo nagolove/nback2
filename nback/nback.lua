@@ -407,7 +407,7 @@ function nback.keypressed(key)
     elseif key == "9" then
         nback.show_statistic = not nback.show_statistic
         if nback.show_statistic then
-            nback.pause = true
+           nback.pause = true
         end
     elseif key == "p" then
         nback.check_position()
@@ -418,7 +418,6 @@ function nback.keypressed(key)
     elseif key == "c" then
         nback.check_color()
     end
-
     local minimum_nb_level = 2
     local maximum_nb_level = 4
 
@@ -514,6 +513,28 @@ function nback.check_form()
                 print("hit!")
                 --print(nback.statistic.pos_hits )
                 nback.statistic.form_hits  = nback.statistic.form_hits  + 1
+                nback.can_press = false
+            end
+        end
+    end
+end
+
+-- signal type may be "pos", "sound", "color", "form"
+function nback.check(signalType)
+    local signals = nback[signalType .. "_signals"]
+    local cmp = function(a, b) return a == b end
+    if signalType == "pos" then
+        cmp = function(a, b)
+            return a[1] == b[1] and a[2] == b[2]
+        end
+    end
+    if nback.current_sig - nback.level > 1 then
+        if cmp(signals[nback.current_sig], signals[nback.current_sig - nback.level]) then
+            --print(inspect(nback))
+            if nback.can_press then
+                print(signalType .. " hit!")
+                print(nback.statistic[signalType .. "_hits"])
+                nback.statistic[signalType .. "_hits"] = nback.statistic[signalType .. "_hits"]  + 1
                 nback.can_press = false
             end
         end
