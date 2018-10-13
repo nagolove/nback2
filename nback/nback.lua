@@ -210,6 +210,11 @@ function nback.start()
     nback.color_pressed_arr = create_false_array(#nback.color_signals)
     nback.form_pressed_arr = create_false_array(#nback.form_signals)
     nback.sound_pressed_arr = create_false_array(#nback.sound_signals)
+    print(inspect(nback.pos_pressed_arr))
+    print(inspect(nback.color_pressed_arr))
+    print(inspect(nback.form_pressed_arr))
+    print(inspect(nback.sound_pressed_arr))
+    print("end of start")
 end
 
 function nback.enter()
@@ -344,6 +349,11 @@ function nback.stop()
     nback.is_run = false
     nback.show_statistic = true
 
+    print("stop")
+    print(inspect(nback.sound_pressed_arr))
+    print(inspect(nback.color_pressed_arr))
+    print(inspect(nback.form_pressed_arr))
+    print(inspect(nback.pos_pressed_arr))
     nback.sound_percent = calc_percent(nback.sound_eq, nback.sound_pressed_arr)
     nback.color_percent = calc_percent(nback.color_eq, nback.color_pressed_arr)
     nback.form_percent = calc_percent(nback.form_eq, nback.form_pressed_arr)
@@ -413,6 +423,7 @@ function nback.keypressed(key)
         if nback.show_statistic then
            nback.pause = true
         end
+
     elseif key == "p" then
         nback.check("pos")
     elseif key == "s" then
@@ -445,82 +456,6 @@ function nback.keypressed(key)
     end
 end
 
-function nback.check_position()
-
-    function tuple_cmp(a, b)
-        return a[1] == b[1] and a[2] == b[2]
-    end
-
-    if not nback.is_run then return end
-
-    nback.pos_pressed = true
-    nback.pos_pressed_arr[nback.current_sig] = true
-    if nback.current_sig - nback.level > 1 then
-        if tuple_cmp(nback.pos_signals[nback.current_sig], 
-                     nback.pos_signals[nback.current_sig - nback.level]) then
-            --print(inspect(nback))
-            if nback.can_press then
-                print("hit!")
-                print(nback.statistic.pos_hits)
-                nback.statistic.pos_hits  = nback.statistic.pos_hits  + 1
-                nback.can_press = false
-            end
-        end
-    end
-end
-
-function nback.check_sound()
-    if not nback.is_run then return end
-
-    nback.sound_pressed = true
-    nback.sound_pressed_arr[nback.current_sig] = true
-    if nback.current_sig - nback.level > 1 then
-        if nback.sound_signals[nback.current_sig] == nback.sound_signals[nback.current_sig - nback.level] then
-            if nback.can_press then
-                print("sound hit!")
-                print(nback.statistic.sound_hits)
-                nback.statistic.sound_hits  = nback.statistic.sound_hits  + 1
-                nback.can_press = false
-            end
-        end
-    end
-end
-
-function nback.check_color()
-    if not nback.is_run then return end
-
-    nback.color_pressed = true
-    nback.color_pressed_arr[nback.current_sig] = true
-    if nback.current_sig - nback.level > 1 then
-        if nback.color_signals[nback.current_sig] == nback.color_signals[nback.current_sig - nback.level] then
-            if nback.can_press then
-                print("color hit!")
-                print(nback.statistic.color_hits)
-                nback.statistic.color_hits = nback.statistic.color_hits + 1
-                nback.can_press = false
-            end
-        end
-    end
-end
-
-function nback.check_form()
-    if not nback.is_run then return end
-
-    nback.form_pressed = true
-    nback.form_pressed_arr[nback.current_sig] = true
-    if nback.current_sig - nback.level > 1 then
-        if nback.form_signals[nback.current_sig] == nback.form_signals[nback.current_sig - nback.level] then
-            --print(inspect(nback))
-            if nback.can_press then
-                print("hit!")
-                --print(nback.statistic.pos_hits )
-                nback.statistic.form_hits  = nback.statistic.form_hits  + 1
-                nback.can_press = false
-            end
-        end
-    end
-end
-
 -- signal type may be "pos", "sound", "color", "form"
 function nback.check(signalType)
     local signals = nback[signalType .. "_signals"]
@@ -530,6 +465,11 @@ function nback.check(signalType)
             return a[1] == b[1] and a[2] == b[2]
         end
     end
+    nback[signalType .. "_pressed"] = true
+    nback.timer:after(0.1, function() 
+        nback[signalType .. "_pressed"] = false 
+    end)
+    nback[signalType .. "_pressed_arr"][nback.current_sig] = true
     if nback.current_sig - nback.level > 1 then
         if cmp(signals[nback.current_sig], signals[nback.current_sig - nback.level]) then
             --print(inspect(nback))
