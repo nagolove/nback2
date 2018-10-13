@@ -33,7 +33,7 @@ function AlignedLabels:clear(font, screenwidth, color)
     self.font = font or self.font
     self.data = {}
     self.colors = {}
-    self.default_color = color or {255, 255, 255, 255}
+    self.default_color = color or {1, 1, 1, 1}
     self.maxlen = 0
 end
 
