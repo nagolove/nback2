@@ -298,24 +298,22 @@ function nback.update(dt)
             if (time - nback.timestamp >= nback.pause_time) then
                 nback.timestamp = love.timer.getTime()
 
-                if (nback.current_sig <= #nback.pos_signals) then
-                    nback.current_sig = nback.current_sig + 1
-                    nback.can_press = true
+                nback.current_sig = nback.current_sig + 1
+                nback.can_press = true
 
-                    nback.figure_alpha = {alpha = 1}
-                    local tween_time = 0.5
-                    --nback.timer:after(nback.pause_time - tween_time, function()
-                        --nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
-                    --end)
-                    print("time delta = " .. nback.pause_time - tween_time)
-                    nback.timer:after(nback.pause_time, function()
-                        nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
-                    end)
+                nback.figure_alpha = {alpha = 1}
+                local tween_time = 0.5
+                --nback.timer:after(nback.pause_time - tween_time, function()
+                    --nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
+                --end)
+                print("time delta = " .. nback.pause_time - tween_time)
+                nback.timer:after(nback.pause_time - tween_time, function()
+                    nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
+                end)
 
-                    local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
-                    --print("snd", inspect(nback.sound_signals[nback.current_sig]), snd:getVolume(), snd:getDuration())
-                    snd:play()
-                end
+                local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
+                --print("snd", inspect(nback.sound_signals[nback.current_sig]), snd:getVolume(), snd:getDuration())
+                snd:play()
 
                 nback.pos_pressed = false
                 nback.sound_pressed = false
