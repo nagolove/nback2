@@ -303,12 +303,9 @@ function nback.update(dt)
 
                 nback.figure_alpha = {alpha = 1}
                 local tween_time = 0.5
-                --nback.timer:after(nback.pause_time - tween_time, function()
-                    --nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
-                --end)
                 print("time delta = " .. nback.pause_time - tween_time)
-                nback.timer:after(nback.pause_time - tween_time, function()
-                    nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
+                nback.timer:after(nback.pause_time - tween_time - 0.1, function()
+                    nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-linear")
                 end)
 
                 local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
@@ -417,13 +414,13 @@ function nback.keypressed(key)
            nback.pause = true
         end
     elseif key == "p" then
-        nback.check_position()
+        nback.check("pos")
     elseif key == "s" then
-        nback.check_sound()
+        nback.check("sound")
     elseif key == "f" then
-        nback.check_form()
+        nback.check("form")
     elseif key == "c" then
-        nback.check_color()
+        nback.check("color")
     end
 
     if not nback.is_run and not nback.show_statistic then
