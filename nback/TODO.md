@@ -36,3 +36,7 @@ BUGS
 - не оформлен ридми.эмди
 - статья о исследовании http://www.pnas.org/content/pnas/105/19/6829.full.pdf 
 - режим подсказски, который показывает эн-предыдущий элемент в нужном месте
+
+
+Три метода nback.check_form(), nback.check_color(), nback.check_sound(), check_position()
+переписать в одну функцию с параметром.

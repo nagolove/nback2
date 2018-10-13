@@ -299,7 +299,10 @@ function nback.update(dt)
 
                     nback.figure_alpha = {alpha = 1}
                     local tween_time = 0.5
-                    nback.timer:after(nback.pause_time - tween_time, function()
+                    --nback.timer:after(nback.pause_time - tween_time, function()
+                        --nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
+                    --end)
+                    nback.timer:after(nback.pause_time, function()
                         nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
                     end)
 
@@ -680,6 +683,7 @@ function nback.draw()
     end
 
     local delta = 5
+    bhupur.color = pallete.field
     bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
 
     function draw_signal_form(formtype, xdim, ydim, color)
@@ -818,25 +822,12 @@ function nback.draw()
 
     if nback.is_run then
         -- draw active signal quad
-        --g.setColor(pallete.signal)
         local x, y = unpack(nback.pos_signals[nback.current_sig])
-        --g.rectangle("fill", x0 + x * nback.cell_width + border, 
-            --y0 + y * nback.cell_width + border,
-            --nback.cell_width - border * 2, nback.cell_width - border * 2)
         local sig_color = color_constants[nback.color_signals[nback.current_sig]]
         if nback.figure_alpha then
             sig_color[4] = nback.figure_alpha.alpha
         end
         draw_signal_form(nback.form_signals[nback.current_sig], x, y, sig_color)
-        --
-
-        --draw upper text - progress of evaluated signals
-        g.setFont(nback.font)
-        g.setColor(pallete.signal)
-        text = string.format("%d / %d", nback.current_sig, #nback.pos_signals)
-        x = (w - nback.font:getWidth(text)) / 2
-        y = y0 - nback.font:getHeight()
-        g.print(text, x, y)
         --
     else
 
