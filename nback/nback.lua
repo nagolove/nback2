@@ -144,10 +144,7 @@ function generate_signals()
         color_arr[#color_arr + 1] = k
     end
 
-    local i = 0
-    local changed = false
-    repeat
-        i = i + 1
+    function genArrays()
         nback.pos_signals = generate_nback(nback.sig_count, 
             function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
             function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
@@ -174,22 +171,31 @@ function generate_signals()
         nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
         nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
         nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+    end
 
-        for k, v in pairs(nback.pos_eq) do
-            local n = 0
-            n = n + (v and 1 or 0)
-            n = n + (nback.sound_eq[k] and 1 or 0)
-            n = n + (nback.form_eq[k] and 1 or 0)
-            n = n + (nback.color_eq[k] and 1 or 0)
-            if n > 2 then
-                changed = true
-                print("changed")
+    function balance(forIterCount)
+        local i = 0
+        local changed = false
+        repeat
+            i = i + 1
+            genArrays()
+            for k, v in pairs(nback.pos_eq) do
+                local n = 0
+                n = n + (v and 1 or 0)
+                n = n + (nback.sound_eq[k] and 1 or 0)
+                n = n + (nback.form_eq[k] and 1 or 0)
+                n = n + (nback.color_eq[k] and 1 or 0)
+                if n > 2 then
+                    changed = true
+                    print("changed")
+                end
             end
-        end
-        print("changed = " .. tostring(changed))
+            print("changed = " .. tostring(changed))
+        until i >= forIterCount or not changed
+        print("balanced for " .. i .. " iterations")
+    end
 
-    until i >= 5 or not changed
-    print("balanced for " .. i .. " iterations")
+    balance(5)
 end
 
 function nback.start()
