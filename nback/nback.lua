@@ -101,6 +101,11 @@ function AlignedLabels:draw(x, y)
     g.setColor(c)
 end
 
+local minimum_nb_level = 2
+local maximum_nb_level = 4
+local max_delay = 3
+local min_delay = 0.6
+
 local nback = {
     dim = 5,
     cell_width = 100,  -- width of game field in pixels
@@ -302,6 +307,7 @@ function nback.update(dt)
                     --nback.timer:after(nback.pause_time - tween_time, function()
                         --nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
                     --end)
+                    print("time delta = " .. nback.pause_time - tween_time)
                     nback.timer:after(nback.pause_time, function()
                         nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-cubic")
                     end)
@@ -421,8 +427,6 @@ function nback.keypressed(key)
     elseif key == "c" then
         nback.check_color()
     end
-    local minimum_nb_level = 2
-    local maximum_nb_level = 4
 
     if not nback.is_run and not nback.show_statistic then
         if key == "left" and nback.level > minimum_nb_level then
@@ -430,9 +434,9 @@ function nback.keypressed(key)
         elseif key == "right" and nback.level < maximum_nb_level then
             nback.level = nback.level + 1
         end
-        if key == "up" and nback.pause_time < 3 then
+        if key == "up" and nback.pause_time < max_delay then
             nback.pause_time = nback.pause_time + 0.2
-        elseif key == "down" and nback.pause_time > 0.6 then
+        elseif key == "down" and nback.pause_time > min_delay then
             nback.pause_time = nback.pause_time - 0.2
         end
     end
