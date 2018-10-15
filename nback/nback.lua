@@ -351,6 +351,23 @@ function calc_percent(eq, pressed_arr)
     return p / success
 end
 
+function nback.save_to_history()
+    local data, size = love.filesystem.read(nback.save_name)
+    local history = {}
+    if data ~= nil then
+        history = lume.deserialize(data)
+    end
+    --print("history", inspect(history))
+    local d = os.date("*t")
+    table.insert(history, { date = d, 
+                            time = os.time(d), 
+                            stat = nback.statistic,
+                            nlevel = nback.level,
+                            pause = nback.pause_time,
+                            percent = nback.percent})
+    love.filesystem.write(nback.save_name, lume.serialize(history))
+end
+
 function nback.stop()
     nback.is_run = false
     nback.show_statistic = true
@@ -367,22 +384,7 @@ function nback.stop()
 
     nback.percent = (nback.sound_percent + nback.color_percent + nback.form_percent + nback.pos_percent) / 4
 
-    if nback.pos_signals and nback.current_sig == #nback.pos_signals then
-        local data, size = love.filesystem.read(nback.save_name)
-        local history = {}
-        if data ~= nil then
-            history = lume.deserialize(data)
-        end
-        --print("history", inspect(history))
-        local d = os.date("*t")
-        table.insert(history, { date = d, 
-                                time = os.time(d), 
-                                stat = nback.statistic,
-                                nlevel = nback.level,
-                                pause = nback.pause_time,
-                                percent = nback.percent})
-        love.filesystem.write(nback.save_name, lume.serialize(history))
-    end
+    if nback.pos_signals and nback.current_sig == #nback.pos_signals then nback.save_to_history() end
 end
 
 function nback.quit()
@@ -394,20 +396,6 @@ function nback.quit()
     ok, msg = love.filesystem.write("settings.lua", settings_str, settings_str:len())
     nback.stop()
     states.pop()
-end
-
-function nback.keyrelease(key)
-    --[[
-       [if key == "p" then
-       [    nback.pos_pressed = false
-       [elseif key == "s" then
-       [    nback.sound_pressed = false
-       [elseif key == "f" then
-       [    nback.form_pressed = false
-       [elseif key = "c" then
-       [    nback.color_pressed = false
-       [end
-       ]]
 end
 
 -- key or scancode?
