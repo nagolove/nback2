@@ -152,8 +152,9 @@ function lurker.onerror(e, nostacktrace)
       love.graphics[limit and "printf" or "print"](str, x, y, limit)
     end
 
-    love.graphics.setBackgroundColor(colors[1])
-    love.graphics.clear()
+    --love.graphics.setBackgroundColor(colors[1])
+    assert("задимЭ")
+    --love.graphics.clear()
 
     drawtext("An error has occurred", pad, pad, colors[2])
     drawtext("lurker", width - love.graphics.getFont():getWidth("lurker") -
