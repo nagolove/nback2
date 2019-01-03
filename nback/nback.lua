@@ -602,6 +602,27 @@ function draw_field_grid(x0, y0, field_h)
     end
 end
 
+function draw_hit_rects(x, y, arr, eq, rect_size, border)
+    for k, v in pairs(arr) do
+        g.setColor(pallete.field)
+        g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
+        g.setColor(pallete.inactive)
+        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+        if v then
+            g.setColor(hit_color)
+            g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+        end
+        -- draw circle in center of quad if it is successful
+        if eq[k] then
+            local radius = 4
+            g.setColor({0, 0, 0})
+            g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
+        end
+    end
+    y = y + rect_size + 6
+    return y
+end
+
 function nback.draw()
     local delta = 20 -- for avoiding intersection between field and bottom lines of text
     local x0 = (w - nback.dim * nback.cell_width) / 2
@@ -634,26 +655,6 @@ function nback.draw()
             --print("screenW = ", w)
             --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
 
-            function draw_hit_rects(arr, eq)
-                for k, v in pairs(arr) do
-                    g.setColor(pallete.field)
-                    g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
-                    g.setColor(pallete.inactive)
-                    g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
-                    if v then
-                        g.setColor(hit_color)
-                        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
-                    end
-                    -- draw circle in center of quad if it is successful
-                    if eq[k] then
-                        local radius = 4
-                        g.setColor({0, 0, 0})
-                        g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
-                    end
-                end
-                y = y + rect_size + 6
-            end
-
             function draw_horizontal_string()
             -- drawing horizontal string with signal numbers
             g.setColor({0.5, 0.5, 0.5})
@@ -666,14 +667,15 @@ function nback.draw()
             ----------------------------------------
             local freeze_y = y
 
-            draw_hit_rects(nback.sound_pressed_arr, nback.sound_eq)
-            draw_hit_rects(nback.color_pressed_arr, nback.color_eq)
-            draw_hit_rects(nback.form_pressed_arr, nback.form_eq)
-            draw_hit_rects(nback.pos_pressed_arr, nback.pos_eq)
+            y = draw_hit_rects(x, y, nback.sound_pressed_arr, nback.sound_eq, rect_size, border)
+            y = draw_hit_rects(x, y, nback.color_pressed_arr, nback.color_eq, rect_size, border)
+            y = draw_hit_rects(x, y, nback.form_pressed_arr, nback.form_eq, rect_size, border)
+            y = draw_hit_rects(x, y, nback.pos_pressed_arr, nback.pos_eq, rect_size, border)
 
             -- drawing left column with letters
             g.setColor({200 / 255, 0, 200 / 255})
             g.setFont(nback.font)
+
             local y = freeze_y
             local delta = (rect_size - g.getFont():getHeight()) / 2
             local gap = 10
@@ -796,7 +798,6 @@ function nback.draw()
     --
     
     g.pop()
-end
 end
 
 return nback
