@@ -101,13 +101,13 @@ function AlignedLabels:draw(x, y)
     g.setColor(c)
 end
 
-local minimum_nb_level = 2
-local maximum_nb_level = 4
-local max_delay = 3
-local min_delay = 0.6
+local minimum_nb_level = 1
+local maximum_nb_level = 5
+local max_delay = 4
+local min_delay = 0.5
 
 local nback = {
-    dim = 5,
+    dim = 9, -- size of quad position matrix
     cell_width = 100,  -- width of game field in pixels
     current_sig = 1,
     sig_count = 6,                                  -- number of signals.
@@ -338,17 +338,17 @@ end
 function calc_percent(eq, pressed_arr)
     if not eq then return 0 end --XXX hack against crash
 
-    local p = 0
-    local success = 0
+    local p = 0 -- счетчик нажатий на предполагаемую позицию перекрытия
+    local success = 0 -- счетчик выводившегося количества перекрытий
     for k, v in pairs(eq) do
-        if v then
+        if v then -- считаем количество позиций перекрытия
             success = success + 1
         end
-        if v and pressed_arr[k] then
-            p = p + 1
+        if v and pressed_arr[k] then -- проверяем, нажато ли было перекрытие
+            p = p + 1 -- если да, увеличиваем счетчик нажатий
         end
     end
-    return p / success
+    return p / success -- отношение меньшее еденицы
 end
 
 function nback.save_to_history()
