@@ -94,7 +94,7 @@ function AlignedLabels:draw(x, y)
             end
             i = i + dw
         else
-            error(string.format("Incorrect type %s in self.data"))
+            error(string.format("Incorrect type %s in self.data", self.data))
         end
     end
     g.setFont(f)
