@@ -13,6 +13,16 @@ local bhupur = require "bhupur"
 local g = love.graphics
 local w, h = g.getDimensions()
 
+function xassert(a, ...)
+    if a then return a, ... end
+    local f = ...
+    if type(f) == "function" then
+        error(f(select(2, ...)), 2)
+    else
+        error(f or "assertion failed!", 2)
+    end
+end
+
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
         ["green"] = {72 / 255, 180 / 255, 66 / 255},
@@ -575,12 +585,14 @@ end
 
 function draw_field_grid(x0, y0, field_h)
     local field_color = pallete.field
+
     -- set up game field alpha color
     if nback.show_statistic then
         -- FIXME Not work properly!
         -- effect on next drawing in draw_statistic()
         field_color[4] = 0.2
     end
+
     g.setColor(field_color)
     for i = 0, nback.dim do
         -- horizontal
@@ -784,6 +796,7 @@ function nback.draw()
     --
     
     g.pop()
+end
 end
 
 return nback
