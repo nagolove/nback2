@@ -127,41 +127,41 @@ function draw_chart_header(r)
     g.printf(tbl, r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
 end
 
+--drawing scroll_tip_text
+function draw_scroll_tip(rect)
+    g.setColor(pallete.scroll_tip_text)
+    g.setFont(pviewer.scrool_tip_font)
+    g.printf(pviewer.scroll_tip_text, rect.x1, rect.y2 + pviewer.border / 2, rect.x2 - rect.x1, "center")
+end
+
+function get_max_lines_printed()
+    return (h - 100) / pviewer.font:getHeight()
+end
+
+function print_dbg_info()
+    dbg.clear()
+    dbg.print_text("fps " .. love.timer.getFPS())
+    dbg.print_text(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
+end
+
 function pviewer.draw()
     local r = {x1 = pviewer.border, y1 = pviewer.border, x2 = w - pviewer.border, y2 = h - pviewer.border}
 
     g.push("all")
 
-    --drawing scroll_tip_text
-    g.setColor(pallete.scroll_tip_text)
-    g.setFont(pviewer.scrool_tip_font)
-    g.printf(pviewer.scroll_tip_text, r.x1, r.y2 + pviewer.border / 2, r.x2 - r.x1, "center")
-    -- 
-
+    draw_scroll_tip(r)
     draw_chart_header(r)
-
-    function get_max_lines_printed()
-        return (h - 100) / pviewer.font:getHeight()
-    end
 
     g.setColor({1, 1, 1, 1})
     g.setCanvas(pviewer.rt)
     g.clear()
-
     local chart_width = draw_chart(pviewer.start_line, pviewer.start_line + get_max_lines_printed())
     local x = (w - chart_width) / 2
     g.setCanvas()
 
     g.setColor({1, 1, 1, 1})
     g.draw(pviewer.rt, (w - chart_width) / 2, y1)
-
-    --XXX
-    g.setColor({1, 1, 1, 1})
-    --g.printf("Escape - to go back", 0, 20, w, "center")
-    
-    dbg.clear()
-    dbg.print_text("fps " .. love.timer.getFPS())
-    dbg.print_text(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
+    print_dbg_info()
 
     g.pop()
 end
@@ -193,22 +193,41 @@ function pviewer.sort_by_column(idx)
     end)
 end
 
+function sort_by_previous_column()
+    if pviewer.sorted_by_column_num - 1 < 1 then
+        pviewer.sort_by_column(#columns_name)
+    else
+        pviewer.sort_by_column(pviewer.sorted_by_column_num - 1)
+    end
+end
+
+function sort_by_next_column()
+    if pviewer.sorted_by_column_num + 1 > #columns_name then
+        pviewer.sort_by_column(1)
+    else
+        pviewer.sort_by_column(pviewer.sorted_by_column_num + 1)
+    end
+end
+
+function scroll_up()
+end
+
+function scroll_down()
+end
+
 function pviewer.keypressed(key)
     if key == "escape" then
         states.pop()
     elseif key == "left" then
-        if pviewer.sorted_by_column_num - 1 < 1 then
-            pviewer.sort_by_column(#columns_name)
-        else
-            pviewer.sort_by_column(pviewer.sorted_by_column_num - 1)
-        end
+        sort_by_previous_column()
     elseif key == "right" then
-        if pviewer.sorted_by_column_num + 1 > #columns_name then
-            pviewer.sort_by_column(1)
-        else
-            pviewer.sort_by_column(pviewer.sorted_by_column_num + 1)
-        end
+        sort_by_next_column()
     elseif key == "return" or key == "space" then
+        -- TODO по нажатию клавиши показать конечную таблицу игры
+    elseif key == "pageup" then
+        scroll_up()
+    elseif key == "pagedown" then
+        scroll_down()
     end
 end
 
