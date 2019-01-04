@@ -604,6 +604,7 @@ function draw_field_grid(x0, y0, field_h)
 end
 
 function draw_hit_rects(x, y, arr, eq, rect_size, border)
+    print("border = " .. border)
     local hit_color = {200 / 255, 10 / 255, 10 / 255}
     for k, v in pairs(arr) do
         g.setColor(pallete.field)
@@ -657,6 +658,16 @@ function print_debug_info()
     dbg.print_text("nback.can_press = " .. tostring(nback.can_press))
 end
 
+function print_set_results(x0, y0)
+        print(x0, y0)
+        local y = y0 + nback.font:getHeight()
+        g.printf(string.format("Set results:"), 0, y, w, "center")
+        y = y + nback.font:getHeight()
+        g.printf(string.format("level %d", nback.level), 0, y, w, "center")
+        y = y + nback.font:getHeight()
+        g.printf(string.format("Pause time %.1f sec", nback.pause_time), 0, y, w, "center")
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -671,19 +682,15 @@ function nback.draw()
     local side_column_w = (w - field_h) / 2
 
     -- рисовать статистику после конца сета
-    function draw_statistic()
+    function draw_statistic(x0, y0)
 
         print("draw_statistic()")
 
         g.setFont(nback.font)
         g.setColor(pallete.statistic)
 
-        local y = y0 + nback.font:getHeight()
-        g.printf(string.format("Set results:"), 0, y, w, "center")
-        y = y + nback.font:getHeight()
-        g.printf(string.format("level %d", nback.level), 0, y, w, "center")
-        y = y + nback.font:getHeight()
-        g.printf(string.format("Pause time %.1f sec", nback.pause_time), 0, y, w, "center")
+        print("x0 = " .. x0 .. " y0 = " .. y0)
+        print_set_results(x0, y0)
 
         local width_k = 3 / 4
         local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
@@ -757,7 +764,7 @@ function nback.draw()
 
         --draw statistic or level setup invitation
         if nback.show_statistic then 
-            draw_statistic()
+            draw_statistic(x0, y0)
         else
             g.setFont(nback.font)
             --FIXME Dissonance with color and variable name
