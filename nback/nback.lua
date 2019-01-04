@@ -682,6 +682,18 @@ function draw_level_welcome()
     g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
 end
 
+
+-- draw central_text - Press Space key
+function print_press_space_to_new_round(y0)
+    local central_text = "Press Space to new round"
+    g.setFont(nback.central_font)
+    g.setColor(pallete.signal)
+    local x = (w - nback.central_font:getWidth(central_text)) / 2
+    --y = h - nback.central_font:getHeight() * 2
+    local y = y0 + (nback.dim - 1) * nback.cell_width
+    g.print(central_text, x, y)
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -775,23 +787,12 @@ function nback.draw()
         draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
         --
     else
-
-        --draw statistic or level setup invitation
         if nback.show_statistic then 
             draw_statistic(x0, y0)
         else
             draw_level_welcome()
         end
-
-        -- draw central_text - Press Space key
-        local central_text = "Press Space to new round"
-        g.setFont(nback.central_font)
-        g.setColor(pallete.signal)
-        x = (w - nback.central_font:getWidth(central_text)) / 2
-        --y = h - nback.central_font:getHeight() * 2
-        y = y0 + (nback.dim - 1) * nback.cell_width
-        g.print(central_text, x, y)
-        --
+        print_press_space_to_new_round(y0)
     end
 
     -- draw bottom line hotkeys tips texts
