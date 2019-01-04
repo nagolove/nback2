@@ -49,6 +49,53 @@ function pviewer.resize(neww, newh)
     print(string.format("pviewer resized to %d * %d", neww, newh))
 end
 
+-- draw column of table pviewer.data, from index k, to index j with func(v) access function
+function draw_column(deltax, func)
+    local oldcolor = {g.getColor()}
+    local dx = 0
+    local y = 100 -- start y position
+    if k + j > #pviewer.data then
+        j = #pviewer.data
+    end
+    for i = k, j do
+        local s = func(pviewer.data[i])
+        dx = math.max(dx, pviewer.font:getWidth(s))
+        --[[
+           [if pviewer.selected_item == k then
+           [    g.setColor({1, 1, 1, 1})
+           [else
+           [    g.setColor(oldcolor)
+           [end
+           ]]
+        g.print(s, deltax, y)
+        y = y + pviewer.font:getHeight()
+        --print(k, inspect(v))
+    end
+    --print("len " .. #pviewer.data)
+    g.setColor(oldcolor)
+    deltax = deltax + dx
+    return deltax
+end
+
+function draw_columns(deltax)
+    g.setFont(pviewer.font)
+    g.setColor(pallete.chart)
+    deltax = draw_column(deltax, function(v) return string.format("%.2d.%.2d.%d %d:%d:%d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
+    g.setColor(pallete.header)
+    deltax = draw_column(deltax, function(v) return " / " end)
+    g.setColor(pallete.chart)
+    deltax = draw_column(deltax, function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
+    g.setColor(pallete.header)
+    deltax = draw_column(deltax, function(v) return " / " end)
+    g.setColor(pallete.chart)
+    deltax = draw_column(deltax, function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
+    g.setColor(pallete.header)
+    deltax = draw_column(deltax, function(v) return " / " end)
+    g.setColor(pallete.chart)
+    deltax = draw_column(deltax, function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
+    return deltax
+end
+
 function draw_chart(k, j)
     -- because k may be float value
     if k < 1 then k = 1 end
@@ -56,55 +103,7 @@ function draw_chart(k, j)
 
     local deltax = 0
 
-    -- draw column of table pviewer.data, from index k, to index j with func(v) access function
-    function draw_column(func)
-        local oldcolor = {g.getColor()}
-        local dx = 0
-        local y = 100 -- start y position
-        if k + j > #pviewer.data then
-            j = #pviewer.data
-        end
-        for i = k, j do
-            local s = func(pviewer.data[i])
-            dx = math.max(dx, pviewer.font:getWidth(s))
-            --[[
-               [if pviewer.selected_item == k then
-               [    g.setColor({1, 1, 1, 1})
-               [else
-               [    g.setColor(oldcolor)
-               [end
-               ]]
-            g.print(s, deltax, y)
-            y = y + pviewer.font:getHeight()
-            --print(k, inspect(v))
-        end
-        --print("len " .. #pviewer.data)
-        g.setColor(oldcolor)
-        deltax = deltax + dx
-    end
-
-    g.setFont(pviewer.font)
-
-    g.setColor(pallete.chart)
-    draw_column(function(v) return string.format("%.2d.%.2d.%d %d:%d:%d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
-
-    g.setColor(pallete.header)
-    draw_column(function(v) return " / " end)
-
-    g.setColor(pallete.chart)
-    draw_column(function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
-
-    g.setColor(pallete.header)
-    draw_column(function(v) return " / " end)
-
-    g.setColor(pallete.chart)
-    draw_column(function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
-
-    g.setColor(pallete.header)
-    draw_column(function(v) return " / " end)
-
-    g.setColor(pallete.chart)
-    draw_column(function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
+    deltax = draw_columns(deltax)
 
     return deltax
 end

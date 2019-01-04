@@ -108,8 +108,6 @@ function love.mousepressed(x, y, button, istouch)
     end
 end
 
-local bool once = false
-
 function love.draw()
     love.graphics.clear(pallete.background)
     local dr_func = states.top().draw
