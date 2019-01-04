@@ -668,6 +668,20 @@ function print_set_results(x0, y0)
         g.printf(string.format("Pause time %.1f sec", nback.pause_time), 0, y, w, "center")
 end
 
+function draw_level_welcome()
+    g.setFont(nback.font)
+    --FIXME Dissonance with color and variable name
+    g.setColor(pallete.tip_text) 
+    local y = (h - g.getFont():getHeight() * 4) / 2.5
+    g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
+    y = y + nback.font:getHeight()
+    g.printf("Use ←→ arrows to setup", 0, y, w, "center")
+    y = y + nback.font:getHeight() * 2
+    g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
+    y = y + nback.font:getHeight()
+    g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -766,17 +780,7 @@ function nback.draw()
         if nback.show_statistic then 
             draw_statistic(x0, y0)
         else
-            g.setFont(nback.font)
-            --FIXME Dissonance with color and variable name
-            g.setColor(pallete.tip_text) 
-            local y = (h - g.getFont():getHeight() * 4) / 2.5
-            g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
-            y = y + nback.font:getHeight()
-            g.printf("Use ←→ arrows to setup", 0, y, w, "center")
-            y = y + nback.font:getHeight() * 2
-            g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
-            y = y + nback.font:getHeight()
-            g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
+            draw_level_welcome()
         end
 
         -- draw central_text - Press Space key
