@@ -701,10 +701,10 @@ function nback.draw()
 
         local y = freeze_y
 
-        x, y, = print_signal_type(x, y, rect_size, "S") 
-        x, y, = print_signal_type(x, y, rect_size, "C") 
-        x, y, = print_signal_type(x, y, rect_size, "F") 
-        x, y, = print_signal_type(x, y, rect_size, "P")
+        x, y = print_signal_type(x, y, rect_size, "S") 
+        x, y = print_signal_type(x, y, rect_size, "C") 
+        x, y = print_signal_type(x, y, rect_size, "F") 
+        x, y = print_signal_type(x, y, rect_size, "P")
         ----------------------
 
         local y = freeze_y
@@ -814,7 +814,6 @@ function nback.draw()
     --
 
     g.pop()
-end
 end
 
 return nback
