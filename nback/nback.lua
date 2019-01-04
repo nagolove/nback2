@@ -604,6 +604,7 @@ function draw_field_grid(x0, y0, field_h)
 end
 
 function draw_hit_rects(x, y, arr, eq, rect_size, border)
+    local hit_color = {200 / 255, 10 / 255, 10 / 255}
     for k, v in pairs(arr) do
         g.setColor(pallete.field)
         g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
@@ -638,10 +639,9 @@ function draw_horizontal_string(x, y, rect_size)
 end
 
 -- draw one big letter in left side of draw_hit_rects() output
-function print_signal_type(x, y, rect_size, str)
-    local gap = 10
+function print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     local delta = (rect_size - g.getFont():getHeight()) / 2
-    g.print(str, x - g.getFont():getWidth(str) - gap, y + delta)
+    g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
     y = y + rect_size + 6
     return x, y
 end
@@ -690,7 +690,6 @@ function nback.draw()
         local x = (w - w * width_k) / 2
         local starty = 200
         local y = starty
-        local hit_color = {200 / 255, 10 / 255, 10 / 255}
         local border = 2
         --print("x", x)
         --print("screenW = ", w)
@@ -711,15 +710,16 @@ function nback.draw()
         g.setFont(nback.font)
 
         local y = freeze_y
+        local pixel_gap = 10
 
-        x, y = print_signal_type(x, y, rect_size, "S") 
-        x, y = print_signal_type(x, y, rect_size, "C") 
-        x, y = print_signal_type(x, y, rect_size, "F") 
-        x, y = print_signal_type(x, y, rect_size, "P")
+        x, y = print_signal_type(x, y, rect_size, "S", pixel_gap, delta) 
+        x, y = print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
+        x, y = print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
+        x, y = print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
         ----------------------
 
         local y = freeze_y
-        local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + gap
+        local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + pixel_gap
         g.setColor({200 / 255, 0, 200 / 255})
         g.setFont(nback.font)
         g.print(string.format("%.2f", nback.sound_percent), sx, y + delta)
