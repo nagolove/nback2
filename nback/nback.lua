@@ -646,6 +646,17 @@ function print_signal_type(x, y, rect_size, str)
     return x, y
 end
 
+function print_debug_info()
+    dbg.clear()
+    dbg.print_text("fps " .. love.timer.getFPS())
+    dbg.print_text("pos " .. inspect(nback.pos_signals))
+    dbg.print_text("sound " .. inspect(nback.sound_signals))
+    dbg.print_text("form " .. inspect(nback.form_signals))
+    dbg.print_text("color " .. inspect(nback.color_signals))
+    dbg.print_text("current_sig = " .. nback.current_sig)
+    dbg.print_text("nback.can_press = " .. tostring(nback.can_press))
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -731,14 +742,7 @@ function nback.draw()
     bhupur.color = pallete.field
     bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
 
-    dbg.clear()
-    dbg.print_text("fps " .. love.timer.getFPS())
-    dbg.print_text("pos " .. inspect(nback.pos_signals))
-    dbg.print_text("sound " .. inspect(nback.sound_signals))
-    dbg.print_text("form " .. inspect(nback.form_signals))
-    dbg.print_text("color " .. inspect(nback.color_signals))
-    dbg.print_text("current_sig = " .. nback.current_sig)
-    dbg.print_text("nback.can_press = " .. tostring(nback.can_press))
+    print_debug_info()
 
     if nback.is_run then
         -- draw active signal quad
