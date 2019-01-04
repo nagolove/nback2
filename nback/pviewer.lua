@@ -50,7 +50,7 @@ function pviewer.resize(neww, newh)
 end
 
 -- draw column of table pviewer.data, from index k, to index j with func(v) access function
-function draw_column(deltax, func)
+function draw_column(k, j, deltax, func)
     local oldcolor = {g.getColor()}
     local dx = 0
     local y = 100 -- start y position
@@ -77,22 +77,22 @@ function draw_column(deltax, func)
     return deltax
 end
 
-function draw_columns(deltax)
+function draw_columns(k, j, deltax)
     g.setFont(pviewer.font)
     g.setColor(pallete.chart)
-    deltax = draw_column(deltax, function(v) return string.format("%.2d.%.2d.%d %d:%d:%d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
+    deltax = draw_column(k, j, deltax, function(v) return string.format("%.2d.%.2d.%d %d:%d:%d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
     g.setColor(pallete.header)
-    deltax = draw_column(deltax, function(v) return " / " end)
+    deltax = draw_column(k, j, deltax, function(v) return " / " end)
     g.setColor(pallete.chart)
-    deltax = draw_column(deltax, function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
+    deltax = draw_column(k, j, deltax, function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
     g.setColor(pallete.header)
-    deltax = draw_column(deltax, function(v) return " / " end)
+    deltax = draw_column(k, j, deltax, function(v) return " / " end)
     g.setColor(pallete.chart)
-    deltax = draw_column(deltax, function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
+    deltax = draw_column(k, j, deltax, function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
     g.setColor(pallete.header)
-    deltax = draw_column(deltax, function(v) return " / " end)
+    deltax = draw_column(k, j, deltax, function(v) return " / " end)
     g.setColor(pallete.chart)
-    deltax = draw_column(deltax, function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
+    deltax = draw_column(k, j, deltax, function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
     return deltax
 end
 
@@ -103,7 +103,7 @@ function draw_chart(k, j)
 
     local deltax = 0
 
-    deltax = draw_columns(deltax)
+    deltax = draw_columns(k, j, deltax)
 
     return deltax
 end
