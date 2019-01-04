@@ -694,6 +694,40 @@ function print_press_space_to_new_round(y0)
     g.print(central_text, x, y)
 end
 
+function print_control_tips(bottom_text_line_y)
+    local keys_tip = AlignedLabels:new(nback.font, w)
+    local pressed_color = pallete.active
+    local unpressed_color = pallete.inactive
+    if nback.sound_pressed then
+        keys_tip:add("Sound", pressed_color)
+    else
+        keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
+    end
+    if nback.color_pressed then
+        keys_tip:add("Color", pressed_color)
+    else
+        keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
+    end
+    if nback.form_pressed then
+        keys_tip:add("Form", pressed_color)
+    else
+        keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
+    end
+    if nback.pos_pressed then
+        keys_tip:add("Position", pressed_color)
+    else
+        keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
+    end
+    keys_tip:draw(0, bottom_text_line_y)
+end
+
+-- draw escape tip
+function print_escape_tip(bottom_text_line_y)
+    g.setFont(nback.font)
+    g.setColor(pallete.tip_text)
+    g.printf("Escape - go to menu", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -704,7 +738,6 @@ function nback.draw()
     local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
     local field_h = nback.dim * nback.cell_width
     --local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
-    local bottom_text_line_y = h - nback.font:getHeight() * 3
     local side_column_w = (w - field_h) / 2
 
     -- рисовать статистику после конца сета
@@ -795,40 +828,10 @@ function nback.draw()
         print_press_space_to_new_round(y0)
     end
 
-    -- draw bottom line hotkeys tips texts
-    g.setFont(nback.font)
-    local keys_tip = AlignedLabels:new(nback.font, w)
-    local pressed_color = pallete.active
-    local unpressed_color = pallete.inactive
-    if nback.sound_pressed then
-        keys_tip:add("Sound", pressed_color)
-    else
-        keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
-    end
-    if nback.color_pressed then
-        keys_tip:add("Color", pressed_color)
-    else
-        keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
-    end
-    if nback.form_pressed then
-        keys_tip:add("Form", pressed_color)
-    else
-        keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
-    end
-    if nback.pos_pressed then
-        keys_tip:add("Position", pressed_color)
-    else
-        keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
-    end
-    keys_tip:draw(0, bottom_text_line_y)
-    --
+    local bottom_text_line_y = h - nback.font:getHeight() * 3
 
-    -- draw escape tip
-    g.setFont(nback.font)
-    g.setColor(pallete.tip_text)
-    g.printf("Escape - go to menu", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
-    --
-
+    print_control_tips(bottom_text_line_y)
+    print_escape_tip(bottom_text_line_y)
     g.pop()
 end
 
