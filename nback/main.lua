@@ -111,17 +111,7 @@ end
 local bool once = false
 
 function love.draw()
-    local lc = {love.graphics.getBackgroundColor()}
-    if not once then
-        print("pallete background")
-        print(inspect(pallete.background))
-        print(inspect(lc))
-        once = true
-    end
-    --love.graphics.setBackgroundColor(pallete.background)
-    --love.graphics.clear()
-    --love.graphics.setBackgroundColor(0, 0, 0)
-    love.graphics.clear()
+    love.graphics.clear(pallete.background)
     local dr_func = states.top().draw
     if dr_func then dr_func() end
     if picker then
