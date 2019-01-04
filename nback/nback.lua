@@ -621,10 +621,30 @@ function draw_hit_rects(x, y, arr, eq, rect_size, border)
         end
     end
     y = y + rect_size + 6
-    return y
+    return x, y
 end
 
-local draw_iteration = 0
+local draw_iteration = 0 -- debug variable
+
+-- drawing horizontal string with signal numbers
+function draw_horizontal_string(x, y, rect_size)
+    g.setColor({0.5, 0.5, 0.5})
+    g.setFont(nback.statistic_font)
+    for k, _ in pairs(nback.pos_pressed_arr) do
+        local delta = (rect_size - g.getFont():getWidth(tostring(k))) / 2
+        g.print(tostring(k), x + rect_size * (k - 1) + delta, y) -- п
+    end
+    return x, y
+end
+
+-- draw one big letter in left side of draw_hit_rects() output
+function print_signal_type(x, y, rect_size, str)
+    local gap = 10
+    local delta = (rect_size - g.getFont():getHeight()) / 2
+    g.print(str, x - g.getFont():getWidth(str) - gap, y + delta)
+    y = y + rect_size + 6
+    return x, y
+end
 
 function nback.draw()
 
@@ -664,153 +684,137 @@ function nback.draw()
         --print("x", x)
         --print("screenW = ", w)
         --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
+        x, y = draw_horizontal_string(x, y, rect_size)
 
-        function draw_horizontal_string()
-            -- drawing horizontal string with signal numbers
-            g.setColor({0.5, 0.5, 0.5})
-            g.setFont(nback.statistic_font)
-            for k, _ in pairs(nback.pos_pressed_arr) do
-                local delta = (rect_size - g.getFont():getWidth(tostring(k))) / 2
-                g.print(tostring(k), x + rect_size * (k - 1) + delta, y) -- п
-            end
+        y = y + g.getFont():getHeight() * 1.5
+        ----------------------------------------
+        local freeze_y = y
 
-        end
-            y = y + g.getFont():getHeight() * 1.5
-            ----------------------------------------
-            local freeze_y = y
+        x, y = draw_hit_rects(x, y, nback.sound_pressed_arr, nback.sound_eq, rect_size, border)
+        x, y = draw_hit_rects(x, y, nback.color_pressed_arr, nback.color_eq, rect_size, border)
+        x, y = draw_hit_rects(x, y, nback.form_pressed_arr, nback.form_eq, rect_size, border)
+        x, y = draw_hit_rects(x, y, nback.pos_pressed_arr, nback.pos_eq, rect_size, border)
 
-            y = draw_hit_rects(x, y, nback.sound_pressed_arr, nback.sound_eq, rect_size, border)
-            y = draw_hit_rects(x, y, nback.color_pressed_arr, nback.color_eq, rect_size, border)
-            y = draw_hit_rects(x, y, nback.form_pressed_arr, nback.form_eq, rect_size, border)
-            y = draw_hit_rects(x, y, nback.pos_pressed_arr, nback.pos_eq, rect_size, border)
-
-            -- drawing left column with letters
-            g.setColor({200 / 255, 0, 200 / 255})
-            g.setFont(nback.font)
-
-            local y = freeze_y
-            local delta = (rect_size - g.getFont():getHeight()) / 2
-            local gap = 10
-
-            function print_signal_type(str)
-                g.print(str, x - g.getFont():getWidth(str) - gap, y + delta)
-                y = y + rect_size + 6
-            end
-
-            print_signal_type("S") 
-            print_signal_type("C") 
-            print_signal_type("F") 
-            print_signal_type("P")
-            ----------------------
-
-            local y = freeze_y
-            local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + gap
-            g.setColor({200 / 255, 0, 200 / 255})
-            g.setFont(nback.font)
-            g.print(string.format("%.2f", nback.sound_percent), sx, y + delta)
-            y = y + rect_size + 6
-            g.print(string.format("%.2f", nback.color_percent), sx, y + delta)
-            y = y + rect_size + 6
-            g.print(string.format("%.2f", nback.form_percent), sx, y + delta)
-            y = y + rect_size + 6
-            g.print(string.format("%.2f", nback.pos_percent), sx, y + delta)
-
-            y = starty + 4 * (rect_size + 20)
-            g.printf(string.format("rating %0.2f", nback.percent), 0, y, w, "center")
-        end
-
-        g.push("all")
-
-        draw_field_grid(x0, y0, field_h)
-
-        local delta = 5
-        bhupur.color = pallete.field
-        bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
-
-        dbg.clear()
-        dbg.print_text("fps " .. love.timer.getFPS())
-        dbg.print_text("pos " .. inspect(nback.pos_signals))
-        dbg.print_text("sound " .. inspect(nback.sound_signals))
-        dbg.print_text("form " .. inspect(nback.form_signals))
-        dbg.print_text("color " .. inspect(nback.color_signals))
-        dbg.print_text("current_sig = " .. nback.current_sig)
-        dbg.print_text("nback.can_press = " .. tostring(nback.can_press))
-
-        if nback.is_run then
-            -- draw active signal quad
-            local x, y = unpack(nback.pos_signals[nback.current_sig])
-            local sig_color = color_constants[nback.color_signals[nback.current_sig]]
-            if nback.figure_alpha then
-                sig_color[4] = nback.figure_alpha.alpha
-            end
-            draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
-            --
-        else
-
-            --draw statistic or level setup invitation
-            if nback.show_statistic then 
-                draw_statistic()
-            else
-                g.setFont(nback.font)
-                --FIXME Dissonance with color and variable name
-                g.setColor(pallete.tip_text) 
-                local y = (h - g.getFont():getHeight() * 4) / 2.5
-                g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
-                y = y + nback.font:getHeight()
-                g.printf("Use ←→ arrows to setup", 0, y, w, "center")
-                y = y + nback.font:getHeight() * 2
-                g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
-                y = y + nback.font:getHeight()
-                g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
-            end
-
-            -- draw central_text - Press Space key
-            local central_text = "Press Space to new round"
-            g.setFont(nback.central_font)
-            g.setColor(pallete.signal)
-            x = (w - nback.central_font:getWidth(central_text)) / 2
-            --y = h - nback.central_font:getHeight() * 2
-            y = y0 + (nback.dim - 1) * nback.cell_width
-            g.print(central_text, x, y)
-            --
-        end
-
-        -- draw bottom line hotkeys tips texts
+        -- drawing left column with letters
+        g.setColor({200 / 255, 0, 200 / 255})
         g.setFont(nback.font)
-        local keys_tip = AlignedLabels:new(nback.font, w)
-        local pressed_color = pallete.active
-        local unpressed_color = pallete.inactive
-        if nback.sound_pressed then
-            keys_tip:add("Sound", pressed_color)
-        else
-            keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
-        end
-        if nback.color_pressed then
-            keys_tip:add("Color", pressed_color)
-        else
-            keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
-        end
-        if nback.form_pressed then
-            keys_tip:add("Form", pressed_color)
-        else
-            keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
-        end
-        if nback.pos_pressed then
-            keys_tip:add("Position", pressed_color)
-        else
-            keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
-        end
-        keys_tip:draw(0, bottom_text_line_y)
-        --
 
-        -- draw escape tip
+        local y = freeze_y
+
+        x, y, = print_signal_type(x, y, rect_size, "S") 
+        x, y, = print_signal_type(x, y, rect_size, "C") 
+        x, y, = print_signal_type(x, y, rect_size, "F") 
+        x, y, = print_signal_type(x, y, rect_size, "P")
+        ----------------------
+
+        local y = freeze_y
+        local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + gap
+        g.setColor({200 / 255, 0, 200 / 255})
         g.setFont(nback.font)
-        g.setColor(pallete.tip_text)
-        g.printf("Escape - go to menu", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
-        --
+        g.print(string.format("%.2f", nback.sound_percent), sx, y + delta)
+        y = y + rect_size + 6
+        g.print(string.format("%.2f", nback.color_percent), sx, y + delta)
+        y = y + rect_size + 6
+        g.print(string.format("%.2f", nback.form_percent), sx, y + delta)
+        y = y + rect_size + 6
+        g.print(string.format("%.2f", nback.pos_percent), sx, y + delta)
 
-        g.pop()
+        y = starty + 4 * (rect_size + 20)
+        g.printf(string.format("rating %0.2f", nback.percent), 0, y, w, "center")
     end
+
+    g.push("all")
+
+    draw_field_grid(x0, y0, field_h)
+
+    local delta = 5
+    bhupur.color = pallete.field
+    bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
+
+    dbg.clear()
+    dbg.print_text("fps " .. love.timer.getFPS())
+    dbg.print_text("pos " .. inspect(nback.pos_signals))
+    dbg.print_text("sound " .. inspect(nback.sound_signals))
+    dbg.print_text("form " .. inspect(nback.form_signals))
+    dbg.print_text("color " .. inspect(nback.color_signals))
+    dbg.print_text("current_sig = " .. nback.current_sig)
+    dbg.print_text("nback.can_press = " .. tostring(nback.can_press))
+
+    if nback.is_run then
+        -- draw active signal quad
+        local x, y = unpack(nback.pos_signals[nback.current_sig])
+        local sig_color = color_constants[nback.color_signals[nback.current_sig]]
+        if nback.figure_alpha then
+            sig_color[4] = nback.figure_alpha.alpha
+        end
+        draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
+        --
+    else
+
+        --draw statistic or level setup invitation
+        if nback.show_statistic then 
+            draw_statistic()
+        else
+            g.setFont(nback.font)
+            --FIXME Dissonance with color and variable name
+            g.setColor(pallete.tip_text) 
+            local y = (h - g.getFont():getHeight() * 4) / 2.5
+            g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
+            y = y + nback.font:getHeight()
+            g.printf("Use ←→ arrows to setup", 0, y, w, "center")
+            y = y + nback.font:getHeight() * 2
+            g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
+            y = y + nback.font:getHeight()
+            g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
+        end
+
+        -- draw central_text - Press Space key
+        local central_text = "Press Space to new round"
+        g.setFont(nback.central_font)
+        g.setColor(pallete.signal)
+        x = (w - nback.central_font:getWidth(central_text)) / 2
+        --y = h - nback.central_font:getHeight() * 2
+        y = y0 + (nback.dim - 1) * nback.cell_width
+        g.print(central_text, x, y)
+        --
+    end
+
+    -- draw bottom line hotkeys tips texts
+    g.setFont(nback.font)
+    local keys_tip = AlignedLabels:new(nback.font, w)
+    local pressed_color = pallete.active
+    local unpressed_color = pallete.inactive
+    if nback.sound_pressed then
+        keys_tip:add("Sound", pressed_color)
+    else
+        keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
+    end
+    if nback.color_pressed then
+        keys_tip:add("Color", pressed_color)
+    else
+        keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
+    end
+    if nback.form_pressed then
+        keys_tip:add("Form", pressed_color)
+    else
+        keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
+    end
+    if nback.pos_pressed then
+        keys_tip:add("Position", pressed_color)
+    else
+        keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
+    end
+    keys_tip:draw(0, bottom_text_line_y)
+    --
+
+    -- draw escape tip
+    g.setFont(nback.font)
+    g.setColor(pallete.tip_text)
+    g.printf("Escape - go to menu", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
+    --
+
+    g.pop()
+end
 end
 
 return nback
