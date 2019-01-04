@@ -728,6 +728,16 @@ function print_escape_tip(bottom_text_line_y)
     g.printf("Escape - go to menu", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
 end
 
+-- draw active signal quad
+function draw_active_signal(x0, y0)
+    local x, y = unpack(nback.pos_signals[nback.current_sig])
+    local sig_color = color_constants[nback.color_signals[nback.current_sig]]
+    if nback.figure_alpha then
+        sig_color[4] = nback.figure_alpha.alpha
+    end
+    draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -811,14 +821,7 @@ function nback.draw()
     print_debug_info()
 
     if nback.is_run then
-        -- draw active signal quad
-        local x, y = unpack(nback.pos_signals[nback.current_sig])
-        local sig_color = color_constants[nback.color_signals[nback.current_sig]]
-        if nback.figure_alpha then
-            sig_color[4] = nback.figure_alpha.alpha
-        end
-        draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
-        --
+        draw_active_signal(x0, y0)
     else
         if nback.show_statistic then 
             draw_statistic(x0, y0)
