@@ -102,11 +102,10 @@ end
 function draw_chart(k, j)
     -- because k may be float value
     if k < 1 then k = 1 end
-    k = math.floor(k)
 
     local deltax = 0
 
-    deltax = draw_columns(k, j, deltax)
+    deltax = draw_columns(math.floor(k), j, deltax)
 
     return deltax
 end
@@ -236,13 +235,13 @@ end
 
 function pviewer.move_up()
     if pviewer.start_line > 1 then
-        pviewer.start_line = pviewer.start_line - 0.05
+        pviewer.start_line = pviewer.start_line - 1
     end
 end
 
 function pviewer.move_down()
     if pviewer.start_line < #pviewer.data then
-        pviewer.start_line = pviewer.start_line + 0.05
+        pviewer.start_line = pviewer.start_line + 1
     end
 end
 
