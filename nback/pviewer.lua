@@ -212,9 +212,15 @@ function sort_by_next_column()
 end
 
 function scroll_up()
+    if pviewer.start_line - pviewer.vertical_buf_len >= 1 then
+        pviewer.start_line = pviewer.start_line - pviewer.vertical_buf_len
+    end
 end
 
 function scroll_down()
+    if pviewer.start_line + pviewer.vertical_buf_len <= #pviewer.data then
+        pviewer.start_line = pviewer.start_line + pviewer.vertical_buf_len
+    end
 end
 
 function pviewer.keypressed(key)
@@ -226,10 +232,6 @@ function pviewer.keypressed(key)
         sort_by_next_column()
     elseif key == "return" or key == "space" then
         -- TODO по нажатию клавиши показать конечную таблицу игры
-    elseif key == "pageup" then
-        scroll_up()
-    elseif key == "pagedown" then
-        scroll_down()
     end
 end
 
@@ -251,6 +253,10 @@ function pviewer.update(dt)
         pviewer.move_up()
     elseif kb.isDown("down") then
         pviewer.move_down()
+    elseif kb.isDown("pageup") then
+        scroll_up()
+    elseif kb.isDown("pagedown") then
+        scroll_down()
     end
 end
 
