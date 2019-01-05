@@ -36,8 +36,15 @@ function pviewer.enter()
     else
         pviewer.data = {}
     end
+    if #pviewer.data >= 1 then
+        pviewer.cursor_index = 1
+    else
+        pviewer.cursor_index = 0
+    end
     print("*** begining of pviewer.data ***")
-    --print(inspect(pviewer.data))
+    local str = inspect(pviewer.data)
+    --print(str)
+    love.filesystem.write("pviewer_data_extracting.lua", str, str:len())
     print("*** end of pviewer.data ***")
     --pviewer.sort_by_column(1)
 end
@@ -235,29 +242,35 @@ function pviewer.keypressed(key)
 end
 
 function pviewer.move_up()
-    if pviewer.start_line > 1 then
-        --pviewer.start_line = pviewer.start_line - 1
-        if not pviewer.move_up_animation then
+    if not pviewer.move_up_animation then
+        if pviewer.start_line > 1 then
+            --pviewer.start_line = pviewer.start_line - 1
             pviewer.move_up_animation = true
             pviewer.timer:during(0.1, function()
                 pviewer.start_line = pviewer.start_line - 0.1
             end, function()
-                pviewer.move_up_animation = false
-            end)
-        end
+            pviewer.move_up_animation = false
+            print("after timer")
+            print("pviewer.start_line = " .. pviewer.start_line)
+        end)
     end
+end
 end
 
 function pviewer.move_down()
-    if pviewer.start_line < #pviewer.data then
-        --pviewer.start_line = pviewer.start_line + 1
-        if not pviewer.move_down_animation then
+    if not pviewer.move_down_animation then
+        if pviewer.start_line + pviewer.vertical_buf_len <= #pviewer.data then
+            --pviewer.start_line = pviewer.start_line + 1
+            print("pviewer.move_down()")
+            print("pviewer.start_line = " .. pviewer.start_line)
             pviewer.move_down_animation = true
             pviewer.timer:during(0.1, function()
                 pviewer.start_line = pviewer.start_line + 0.1
             end, 
             function()
                 pviewer.move_down_animation = false
+                print("after timer")
+                print("pviewer.start_line = " .. pviewer.start_line)
             end)
         end
     end
