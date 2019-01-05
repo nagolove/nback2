@@ -39,19 +39,19 @@ function Timer:update(dt)
 
         if timer.type == 'after' then
             if timer.time >= timer.delay then
-                timer.action()
+                timer.action(dt)
                 self.timers[tag] = nil
             end
 
         elseif timer.type == 'every' then
             if timer.time >= timer.delay then
-                timer.action()
+                timer.action(dt)
                 timer.time = timer.time - timer.delay
                 timer.delay = self:__getResolvedDelay(timer.any_delay)
                 if timer.count > 0 then
                     timer.counter = timer.counter + 1
                     if timer.counter >= timer.count then
-                        timer.after()
+                        timer.after(dt)
                         self.timers[tag] = nil
                     end
                 end
@@ -60,7 +60,7 @@ function Timer:update(dt)
         elseif timer.type == 'during' then
             timer.action()
             if timer.time >= timer.delay then
-                timer.after()
+                timer.after(dt)
                 self.timers[tag] = nil
             end
 
@@ -73,7 +73,7 @@ function Timer:update(dt)
                 ref[key] = ref[key] + delta*ds
             end
             if timer.time >= timer.delay then
-                timer.after()
+                timer.after(dt)
                 self.timers[tag] = nil
             end
         end
