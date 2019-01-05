@@ -10,7 +10,7 @@ local dbg = require "dbg"
 local pviewer = {
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
     header_text = "", 
-    border = 80, --y axis border in pixels for drawing chart
+    border = 40, --y axis border in pixels for drawing chart
     scrollx = 0,
 
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
@@ -168,7 +168,15 @@ function pviewer.draw()
     g.setCanvas()
 
     g.setColor({1, 1, 1, 1})
+    --g.draw(pviewer.rt, (w - chart_width) / 2, r.y1)
     g.draw(pviewer.rt, (w - chart_width) / 2, y1)
+
+    if pviewer.cursor_index > 0 then
+        g.setColor(1, 1, 1, 0.3)
+        local y = r.y1 + pviewer.cursor_index * pviewer.font:getHeight()
+        g.rectangle("fill", x, y, chart_width, pviewer.font:getHeight())
+    end
+
     print_dbg_info()
 
     g.pop()
@@ -238,6 +246,7 @@ function pviewer.keypressed(key)
         sort_by_next_column()
     elseif key == "return" or key == "space" then
         -- TODO по нажатию клавиши показать конечную таблицу игры
+    elseif key == "pagedown" then
     end
 end
 
@@ -258,7 +267,15 @@ end
 end
 
 function pviewer.move_down()
-    if not pviewer.move_down_animation then
+    if pviewer.cursor_index < pviewer.start_line + pviewer.vertical_buf_len then
+        if not pviewer.cursor_move_down_animation then
+            pviewer.cursor_move_down_animation = true
+            pviewer.timer:after(0.4, function()
+                pviewer.cursor_move_down_animation = false;
+                pviewer.cursor_index = pviewer.cursor_index + 1
+            end)
+        end
+    elseif not pviewer.move_down_animation then
         if pviewer.start_line + pviewer.vertical_buf_len <= #pviewer.data then
             --pviewer.start_line = pviewer.start_line + 1
             print("pviewer.move_down()")
