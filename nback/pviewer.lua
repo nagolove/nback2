@@ -27,6 +27,7 @@ function pviewer.init()
     if not pviewer then
         error("Canvas not supported!")
     end
+    pviewer.resize(g.getDimensions())
 end
 
 function pviewer.enter()
@@ -38,15 +39,16 @@ function pviewer.enter()
         pviewer.data = {}
     end
     print("*** begining of pviewer.data ***")
-    print(inspect(pviewer.data))
+    --print(inspect(pviewer.data))
     print("*** end of pviewer.data ***")
     --pviewer.sort_by_column(1)
 end
 
 function pviewer.resize(neww, newh)
+    print(string.format("pviewer.resize(%d, %d)", neww, newh))
     w = neww
     h = newh
-    print(string.format("pviewer resized to %d * %d", neww, newh))
+    pviewer.vertical_buf_len = get_max_lines_printed()
 end
 
 -- draw column of table pviewer.data, from index k, to index j with func(v) access function
@@ -96,6 +98,7 @@ function draw_columns(k, j, deltax)
     return deltax
 end
 
+-- draw pviewer.data from k to j index in vertical list on the center of screen
 function draw_chart(k, j)
     -- because k may be float value
     if k < 1 then k = 1 end
@@ -155,7 +158,7 @@ function pviewer.draw()
     g.setColor({1, 1, 1, 1})
     g.setCanvas(pviewer.rt)
     g.clear()
-    local chart_width = draw_chart(pviewer.start_line, pviewer.start_line + get_max_lines_printed())
+    local chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
     local x = (w - chart_width) / 2
     g.setCanvas()
 
