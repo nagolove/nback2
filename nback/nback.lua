@@ -682,7 +682,6 @@ function draw_level_welcome()
     g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
 end
 
-
 -- draw central_text - Press Space key
 function print_press_space_to_new_round(y0)
     local central_text = "Press Space to new round"

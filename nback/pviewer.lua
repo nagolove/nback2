@@ -1,5 +1,6 @@
 ﻿local inspect = require "libs.inspect"
 local lume = require "libs.lume"
+local timer = require "libs.Timer"
 
 local pallete = require "pallete"
 local nback = require "nback"
@@ -16,18 +17,15 @@ local pviewer = {
     scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
     selected_item = 2,
     start_line = 1,
-    sorted_by_column_num = 1
+    sorted_by_column_num = 1,
 }
 
 local w, h = g.getDimensions()
 local columns_name = {"date", "nlevel", "rating", "pause"}
 
 function pviewer.init()
-    pviewer.rt = g.newCanvas(w, h, {format = "normal", msaa = 4})
-    if not pviewer then
-        error("Canvas not supported!")
-    end
     pviewer.resize(g.getDimensions())
+    pviewer.timer = timer()
 end
 
 function pviewer.enter()
@@ -49,6 +47,10 @@ function pviewer.resize(neww, newh)
     w = neww
     h = newh
     pviewer.vertical_buf_len = get_max_lines_printed()
+    pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight() - 32, {format = "normal", msaa = 4})
+    if not pviewer then
+        error("Canvas not supported!")
+    end
 end
 
 -- draw column of table pviewer.data, from index k, to index j with func(v) access function
@@ -100,13 +102,10 @@ end
 
 -- draw pviewer.data from k to j index in vertical list on the center of screen
 function draw_chart(k, j)
-    -- because k may be float value
     if k < 1 then k = 1 end
-
     local deltax = 0
-
+    -- because k may be float value
     deltax = draw_columns(math.floor(k), j, deltax)
-
     return deltax
 end
 
@@ -237,13 +236,30 @@ end
 
 function pviewer.move_up()
     if pviewer.start_line > 1 then
-        pviewer.start_line = pviewer.start_line - 1
+        --pviewer.start_line = pviewer.start_line - 1
+        if not pviewer.move_up_animation then
+            pviewer.move_up_animation = true
+            pviewer.timer:during(0.1, function()
+                pviewer.start_line = pviewer.start_line - 0.1
+            end, function()
+                pviewer.move_up_animation = false
+            end)
+        end
     end
 end
 
 function pviewer.move_down()
     if pviewer.start_line < #pviewer.data then
-        pviewer.start_line = pviewer.start_line + 1
+        --pviewer.start_line = pviewer.start_line + 1
+        if not pviewer.move_down_animation then
+            pviewer.move_down_animation = true
+            pviewer.timer:during(0.1, function()
+                pviewer.start_line = pviewer.start_line + 0.1
+            end, 
+            function()
+                pviewer.move_down_animation = false
+            end)
+        end
     end
 end
 
@@ -258,6 +274,7 @@ function pviewer.update(dt)
     elseif kb.isDown("pagedown") then
         scroll_down()
     end
+    pviewer.timer:update(dt)
 end
 
 return pviewer
