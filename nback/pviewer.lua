@@ -64,7 +64,7 @@ end
 function draw_column(k, j, deltax, func)
     local oldcolor = {g.getColor()}
     local dx = 0
-    local y = 100 -- start y position
+    local y = 0 + pviewer.font:getHeight() -- start y position
     if k + j > #pviewer.data then
         j = #pviewer.data
     end
@@ -168,8 +168,8 @@ function pviewer.draw()
     g.setCanvas()
 
     g.setColor({1, 1, 1, 1})
-    --g.draw(pviewer.rt, (w - chart_width) / 2, r.y1)
-    g.draw(pviewer.rt, (w - chart_width) / 2, y1)
+    g.draw(pviewer.rt, (w - chart_width) / 2, r.y1)
+    --g.draw(pviewer.rt, (w - chart_width) / 2, y1)
 
     if pviewer.cursor_index > 0 then
         g.setColor(1, 1, 1, 0.3)
@@ -251,30 +251,43 @@ function pviewer.keypressed(key)
 end
 
 function pviewer.move_up()
-    if not pviewer.move_up_animation then
+    print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
+    if pviewer.cursor_index - 1 >= pviewer.start_line then
+        if not pviewer.cursor_move_up_animation then
+            pviewer.cursor_move_up_animation = true
+            pviewer.timer:after(0.1, function()
+                pviewer.cursor_move_up_animation = false;
+                pviewer.cursor_index = pviewer.cursor_index - 1
+            end)
+        end
+    elseif not pviewer.move_up_animation then
         if pviewer.start_line > 1 then
             --pviewer.start_line = pviewer.start_line - 1
             pviewer.move_up_animation = true
             pviewer.timer:during(0.1, function()
                 pviewer.start_line = pviewer.start_line - 0.1
-            end, function()
-            pviewer.move_up_animation = false
-            print("after timer")
-            print("pviewer.start_line = " .. pviewer.start_line)
-        end)
+            end, 
+            function()
+                pviewer.move_up_animation = false
+                print("after timer")
+                print("pviewer.start_line = " .. pviewer.start_line)
+            end)
     end
 end
 end
 
 function pviewer.move_down()
-    if pviewer.cursor_index < pviewer.start_line + pviewer.vertical_buf_len then
+    print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
+    if pviewer.cursor_index <= pviewer.start_line + pviewer.vertical_buf_len then
         if not pviewer.cursor_move_down_animation then
+            print("after")
             pviewer.cursor_move_down_animation = true
-            pviewer.timer:after(0.4, function()
+            pviewer.timer:after(0.1, function()
                 pviewer.cursor_move_down_animation = false;
                 pviewer.cursor_index = pviewer.cursor_index + 1
             end)
         end
+    --end
     elseif not pviewer.move_down_animation then
         if pviewer.start_line + pviewer.vertical_buf_len <= #pviewer.data then
             --pviewer.start_line = pviewer.start_line + 1
