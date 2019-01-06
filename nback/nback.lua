@@ -737,6 +737,12 @@ function draw_active_signal(x0, y0)
     draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end
 
+function draw_bhupur(x0, y0)
+    local delta = 5
+    bhupur.color = pallete.field
+    bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -812,10 +818,7 @@ function nback.draw()
     g.push("all")
 
     draw_field_grid(x0, y0, field_h)
-
-    local delta = 5
-    bhupur.color = pallete.field
-    bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
+    draw_bhupur(x0, y0)
 
     print_debug_info()
 
