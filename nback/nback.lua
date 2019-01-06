@@ -647,6 +647,22 @@ function print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     return x, y
 end
 
+function print_percents(x, y, rect_size, pixel_gap, border, starty)
+    local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + pixel_gap
+    g.setColor({200 / 255, 0, 200 / 255})
+    g.setFont(nback.font)
+    g.print(string.format("%.2f", nback.sound_percent), sx, y)
+    y = y + rect_size + 6
+    g.print(string.format("%.2f", nback.color_percent), sx, y)
+    y = y + rect_size + 6
+    g.print(string.format("%.2f", nback.form_percent), sx, y)
+    y = y + rect_size + 6
+    g.print(string.format("%.2f", nback.pos_percent), sx, y)
+    y = starty + 4 * (rect_size + 20)
+    g.printf(string.format("rating %0.2f", nback.percent), 0, y, w, "center")
+    return x, y
+end
+
 function print_debug_info()
     dbg.clear()
     dbg.print_text("fps " .. love.timer.getFPS())
@@ -792,27 +808,11 @@ function nback.draw()
 
         local y = freeze_y
         local pixel_gap = 10
-
         x, y = print_signal_type(x, y, rect_size, "S", pixel_gap, delta) 
         x, y = print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
         x, y = print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
         x, y = print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
-        ----------------------
-
-        local y = freeze_y
-        local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + pixel_gap
-        g.setColor({200 / 255, 0, 200 / 255})
-        g.setFont(nback.font)
-        g.print(string.format("%.2f", nback.sound_percent), sx, y + delta)
-        y = y + rect_size + 6
-        g.print(string.format("%.2f", nback.color_percent), sx, y + delta)
-        y = y + rect_size + 6
-        g.print(string.format("%.2f", nback.form_percent), sx, y + delta)
-        y = y + rect_size + 6
-        g.print(string.format("%.2f", nback.pos_percent), sx, y + delta)
-
-        y = starty + 4 * (rect_size + 20)
-        g.printf(string.format("rating %0.2f", nback.percent), 0, y, w, "center")
+        x, y = print_percents(x, freeze_y + 0, rect_size, pixel_gap, border, starty)
     end
 
     g.push("all")
