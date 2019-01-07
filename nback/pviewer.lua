@@ -54,7 +54,11 @@ function pviewer.resize(neww, newh)
     w = neww
     h = newh
     pviewer.vertical_buf_len = get_max_lines_printed()
-    pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight() - 32, {format = "normal", msaa = 4})
+    print(pviewer.data)
+    print(inspect(pviewer.data))
+    print(pviewer.cursor_index)
+    if pviewer.cursor_index and pviewer.cursor_index > pviewer.vertical_buf_len then pviewer.cursor_index = pviewer.vertical_buf_len - 1 end -- why -1 ??
+    pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight() + 32, {format = "normal", msaa = 4})
     if not pviewer then
         error("Canvas not supported!")
     end
@@ -252,7 +256,7 @@ end
 
 function pviewer.move_up()
     print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
-    if pviewer.cursor_index - 1 >= pviewer.start_line then
+    if pviewer.cursor_index > 1 then
         if not pviewer.cursor_move_up_animation then
             pviewer.cursor_move_up_animation = true
             pviewer.timer:after(0.1, function()
@@ -277,8 +281,9 @@ end
 end
 
 function pviewer.move_down()
+    print("move down")
     print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
-    if pviewer.cursor_index <= pviewer.start_line + pviewer.vertical_buf_len then
+    if pviewer.cursor_index + 0 < pviewer.vertical_buf_len then
         if not pviewer.cursor_move_down_animation then
             print("after")
             pviewer.cursor_move_down_animation = true

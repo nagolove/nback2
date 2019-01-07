@@ -424,13 +424,16 @@ function nback.keypressed(key)
         if not nback.is_run then 
             nback.start()
         end
-    elseif key == "0" then
-        nback.pause = not nback.pause
-    elseif key == "9" then
-        nback.show_statistic = not nback.show_statistic
-        if nback.show_statistic then
-           nback.pause = true
-        end
+
+    --[[
+       [elseif key == "0" then
+       [    nback.pause = not nback.pause
+       [elseif key == "9" then
+       [    nback.show_statistic = not nback.show_statistic
+       [    if nback.show_statistic then
+       [       nback.pause = true
+       [    end
+       ]]
 
     elseif key == "p" then
         nback.check("pos")
