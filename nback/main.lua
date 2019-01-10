@@ -56,9 +56,6 @@ function love.load()
 end
 
 function love.update(dt)
-    if love.keyboard.isDown("ralt", "lalt") and love.keyboard.isDown("return") then
-        love.window.setFullscreen(not love.window.getFullscreen())
-    end
     if picker then
         picker:update(dt)
     end
@@ -85,7 +82,9 @@ end
 
 function love.keypressed(key)
     print(key)
-    if key == "`" then
+    if love.keyboard.isDown("ralt", "lalt") and key == "return" then
+        love.window.setFullscreen(not love.window.getFullscreen())
+    elseif key == "`" then
         lurker.scan()
     elseif key == "f12" then make_screenshot()
     elseif key == "1" then

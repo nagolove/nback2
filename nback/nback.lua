@@ -420,10 +420,8 @@ function nback.keypressed(key)
         else
             nback.quit()
         end
-    elseif key == "space" or key == "return" and not (love.keyboard.isDown("ralt", "lalt")) then
-        if not nback.is_run then 
+    elseif key == "space" or key == "return" then
             nback.start()
-        end
 
     --[[
        [elseif key == "0" then
