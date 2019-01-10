@@ -469,6 +469,9 @@ end
 
 -- signal type may be "pos", "sound", "color", "form"
 function nback.check(signalType)
+    if not nback.is_run then
+        return
+    end
     local signals = nback[signalType .. "_signals"]
     local cmp = function(a, b) return a == b end
     if signalType == "pos" then
