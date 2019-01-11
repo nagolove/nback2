@@ -49,16 +49,29 @@ function pviewer.enter()
     --pviewer.sort_by_column(1)
 end
 
+function pviewer.leave()
+    pviewer.data = nil
+end
+
+local function div(a, b)
+    return (a - a %b) / b
+end
+
+function get_max_lines_printed()
+    return div(h - 100, pviewer.font:getHeight())
+end
+
 function pviewer.resize(neww, newh)
     print(string.format("pviewer.resize(%d, %d)", neww, newh))
     w = neww
     h = newh
     pviewer.vertical_buf_len = get_max_lines_printed()
+    print("vertical_buf_len = ", pviewer.vertical_buf_len)
     print(pviewer.data)
     print(inspect(pviewer.data))
     print(pviewer.cursor_index)
     if pviewer.cursor_index and pviewer.cursor_index > pviewer.vertical_buf_len then pviewer.cursor_index = pviewer.vertical_buf_len - 1 end -- why -1 ??
-    pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight() + 32, {format = "normal", msaa = 4})
+    pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), {format = "normal", msaa = 4})
     if not pviewer then
         error("Canvas not supported!")
     end
@@ -144,10 +157,6 @@ function draw_scroll_tip(rect)
     g.setColor(pallete.scroll_tip_text)
     g.setFont(pviewer.scrool_tip_font)
     g.printf(pviewer.scroll_tip_text, rect.x1, rect.y2 + pviewer.border / 2, rect.x2 - rect.x1, "center")
-end
-
-function get_max_lines_printed()
-    return (h - 100) / pviewer.font:getHeight()
 end
 
 function print_dbg_info()
@@ -241,21 +250,8 @@ function scroll_down()
     end
 end
 
-function pviewer.keypressed(key)
-    if key == "escape" then
-        states.pop()
-    elseif key == "left" then
-        sort_by_previous_column()
-    elseif key == "right" then
-        sort_by_next_column()
-    elseif key == "return" or key == "space" then
-        -- TODO по нажатию клавиши показать конечную таблицу игры
-    elseif key == "pagedown" then
-    end
-end
-
 function pviewer.move_up()
-    print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
+    --print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
     if pviewer.cursor_index > 1 then
         if not pviewer.cursor_move_up_animation then
             pviewer.cursor_move_up_animation = true
@@ -273,8 +269,8 @@ function pviewer.move_up()
             end, 
             function()
                 pviewer.move_up_animation = false
-                print("after timer")
-                print("pviewer.start_line = " .. pviewer.start_line)
+                --print("after timer")
+                --print("pviewer.start_line = " .. pviewer.start_line)
             end)
     end
 end
@@ -282,10 +278,10 @@ end
 
 function pviewer.move_down()
     print("move down")
-    print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
+    --print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
     if pviewer.cursor_index + 0 < pviewer.vertical_buf_len then
         if not pviewer.cursor_move_down_animation then
-            print("after")
+            --print("after")
             pviewer.cursor_move_down_animation = true
             pviewer.timer:after(0.1, function()
                 pviewer.cursor_move_down_animation = false;
@@ -296,18 +292,39 @@ function pviewer.move_down()
     elseif not pviewer.move_down_animation then
         if pviewer.start_line + pviewer.vertical_buf_len <= #pviewer.data then
             --pviewer.start_line = pviewer.start_line + 1
-            print("pviewer.move_down()")
-            print("pviewer.start_line = " .. pviewer.start_line)
+            --print("pviewer.move_down()")
+            --print("pviewer.start_line = " .. pviewer.start_line)
             pviewer.move_down_animation = true
             pviewer.timer:during(0.1, function()
                 pviewer.start_line = pviewer.start_line + 0.1
             end, 
             function()
                 pviewer.move_down_animation = false
-                print("after timer")
-                print("pviewer.start_line = " .. pviewer.start_line)
+                --print("after timer")
+                --print("pviewer.start_line = " .. pviewer.start_line)
             end)
         end
+    end
+end
+
+function pviewer.keypressed(key)
+    if key == "escape" then
+        states.pop()
+    elseif key == "left" then
+        sort_by_previous_column()
+    elseif key == "right" then
+        sort_by_next_column()
+    elseif key == "return" or key == "space" then
+        -- TODO по нажатию клавиши показать конечную таблицу игры
+    elseif key == "home" or key == "kp7" then
+        print("pviewer.keypressed('home')")
+        pviewer.start_line = 1
+        pviewer.cursor_index = 1
+    elseif key == "end" or key == "kp1" then
+        print("pviewer.keypressed('end')")
+        pviewer.start_line = #pviewer.data - pviewer.vertical_buf_len
+        print("pviewer.vertical_buf_len = ", pviewer.vertical_buf_len)
+        pviewer.cursor_index = pviewer.vertical_buf_len - 1
     end
 end
 
