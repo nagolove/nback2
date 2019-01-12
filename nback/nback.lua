@@ -362,6 +362,8 @@ function calc_percent(eq, pressed_arr)
 end
 
 function nback.save_to_history()
+    print("nback.current_sig = ", nback.current_sig)
+    print("#nback.pos_signals = ", #nback.pos_signals)
     local data, size = love.filesystem.read(nback.save_name)
     local history = {}
     if data ~= nil then

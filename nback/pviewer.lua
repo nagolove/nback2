@@ -108,7 +108,7 @@ end
 function draw_columns(k, j, deltax)
     g.setFont(pviewer.font)
     g.setColor(pallete.chart)
-    deltax = draw_column(k, j, deltax, function(v) return string.format("%.2d.%.2d.%d %d:%d:%d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
+    deltax = draw_column(k, j, deltax, function(v) return string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
     g.setColor(pallete.header)
     deltax = draw_column(k, j, deltax, function(v) return " / " end)
     g.setColor(pallete.chart)
@@ -279,7 +279,7 @@ end
 function pviewer.move_down()
     print("move down")
     --print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
-    if pviewer.cursor_index + 0 < pviewer.vertical_buf_len then
+    if pviewer.cursor_index + 1 < pviewer.vertical_buf_len then
         if not pviewer.cursor_move_down_animation then
             --print("after")
             pviewer.cursor_move_down_animation = true
@@ -322,7 +322,7 @@ function pviewer.keypressed(key)
         pviewer.cursor_index = 1
     elseif key == "end" or key == "kp1" then
         print("pviewer.keypressed('end')")
-        pviewer.start_line = #pviewer.data - pviewer.vertical_buf_len
+        pviewer.start_line = #pviewer.data - pviewer.vertical_buf_len + 1
         print("pviewer.vertical_buf_len = ", pviewer.vertical_buf_len)
         pviewer.cursor_index = pviewer.vertical_buf_len - 1
     end
