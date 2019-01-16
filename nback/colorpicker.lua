@@ -14,8 +14,23 @@ function colorpicker:init()
     self.aslider = {value = self.color[4], min = 0, max = 1}
 end
 
+-- button = 1 -- primary button
+-- button = 2 -- secondary button
 function colorpicker:mousepressed(x, y, button, istouch)
-    if button == 2 then
+    if button == 1 then
+        local r, g, b, a
+        lg.captureScreenshot(function(imgdata)
+            print(love.mouse.getPosition())
+            print("imagedata:getDimensions()", imgdata:getDimensions())
+            print("colors", r, g, b, a)
+            --print(string.format("%f %f %f %f", self.color[1], self.color[2], self.color[3], self.color[4]))
+            r, g, b, a = imgdata:getPixel(love.mouse.getPosition()) 
+            --print(string.format("%f %f %f %f", self.color[1], self.color[2], self.color[3], self.color[4]))
+        end)
+        self.color[1], self.color[2], self.color[3] = r, g, b
+        print("cc", r, g, b)
+        self.rslider.value, self.gslider.value, self.bslider.value = 1, 0, 1
+    elseif button == 3 then
         print("color copied to clpbrd")
         love.system.setClipboardText(string.format("{%s, %s, %s, %s}", self.color[1], self.color[2], self.color[3], self.color[4]))
     end
