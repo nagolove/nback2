@@ -217,7 +217,7 @@ function nback.start()
     generate_signals()
 
     nback.current_sig = 1
-    nback.timestamp = love.timer.getTime()
+    nback.timestamp = love.timer.getTime() - nback.pause_time
     nback.statistic.pos_hits  = 0
     nback.show_statistic = false
 
