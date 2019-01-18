@@ -175,9 +175,11 @@ function pviewer.draw()
 
     g.setColor({1, 1, 1, 1})
     g.setCanvas(pviewer.rt)
-    g.clear()
-    local chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
-    local x = (w - chart_width) / 2
+    do
+        g.clear()
+        local chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
+        local x = (w - chart_width) / 2
+    end
     g.setCanvas()
 
     g.setColor({1, 1, 1, 1})
