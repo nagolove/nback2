@@ -766,6 +766,46 @@ function draw_bhupur(x0, y0)
     bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
 end
 
+-- рисовать статистику после конца сета
+function draw_statistic(x0, y0)
+    g.setFont(nback.font)
+    g.setColor(pallete.statistic)
+
+    print("x0 = " .. x0 .. " y0 = " .. y0)
+
+    local width_k = 3 / 4
+    local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
+    local x = (w - w * width_k) / 2
+    local starty = 200
+    local y = starty
+    local border = 2
+    --print("x", x)
+    --print("screenW = ", w)
+    --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
+    x, y = draw_horizontal_string(x, y, rect_size)
+
+    y = y + g.getFont():getHeight() * 1.5
+    ----------------------------------------
+    local freeze_y = y
+
+    x, y = draw_hit_rects(x, y, nback.sound_pressed_arr, nback.sound_eq, rect_size, border)
+    x, y = draw_hit_rects(x, y, nback.color_pressed_arr, nback.color_eq, rect_size, border)
+    x, y = draw_hit_rects(x, y, nback.form_pressed_arr, nback.form_eq, rect_size, border)
+    x, y = draw_hit_rects(x, y, nback.pos_pressed_arr, nback.pos_eq, rect_size, border)
+
+    -- drawing left column with letters
+    g.setColor({200 / 255, 0, 200 / 255})
+    g.setFont(nback.font)
+
+    local y = freeze_y
+    local pixel_gap = 10
+    x, y = print_signal_type(x, y, rect_size, "S", pixel_gap, delta) 
+    x, y = print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
+    x, y = print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
+    x, y = print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
+    x, y = print_percents(x, freeze_y + 0, rect_size, pixel_gap, border, starty)
+end
+
 function nback.draw()
 
     print("draw()" .. draw_iteration)
@@ -774,66 +814,17 @@ function nback.draw()
     local delta = 20 -- for avoiding intersection between field and bottom lines of text
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
-    local field_h = nback.dim * nback.cell_width
-    --local bottom_text_line_y = y0 + field_h + nback.font:getHeight()
-    local side_column_w = (w - field_h) / 2
-
-    -- рисовать статистику после конца сета
-    function draw_statistic(x0, y0)
-
-        print("draw_statistic()")
-
-        g.setFont(nback.font)
-        g.setColor(pallete.statistic)
-
-        print("x0 = " .. x0 .. " y0 = " .. y0)
-        print_set_results(x0, y0)
-
-        local width_k = 3 / 4
-        local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
-        local x = (w - w * width_k) / 2
-        local starty = 200
-        local y = starty
-        local border = 2
-        --print("x", x)
-        --print("screenW = ", w)
-        --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
-        x, y = draw_horizontal_string(x, y, rect_size)
-
-        y = y + g.getFont():getHeight() * 1.5
-        ----------------------------------------
-        local freeze_y = y
-
-        x, y = draw_hit_rects(x, y, nback.sound_pressed_arr, nback.sound_eq, rect_size, border)
-        x, y = draw_hit_rects(x, y, nback.color_pressed_arr, nback.color_eq, rect_size, border)
-        x, y = draw_hit_rects(x, y, nback.form_pressed_arr, nback.form_eq, rect_size, border)
-        x, y = draw_hit_rects(x, y, nback.pos_pressed_arr, nback.pos_eq, rect_size, border)
-
-        -- drawing left column with letters
-        g.setColor({200 / 255, 0, 200 / 255})
-        g.setFont(nback.font)
-
-        local y = freeze_y
-        local pixel_gap = 10
-        x, y = print_signal_type(x, y, rect_size, "S", pixel_gap, delta) 
-        x, y = print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
-        x, y = print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
-        x, y = print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
-        x, y = print_percents(x, freeze_y + 0, rect_size, pixel_gap, border, starty)
-    end
 
     g.push("all")
-
-    draw_field_grid(x0, y0, field_h)
+    draw_field_grid(x0, y0, nback.dim * nback.cell_width)
     draw_bhupur(x0, y0)
-
     print_debug_info()
-
     if nback.is_run then
         draw_active_signal(x0, y0)
     else
         if nback.show_statistic then 
             draw_statistic(x0, y0)
+            print_set_results(x0, y0)
         else
             draw_level_welcome()
         end
@@ -841,7 +832,6 @@ function nback.draw()
     end
 
     local bottom_text_line_y = h - nback.font:getHeight() * 3
-
     print_control_tips(bottom_text_line_y)
     print_escape_tip(bottom_text_line_y)
     g.pop()
