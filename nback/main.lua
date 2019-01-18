@@ -109,9 +109,10 @@ end
 
 function love.draw()
     love.graphics.clear(pallete.background)
-    local dr_func = states.top().draw
-    if dr_func then dr_func() end
+    local dr_func = states.top().draw or function() end
     if picker then
-        picker:draw()
+        picker:draw(dr_func)
+    else
+        dr_func()
     end
 end

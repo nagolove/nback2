@@ -12,12 +12,13 @@ function colorpicker:init()
     self.gslider = {value = self.color[2], min = 0, max = 1}
     self.bslider = {value = self.color[3], min = 0, max = 1}
     self.aslider = {value = self.color[4], min = 0, max = 1}
+    self.canvas = lg.newCanvas(lg.getWidth(), lg.getHeight(), "normal", 2)
 end
 
 -- button = 1 -- primary button
 -- button = 2 -- secondary button
 function colorpicker:mousepressed(x, y, button, istouch)
-    if button == 1 then
+    if button == 2 then
         local r, g, b, a = 0.1, 0.2, 0.3, 1
         local c = 0
         lg.captureScreenshot(function(imgdata)
@@ -33,7 +34,7 @@ function colorpicker:mousepressed(x, y, button, istouch)
         print("c = ", c)
         self.color[1], self.color[2], self.color[3] = r, g, b
         print("cc", r, g, b)
-        self.rslider.value, self.gslider.value, self.bslider.value = 1, 0, 1
+        --self.rslider.value, self.gslider.value, self.bslider.value = 1, 0, 1
     elseif button == 3 then
         print("color copied to clpbrd")
         love.system.setClipboardText(string.format("{%s, %s, %s}", self.color[1], self.color[2], self.color[3]))
@@ -50,7 +51,12 @@ function pack(...)
     return {...}
 end
 
-function colorpicker:draw()
+function colorpicker:draw(func)
+    lg.setCanvas(self.canvas)
+    func()
+    lg.setCanvas()
+    lg.draw(0, 0, canvas)
+
     local pickerwidth = 200
     local pickerheight = 128
     local w, h = lg.getDimensions()

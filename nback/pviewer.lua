@@ -175,10 +175,10 @@ function pviewer.draw()
 
     g.setColor({1, 1, 1, 1})
     g.setCanvas(pviewer.rt)
+    local chart_width
     do
         g.clear()
-        local chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
-        local x = (w - chart_width) / 2
+        chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
     end
     g.setCanvas()
 
@@ -188,6 +188,7 @@ function pviewer.draw()
 
     if pviewer.cursor_index > 0 then
         g.setColor(1, 1, 1, 0.3)
+        local x = (w - chart_width) / 2
         local y = r.y1 + pviewer.cursor_index * pviewer.font:getHeight()
         g.rectangle("fill", x, y, chart_width, pviewer.font:getHeight())
     end
