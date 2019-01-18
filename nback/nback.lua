@@ -113,8 +113,8 @@ end
 
 local minimum_nb_level = 2
 local maximum_nb_level = 4
-local max_delay = 3
-local min_delay = 0.6
+local max_pause_time = 15
+local min_pause_time = 0.6
 
 local nback = {
     dim = 5,
@@ -322,6 +322,7 @@ function nback.update(dt)
                 nback.current_sig = nback.current_sig + 1
                 nback.can_press = true
 
+                -- setup timer for figure alpha channel animation
                 nback.figure_alpha = {alpha = 1}
                 local tween_time = 0.5
                 print("time delta = " .. nback.pause_time - tween_time)
@@ -451,9 +452,9 @@ function nback.keypressed(key)
         elseif key == "right" and nback.level < maximum_nb_level then
             nback.level = nback.level + 1
         end
-        if key == "up" and nback.pause_time < max_delay then
+        if key == "up" and nback.pause_time < max_pause_time then
             nback.pause_time = nback.pause_time + 0.2
-        elseif key == "down" and nback.pause_time > min_delay then
+        elseif key == "down" and nback.pause_time > min_pause_time then
             nback.pause_time = nback.pause_time - 0.2
         end
     end
