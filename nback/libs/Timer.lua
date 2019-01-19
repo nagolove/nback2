@@ -58,7 +58,7 @@ function Timer:update(dt)
             end
 
         elseif timer.type == 'during' then
-            timer.action()
+            timer.action(dt)
             if timer.time >= timer.delay then
                 timer.after(dt)
                 self.timers[tag] = nil
@@ -177,6 +177,7 @@ function Timer:__tween(method, ...)
     elseif method:find('in%-') then return t[method:sub(4, -1)](...) end
 end
 
+-- Return extended out table
 function Timer:__tweenCollectPayload(subject, target, out)
     for k, v in pairs(target) do
         local ref = subject[k]

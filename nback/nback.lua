@@ -23,6 +23,10 @@ function xassert(a, ...)
     end
 end
 
+function table.copy(t)
+    return {unpack(t)}
+end
+
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
         ["green"] = {72 / 255, 180 / 255, 66 / 255},
@@ -104,7 +108,7 @@ function AlignedLabels:draw(x, y)
             end
             i = i + dw
         else
-            error(string.format("Incorrect type %s in self.data", self.data))
+            error(string.format("AlignedLabels:draw() : Incorrect type %s in self.data", self.data))
         end
     end
     g.setFont(f)
@@ -117,27 +121,28 @@ local max_pause_time = 15
 local min_pause_time = 0.6
 
 local nback = {
-    dim = 5,
+    dim = 5,    -- количество ячеек поля
     cell_width = 100,  -- width of game field in pixels
-    current_sig = 1,
-    sig_count = 6,                                  -- number of signals.
-    level = 2,
-    is_run = false,
-    pause_time = 2.5, -- delay beetween signals, in seconds
+    current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
+    sig_count = 6, -- количество сигналов
+    level = 2, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
+    is_run = false, -- индикатор запуска рабочего цикла
+    pause_time = 2.5, -- задержка между сигналами, в секундах
     can_press = false, -- XXX FIXME зачем нужна эта переменная?
-    save_name = "nback-v0.2.lua",
-    statistic = {                                   -- statistic which saving to file
+    save_name = "nback-v0.2.lua", -- имя файла с логом пройденных тренировок
+    statistic = { -- блок статистики, записываемый в файл save_name
         pos_hits = 0,
         color_hits = 0,
         sound_hits = 0,
         form_hits = 0,
         success = 0,
     },
-    show_statistic = false,
+    show_statistic = false, -- индикатор показа статистики в конце сета
     sounds = {},
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 10),
+    field_color = table.copy(pallete.field)
 }
 
 function create_false_array(len)
@@ -209,6 +214,9 @@ function generate_signals()
 end
 
 function nback.start()
+    local q = pallete.field
+    nback.timer:tween(3, nback.field_color, { q[1], q[2], q[3], 1 }, "linear")
+
     print("start")
 
     nback.pause = false
@@ -234,6 +242,8 @@ function nback.start()
 end
 
 function nback.enter()
+    -- установка альфа канала цвета сетки игрового поля
+    nback.field_color[4] = 0.2
 end
 
 function nback.leave()
@@ -386,6 +396,9 @@ function nback.save_to_history()
 end
 
 function nback.stop()
+    local q = pallete.field
+    nback.timer:tween(2, nback.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
+
     nback.is_run = false
     nback.show_statistic = true
 
@@ -591,17 +604,7 @@ function draw_signal_form(x0, y0, formtype, xdim, ydim, color)
 end
 
 function draw_field_grid(x0, y0, field_h)
-    print("draw_field_grid")
-    local field_color = pallete.field
-
-    -- set up game field alpha color
-    if nback.show_statistic then
-        -- FIXME Not work properly!
-        -- effect on next drawing in draw_statistic()
-        field_color[4] = 0.2
-    end
-
-    g.setColor(field_color)
+    g.setColor(nback.field_color)
     for i = 0, nback.dim do
         -- horizontal
         g.line(x0, y0 + i * nback.cell_width, x0 + field_h, y0 + i * nback.cell_width)
@@ -611,7 +614,7 @@ function draw_field_grid(x0, y0, field_h)
 end
 
 function draw_hit_rects(x, y, arr, eq, rect_size, border)
-    print("border = " .. border)
+    --print("border = " .. border)
     local hit_color = {200 / 255, 10 / 255, 10 / 255}
     for k, v in pairs(arr) do
         g.setColor(pallete.field)
@@ -762,7 +765,7 @@ end
 
 function draw_bhupur(x0, y0)
     local delta = 5
-    bhupur.color = pallete.field
+    bhupur.color = nback.field_color
     bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
 end
 
@@ -808,8 +811,8 @@ end
 
 function nback.draw()
 
-    print("draw()" .. draw_iteration)
-    draw_iteration = draw_iteration + 1
+    --print("draw()" .. draw_iteration)
+    --draw_iteration = draw_iteration + 1
 
     local delta = 20 -- for avoiding intersection between field and bottom lines of text
     local x0 = (w - nback.dim * nback.cell_width) / 2
