@@ -383,6 +383,7 @@ end
 
 function nback.stop()
     local q = pallete.field
+    -- амимация альфа-канала игрового поля
     nback.timer:tween(2, nback.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
 
     nback.is_run = false
@@ -393,13 +394,13 @@ function nback.stop()
     print(inspect(nback.color_pressed_arr))
     print(inspect(nback.form_pressed_arr))
     print(inspect(nback.pos_pressed_arr))
+
     nback.sound_percent = calc_percent(nback.sound_eq, nback.sound_pressed_arr)
     nback.color_percent = calc_percent(nback.color_eq, nback.color_pressed_arr)
     nback.form_percent = calc_percent(nback.form_eq, nback.form_pressed_arr)
     nback.pos_percent = calc_percent(nback.pos_eq, nback.pos_pressed_arr)
-
     nback.percent = (nback.sound_percent + nback.color_percent + nback.form_percent + nback.pos_percent) / 4
-
+    -- Раунд полностью закончен? - записываю историю
     if nback.pos_signals and nback.current_sig == #nback.pos_signals then nback.save_to_history() end
 end
 
@@ -480,7 +481,7 @@ function nback.check(signalType)
         end
     end
     nback[signalType .. "_pressed"] = true
-    -- ненадолго включаю подсветку введеной клавиши
+    -- ненадолго включаю подсветку введеной клавиши на игровом поле
     nback.timer:after(0.1, function() 
         nback[signalType .. "_pressed"] = false 
     end)
