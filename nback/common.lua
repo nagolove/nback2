@@ -16,9 +16,3 @@ end
 function table.copy(t)
     return {unpack(t)}
 end
-
--- integer division
-local function div(a, b)
-    return (a - a %b) / b
-end
-

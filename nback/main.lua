@@ -110,7 +110,6 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
-    love.graphics.clear(pallete.background)
     local dr_func = states.top().draw or function() end
     if picker then
         picker:draw(dr_func)

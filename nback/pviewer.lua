@@ -7,6 +7,11 @@ local nback = require "nback"
 local g = love.graphics
 local dbg = require "dbg"
 
+-- integer division
+local function div(a, b)
+    return (a - a %b) / b
+end
+
 local pviewer = {
     scroll_tip_text = "For scrolling table use ↓↑ arrows",
     header_text = "", 
