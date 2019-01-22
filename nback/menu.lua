@@ -8,7 +8,7 @@ local w, h = g.getDimensions()
 
 local menu = {
     active_item = 1,
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32),
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
 }
 
 function menu.init()

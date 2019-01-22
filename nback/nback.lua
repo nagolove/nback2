@@ -125,9 +125,9 @@ local nback = {
     },
     show_statistic = false, -- индикатор показа статистики в конце сета
     sounds = {},
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
-    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 10),
+    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
     field_color = table.copy(pallete.field) -- копия таблицы по значению
 }
 
@@ -480,6 +480,7 @@ function nback.check(signalType)
         end
     end
     nback[signalType .. "_pressed"] = true
+    -- ненадолго включаю подсветку введеной клавиши
     nback.timer:after(0.1, function() 
         nback[signalType .. "_pressed"] = false 
     end)
