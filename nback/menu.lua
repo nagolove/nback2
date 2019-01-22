@@ -1,10 +1,12 @@
-﻿local pviewer = require "pviewer"
+﻿local inspect = require "libs.inspect"
+local pviewer = require "pviewer"
 local nback = require "nback"
 local help = require "help"
 local pallete = require "pallete"
 
 local g = love.graphics
 local w, h = g.getDimensions()
+local tile_size = 256
 
 local menu = {
     active_item = 1,
@@ -20,12 +22,38 @@ function menu.init()
         function() states.push(help) end, 
         function() love.event.quit() end,
     }
+    math.randomseed(os.time())
 end
 
 function menu.resize(neww, newh)
     w = neww
     h = newh
     print("Menu resized!")
+    menu.calc_rotation_grid()
+end
+
+function menu.calc_rotation_grid()
+    menu.rot_grid = {}
+    local i, j = 0, 0
+    while i < w do
+        j = 0
+        while j < h do
+            local v = math.random()
+            local angle = 0
+            if 0 <= v and v <= 0.25 then angle = 0
+            elseif 0.25 < v and v < 0.5 then angle = math.pi
+            elseif 0.5 < v and v < 0.75 then angle = math.pi * 3 / 4
+            elseif 0.75 < v and v <= 1 then angle = math.pi * 2 end
+            menu.rot_grid[#menu.rot_grid + 1] = angle
+            j = j + tile_size
+        end
+        i = i + tile_size
+    end
+end
+
+function menu.enter()
+    print("menu.enter()")
+    menu.calc_rotation_grid()
 end
 
 function menu.keypressed(key)
@@ -48,27 +76,28 @@ end
 
 function menu.update() end
 
-local tile_size = 256
-
 function menu.draw()
     g.clear(pallete.background)
     --print("back_tile:width() = ", menu.back_tile:getWidth())
     --local quad = g.newQuad(0, 0, tile_size, tile_size, menu.back_tile:getWidth(), menu.back_tile:getHeight())
-    local quad = g.newQuad(10, 10, 20, 20, menu.back_tile:getWidth(), menu.back_tile:getHeight())
+    local quad = g.newQuad(0, 0, menu.back_tile:getWidth(), menu.back_tile:getHeight(), menu.back_tile:getWidth(), menu.back_tile:getHeight())
     local i, j = 0, 0
-    local l = 0
-    print("w = ", w, "h = ", h)
+    local l = 1
+    --print("menu.rot_grid = ", inspect(menu.rot_grid))
     while i < w do
+        j = 0
         while j < h do
-            g.draw(menu.back_tile, quad, i, j)
+            --print("angle = ", menu.rot_grid[l])
+            g.draw(menu.back_tile, quad, i, j, menu.rot_grid[l], tile_size / menu.back_tile:getWidth(), tile_size / menu.back_tile:getHeight(),
+                menu.back_tile:getWidth() / 2, menu.back_tile:getHeight() / 2)
+            --g.draw(menu.back_tile, quad, i, j, math.pi, 0.3, 0.3)
             l = l + 1
             j = j + tile_size
         end
         i = i + tile_size
     end
-    g.clear()
-    g.draw(menu.back_tile, quad, 0, 0)
-    print("l = ", l)
+    --g.clear()
+    --g.draw(menu.back_tile, quad, 0, 0)
     g.push("all")
     -- позиционирование посредине экрана
     local y = (h - #menu.items * menu.font:getHeight()) / 2
