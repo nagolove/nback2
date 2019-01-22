@@ -7,21 +7,19 @@ local help = {
     update = function() end,
 }
 
+local g = love.graphics
+
 function help.draw()
-    local g = love.graphics
-
+    g.clear(pallete.background)
     g.push("all")
-
     g.setFont(help.font)
     local w, h = g.getDimensions()
     local y = 20
     g.printf("This is a bla-bla", 0, y, w, "center")
     y = y + help.font:getHeight()
     g.printf("Put description here!", 0, y, w, "center")
-
     --FIXME Not work, using nil table nback here
     --g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
-
     g.pop()
 end
 

@@ -13,30 +13,18 @@ local menu = {
 
 function menu.init()
     menu.items = {"play", "view progress", "help", "quit"}
-    menu.actions = { menu.play, menu.view_progress, menu.help, menu.quit }
+    menu.actions = { 
+        function() states.push(nback) end, 
+        function() states.push(pviewer) end, 
+        function() states.push(help) end, 
+        function() love.event.quit() end,
+    }
 end
 
 function menu.resize(neww, newh)
     w = neww
     h = newh
     print("Menu resized!")
-end
-
-function menu.play()
-    nback.enter()
-    states.push(nback)
-end
-
-function menu.view_progress()
-    states.push(pviewer)
-end
-
-function menu.quit()
-    love.event.quit()
-end
-
-function menu.help()
-    states.push(help)
 end
 
 function menu.keypressed(key)
@@ -52,21 +40,19 @@ function menu.keypressed(key)
         else
             menu.active_item = 1
         end
-    elseif key == "escape" then menu.quit()
+    elseif key == "escape" then love.event.quit()
     elseif key == "return" or key == "space" then menu.actions[menu.active_item]()
     end
 end
 
-function menu.update()
-end
+function menu.update() end
 
 function menu.draw()
+    g.clear(pallete.background)
     g.push("all")
-
+    -- позиционирование посредине экрана
     y = (h - #menu.items * menu.font:getHeight()) / 2
-
     g.setFont(menu.font)
-
     for i, k in ipairs(menu.items) do
         if (menu.active_item == i) then
             g.setColor(pallete.inactive)
@@ -76,7 +62,6 @@ function menu.draw()
         g.printf(k, 0, y, w, "center")
         y = y + menu.font:getHeight()
     end
-
     g.pop()
 end
 
