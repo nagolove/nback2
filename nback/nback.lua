@@ -13,20 +13,6 @@ local bhupur = require "bhupur"
 local g = love.graphics
 local w, h = g.getDimensions()
 
-function xassert(a, ...)
-    if a then return a, ... end
-    local f = ...
-    if type(f) == "function" then
-        error(f(select(2, ...)), 2)
-    else
-        error(f or "assertion failed!", 2)
-    end
-end
-
-function table.copy(t)
-    return {unpack(t)}
-end
-
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
         ["green"] = {72 / 255, 180 / 255, 66 / 255},
@@ -142,7 +128,7 @@ local nback = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 10),
-    field_color = table.copy(pallete.field)
+    field_color = table.copy(pallete.field) -- копия таблицы по значению
 }
 
 function create_false_array(len)
@@ -810,9 +796,7 @@ function draw_statistic(x0, y0)
 end
 
 function nback.draw()
-
-    --print("draw()" .. draw_iteration)
-    --draw_iteration = draw_iteration + 1
+    love.graphics.clear(pallete.background)
 
     local delta = 20 -- for avoiding intersection between field and bottom lines of text
     local x0 = (w - nback.dim * nback.cell_width) / 2

@@ -12,29 +12,21 @@ function colorpicker:init()
     self.gslider = {value = self.color[2], min = 0, max = 1}
     self.bslider = {value = self.color[3], min = 0, max = 1}
     self.aslider = {value = self.color[4], min = 0, max = 1}
-    self.canvas = lg.newCanvas(lg.getWidth(), lg.getHeight(), "normal", 2)
+    --self.canvas = lg.newCanvas(lg.getWidth(), lg.getHeight(), { type = "2d", format = "normal", msaa = 4})
+    self.canvas = lg.newCanvas(lg.getWidth(), lg.getHeight())
+    print("self.canvas = ", inspect(self.canvas))
 end
 
 -- button = 1 -- primary button
 -- button = 2 -- secondary button
 function colorpicker:mousepressed(x, y, button, istouch)
+    -- беру пиксель пипетки
     if button == 2 then
-        local r, g, b, a = 0.1, 0.2, 0.3, 1
-        local c = 0
-        lg.captureScreenshot(function(imgdata)
-            print(love.mouse.getPosition())
-            print("imagedata:getDimensions()", imgdata:getDimensions())
-            --print(string.format("%f %f %f %f", self.color[1], self.color[2], self.color[3], self.color[4]))
-            r, g, b, a = imgdata:getPixel(love.mouse.getPosition()) 
-            --print("vv = ", inspect(imgdata:getPixel(love.mouse.getPosition())))
-            print("colors", r, g, b, a)
-            c = 1
-            --print(string.format("%f %f %f %f", self.color[1], self.color[2], self.color[3], self.color[4]))
-        end)
-        print("c = ", c)
+        local imgdata = self.canvas:newImageData()
+        local r, g, b, a = imgdata:getPixel(love.mouse.getPosition())
         self.color[1], self.color[2], self.color[3] = r, g, b
-        print("cc", r, g, b)
-        --self.rslider.value, self.gslider.value, self.bslider.value = 1, 0, 1
+        self.rslider.value, self.gslider.value, self.bslider.value, self.bslider.value = r, g, b, a
+    -- копирование в буфер обмена
     elseif button == 3 then
         print("color copied to clpbrd")
         love.system.setClipboardText(string.format("{%s, %s, %s}", self.color[1], self.color[2], self.color[3]))
@@ -47,15 +39,12 @@ end
 function colorpicker:mousemoved(x, y, dx, dy, istouch)
 end
 
-function pack(...)
-    return {...}
-end
-
 function colorpicker:draw(func)
     lg.setCanvas(self.canvas)
+    lg.setColor(1, 1, 1, 1)
     func()
     lg.setCanvas()
-    lg.draw(0, 0, canvas)
+    if self.canvas then lg.draw(self.canvas, 0, 0)  end
 
     local pickerwidth = 200
     local pickerheight = 128

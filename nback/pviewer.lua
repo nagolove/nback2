@@ -53,10 +53,6 @@ function pviewer.leave()
     pviewer.data = nil
 end
 
-local function div(a, b)
-    return (a - a %b) / b
-end
-
 function get_max_lines_printed()
     return div(h - 100, pviewer.font:getHeight())
 end
@@ -88,18 +84,9 @@ function draw_column(k, j, deltax, func)
     for i = k, j do
         local s = func(pviewer.data[i])
         dx = math.max(dx, pviewer.font:getWidth(s))
-        --[[
-           [if pviewer.selected_item == k then
-           [    g.setColor({1, 1, 1, 1})
-           [else
-           [    g.setColor(oldcolor)
-           [end
-           ]]
         g.print(s, deltax, y)
         y = y + pviewer.font:getHeight()
-        --print(k, inspect(v))
     end
-    --print("len " .. #pviewer.data)
     g.setColor(oldcolor)
     deltax = deltax + dx
     return deltax
@@ -166,6 +153,8 @@ function print_dbg_info()
 end
 
 function pviewer.draw()
+    love.graphics.clear(pallete.background)
+
     local r = {x1 = pviewer.border, y1 = pviewer.border, x2 = w - pviewer.border, y2 = h - pviewer.border}
 
     g.push("all")
@@ -177,7 +166,8 @@ function pviewer.draw()
     g.setCanvas(pviewer.rt)
     local chart_width
     do
-        g.clear()
+        --g.clear()
+        love.graphics.clear(pallete.background)
         chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
     end
     g.setCanvas()

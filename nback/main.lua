@@ -1,4 +1,6 @@
-﻿local lovebird = require "libs.lovebird"
+﻿require("common")
+
+local lovebird = require "libs.lovebird"
 local pallete = require "pallete"
 local inspect = require "libs.inspect"
 local lume = require "libs.lume"
