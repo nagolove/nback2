@@ -1,5 +1,5 @@
 ﻿local pallete = {
-    active = {0.1, 0.1, 0.1},
+    active = {1, 1, 1},
     --background = {20 / 255, 40 / 255, 80 / 255, 1},
     background = {0.2, 0.2, 0.2},
     chart = {200 / 255, 80 / 255, 80 / 255, 1},
