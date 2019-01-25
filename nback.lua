@@ -101,8 +101,8 @@ function AlignedLabels:draw(x, y)
     g.setColor(c)
 end
 
-local minimum_nb_level = 2
-local maximum_nb_level = 4
+local minimum_nb_level = 1
+local maximum_nb_level = 5
 local max_pause_time = 15
 local min_pause_time = 0.6
 
