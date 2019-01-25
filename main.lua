@@ -45,11 +45,13 @@ function love.load()
     lovebird.update()
     lovebird.maxlines = 500
     love.window.setTitle("nback")
+    -- Ручная инициализация модулей
+    splash.init()
     menu.init()
     nback.init()
     pviewer.init()
     help.init()
-    splash.init()
+    --
     to_resize[#to_resize + 1] = menu
     to_resize[#to_resize + 1] = nback
     to_resize[#to_resize + 1] = pviewer

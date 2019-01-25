@@ -56,6 +56,10 @@ function menu.enter()
     menu.calc_rotation_grid()
 end
 
+function menu.leave()
+    menu.calc_rotation_grid()
+end
+
 function menu.keypressed(key)
     if key == "up" then
         if menu.active_item - 1 >= 1 then
