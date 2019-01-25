@@ -201,6 +201,7 @@ end
 
 function nback.start()
     local q = pallete.field
+    -- запуск анимации цвета игрового поля
     nback.timer:tween(3, nback.field_color, { q[1], q[2], q[3], 1 }, "linear")
 
     print("start")

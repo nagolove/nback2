@@ -5,6 +5,8 @@ local pallete = require "pallete"
 local inspect = require "libs.inspect"
 local lume = require "libs.lume"
 local lurker = require "libs.lurker"
+local splash = require "splash"
+
 --local ldebug = require "libs.lovedebug"
 local dbg = require "dbg"
 
@@ -13,6 +15,7 @@ states = {
 }
 
 function states.push(s)
+    xassert(type(s) == "table", function() return "'s' should be a table" end)
     local prev = states.top()
     if prev and prev.leave then prev.leave() end
     if s.enter then s.enter() end
@@ -46,11 +49,13 @@ function love.load()
     nback.init()
     pviewer.init()
     help.init()
+    splash.init()
     to_resize[#to_resize + 1] = menu
     to_resize[#to_resize + 1] = nback
     to_resize[#to_resize + 1] = pviewer
     to_resize[#to_resize + 1] = help
     states.push(menu)
+    --states.push(splash)
 end
 
 function love.update(dt)
