@@ -113,11 +113,9 @@ function menu.draw()
     local y = (h - #menu.items * menu.font:getHeight()) / 2
     g.setFont(menu.font)
     for i, k in ipairs(menu.items) do
-        if (menu.active_item == i) then
-            g.setColor(pallete.inactive)
-        else
-            g.setColor(pallete.active)
-        end
+        local q = menu.active_item == i and pallete.active or pallete.inactive 
+        q[4] = menu.alpha
+        g.setColor(q)
         g.printf(k, 0, y, w, "center")
         y = y + menu.font:getHeight()
     end
