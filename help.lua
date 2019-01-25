@@ -10,6 +10,7 @@ local help = {
 local g = love.graphics
 
 function help.draw()
+    g.setColor(1, 1, 1, 1)
     g.clear(pallete.background)
     g.push("all")
     g.setFont(help.font)
@@ -19,7 +20,6 @@ function help.draw()
     y = y + help.font:getHeight()
     g.printf("Put description here!", 0, y, w, "center")
     --FIXME Not work, using nil table nback here
-    --g.printf("Escape - to go back", 0, bottom_text_line_y + nback.font:getHeight(), w, "center")
     g.pop()
 end
 
