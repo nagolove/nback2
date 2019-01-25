@@ -298,7 +298,7 @@ function nback.init()
         nback.pause_time = settings.level
         nback.volume = settings.volume
     else
-        nback.volume = 0.2
+        nback.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
     end
     love.audio.setVolume(nback.volume)
 end
