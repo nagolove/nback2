@@ -313,6 +313,7 @@ function nback.init()
 end
 
 function nback.update(dt)
+    nback.timer:update(dt)
     if nback.pause or nback.start_pause then 
          nback.timestamp = love.timer.getTime()
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
@@ -350,7 +351,6 @@ function nback.update(dt)
             nback.stop()
         end
     end
-    nback.timer:update(dt)
 end
 
 function calc_percent(eq, pressed_arr)
@@ -757,7 +757,7 @@ function draw_active_signal(x0, y0)
     local x, y = unpack(nback.pos_signals[nback.current_sig])
     local sig_color = color_constants[nback.color_signals[nback.current_sig]]
     if nback.figure_alpha then
-        sig_color[4] = nback.figure_alpha.alpha
+        sig_color[4] = nback.figure_alpha
     end
     draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end
