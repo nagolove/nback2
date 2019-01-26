@@ -57,7 +57,7 @@ function love.load()
     to_resize[#to_resize + 1] = pviewer
     to_resize[#to_resize + 1] = help
     states.push(menu)
-    states.push(splash)
+    --states.push(splash)
 end
 
 function love.update(dt)

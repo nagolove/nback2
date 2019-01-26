@@ -202,7 +202,7 @@ end
 function nback.start()
     local q = pallete.field
     -- запуск анимации цвета игрового поля
-    nback.timer:tween(3, nback.field_color, { q[1], q[2], q[3], 1 }, "linear")
+    nback.timer:tween(3, nback, { field_color = {q[1], q[2], q[3], 1}}, "linear")
 
     print("start")
 
@@ -225,6 +225,14 @@ function nback.start()
     print(inspect(nback.color_pressed_arr))
     print(inspect(nback.form_pressed_arr))
     print(inspect(nback.sound_pressed_arr))
+
+    nback.start_pause_rest = 4
+    nback.start_pause = true
+    nback.timer:every(1, function() 
+        nback.start_pause_rest = nback.start_pause_rest - 1 
+    end, 4, function()
+        nback.start_pause = false
+    end)
     print("end of start")
 end
 
@@ -305,7 +313,7 @@ function nback.init()
 end
 
 function nback.update(dt)
-    if nback.pause then 
+    if nback.pause or nback.start_pause then 
          nback.timestamp = love.timer.getTime()
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
         -- если продолжительноть паузы больше nback.pause_time?
@@ -322,11 +330,11 @@ function nback.update(dt)
                 nback.can_press = true
 
                 -- setup timer for figure alpha channel animation
-                nback.figure_alpha = {alpha = 1}
+                nback.figure_alpha = 1
                 local tween_time = 0.5
                 print("time delta = " .. nback.pause_time - tween_time)
                 nback.timer:after(nback.pause_time - tween_time - 0.1, function()
-                    nback.timer:tween(tween_time, nback.figure_alpha, {alpha = 0}, "out-linear")
+                    nback.timer:tween(tween_time, nback, {figure_alpha = 0}, "out-linear")
                 end)
 
                 local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
@@ -800,6 +808,17 @@ function draw_statistic(x0, y0)
     x, y = print_percents(x, freeze_y + 0, rect_size, pixel_gap, border, starty)
 end
 
+-- draw central_text - Press Space key
+function print_start_pause(y0)
+    local central_text = string.format("Wait for %d second.", nback.start_pause_rest)
+    g.setFont(nback.central_font)
+    g.setColor(pallete.signal)
+    local x = (w - nback.central_font:getWidth(central_text)) / 2
+    --y = h - nback.central_font:getHeight() * 2
+    local y = y0 + (nback.dim - 1) * nback.cell_width
+    g.print(central_text, x, y)
+end
+
 function nback.draw()
     love.graphics.clear(pallete.background)
 
@@ -812,7 +831,11 @@ function nback.draw()
     draw_bhupur(x0, y0)
     print_debug_info()
     if nback.is_run then
-        draw_active_signal(x0, y0)
+        if nback.start_pause then
+            print_start_pause(y0)
+        else
+            draw_active_signal(x0, y0)
+        end
     else
         if nback.show_statistic then 
             draw_statistic(x0, y0)
