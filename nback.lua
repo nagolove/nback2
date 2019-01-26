@@ -315,7 +315,7 @@ end
 function nback.update(dt)
     nback.timer:update(dt)
     if nback.pause or nback.start_pause then 
-         nback.timestamp = love.timer.getTime()
+        nback.timestamp = love.timer.getTime() - nback.pause_time
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
         -- если продолжительноть паузы больше nback.pause_time?
         return 
