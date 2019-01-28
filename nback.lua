@@ -380,6 +380,10 @@ function nback.save_to_history()
     --print("history", inspect(history))
     local d = os.date("*t")
     table.insert(history, { date = d, 
+                            pos_signals = nback.pos_signals,
+                            form_signals = nback.form_signals,
+                            sound_signals = nback.sound_signals,
+                            color_signals = nback.color_signals,
                             pos_pressed_arr = nback.pos_pressed_arr,
                             form_pressed_arr = nback.form_pressed_arr,
                             sound_pressed_arr = nback.sound_pressed_arr,
