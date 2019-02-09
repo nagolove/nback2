@@ -1,10 +1,11 @@
 ﻿require("common")
 
-local lovebird = require "libs.lovebird"
+local Timer = require "libs/Timer"
+local inspect = require "libs/inspect"
+local lovebird = require "libs/lovebird"
+local lume = require "libs/lume"
+local lurker = require "libs/lurker"
 local pallete = require "pallete"
-local inspect = require "libs.inspect"
-local lume = require "libs.lume"
-local lurker = require "libs.lurker"
 local splash = require "splash"
 
 --local ldebug = require "libs.lovedebug"
@@ -32,6 +33,7 @@ function states.top()
     return states.a[#states.a]
 end
 
+local timer = Timer()
 local help = require "help"
 local menu = require "menu"
 local nback = require "nback"
@@ -66,6 +68,7 @@ function love.update(dt)
     end
 
     lovebird.update()
+    timer:update()
     states.top().update(dt)
 end
 
@@ -119,4 +122,16 @@ function love.draw()
     else
         dr_func()
     end
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+    if states.top().mousemoved then states.top().mousemoved(x, y, dx, dy, istouch) end
+end
+
+function love.mousepressed(x, y, button, istouch)
+    if states.top().mousepressed then states.top().mousepressed(x, y, button, istouch) end
+end
+
+function love.mousereleased(x, y, button, istouch)
+    if states.top().mousereleased then states.top().mousereleased(x, y, button, istouch) end
 end

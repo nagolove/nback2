@@ -87,6 +87,15 @@ function menu.update(dt)
     menu.timer:update(dt)
 end
 
+function menu.mousemoved(x, y, dx, dy, istouch)
+end
+
+function menu.mousepressed(x, y, button, istouch)
+end
+
+function menu.mousereleased(x, y, button, istouch)
+end
+
 function menu.draw()
     g.push("all")
 
@@ -109,7 +118,13 @@ function menu.draw()
         i = i + tile_size
     end
 
-    -- позиционирование посредине экрана
+    local max_width = 0
+    for _, v in pairs(menu.items) do
+        local w = menu.font:getWidth(v)
+        if w > max_width then max_width = w end
+    end
+
+    -- позиционирование посредине высоты
     local y = (h - #menu.items * menu.font:getHeight()) / 2
     g.setFont(menu.font)
     for i, k in ipairs(menu.items) do
@@ -117,6 +132,12 @@ function menu.draw()
         q[4] = menu.alpha
         g.setColor(q)
         g.printf(k, 0, y, w, "center")
+
+        local rect_width = max_width
+        g.setColor{0, 0, 0, 1}
+        g.setLineWidth(3)
+        g.rectangle("line", (w - rect_width) / 2, y, rect_width, menu.font:getHeight())
+
         y = y + menu.font:getHeight()
     end
 

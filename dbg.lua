@@ -10,7 +10,8 @@ function dbg.clear()
     y = 0
 end
 
-function dbg.print_text(text)
+function dbg.print_text(text, x, y)
+    if not x and not y then x, y = 0, 0 end
     if not dbg.show then return end
 
     local color = {g.getColor()}
