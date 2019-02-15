@@ -26,6 +26,25 @@ function menu.init()
     math.randomseed(os.time())
     menu.timer = timer()
     menu.alpha = 1
+
+    -- поиск наиболее широкого текста
+    max_width = 0
+    for _, v in pairs(menu.items) do
+        local w = menu.font:getWidth(v)
+        if w > max_width then max_width = w end
+    end
+
+    -- позиционирование игрек посредине высоты экрана
+    y_pos = (h - #menu.items * menu.font:getHeight()) / 2
+
+    -- заполнение прямоугольников меню
+    items_rects = {}
+    local y = y_pos
+    local rect_width = max_width
+    for i, k in ipairs(menu.items) do
+        items_rects[#items_rects + 1] = { x = (w - rect_width) / 2, y = y, w = rect_width, h = menu.font:getHeight()}
+        y = y + menu.font:getHeight()
+    end
 end
 
 function menu.resize(neww, newh)
@@ -87,10 +106,25 @@ function menu.update(dt)
     menu.timer:update(dt)
 end
 
+function point_in_rect(px, py, x, y, w, h)
+    return px > x and py > y and px < x + w and py < y + h
+end
+
+function process_menu_selection(x, y, dx, dy, istouch)
+    for k, v in pairs(items_rects) do
+        if point_in_rect(x, y, v.x, v.y, v.w, v.h) then menu.active_item = k end
+    end
+end
+
 function menu.mousemoved(x, y, dx, dy, istouch)
+    process_menu_selection(x, y, dx, dy, istouch)
 end
 
 function menu.mousepressed(x, y, button, istouch)
+    local active_rect = items_rects[menu.active_item]
+    if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, active_rect.y, active_rect.w, active_rect.h) then
+        menu.actions[menu.active_item]()
+    end
 end
 
 function menu.mousereleased(x, y, button, istouch)
@@ -118,28 +152,29 @@ function menu.draw()
         i = i + tile_size
     end
 
-    local max_width = 0
-    for _, v in pairs(menu.items) do
-        local w = menu.font:getWidth(v)
-        if w > max_width then max_width = w end
-    end
-
-    -- позиционирование посредине высоты
-    local y = (h - #menu.items * menu.font:getHeight()) / 2
+    -- печать вертикального списка меню
     g.setFont(menu.font)
+    local y = y_pos
     for i, k in ipairs(menu.items) do
         local q = menu.active_item == i and pallete.active or pallete.inactive 
         q[4] = menu.alpha
         g.setColor(q)
         g.printf(k, 0, y, w, "center")
-
-        local rect_width = max_width
-        g.setColor{0, 0, 0, 1}
-        g.setLineWidth(3)
-        g.rectangle("line", (w - rect_width) / 2, y, rect_width, menu.font:getHeight())
-
         y = y + menu.font:getHeight()
     end
+
+    --[[
+       [for k, v in pairs(items_rects) do
+       [    g.setLineWidth(3)
+       [    g.setColor{0, 0, 0, 1}
+       [    g.rectangle("line", v.x, v.y, v.w, v.h)
+       [end
+       ]]
+
+    g.setLineWidth(3)
+    g.setColor{1, 0, 0}
+    local v = items_rects[menu.active_item]
+    g.rectangle("line", v.x, v.y, v.w, v.h)
 
     g.pop()
 end
