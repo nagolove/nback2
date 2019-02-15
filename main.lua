@@ -102,8 +102,6 @@ function love.keypressed(key)
             picker = nil
             print("picker deleted")
         end
-    elseif key == "2" then
-        dbg.show = not dbg.show
     else
         states.top().keypressed(key)
     end

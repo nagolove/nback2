@@ -15,6 +15,20 @@ local menu = {
     back_tile = love.graphics.newImage("gfx/IMG_20190111_115755.png")
 }
 
+function compute_rects()
+    -- позиционирование игрек посредине высоты экрана
+    y_pos = (h - #menu.items * menu.font:getHeight()) / 2
+
+    -- заполнение прямоугольников меню
+    items_rects = {}
+    local y = y_pos
+    local rect_width = max_width
+    for i, k in ipairs(menu.items) do
+        items_rects[#items_rects + 1] = { x = (w - rect_width) / 2, y = y, w = rect_width, h = menu.font:getHeight()}
+        y = y + menu.font:getHeight()
+    end
+end
+
 function menu.init()
     menu.items = {"play", "view progress", "help", "quit"}
     menu.actions = { 
@@ -34,23 +48,15 @@ function menu.init()
         if w > max_width then max_width = w end
     end
 
-    -- позиционирование игрек посредине высоты экрана
-    y_pos = (h - #menu.items * menu.font:getHeight()) / 2
-
-    -- заполнение прямоугольников меню
-    items_rects = {}
-    local y = y_pos
-    local rect_width = max_width
-    for i, k in ipairs(menu.items) do
-        items_rects[#items_rects + 1] = { x = (w - rect_width) / 2, y = y, w = rect_width, h = menu.font:getHeight()}
-        y = y + menu.font:getHeight()
-    end
+    compute_rects()
 end
 
 function menu.resize(neww, newh)
     w = neww
     h = newh
     menu.calc_rotation_grid()
+    compute_rects()
+    print(string.format("menu.resize() %d*%d -> %d*%d!", w, h, neww, newh))
 end
 
 function menu.calc_rotation_grid()
@@ -162,14 +168,6 @@ function menu.draw()
         g.printf(k, 0, y, w, "center")
         y = y + menu.font:getHeight()
     end
-
-    --[[
-       [for k, v in pairs(items_rects) do
-       [    g.setLineWidth(3)
-       [    g.setColor{0, 0, 0, 1}
-       [    g.rectangle("line", v.x, v.y, v.w, v.h)
-       [end
-       ]]
 
     g.setLineWidth(3)
     g.setColor{1, 0, 0}

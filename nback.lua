@@ -6,12 +6,13 @@ local string = require "string"
 local table = require "table"
 local class = require "libs.30log"
 local Timer = require "libs.Timer"
-local dbg = require "dbg"
+local Kons = require "kons"
 local pallete = require "pallete"
 local bhupur = require "bhupur"
 
 local g = love.graphics
 local w, h = g.getDimensions()
+local linesbuf = Kons(0, 0)
 
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
@@ -174,6 +175,8 @@ function generate_signals()
         nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
     end
 
+    -- попытка балансировки массивов от множественного совпадения(более двух сигналов на фрейм)
+    -- случайной перегенерацией
     function balance(forIterCount)
         local i = 0
         local changed = false
@@ -277,6 +280,8 @@ function generate_nback(sig_count, gen, cmp)
         until i > #ret
     until count == 0
 
+    -- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
+    -- он не совпадал на текущем уровне n-назад
     for i = 1, #ret do
         if ret[i] == null then
             repeat
@@ -481,6 +486,8 @@ function nback.keypressed(key)
         print("love.audio.getVolume() = ", love.audio.getVolume())
         love.audio.setVolume(love.audio.getVolume() + 0.05)
     end
+
+    if key == "2" then linesbuf.show = not linesbuf.show end
 end
 
 -- signal type may be "pos", "sound", "color", "form"
@@ -677,14 +684,14 @@ function print_percents(x, y, rect_size, pixel_gap, border, starty)
 end
 
 function print_debug_info()
-    dbg.clear()
-    dbg.print_text("fps " .. love.timer.getFPS())
-    dbg.print_text("pos " .. inspect(nback.pos_signals))
-    dbg.print_text("sound " .. inspect(nback.sound_signals))
-    dbg.print_text("form " .. inspect(nback.form_signals))
-    dbg.print_text("color " .. inspect(nback.color_signals))
-    dbg.print_text("current_sig = " .. nback.current_sig)
-    dbg.print_text("nback.can_press = " .. tostring(nback.can_press))
+    linesbuf:push_text_i("fps " .. love.timer.getFPS())
+    linesbuf:push_text_i("pos " .. inspect(nback.pos_signals))
+    linesbuf:push_text_i("sound " .. inspect(nback.sound_signals))
+    linesbuf:push_text_i("form " .. inspect(nback.form_signals))
+    linesbuf:push_text_i("color " .. inspect(nback.color_signals))
+    linesbuf:push_text_i("current_sig = " .. nback.current_sig)
+    linesbuf:push_text_i("nback.can_press = " .. tostring(nback.can_press))
+    linesbuf:draw()
 end
 
 function print_set_results(x0, y0)

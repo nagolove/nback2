@@ -5,7 +5,7 @@ local timer = require "libs.Timer"
 local pallete = require "pallete"
 local nback = require "nback"
 local g = love.graphics
-local dbg = require "dbg"
+local Kons = require "kons"
 
 -- integer division
 local function div(a, b)
@@ -27,6 +27,7 @@ local pviewer = {
 
 local w, h = g.getDimensions()
 local columns_name = {"date", "nlevel", "rating", "pause"}
+local linesbuffer = Kons(x, y)
 
 function pviewer.init()
     pviewer.resize(g.getDimensions())
@@ -152,9 +153,9 @@ function draw_scroll_tip(rect)
 end
 
 function print_dbg_info()
-    dbg.clear()
-    dbg.print_text("fps " .. love.timer.getFPS())
-    dbg.print_text(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
+    linesbuffer:push_text_i("fps " .. love.timer.getFPS())
+    linesbuffer:push_text_i(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
+    linesbuffer:draw()
 end
 
 function pviewer.draw()
