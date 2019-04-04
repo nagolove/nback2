@@ -264,6 +264,7 @@ function generate_nback(sig_count, gen, cmp)
         repeat
             if count > 0 then
                 local prob = math.random(unpack(range))
+                print("prob", prob)
                 if prob == range[2] then
                     if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
                         ret[i] = gen()
