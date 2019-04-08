@@ -73,7 +73,14 @@ function pviewer.resize(neww, newh)
     print(inspect(pviewer.data))
     print(pviewer.cursor_index)
     if pviewer.cursor_index and pviewer.cursor_index > pviewer.vertical_buf_len then pviewer.cursor_index = pviewer.vertical_buf_len - 1 end -- why -1 ??
-    pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), {format = "normal", msaa = 4})
+
+    local maj, min, rev, _ = love.getVersion()
+    if maj == 0 and min == 10 and rev == 2 then
+        pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), "normal", 4)
+    else
+        pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), {format = "normal", msaa = 4})
+    end
+
     if not pviewer then
         error("Canvas not supported!")
     end
