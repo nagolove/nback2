@@ -18,9 +18,9 @@ local dir = love.filesystem.enumerate or love.filesystem.getDirectoryItems
 local time = love.timer.getTime or os.time
 
 -- deprecated since Love 0.11
-maj, min, rev, _ = love.getVersion()
+local maj, min, rev, _ = love.getVersion()
 local isdir, lastmodified
-if maj == 0 and min == 10 and rev == 2 then
+if maj == 0 and min < 11 then
     isdir = love.filesystem.isDirectory
     lastmodified = love.filesystem.getLastModified
 else

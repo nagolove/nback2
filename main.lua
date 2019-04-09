@@ -1,10 +1,11 @@
 ﻿require("common")
 
+local lg = love.graphics
 local Timer = require "libs/Timer"
 local inspect = require "libs/inspect"
 local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
-local lurker = require "libs/lurker"
+--local lurker = require "libs/lurker"
 local pallete = require "pallete"
 local splash = require "splash"
 
@@ -44,7 +45,20 @@ local picker = nil
 local to_resize = {}
 
 function love.load()
-    lovebird.update()
+
+    local maj, min, rev, _ = love.getVersion()
+    -- XXX monkeypatching для обратной совместимости с низкой версией love2d(Андроид порт 0.10.2)
+    if maj == 0 and min < 11 then
+        local internal = love.graphics.setColor
+        love.graphics.setColor = function(...)
+            local arg = {...}
+            local subarg = type(arg[1]) == "table" and arg[1] or arg
+            for k, v in pairs(subarg) do arg[k] = v * 255 end
+            internal(unpack(arg))
+        end
+    end
+
+    --lovebird.update()
     lovebird.maxlines = 500
     love.window.setTitle("nback")
     -- Ручная инициализация модулей
@@ -67,7 +81,7 @@ function love.update(dt)
         picker:update(dt)
     end
 
-    lovebird.update()
+    --lovebird.update()
     timer:update()
     states.top().update(dt)
 end
@@ -114,6 +128,10 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
+    --local w, h = lg.getDimensions()
+    --lg.setColor(255, 255, 255)
+    --lg.line(0, 0, w, h)
+
     local dr_func = states.top().draw or function() end
     if picker then
         picker:draw(dr_func)

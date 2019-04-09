@@ -75,7 +75,7 @@ function pviewer.resize(neww, newh)
     if pviewer.cursor_index and pviewer.cursor_index > pviewer.vertical_buf_len then pviewer.cursor_index = pviewer.vertical_buf_len - 1 end -- why -1 ??
 
     local maj, min, rev, _ = love.getVersion()
-    if maj == 0 and min == 10 and rev == 2 then
+    if maj == 0 and min < 11 then
         pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), "normal", 4)
     else
         pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), {format = "normal", msaa = 4})
