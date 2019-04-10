@@ -8,6 +8,7 @@ local lume = require "libs/lume"
 --local lurker = require "libs/lurker"
 local pallete = require "pallete"
 local splash = require "splash"
+local kons = require "kons"
 
 --local ldebug = require "libs.lovedebug"
 local dbg = require "dbg"
@@ -45,6 +46,7 @@ local picker = nil
 local to_resize = {}
 
 function love.load()
+    linesbuf = kons(0, 0)
 
     local maj, min, rev, _ = love.getVersion()
     -- XXX monkeypatching для обратной совместимости с низкой версией love2d(Андроид порт 0.10.2)
@@ -138,6 +140,8 @@ function love.draw()
     else
         dr_func()
     end
+    linesbuf:push_text_i("fps " .. love.timer.getFPS())
+    linesbuf:draw()
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)

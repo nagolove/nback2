@@ -11,7 +11,7 @@ local tile_size = 256
 
 local menu = {
     active_item = 1,
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 92),
     back_tile = love.graphics.newImage("gfx/IMG_20190111_115755.png")
 }
 
@@ -129,6 +129,7 @@ end
 function menu.mousepressed(x, y, button, istouch)
     local active_rect = items_rects[menu.active_item]
     if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, active_rect.y, active_rect.w, active_rect.h) then
+        love.system.vibrate(0.2)
         menu.actions[menu.active_item]()
     end
 end

@@ -6,13 +6,11 @@ local string = require "string"
 local table = require "table"
 local class = require "libs.30log"
 local Timer = require "libs.Timer"
-local Kons = require "kons"
 local pallete = require "pallete"
 local bhupur = require "bhupur"
 
 local g = love.graphics
 local w, h = g.getDimensions()
-local linesbuf = Kons(0, 0)
 
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
@@ -685,14 +683,12 @@ function print_percents(x, y, rect_size, pixel_gap, border, starty)
 end
 
 function print_debug_info()
-    linesbuf:push_text_i("fps " .. love.timer.getFPS())
     linesbuf:push_text_i("pos " .. inspect(nback.pos_signals))
     linesbuf:push_text_i("sound " .. inspect(nback.sound_signals))
     linesbuf:push_text_i("form " .. inspect(nback.form_signals))
     linesbuf:push_text_i("color " .. inspect(nback.color_signals))
     linesbuf:push_text_i("current_sig = " .. nback.current_sig)
     linesbuf:push_text_i("nback.can_press = " .. tostring(nback.can_press))
-    linesbuf:draw()
 end
 
 function print_set_results(x0, y0)

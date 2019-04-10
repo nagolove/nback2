@@ -4,8 +4,7 @@ local timer = require "libs.Timer"
 
 local pallete = require "pallete"
 local nback = require "nback"
-local g = love.graphics
-local Kons = require "kons"
+local lg = love.graphics
 
 -- integer division
 local function div(a, b)
@@ -25,12 +24,11 @@ local pviewer = {
     sorted_by_column_num = 1,
 }
 
-local w, h = g.getDimensions()
+local w, h = lg.getDimensions()
 local columns_name = {"date", "nlevel", "rating", "pause"}
-local linesbuffer = Kons(x, y)
 
 function pviewer.init()
-    pviewer.resize(g.getDimensions())
+    pviewer.resize(lg.getDimensions())
     pviewer.timer = timer()
 end
 
@@ -76,9 +74,9 @@ function pviewer.resize(neww, newh)
 
     local maj, min, rev, _ = love.getVersion()
     if maj == 0 and min < 11 then
-        pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), "normal", 4)
+        pviewer.rt = lg.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), "normal", 4)
     else
-        pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), {format = "normal", msaa = 4})
+        pviewer.rt = lg.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), {format = "normal", msaa = 4})
     end
 
     if not pviewer then
@@ -88,7 +86,7 @@ end
 
 -- draw column of table pviewer.data, from index k, to index j with func(v) access function
 function draw_column(k, j, deltax, func)
-    local oldcolor = {g.getColor()}
+    local oldcolor = {lg.getColor()}
     local dx = 0
     local y = 0 + pviewer.font:getHeight() -- start y position
     if k + j > #pviewer.data then
@@ -97,29 +95,29 @@ function draw_column(k, j, deltax, func)
     for i = k, j do
         local s = func(pviewer.data[i])
         dx = math.max(dx, pviewer.font:getWidth(s))
-        g.print(s, deltax, y)
+        lg.print(s, deltax, y)
         y = y + pviewer.font:getHeight()
     end
-    g.setColor(oldcolor)
+    lg.setColor(oldcolor)
     deltax = deltax + dx
     return deltax
 end
 
 function draw_columns(k, j, deltax)
-    g.setFont(pviewer.font)
-    g.setColor(pallete.chart)
+    lg.setFont(pviewer.font)
+    lg.setColor(pallete.chart)
     deltax = draw_column(k, j, deltax, function(v) return string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
-    g.setColor(pallete.header)
+    lg.setColor(pallete.header)
     deltax = draw_column(k, j, deltax, function(v) return " / " end)
-    g.setColor(pallete.chart)
+    lg.setColor(pallete.chart)
     deltax = draw_column(k, j, deltax, function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
-    g.setColor(pallete.header)
+    lg.setColor(pallete.header)
     deltax = draw_column(k, j, deltax, function(v) return " / " end)
-    g.setColor(pallete.chart)
+    lg.setColor(pallete.chart)
     deltax = draw_column(k, j, deltax, function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
-    g.setColor(pallete.header)
+    lg.setColor(pallete.header)
     deltax = draw_column(k, j, deltax, function(v) return " / " end)
-    g.setColor(pallete.chart)
+    lg.setColor(pallete.chart)
     deltax = draw_column(k, j, deltax, function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
     return deltax
 end
@@ -134,8 +132,8 @@ function draw_chart(k, j)
 end
 
 function draw_chart_header(r)
-    g.setColor({1, 1, 1})
-    g.setFont(pviewer.font)
+    lg.setColor({1, 1, 1})
+    lg.setFont(pviewer.font)
     local tbl = {}
     for k, v in pairs(columns_name) do
         if k == pviewer.sorted_by_column_num then
@@ -149,20 +147,18 @@ function draw_chart_header(r)
             tbl[#tbl + 1] = v
         end
     end
-    g.printf(tbl, r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    lg.printf(tbl, r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
 end
 
 --drawing scroll_tip_text
 function draw_scroll_tip(rect)
-    g.setColor(pallete.scroll_tip_text)
-    g.setFont(pviewer.scrool_tip_font)
-    g.printf(pviewer.scroll_tip_text, rect.x1, rect.y2 + pviewer.border / 2, rect.x2 - rect.x1, "center")
+    lg.setColor(pallete.scroll_tip_text)
+    lg.setFont(pviewer.scrool_tip_font)
+    lg.printf(pviewer.scroll_tip_text, rect.x1, rect.y2 + pviewer.border / 2, rect.x2 - rect.x1, "center")
 end
 
 function print_dbg_info()
-    linesbuffer:push_text_i("fps " .. love.timer.getFPS())
-    linesbuffer:push_text_i(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
-    linesbuffer:draw()
+    linesbuf:push_text_i(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
 end
 
 function pviewer.draw()
@@ -170,35 +166,35 @@ function pviewer.draw()
 
     local r = {x1 = pviewer.border, y1 = pviewer.border, x2 = w - pviewer.border, y2 = h - pviewer.border}
 
-    g.push("all")
+    lg.push("all")
 
     draw_scroll_tip(r)
     draw_chart_header(r)
 
-    g.setColor({1, 1, 1, 1})
-    g.setCanvas(pviewer.rt)
+    lg.setColor({1, 1, 1, 1})
+    lg.setCanvas(pviewer.rt)
     local chart_width
     do
-        --g.clear()
+        --lg.clear()
         love.graphics.clear(pallete.background)
         chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
     end
-    g.setCanvas()
+    lg.setCanvas()
 
-    g.setColor({1, 1, 1, 1})
-    g.draw(pviewer.rt, (w - chart_width) / 2, r.y1)
-    --g.draw(pviewer.rt, (w - chart_width) / 2, y1)
+    lg.setColor({1, 1, 1, 1})
+    lg.draw(pviewer.rt, (w - chart_width) / 2, r.y1)
+    --lg.draw(pviewer.rt, (w - chart_width) / 2, y1)
 
     if pviewer.cursor_index > 0 then
-        g.setColor(1, 1, 1, 0.3)
+        lg.setColor(1, 1, 1, 0.3)
         local x = (w - chart_width) / 2
         local y = r.y1 + pviewer.cursor_index * pviewer.font:getHeight()
-        g.rectangle("fill", x, y, chart_width, pviewer.font:getHeight())
+        lg.rectangle("fill", x, y, chart_width, pviewer.font:getHeight())
     end
 
     print_dbg_info()
 
-    g.pop()
+    lg.pop()
 end
 
 function pviewer.sort_by_column(idx)
