@@ -14,7 +14,8 @@ function help.update(dt)
     linesbuf:push_text_i(string.format("ls.getOS() = %s", ls.getOS()))
     linesbuf:push_text_i(string.format("ls.getClipboardText() = %s", ls.getClipboardText()))
     linesbuf:push_text_i(string.format("ls.getProcessorCount() = %d", ls.getProcessorCount()))
-    linesbuf:push_text_i(string.format("ls.getPowerInfo() = %s", tostring(lg.getPowerInfo())))
+    local charge, percent, seconds = ls.getPowerInfo()
+    linesbuf:push_text_i(string.format("ls.getPowerInfo() = %s, %s %s", tostring(charge), tostring(percent), tostring(seconds)))
 end
 
 function help.draw()
