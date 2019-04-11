@@ -42,3 +42,5 @@ luac.out
 # Build Love2d files
 *.love
 *.swp
+
+make_apk.bat
