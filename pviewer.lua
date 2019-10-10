@@ -153,8 +153,8 @@ function draw_scroll_tip(rect)
 end
 
 function print_dbg_info()
-    linesbuffer:push_text_i("fps " .. love.timer.getFPS())
-    linesbuffer:push_text_i(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
+    linesbuffer:pushi("fps " .. love.timer.getFPS())
+    linesbuffer:pushi(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
     linesbuffer:draw()
 end
 

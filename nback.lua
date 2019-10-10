@@ -104,8 +104,8 @@ end
 
 local minimum_nb_level = 1
 local maximum_nb_level = 5
-local max_pause_time = 15
-local min_pause_time = 0.6
+local max_pause_time = 60
+local min_pause_time = 0.4
 
 local nback = {
     dim = 5,    -- количество ячеек поля
@@ -685,13 +685,13 @@ function print_percents(x, y, rect_size, pixel_gap, border, starty)
 end
 
 function print_debug_info()
-    linesbuf:push_text_i("fps " .. love.timer.getFPS())
-    linesbuf:push_text_i("pos " .. inspect(nback.pos_signals))
-    linesbuf:push_text_i("sound " .. inspect(nback.sound_signals))
-    linesbuf:push_text_i("form " .. inspect(nback.form_signals))
-    linesbuf:push_text_i("color " .. inspect(nback.color_signals))
-    linesbuf:push_text_i("current_sig = " .. nback.current_sig)
-    linesbuf:push_text_i("nback.can_press = " .. tostring(nback.can_press))
+    linesbuf:pushi("fps " .. love.timer.getFPS())
+    linesbuf:pushi("pos " .. inspect(nback.pos_signals))
+    linesbuf:pushi("sound " .. inspect(nback.sound_signals))
+    linesbuf:pushi("form " .. inspect(nback.form_signals))
+    linesbuf:pushi("color " .. inspect(nback.color_signals))
+    linesbuf:pushi("current_sig = " .. nback.current_sig)
+    linesbuf:pushi("nback.can_press = " .. tostring(nback.can_press))
     linesbuf:draw()
 end
 
