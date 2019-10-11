@@ -447,46 +447,57 @@ function nback.keypressed(key)
     elseif key == "space" or key == "return" then
             nback.start()
 
-    --[[
-       [elseif key == "0" then
-       [    nback.pause = not nback.pause
-       [elseif key == "9" then
-       [    nback.show_statistic = not nback.show_statistic
-       [    if nback.show_statistic then
-       [       nback.pause = true
-       [    end
-       ]]
+            --[[
+            [elseif key == "0" then
+            [    nback.pause = not nback.pause
+            [elseif key == "9" then
+            [    nback.show_statistic = not nback.show_statistic
+            [    if nback.show_statistic then
+            [       nback.pause = true
+            [    end
+            ]]
 
-    elseif key == "p" then
-        nback.check("pos")
-    elseif key == "s" then
-        nback.check("sound")
-    elseif key == "f" then
-        nback.check("form")
-    elseif key == "c" then
-        nback.check("color")
-    end
+            --elseif key == "p" then
+            --nback.check("pos")
+            --elseif key == "s" then
+            --nback.check("sound")
+            --elseif key == "f" then
+            --nback.check("form")
+            --elseif key == "c" then
+            --nback.check("color")
+            --end
 
-    if not nback.is_run and not nback.show_statistic then
-        if key == "left" and nback.level > minimum_nb_level then
-            nback.level = nback.level - 1
-        elseif key == "right" and nback.level < maximum_nb_level then
-            nback.level = nback.level + 1
+
+        elseif key == "a" then
+            nback.check("sound")
+        elseif key == "f" then
+            nback.check("color")
+        elseif key == "j" then
+            nback.check("form")
+        elseif key == ";" then
+            nback.check("pos")
         end
-        if key == "up" and nback.pause_time < max_pause_time then
-            nback.pause_time = nback.pause_time + 0.2
-        elseif key == "down" and nback.pause_time > min_pause_time then
-            nback.pause_time = nback.pause_time - 0.2
-        end
-    end
 
-    if key == "-" then 
-        print("love.audio.getVolume() = ", love.audio.getVolume())
-        love.audio.setVolume(love.audio.getVolume() - 0.05)
-    elseif key == "=" then
-        print("love.audio.getVolume() = ", love.audio.getVolume())
-        love.audio.setVolume(love.audio.getVolume() + 0.05)
-    end
+        if not nback.is_run and not nback.show_statistic then
+            if key == "left" and nback.level > minimum_nb_level then
+                nback.level = nback.level - 1
+            elseif key == "right" and nback.level < maximum_nb_level then
+                nback.level = nback.level + 1
+            end
+            if key == "up" and nback.pause_time < max_pause_time then
+                nback.pause_time = nback.pause_time + 0.2
+            elseif key == "down" and nback.pause_time > min_pause_time then
+                nback.pause_time = nback.pause_time - 0.2
+            end
+        end
+
+        if key == "-" then 
+            print("love.audio.getVolume() = ", love.audio.getVolume())
+            love.audio.setVolume(love.audio.getVolume() - 0.05)
+        elseif key == "=" then
+            print("love.audio.getVolume() = ", love.audio.getVolume())
+            love.audio.setVolume(love.audio.getVolume() + 0.05)
+        end
 
     if key == "2" then linesbuf.show = not linesbuf.show end
 end
@@ -624,6 +635,11 @@ function draw_field_grid(x0, y0, field_h)
     end
 end
 
+-- x, y - координаты левого верхнего угла отрисовываемой картинки.
+-- arr - массив со значениями чего?
+-- eq - массив-наложение на arr, для успешных попаданий?
+-- rect_size - размер отображаемого в сетке прямоугольника
+-- border - зазор между прямоугольниками.
 function draw_hit_rects(x, y, arr, eq, rect_size, border)
     --print("border = " .. border)
     local hit_color = {200 / 255, 10 / 255, 10 / 255}
@@ -755,6 +771,29 @@ function print_control_tips(bottom_text_line_y)
         keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
     end
     keys_tip:draw(0, bottom_text_line_y)
+    --[[
+       [if nback.sound_pressed then
+       [    keys_tip:add("Sound", pressed_color)
+       [else
+       [    keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
+       [end
+       [if nback.color_pressed then
+       [    keys_tip:add("Color", pressed_color)
+       [else
+       [    keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
+       [end
+       [if nback.form_pressed then
+       [    keys_tip:add("Form", pressed_color)
+       [else
+       [    keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
+       [end
+       [if nback.pos_pressed then
+       [    keys_tip:add("Position", pressed_color)
+       [else
+       [    keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
+       [end
+       [keys_tip:draw(0, bottom_text_line_y)
+       ]]
 end
 
 -- draw escape tip
@@ -839,6 +878,7 @@ function nback.draw()
     local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
 
     g.push("all")
+    -- этим вызовом рисуются только полосы сетки
     draw_field_grid(x0, y0, nback.dim * nback.cell_width)
     draw_bhupur(x0, y0)
     print_debug_info()
