@@ -111,7 +111,7 @@ local nback = {
     dim = 5,    -- количество ячеек поля
     cell_width = 100,  -- width of game field in pixels
     current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
-    sig_count = 6, -- количество сигналов
+    sig_count = 7, -- количество сигналов
     level = 2, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
     is_run = false, -- индикатор запуска рабочего цикла
     pause_time = 2.5, -- задержка между сигналами, в секундах
@@ -249,12 +249,14 @@ function nback.leave()
 end
 
 function generate_nback(sig_count, gen, cmp)
-    local ret = {}
-    local ratio = 8 --TODO FIXME XXX
-    local range = {1, 3}
-    local count = sig_count
-    local null = {}
+    local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
+    --функцией.
+    local ratio = 8 --TODO FIXME XXX -- что за "отношение"?
+    local range = {1, 3} -- что делает эта таблица, задает границы цему-то?
+    local count = sig_count -- зачем это переименование переменной?
+    local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
 
+    -- забиваю пустыми значениями весь массив, по всей длине.
     for i = 1, ratio * sig_count do
         table.insert(ret, null)
     end
@@ -263,6 +265,7 @@ function generate_nback(sig_count, gen, cmp)
         local i = 1
         repeat
             if count > 0 then
+                -- вероятность выпадения значения
                 local prob = math.random(unpack(range))
                 print("prob", prob)
                 if prob == range[2] then
@@ -824,7 +827,7 @@ function draw_statistic(x0, y0)
     g.setFont(nback.font)
     g.setColor(pallete.statistic)
 
-    print("x0 = " .. x0 .. " y0 = " .. y0)
+    --print("x0 = " .. x0 .. " y0 = " .. y0)
 
     local width_k = 3 / 4
     local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
