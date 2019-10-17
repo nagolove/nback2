@@ -1,4 +1,5 @@
 ﻿local inspect = require "libs.inspect"
+local serpent = require "serpent"
 local lume = require "libs.lume"
 local math = require "math"
 local os = require "os"
@@ -9,7 +10,6 @@ local Timer = require "libs.Timer"
 local Kons = require "kons"
 local pallete = require "pallete"
 local bhupur = require "bhupur"
-
 local g = love.graphics
 local w, h = g.getDimensions()
 local linesbuf = Kons(0, 0)
@@ -146,6 +146,35 @@ function generate_signals()
         color_arr[#color_arr + 1] = k
     end
 
+    function genArrays2()
+        nback.signals.pos = generate_nback(nback.sig_count, 
+            function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
+            function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
+        print("pos", inspect(nback.pos_signals))
+        nback.signals.form_ = generate_nback(nback.sig_count,
+            function()
+                local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
+                return arr[math.random(1, 6)]
+            end,
+            function(a, b) return a == b end)
+        print("form", inspect(nback.form_signals))
+        nback.signals.sound_ = generate_nback(nback.sig_count, 
+            function() return math.random(1, #nback.sounds) end,
+            function(a, b) return a == b end)
+        print("snd", inspect(nback.sound_signals))
+        nback.signals.color_ = generate_nback(nback.sig_count,
+            function() return color_arr[math.random(1, 6)] end,
+            function(a, b)
+                print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
+                return a == b end)
+        print("color", inspect(nback.color_signals))
+
+        --nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
+        --nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
+        --nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
+        --nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+    end
+
     function genArrays()
         nback.pos_signals = generate_nback(nback.sig_count, 
             function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
@@ -183,6 +212,7 @@ function generate_signals()
         repeat
             i = i + 1
             genArrays()
+            genArrays2()
             for k, v in pairs(nback.pos_eq) do
                 local n = 0
                 n = n + (v and 1 or 0)
@@ -266,6 +296,7 @@ function generate_nback(sig_count, gen, cmp)
         repeat
             if count > 0 then
                 -- вероятность выпадения значения
+                -- помоему здесб написана хрень
                 local prob = math.random(unpack(range))
                 print("prob", prob)
                 if prob == range[2] then
@@ -378,6 +409,13 @@ function calc_percent(eq, pressed_arr)
     return p / success
 end
 
+-- считывает и устанавливает набор состояний сигналов и нажатий клавиша на 
+-- сигналы. Функция необходима для установки состояния из внещнего источника 
+-- при необходимости последующей отрисовки экрана статистики, загруженного из
+-- файла.
+function nback.loadFromHistory(signals)
+end
+
 function nback.save_to_history()
     print("nback.current_sig = ", nback.current_sig)
     print("#nback.pos_signals = ", #nback.pos_signals)
@@ -429,6 +467,7 @@ function nback.stop()
 end
 
 function nback.quit()
+    print(serpent.dump(nback))
     nback.timer:destroy()
     local settings_str = lume.serialize { 
         ["volume"] = love.audio.getVolume(), 
@@ -481,6 +520,8 @@ function nback.keypressed(key)
             nback.check("pos")
         end
 
+        -- здесь другое игровое состояние, почему используется условие и булев
+        -- флаг?
         if not nback.is_run and not nback.show_statistic then
             if key == "left" and nback.level > minimum_nb_level then
                 nback.level = nback.level - 1
@@ -495,14 +536,30 @@ function nback.keypressed(key)
         end
 
         if key == "-" then 
-            print("love.audio.getVolume() = ", love.audio.getVolume())
-            love.audio.setVolume(love.audio.getVolume() - 0.05)
+            nback.loverVolume()
         elseif key == "=" then
-            print("love.audio.getVolume() = ", love.audio.getVolume())
-            love.audio.setVolume(love.audio.getVolume() + 0.05)
+            nback.raiseVolume()
         end
 
     if key == "2" then linesbuf.show = not linesbuf.show end
+end
+
+local soundVolumeStep = 0.05
+
+function nback.loverVolume()
+    --print("love.audio.getVolume() = ", love.audio.getVolume())
+    if nback.volume - soundVolumeStep >= 0 then
+        nback.volume = nback.volume - soundVolumeStep
+        love.audio.setVolume(nback.volume)
+    end
+end
+
+function nback.raiseVolume()
+    --print("love.audio.getVolume() = ", love.audio.getVolume())
+    if nback.volume + soundVolumeStep <= 1 then
+        nback.volume = nback.volume + soundVolumeStep
+        love.audio.setVolume(nback.volume)
+    end
 end
 
 -- signal type may be "pos", "sound", "color", "form"
@@ -711,6 +768,7 @@ function print_debug_info()
     linesbuf:pushi("color " .. inspect(nback.color_signals))
     linesbuf:pushi("current_sig = " .. nback.current_sig)
     linesbuf:pushi("nback.can_press = " .. tostring(nback.can_press))
+    linesbuf:pushi("volume %.3f", nback.volume)
     linesbuf:draw()
 end
 
@@ -753,25 +811,27 @@ function print_control_tips(bottom_text_line_y)
     local keys_tip = AlignedLabels:new(nback.font, w)
     local pressed_color = pallete.active
     local unpressed_color = pallete.inactive
+    local highLightedTextColor = {0.78, 0.78, 0.78, 1}
     if nback.sound_pressed then
         keys_tip:add("Sound", pressed_color)
     else
-        keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
+        keys_tip:add("S", highLightedTextColor, "ound", unpressed_color)
     end
     if nback.color_pressed then
         keys_tip:add("Color", pressed_color)
     else
-        keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
+        keys_tip:add("C", highLightedTextColor, "olor", unpressed_color)
     end
     if nback.form_pressed then
         keys_tip:add("Form", pressed_color)
     else
-        keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
+        keys_tip:add("F", highLightedTextColor, "orm", unpressed_color)
     end
     if nback.pos_pressed then
-        keys_tip:add("Position", pressed_color)
+        keys_tip:add("Position [", pressed_color, ";", highLightedTextColor,
+            "]", pressed_color)
     else
-        keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
+        keys_tip:add("Position", unpressed_color, " ;", highLightedTextColor)
     end
     keys_tip:draw(0, bottom_text_line_y)
     --[[
