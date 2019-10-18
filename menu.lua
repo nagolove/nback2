@@ -90,19 +90,25 @@ function menu.leave()
     menu.calc_rotation_grid()
 end
 
+function menu.moveDown()
+    if menu.active_item + 1 <= #menu.items then
+        menu.active_item = menu.active_item + 1
+    else
+        menu.active_item = 1
+    end
+end
+
+function menu.moveUp()
+    if menu.active_item - 1 >= 1 then
+        menu.active_item = menu.active_item - 1
+    else
+        menu.active_item = #menu.actions
+    end
+end
+
 function menu.keypressed(key)
-    if key == "up" then
-        if menu.active_item - 1 >= 1 then
-            menu.active_item = menu.active_item - 1
-        else
-            menu.active_item = #menu.actions
-        end
-    elseif key == "down" then
-        if menu.active_item + 1 <= #menu.items then
-            menu.active_item = menu.active_item + 1
-        else
-            menu.active_item = 1
-        end
+    if key == "up" or key == "k" then menu.moveUp()
+    elseif key == "down" or key == "j" then menu.moveDown()
     elseif key == "escape" then love.event.quit()
     elseif key == "return" or key == "space" then menu.actions[menu.active_item]()
     end

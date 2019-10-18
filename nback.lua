@@ -150,24 +150,27 @@ function generate_signals()
         nback.signals.pos = generate_nback(nback.sig_count, 
             function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
             function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
-        print("pos", inspect(nback.pos_signals))
-        nback.signals.form_ = generate_nback(nback.sig_count,
+        print("pos", inspect(nback.signals.pos_))
+
+        nback.signals.form = generate_nback(nback.sig_count,
             function()
                 local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
                 return arr[math.random(1, 6)]
             end,
             function(a, b) return a == b end)
-        print("form", inspect(nback.form_signals))
+        print("form", inspect(nback.signals.form))
+
         nback.signals.sound_ = generate_nback(nback.sig_count, 
             function() return math.random(1, #nback.sounds) end,
             function(a, b) return a == b end)
-        print("snd", inspect(nback.sound_signals))
+        print("snd", inspect(nback.signals.sound))
+
         nback.signals.color_ = generate_nback(nback.sig_count,
             function() return color_arr[math.random(1, 6)] end,
             function(a, b)
                 print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
                 return a == b end)
-        print("color", inspect(nback.color_signals))
+        print("color", inspect(nback.signals.color))
 
         --nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
         --nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
