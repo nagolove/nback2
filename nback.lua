@@ -147,10 +147,11 @@ function generate_signals()
     end
 
     function genArrays2()
+        nback.signals = {}
         nback.signals.pos = generate_nback(nback.sig_count, 
             function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
             function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
-        print("pos", inspect(nback.signals.pos_))
+        print("pos", inspect(nback.signals.pos))
 
         nback.signals.form = generate_nback(nback.sig_count,
             function()
@@ -160,12 +161,12 @@ function generate_signals()
             function(a, b) return a == b end)
         print("form", inspect(nback.signals.form))
 
-        nback.signals.sound_ = generate_nback(nback.sig_count, 
+        nback.signals.sound = generate_nback(nback.sig_count, 
             function() return math.random(1, #nback.sounds) end,
             function(a, b) return a == b end)
         print("snd", inspect(nback.signals.sound))
 
-        nback.signals.color_ = generate_nback(nback.sig_count,
+        nback.signals.color = generate_nback(nback.sig_count,
             function() return color_arr[math.random(1, 6)] end,
             function(a, b)
                 print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
@@ -812,54 +813,22 @@ end
 
 function print_control_tips(bottom_text_line_y)
     local keys_tip = AlignedLabels:new(nback.font, w)
-    local pressed_color = pallete.active
-    local unpressed_color = pallete.inactive
-    local highLightedTextColor = {0.78, 0.78, 0.78, 1}
-    if nback.sound_pressed then
-        keys_tip:add("Sound", pressed_color)
-    else
-        keys_tip:add("S", highLightedTextColor, "ound", unpressed_color)
-    end
-    if nback.color_pressed then
-        keys_tip:add("Color", pressed_color)
-    else
-        keys_tip:add("C", highLightedTextColor, "olor", unpressed_color)
-    end
-    if nback.form_pressed then
-        keys_tip:add("Form", pressed_color)
-    else
-        keys_tip:add("F", highLightedTextColor, "orm", unpressed_color)
-    end
-    if nback.pos_pressed then
-        keys_tip:add("Position [", pressed_color, ";", highLightedTextColor,
-            "]", pressed_color)
-    else
-        keys_tip:add("Position", unpressed_color, " ;", highLightedTextColor)
-    end
+    local color
+
+    color = nback.sound_pressed and pallete.active or pallete.inactive
+    keys_tip:add("Sound [", color, "a", pallete.highLightedTextColor, "]", color)
+
+    color = nback.color_pressed and pallete.active or pallete.inactive
+    keys_tip:add("Color [", color, "f", pallete.highLightedTextColor, "]", color)
+
+    color = nback.form_pressed and pallete.active or pallete.inactive
+    keys_tip:add("Form [", color, "j", pallete.highLightedTextColor, 
+        "]", color)
+
+    color = nback.pos_pressed and pallete.active or pallete.inactive
+    keys_tip:add("Position [", color, ";", pallete.highLightedTextColor, "]", color)
+
     keys_tip:draw(0, bottom_text_line_y)
-    --[[
-       [if nback.sound_pressed then
-       [    keys_tip:add("Sound", pressed_color)
-       [else
-       [    keys_tip:add("S", {200 / 255, 0, 200 / 255}, "ound", unpressed_color)
-       [end
-       [if nback.color_pressed then
-       [    keys_tip:add("Color", pressed_color)
-       [else
-       [    keys_tip:add("C", {200 / 255, 0, 200 / 255}, "olor", unpressed_color)
-       [end
-       [if nback.form_pressed then
-       [    keys_tip:add("Form", pressed_color)
-       [else
-       [    keys_tip:add("F", {200 / 255, 0, 200 / 255}, "orm", unpressed_color)
-       [end
-       [if nback.pos_pressed then
-       [    keys_tip:add("Position", pressed_color)
-       [else
-       [    keys_tip:add("P", {200 / 255, 0, 200 / 255}, "osition", unpressed_color)
-       [end
-       [keys_tip:draw(0, bottom_text_line_y)
-       ]]
 end
 
 -- draw escape tip
