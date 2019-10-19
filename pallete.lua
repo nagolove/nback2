@@ -1,6 +1,7 @@
 ﻿local pallete = {
     active = {1, 1, 1, 1},
-    inactive = {0.39, 0.40, 0.39, 1},
+    --inactive = {0.89, 0.40, 0.99, 1},
+    inactive = {0.2, 0.75, 0.5, 1},
     highLightedTextColor = {0.78, 0.78, 0.78, 1},
 
     --background = {20 / 255, 40 / 255, 80 / 255, 1},

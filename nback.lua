@@ -398,19 +398,25 @@ function nback.update(dt)
 end
 
 function calc_percent(eq, pressed_arr)
-    if not eq then return 0 end --XXX hack against crash
+    if not eq then return 0 end --0% если не было нажатий
 
-    local p = 0
-    local success = 0
+    local count = 0
+    local succ = 0
+    local mistake = 0
     for k, v in pairs(eq) do
         if v then
-            success = success + 1
+            count = count + 1
         end
         if v and pressed_arr[k] then
-            p = p + 1
+            succ = succ + 1
+        end
+        if not v and pressed_arr[k] then
+            mistake = mistake + 1
         end
     end
-    return p / success
+    print(string.format("calc_percent() count = %d, succ = %d, mistake = %d", 
+        count, succ, mistake))
+    return succ / count - mistake / count
 end
 
 -- считывает и устанавливает набор состояний сигналов и нажатий клавиша на 
@@ -418,6 +424,7 @@ end
 -- при необходимости последующей отрисовки экрана статистики, загруженного из
 -- файла.
 function nback.loadFromHistory(signals)
+    --вопрос - как из истории загружать?
 end
 
 function nback.save_to_history()
@@ -615,11 +622,30 @@ function make_hit_arr(signals, comparator)
     return ret
 end
 
+function drawTestQuadAndTriangle()
+    local w, h = 128, 128
+    local x0, y0 = 0, 0
+    g.setColor{0.7, 1, 1}
+    --print("w, h", w, h)
+    g.rectangle("fill", x0, y0, w, h)
+    --g.setColor{1, 0.3, 0.2}
+    g.setColor{0, 0, 1}
+    local xc, yc = x0 + w / 2, y0 + h / 2
+    local startAngle = math.pi / 4
+    g.polygon("fill", { xc + math.sin(startAngle + 2 * math.pi / 3),
+                        yc + math.cos(startAngle + 2 * math.pi / 3),
+                        xc + math.sin(startAngle + 2 * math.pi / 3 * 2),
+                        yc + math.cos(startAngle + 2 * math.pi / 3 * 2),
+                        xc + math.sin(startAngle + 2 * math.pi / 3 * 3),
+                        yc + math.cos(startAngle + 2 * math.pi / 3 * 3)})
+end
+
 function draw_signal_form(x0, y0, formtype, xdim, ydim, color)
     local border = 5
     local x, y = x0 + xdim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
     local w, h = nback.cell_width - border * 2, nback.cell_width - border * 2
     g.setColor(color)
+
     if formtype == "quad" then
         local delta = 5
         g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
@@ -937,6 +963,7 @@ function nback.draw()
     print_control_tips(bottom_text_line_y)
     print_escape_tip(bottom_text_line_y)
     g.pop()
+    drawTestQuadAndTriangle()
 end
 
 return nback
