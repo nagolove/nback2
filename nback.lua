@@ -423,7 +423,7 @@ end
 -- сигналы. Функция необходима для установки состояния из внещнего источника 
 -- при необходимости последующей отрисовки экрана статистики, загруженного из
 -- файла.
-function nback.loadFromHistory(signals)
+function nback.loadFromHistory(signals, presses)
     --вопрос - как из истории загружать?
 end
 
@@ -468,11 +468,23 @@ function nback.stop()
     print(inspect(nback.form_pressed_arr))
     print(inspect(nback.pos_pressed_arr))
 
-    nback.sound_percent = calc_percent(nback.sound_eq, nback.sound_pressed_arr)
-    nback.color_percent = calc_percent(nback.color_eq, nback.color_pressed_arr)
-    nback.form_percent = calc_percent(nback.form_eq, nback.form_pressed_arr)
-    nback.pos_percent = calc_percent(nback.pos_eq, nback.pos_pressed_arr)
+    --local p = calc_percent(nback.sound_eq, nback.sound_pressed_arr)
+    --p = p > 0.0 and p or 0
+
+    local p =  calc_percent(nback.sound_eq, nback.sound_pressed_arr)
+    nback.sound_percent = p > 0.0 and p or 0.0
+
+    p = calc_percent(nback.color_eq, nback.color_pressed_arr)
+    nback.color_percent = p > 0.0 and p or 0.0
+
+    p = calc_percent(nback.form_eq, nback.form_pressed_arr)
+    nback.form_percent = p > 0.0 and p or 0.0
+
+    p = calc_percent(nback.pos_eq, nback.pos_pressed_arr)
+    nback.pos_percent = p > 0.0 and p or 0.0
+
     nback.percent = (nback.sound_percent + nback.color_percent + nback.form_percent + nback.pos_percent) / 4
+
     -- Раунд полностью закончен? - записываю историю
     if nback.pos_signals and nback.current_sig == #nback.pos_signals then nback.save_to_history() end
 end
@@ -774,19 +786,21 @@ function print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     return x, y
 end
 
+-- Почему название функции не draw_percents()?
 function print_percents(x, y, rect_size, pixel_gap, border, starty)
     local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + pixel_gap
     g.setColor({200 / 255, 0, 200 / 255})
     g.setFont(nback.font)
-    g.print(string.format("%.2f", nback.sound_percent), sx, y)
+    local formatStr = "%.3f"
+    g.print(string.format(formatStr, nback.sound_percent), sx, y)
     y = y + rect_size + 6
-    g.print(string.format("%.2f", nback.color_percent), sx, y)
+    g.print(string.format(formatStr, nback.color_percent), sx, y)
     y = y + rect_size + 6
-    g.print(string.format("%.2f", nback.form_percent), sx, y)
+    g.print(string.format(formatStr, nback.form_percent), sx, y)
     y = y + rect_size + 6
-    g.print(string.format("%.2f", nback.pos_percent), sx, y)
+    g.print(string.format(formatStr, nback.pos_percent), sx, y)
     y = starty + 4 * (rect_size + 20)
-    g.printf(string.format("rating %0.2f", nback.percent), 0, y, w, "center")
+    g.printf(string.format("rating " .. formatStr, nback.percent), 0, y, w, "center")
     return x, y
 end
 
