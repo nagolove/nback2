@@ -88,8 +88,8 @@ function make_screenshot()
     love.graphics.captureScreenshot("screenshot" .. i .. ".png")
 end
 
-function love.keypressed(key)
-    print(key)
+function love.keypressed(key, scancode)
+    print(string.format("key %s, scancode %s", key, scancode))
     if love.keyboard.isDown("ralt", "lalt") and key == "return" then
         love.window.setFullscreen(not love.window.getFullscreen())
     elseif key == "`" then
@@ -103,7 +103,7 @@ function love.keypressed(key)
             print("picker deleted")
         end
     else
-        states.top().keypressed(key)
+        states.top().keypressed(key, scancode)
     end
 end
 

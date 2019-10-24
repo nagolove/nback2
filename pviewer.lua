@@ -306,6 +306,7 @@ function pviewer.move_down()
     end
 end
 
+-- добавить клавиши управления для постраничной прокрутки списка результатов.
 function pviewer.keypressed(key)
     if key == "escape" then
         states.pop()
