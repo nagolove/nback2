@@ -12,8 +12,10 @@ local bhupur = require "bhupur"
 local g = love.graphics
 local w, h = g.getDimensions()
 local linesbuf = Kons(0, 0)
-local setupMenuActiveIndex = 1
 local alignedlabels = require "alignedlabels"
+
+-- индекс активного пукта меню выбора настроек раунда игры
+local setupMenuActiveIndex = 1 
 
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
@@ -762,7 +764,11 @@ function draw_level_welcome()
     y = y + nback.font:getHeight()
     g.printf("Use ←→ arrows to setup", 0, y, w, "center")
     y = y + nback.font:getHeight() * 2
+
+    -- почему здесь используется два разных слова? Переименовать переменную или
+    -- переписать строку вывода
     g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
+
     y = y + nback.font:getHeight()
     g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
 end
