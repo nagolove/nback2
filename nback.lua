@@ -38,7 +38,7 @@ local nback = {
     sig_count = 7, -- количество сигналов
     level = 2, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
     is_run = false, -- индикатор запуска рабочего цикла
-    pause_time = 2.5, -- задержка между сигналами, в секундах
+    pause_time = 2.0, -- задержка между сигналами, в секундах
     can_press = false, -- XXX FIXME зачем нужна эта переменная?
     save_name = "nback-v0.2.lua", -- имя файла с логом пройденных тренировок
     statistic = { -- блок статистики, записываемый в файл save_name
@@ -272,7 +272,7 @@ function nback.init()
         local settings = lume.deserialize(data, "all")
         print("settings loaded", inspect(settings))
         nback.level = settings.level
-        nback.pause_time = settings.level
+        nback.pause_time = settings.pause_time
         nback.volume = settings.volume
     else
         nback.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
@@ -361,6 +361,7 @@ function nback.save_to_history()
     end
     --print("history", inspect(history))
     local d = os.date("*t")
+    -- переписать эту запись с использованием модуля serpent
     table.insert(history, { date = d, 
                             pos_signals = nback.pos_signals,
                             form_signals = nback.form_signals,
@@ -373,7 +374,7 @@ function nback.save_to_history()
                             time = os.time(d), 
                             stat = nback.statistic,
                             nlevel = nback.level,
-                            pause = nback.pause_time,
+                            pause_time = nback.pause_time,
                             percent = nback.percent})
     love.filesystem.write(nback.save_name, lume.serialize(history))
 end
@@ -426,10 +427,18 @@ function nback.quit()
 end
 
 function nback.scroll_setup_menu_up()
+    if setupMenuActiveIndex - 1 >= 1 then
+        setupMenuActiveIndex = setupMenuActiveIndex - 1
+    end
 end
 
 function nback.scrool_setup_menu_down()
+    if setupMenuActiveIndex + 1 <= #setupMenuTable then
+        setupMenuActiveIndex = setupMenuActiveIndex + 1
+    end
 end
+
+local setupMenuTable = {}
 
 function nback.setup_menu_left_pressed()
 end
@@ -461,21 +470,6 @@ function nback.keypressed(key, scancode)
         -- здесь другое игровое состояние, почему используется условие и булев
         -- флаг?
         if not nback.is_run and not nback.show_statistic then
-
-            -- состояние выбора пунктов меню setup стрелками вверх вниз и 
-            -- их регулировка клавигами влево-вправо.
-            
-            --if key == "left" and nback.level > minimum_nb_level then
-                --nback.level = nback.level - 1
-            --elseif key == "right" and nback.level < maximum_nb_level then
-                --nback.level = nback.level + 1
-            --end
-            --if key == "up" and nback.pause_time < max_pause_time then
-                --nback.pause_time = nback.pause_time + 0.2
-            --elseif key == "down" and nback.pause_time > min_pause_time then
-                --nback.pause_time = nback.pause_time - 0.2
-            --end
-
             if key == "up" then
                 nback.scroll_setup_menu_up()
             elseif key == "down" then 
@@ -528,7 +522,7 @@ function nback.check(signalType)
     end
     nback[signalType .. "_pressed"] = true
     -- ненадолго включаю подсветку введеной клавиши на игровом поле
-    nback.timer:after(0.1, function() 
+    nback.timer:after(0.2, function() 
         nback[signalType .. "_pressed"] = false 
     end)
     nback[signalType .. "_pressed_arr"][nback.current_sig] = true
@@ -755,16 +749,21 @@ function print_set_results(x0, y0)
         g.printf(string.format("Pause time %.1f sec", nback.pause_time), 0, y, w, "center")
 end
 
+function nback.draw_setup_menu()
+end
+
 function draw_level_welcome()
     g.setFont(nback.font)
     --FIXME Dissonance with color and variable name
     g.setColor(pallete.tip_text) 
+
     local y = (h - g.getFont():getHeight() * 4) / 2.5
     g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
+
     y = y + nback.font:getHeight()
     g.printf("Use ←→ arrows to setup", 0, y, w, "center")
-    y = y + nback.font:getHeight() * 2
 
+    y = y + nback.font:getHeight() * 2
     -- почему здесь используется два разных слова? Переименовать переменную или
     -- переписать строку вывода
     g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")

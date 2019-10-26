@@ -296,6 +296,7 @@ function pviewer.move_down()
             pviewer.move_down_animation = true
             pviewer.timer:during(0.1, function()
                 pviewer.start_line = pviewer.start_line + 0.1
+
             end, 
             function()
                 pviewer.move_down_animation = false
