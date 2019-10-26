@@ -330,9 +330,9 @@ end
 
 function pviewer.update(dt)
     local kb = love.keyboard
-    if kb.isDown("up") then
+    if kb.isDown("up", "k") then
         pviewer.move_up()
-    elseif kb.isDown("down") then
+    elseif kb.isDown("down", "j") then
         pviewer.move_down()
     elseif kb.isDown("pageup") then
         scroll_up()
