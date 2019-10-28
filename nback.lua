@@ -35,7 +35,7 @@ local nback = {
     dim = 5,    -- количество ячеек поля
     cell_width = 100,  -- width of game field in pixels
     current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
-    sig_count = 7, -- количество сигналов
+    sig_count = 8, -- количество сигналов
     level = 2, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
     is_run = false, -- индикатор запуска рабочего цикла
     pause_time = 2.0, -- задержка между сигналами, в секундах
@@ -61,6 +61,56 @@ function create_false_array(len)
     for i = 1, len do
         ret[#ret + 1] = false
     end
+    return ret
+end
+
+function generate_nback(sig_count, gen, cmp)
+    local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
+    --функцией.
+    local ratio = 8 --TODO FIXME XXX -- что за "отношение"?
+    local range = {1, 3} -- что делает эта таблица, задает границы цему-то?
+    local count = sig_count -- зачем это переименование переменной?
+    local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
+
+    -- забиваю пустыми значениями весь массив, по всей длине.
+    for i = 1, ratio * sig_count do
+        table.insert(ret, null)
+    end
+
+    repeat
+        local i = 1
+        repeat
+            if count > 0 then
+                -- вероятность выпадения значения
+                -- помоему здесб написана хрень
+                local prob = math.random(unpack(range))
+                print("prob", prob)
+                if prob == range[2] then
+                    if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
+                        ret[i] = gen()
+                        if type(ret[i]) == "table" then
+                            ret[i + nback.level] = lume.clone(ret[i])
+                        else
+                            ret[i + nback.level] = ret[i]
+                        end
+                        count = count - 1
+                    end
+                end
+            end
+            i = i + 1
+        until i > #ret
+    until count == 0
+
+    -- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
+    -- он не совпадал на текущем уровне n-назад
+    for i = 1, #ret do
+        if ret[i] == null then
+            repeat
+                ret[i] = gen()
+            until not (i + nback.level <= #ret and cmp(ret[i], ret[i + nback.level]))
+        end
+    end
+
     return ret
 end
 
@@ -204,56 +254,6 @@ end
 
 function nback.leave()
     nback.show_statistic = false
-end
-
-function generate_nback(sig_count, gen, cmp)
-    local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
-    --функцией.
-    local ratio = 8 --TODO FIXME XXX -- что за "отношение"?
-    local range = {1, 3} -- что делает эта таблица, задает границы цему-то?
-    local count = sig_count -- зачем это переименование переменной?
-    local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
-
-    -- забиваю пустыми значениями весь массив, по всей длине.
-    for i = 1, ratio * sig_count do
-        table.insert(ret, null)
-    end
-
-    repeat
-        local i = 1
-        repeat
-            if count > 0 then
-                -- вероятность выпадения значения
-                -- помоему здесб написана хрень
-                local prob = math.random(unpack(range))
-                print("prob", prob)
-                if prob == range[2] then
-                    if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
-                        ret[i] = gen()
-                        if type(ret[i]) == "table" then
-                            ret[i + nback.level] = lume.clone(ret[i])
-                        else
-                            ret[i + nback.level] = ret[i]
-                        end
-                        count = count - 1
-                    end
-                end
-            end
-            i = i + 1
-        until i > #ret
-    until count == 0
-
-    -- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
-    -- он не совпадал на текущем уровне n-назад
-    for i = 1, #ret do
-        if ret[i] == null then
-            repeat
-                ret[i] = gen()
-            until not (i + nback.level <= #ret and cmp(ret[i], ret[i + nback.level]))
-        end
-    end
-
-    return ret
 end
 
 function nback.init()
@@ -916,7 +916,7 @@ function nback.draw()
     print_control_tips(bottom_text_line_y)
     print_escape_tip(bottom_text_line_y)
     g.pop()
-    drawTestQuadAndTriangle()
+    --drawTestQuadAndTriangle()
 end
 
 return nback
