@@ -120,6 +120,7 @@ function generate_signals()
         color_arr[#color_arr + 1] = k
     end
 
+    -- чем отличается от genArrays()?
     function genArrays2()
         nback.signals = {}
         nback.signals.pos = generate_nback(nback.sig_count, 
@@ -433,17 +434,33 @@ function nback.scroll_setup_menu_up()
 end
 
 function nback.scrool_setup_menu_down()
-    if setupMenuActiveIndex + 1 <= #setupMenuTable then
+    if setupMenuActiveIndex + 1 <= #setupMenu then
         setupMenuActiveIndex = setupMenuActiveIndex + 1
     end
 end
 
-local setupMenuTable = {}
+local setupMenu = {}
+-- какие параметры контролирует меню? Что передавать в функцию создания нового
+-- пункта меню?
+-- Где будет находиться обработка пунктов, изменение их значений?
+--
+-- * уровень н-назад
+-- * временя паузы
+-- * длина раунда
+--
+-- * вывод расчетного значения времени раунда(Почему "раунд"? Бокс что-ли?
+-- Попробуй заменить на время концентрации
 
 function nback.setup_menu_left_pressed()
 end
 
 function nback.setup_menu_right_pressed()
+end
+
+function nback.draw_setup_menu_cursor()
+end
+
+function nback.draw_setup_menu()
 end
 
 -- use scancode, Luke!
@@ -493,7 +510,6 @@ end
 local soundVolumeStep = 0.05
 
 function nback.loverVolume()
-    --print("love.audio.getVolume() = ", love.audio.getVolume())
     if nback.volume - soundVolumeStep >= 0 then
         nback.volume = nback.volume - soundVolumeStep
         love.audio.setVolume(nback.volume)
@@ -501,7 +517,6 @@ function nback.loverVolume()
 end
 
 function nback.raiseVolume()
-    --print("love.audio.getVolume() = ", love.audio.getVolume())
     if nback.volume + soundVolumeStep <= 1 then
         nback.volume = nback.volume + soundVolumeStep
         love.audio.setVolume(nback.volume)
@@ -736,6 +751,7 @@ function print_debug_info()
     linesbuf:pushi("current_sig = " .. nback.current_sig)
     linesbuf:pushi("nback.can_press = " .. tostring(nback.can_press))
     linesbuf:pushi("volume %.3f", nback.volume)
+    linesbuf:pushi(string.format("Mem: %.3f MB", collectgarbage("count") / 1024))
     linesbuf:draw()
 end
 
@@ -747,9 +763,6 @@ function print_set_results(x0, y0)
         g.printf(string.format("level %d", nback.level), 0, y, w, "center")
         y = y + nback.font:getHeight()
         g.printf(string.format("Pause time %.1f sec", nback.pause_time), 0, y, w, "center")
-end
-
-function nback.draw_setup_menu()
 end
 
 function draw_level_welcome()
@@ -878,12 +891,6 @@ function print_start_pause(y0)
     g.print(central_text, x, y)
 end
 
-function nback.draw_setup_menu()
-end
-
-function nback.draw_setup_menu_cursor()
-end
-
 function nback.draw()
     love.graphics.clear(pallete.background)
 
@@ -916,7 +923,7 @@ function nback.draw()
     print_control_tips(bottom_text_line_y)
     print_escape_tip(bottom_text_line_y)
     g.pop()
-    --drawTestQuadAndTriangle()
+    drawTestQuadAndTriangle()
 end
 
 return nback
