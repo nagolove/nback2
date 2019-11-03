@@ -13,9 +13,7 @@ local g = love.graphics
 local w, h = g.getDimensions()
 local linesbuf = Kons(0, 0)
 local alignedlabels = require "alignedlabels"
-
--- индекс активного пукта меню выбора настроек раунда игры
-local setupMenuActiveIndex = 1 
+local setupmenu = require "setupmenu"
 
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
@@ -257,9 +255,56 @@ function nback.leave()
     nback.show_statistic = false
 end
 
+nback.setupmenu = nil 
+
 function nback.init()
-    nback.timer = Timer()
+    -- фигачу кастомную менюшку на лету
+    nback.setupmenu = setupmenu.new(
+        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
+        pallete.tip_text)
+
+    local mnu = nback.setupmenu
+
+    -- какие тут могут быть параметры?
+    -- что выдает пункт меню для рисовки? статичный текст?
+    local pauseTimeList = {
+        "1.4s .. 1.8s",
+        "1.8s .. 2.2s",
+        "2.2s .. 2.6s",
+    }
+    local activePauseTimeListItem = 2
+
+    -- возвращает строку для рисовки после перемотки влево.
+    function onleft()
+        -- эта строчка должна попадать во внутренний буфер вызывающего меню
+        if activePauseTimeListItem - 1 >= 1 then
+            activePauseTimeListItem = activePauseTimeListItem - 1
+        end
+        return pauseTimeList[activePauseTimeListItem]
+    end
+
+    -- возвращает строку для рисовки после перемотки вправо.
+    function onright()
+        if activePauseTimeListItem + 1 <= #pauseTimeList then
+            activePauseTimeListItem = activePauseTimeListItem + 1
+        end
+        return pauseTimeList[activePauseTimeListItem]
+    end
+
+    -- непонятно, рисовать прямо в функции или только возвращать строчку
+    -- текста для рисовки
+    -- какой структуры должен быть объект?
+    function ondraw(item, x, y, w, h)
+        local text = item.pauseTimeList[item.activePauseTimeListItem]
+        love.graphics.print(text)
+    end
+
+    -- добавить здесь создание объекта, обеспечивающего внутри себя перемотку
+    -- состояний.
+    mnu:addItem()
+
     math.randomseed(os.time())
+    nback.timer = Timer()
 
     wave_path = "sfx/alphabet"
     for k, v in pairs(love.filesystem.getDirectoryItems(wave_path)) do
@@ -281,8 +326,36 @@ function nback.init()
     love.audio.setVolume(nback.volume)
 end
 
+function nback.processSignal()
+    local time = love.timer.getTime()
+    if (time - nback.timestamp >= nback.pause_time) then
+        nback.timestamp = love.timer.getTime()
+
+        nback.current_sig = nback.current_sig + 1
+        nback.can_press = true
+
+        -- setup timer for figure alpha channel animation
+        nback.figure_alpha = 1
+        local tween_time = 0.5
+        print("time delta = " .. nback.pause_time - tween_time)
+        nback.timer:after(nback.pause_time - tween_time - 0.1, function()
+            nback.timer:tween(tween_time, nback, {figure_alpha = 0}, "out-linear")
+        end)
+
+        local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
+        --print("snd", inspect(nback.sound_signals[nback.current_sig]), snd:getVolume(), snd:getDuration())
+        snd:play()
+
+        nback.pos_pressed = false
+        nback.sound_pressed = false
+        nback.form_pressed = false
+        nback.color_pressed = false
+    end
+end
+
 function nback.update(dt)
     nback.timer:update(dt)
+
     if nback.pause or nback.start_pause then 
         nback.timestamp = love.timer.getTime() - nback.pause_time
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
@@ -292,34 +365,12 @@ function nback.update(dt)
 
     if nback.is_run then
         if nback.current_sig < #nback.pos_signals then
-            local time = love.timer.getTime()
-            if (time - nback.timestamp >= nback.pause_time) then
-                nback.timestamp = love.timer.getTime()
-
-                nback.current_sig = nback.current_sig + 1
-                nback.can_press = true
-
-                -- setup timer for figure alpha channel animation
-                nback.figure_alpha = 1
-                local tween_time = 0.5
-                print("time delta = " .. nback.pause_time - tween_time)
-                nback.timer:after(nback.pause_time - tween_time - 0.1, function()
-                    nback.timer:tween(tween_time, nback, {figure_alpha = 0}, "out-linear")
-                end)
-
-                local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
-                --print("snd", inspect(nback.sound_signals[nback.current_sig]), snd:getVolume(), snd:getDuration())
-                snd:play()
-
-                nback.pos_pressed = false
-                nback.sound_pressed = false
-                nback.form_pressed = false
-                nback.color_pressed = false
-            end
+            nback.processSignal()
         else
             nback.stop()
         end
     end
+
 end
 
 function calc_percent(eq, pressed_arr)
@@ -427,42 +478,6 @@ function nback.quit()
     states.pop()
 end
 
-function nback.scroll_setup_menu_up()
-    if setupMenuActiveIndex - 1 >= 1 then
-        setupMenuActiveIndex = setupMenuActiveIndex - 1
-    end
-end
-
-function nback.scrool_setup_menu_down()
-    if setupMenuActiveIndex + 1 <= #setupMenu then
-        setupMenuActiveIndex = setupMenuActiveIndex + 1
-    end
-end
-
-local setupMenu = {}
--- какие параметры контролирует меню? Что передавать в функцию создания нового
--- пункта меню?
--- Где будет находиться обработка пунктов, изменение их значений?
---
--- * уровень н-назад
--- * временя паузы
--- * длина раунда
---
--- * вывод расчетного значения времени раунда(Почему "раунд"? Бокс что-ли?
--- Попробуй заменить на время концентрации
-
-function nback.setup_menu_left_pressed()
-end
-
-function nback.setup_menu_right_pressed()
-end
-
-function nback.draw_setup_menu_cursor()
-end
-
-function nback.draw_setup_menu()
-end
-
 -- use scancode, Luke!
 function nback.keypressed(key, scancode)
     if key == "escape" then
@@ -488,13 +503,13 @@ function nback.keypressed(key, scancode)
         -- флаг?
         if not nback.is_run and not nback.show_statistic then
             if key == "up" then
-                nback.scroll_setup_menu_up()
+                nback.setupmenu:scrollUp()
             elseif key == "down" then 
-                nback.scrool_setup_menu_down()
+                nback.setupmenu:scrollDown()
             elseif key == "left" then
-                nback.setup_menu_left_pressed()
+                nback.setupmenu:leftPressed()
             elseif key == "right" then
-                nback.setup_menu_right_pressed()
+                nback.setupmenu:rightPressed()
             end
         end
 
