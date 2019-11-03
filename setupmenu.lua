@@ -9,7 +9,7 @@
 -- * вывод расчетного значения времени раунда(Почему "раунд"? Бокс что-ли?
 -- Попробуй заменить на время концентрации
 
-local menu {}
+local menu = {}
 
 menu.__index = menu
 
@@ -23,34 +23,6 @@ function menu.new(font, color)
     return setmetatable(self, menu)
 end
    
--- какие тут могут быть параметры?
--- что выдает пункт меню для рисовки? статичный текст?
-local pauseTimeList = {
-    "1.4s .. 1.8s",
-    "1.8s .. 2.2s",
-    "2.2s .. 2.6s",
-}
-local activePauseTimeListItem = 2
-
-function onleft()
-    -- эта строчка должна попадать во внутренний буфер вызывающего меню
-    if activePauseTimeListItem - 1 >= 1 then
-        activePauseTimeListItem = activePauseTimeListItem - 1
-    end
-    return pauseTimeList[activePauseTimeListItem]
-end
-
-function onright()
-    if activePauseTimeListItem + 1 <= #pauseTimeList then
-        activePauseTimeListItem = activePauseTimeListItem + 1
-    end
-    return pauseTimeList[activePauseTimeListItem]
-end
-
-function ondraw(item, x, y, w, h)
-    love.graphics.print(item.pauseTimeList[item.activePauseTimeListItem],
-end
-
 function menu.addItem(ondraw, onleft, onright)
 end
 
@@ -82,6 +54,10 @@ end
 -- целевая задача: рисовка одной единственной менюшки, в центре экрана, с
 -- выравниманием по-центру прямоугольника.
 function menu.draw(x, y, w, h)
+    for k, v in pairs(self.items) do
+    end
 end
 
-
+return setmetatable(menu, { __call = function(cls, ...)
+    return cls.new(...)
+end})
