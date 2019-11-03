@@ -1,19 +1,31 @@
 --[[
 Object-oriented module for drawing multiline text.
 
+-- import table
 local kons = require "kons"
+
+-- create an object
+local buf = kons.new(0, 0)
+
+-- other object creation style.
 local linesbuffer = kons(x, y) -- initial coordinates of drawing.
 
-internal variables:
-linesbuffer:height -- height in pixels of drawed text. Updated by :draw() call.
-methods:
-* linesbuffer:draw() -- draw first lines pushed by push_text_i(). After it drawing lines pushed
-by push()
-* linesbuffer:push("hello", 1) -- push text to screeen for 1 second
+Usage:
+* linesbuffer:draw() - draw first lines pushed by push_text_i(). After it 
+drawing lines pushed by push()
+
+* linesbuffer:push("hello", 1) - push text to screeen for 1 second
+
 * linesbuffer:pushi("fps" .. fps) -- push text to screen for one frame
-* linesbuffer:clear() -- full clear of console content
-* linesbuffer:show() -- show or hide text output by changing internal flag 
-* linesbuffer:update() -- internal mechanics computation. Paste to love.update()
+
+* linesbuffer:clear() - full clear of console content
+
+* linesbuffer:show() - show or hide text output by changing internal flag 
+
+* linesbuffer:update() - internal mechanics computation. Paste to love.update()
+
+Internal variables:
+* linesbuffer:height - height in pixels of drawed text. Updated by :draw() call.
 
 Calls of push() and pushi() can be chained:
   linesbuf:pushi("dd"):pushi("bbb")
