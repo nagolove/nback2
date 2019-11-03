@@ -428,6 +428,8 @@ function nback.save_to_history()
                             nlevel = nback.level,
                             pause_time = nback.pause_time,
                             percent = nback.percent})
+    --print(serpent.dump(nback))
+    love.filesystem.write("nback.ser.lua", serpent.dump(nback.signals))
     love.filesystem.write(nback.save_name, lume.serialize(history))
 end
 
@@ -460,20 +462,23 @@ function nback.stop()
     p = calc_percent(nback.pos_eq, nback.pos_pressed_arr)
     nback.pos_percent = p > 0.0 and p or 0.0
 
-    nback.percent = (nback.sound_percent + nback.color_percent + nback.form_percent + nback.pos_percent) / 4
+    nback.percent = (nback.sound_percent + nback.color_percent + 
+        nback.form_percent + nback.pos_percent) / 4
 
     -- Раунд полностью закончен? - записываю историю
-    if nback.pos_signals and nback.current_sig == #nback.pos_signals then nback.save_to_history() end
+    if nback.pos_signals and nback.current_sig == #nback.pos_signals then 
+        nback.save_to_history() 
+    end
 end
 
 function nback.quit()
-    print(serpent.dump(nback))
     nback.timer:destroy()
     local settings_str = lume.serialize { 
         ["volume"] = love.audio.getVolume(), 
         ["level"] = nback.level, 
         ["pause_time"] = nback.pause_time }
-    ok, msg = love.filesystem.write("settings.lua", settings_str, settings_str:len())
+    ok, msg = love.filesystem.write("settings.lua", settings_str, 
+        settings_str:len())
     nback.stop()
     states.pop()
 end
