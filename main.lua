@@ -45,7 +45,7 @@ local to_resize = {}
 
 function love.load()
     lovebird.update()
-    lovebird.maxlines = 500
+    lovebird.maxlines = 2000
     love.window.setTitle("nback")
     -- Ручная инициализация модулей
     splash.init()
