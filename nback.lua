@@ -24,10 +24,18 @@ local color_constants = {
         ["purple"] = {128 / 255, 7 / 255, 128 / 255},
 }
 
+--[[
 local minimum_nb_level = 1
 local maximum_nb_level = 5
 local max_pause_time = 60
 local min_pause_time = 0.4
+--]]
+
+local function safesend(shader, name, ...)
+  if shader:hasUniform(name) then
+    shader:send(name, ...)
+  end
+end
 
 local nback = {
     dim = 5,    -- количество ячеек поля
@@ -257,11 +265,13 @@ end
 
 nback.setupmenu = nil 
 
+-- изменяется в пределах 0..1
 local fragmentCode = [[
+extern float time;
 vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
     vec4 pixel = Texel(image, uvs);
-    float av = (pixel.r + pixel.g + pixel.b) / 3.0;
-    return pixel * av;
+    float av = (pixel.r + pixel.g + pixel.b) / time;
+    return pixel * color;
 }
 ]]
 
@@ -882,23 +892,17 @@ function draw_statistic(x0, y0)
     g.setFont(nback.font)
     g.setColor(pallete.statistic)
 
-    --print("x0 = " .. x0 .. " y0 = " .. y0)
-
     local width_k = 3 / 4
     local rect_size = w * width_k / #nback.pos_signals -- XXX depend on screen resolution
     local x = (w - w * width_k) / 2
     local starty = 200
     local y = starty
     local border = 2
-    --print("x", x)
-    --print("screenW = ", w)
-    --print("rect_size, nback.sig_count", rect_size, nback.sig_count)
-    x, y = draw_horizontal_string(x, y, rect_size)
 
+    --x, y = draw_horizontal_string(x, y, rect_size)
     y = y + g.getFont():getHeight() * 1.5
-    ----------------------------------------
-    local freeze_y = y
 
+    local freeze_y = y
     x, y = draw_hit_rects(x, y, nback.sound_pressed_arr, nback.sound_eq, rect_size, border)
     x, y = draw_hit_rects(x, y, nback.color_pressed_arr, nback.color_eq, rect_size, border)
     x, y = draw_hit_rects(x, y, nback.form_pressed_arr, nback.form_eq, rect_size, border)
@@ -936,7 +940,7 @@ function nback.draw()
     local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
 
     g.push("all")
-    g.setShader(shader)
+    g.setShader(nback.shader)
 
     -- этим вызовом рисуются только полосы сетки
     draw_field_grid(x0, y0, nback.dim * nback.cell_width)
