@@ -257,6 +257,32 @@ end
 
 nback.setupmenu = nil 
 
+local fragmentCode = [[
+vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
+    vec4 pixel = Texel(image, uvs);
+    float av = (pixel.r + pixel.g + pixel.b) / 3.0;
+    return pixel * av;
+}
+]]
+
+function nback.initShaders()
+    nback.shader = g.newShader(fragmentCode)
+end
+
+function nback.readSettings()
+    local data, _ = love.filesystem.read("settings.lua")
+    if data then
+        local settings = lume.deserialize(data, "all")
+        print("settings loaded", inspect(settings))
+        nback.level = settings.level
+        nback.pause_time = settings.pause_time
+        nback.volume = settings.volume
+    else
+        nback.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
+    end
+    love.audio.setVolume(nback.volume)
+end
+
 function nback.init()
     -- фигачу кастомную менюшку на лету
     nback.setupmenu = setupmenu.new(
@@ -312,18 +338,9 @@ function nback.init()
     end
 
     nback.resize(g.getDimensions())
-    
-    local data, _ = love.filesystem.read("settings.lua")
-    if data then
-        local settings = lume.deserialize(data, "all")
-        print("settings loaded", inspect(settings))
-        nback.level = settings.level
-        nback.pause_time = settings.pause_time
-        nback.volume = settings.volume
-    else
-        nback.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
-    end
-    love.audio.setVolume(nback.volume)
+   
+    nback.readSettings()
+    nback.initShaders()
 end
 
 function nback.processSignal()
@@ -919,6 +936,8 @@ function nback.draw()
     local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
 
     g.push("all")
+    g.setShader(shader)
+
     -- этим вызовом рисуются только полосы сетки
     draw_field_grid(x0, y0, nback.dim * nback.cell_width)
     draw_bhupur(x0, y0)
@@ -942,7 +961,10 @@ function nback.draw()
     local bottom_text_line_y = h - nback.font:getHeight() * 3
     print_control_tips(bottom_text_line_y)
     print_escape_tip(bottom_text_line_y)
+
+    g.setShader()
     g.pop()
+
     drawTestQuadAndTriangle()
 end
 
