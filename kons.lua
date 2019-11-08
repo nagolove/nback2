@@ -5,10 +5,10 @@ Object-oriented module for drawing multiline text.
 local kons = require "kons"
 
 -- create an object
-local buf = kons.new(0, 0)
+local buf = kons.new()
 
 -- other object creation style.
-local linesbuffer = kons(x, y) -- initial coordinates of drawing.
+local linesbuffer = kons() -- initial coordinates of drawing.
 
 Usage:
 * linesbuffer:draw() - draw first lines pushed by push_text_i(). After it 
@@ -30,8 +30,6 @@ Internal variables:
 Calls of push() and pushi() can be chained:
   linesbuf:pushi("dd"):pushi("bbb")
 --]]
-
-local inspect = require "inspect" -- XXX Debug purpose only
 
 local g = love.graphics
 
@@ -104,9 +102,7 @@ end
 function kons:update()
     for k, v in pairs(self.strings) do
         local time = love.timer.getTime()
-        --print("(time - v.timestamp) = ", (time - v.timestamp))
         v.lifetime = v.lifetime  - (time - v.timestamp)
-        --print(string.format("lifetime %s, %s = %d", tostring(k), tostring(inspect(v)), v.lifetime))
         if v.lifetime <= 0 then
             self.strings[k] = self.strings[self.strings_num]
             self.strings[self.strings_num] = nil

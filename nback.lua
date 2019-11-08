@@ -46,7 +46,7 @@ local nback = {
     is_run = false, -- индикатор запуска рабочего цикла
     pause_time = 2.0, -- задержка между сигналами, в секундах
     can_press = false, -- XXX FIXME зачем нужна эта переменная?
-    save_name = "nback-v0.2.lua", -- имя файла с логом пройденных тренировок
+    saveName2 = "nback-v0.3.lua",
     statistic = { -- блок статистики, записываемый в файл save_name
         pos_hits = 0,
         color_hits = 0,
@@ -431,16 +431,11 @@ function nback.loadFromHistory(signals, presses)
 end
 
 function nback.save_to_history()
-    print("nback.current_sig = ", nback.current_sig)
-    print("#nback.pos_signals = ", #nback.pos_signals)
-    local data, size = love.filesystem.read(nback.save_name)
     local history = {}
+    local data, size = love.filesystem.read(nback.saveName2)
     if data ~= nil then
-        history = lume.deserialize(data)
+        ok, history = serpent.load(data)
     end
-    --print("history", inspect(history))
-    local d = os.date("*t")
-    -- переписать эту запись с использованием модуля serpent
     table.insert(history, { date = d, 
                             pos_signals = nback.pos_signals,
                             form_signals = nback.form_signals,
@@ -451,13 +446,11 @@ function nback.save_to_history()
                             sound_pressed_arr = nback.sound_pressed_arr,
                             color_pressed_arr = nback.color_pressed_arr,
                             time = os.time(d), 
-                            stat = nback.statistic,
+                            --stat = nback.statistic,
                             nlevel = nback.level,
                             pause_time = nback.pause_time,
                             percent = nback.percent})
-    --print(serpent.dump(nback))
-    love.filesystem.write("nback.ser.lua", serpent.dump(nback.signals))
-    love.filesystem.write(nback.save_name, lume.serialize(history))
+    love.filesystem.write(nback.saveName2, serpent.dump(history))
 end
 
 function nback.stop()
@@ -619,6 +612,8 @@ function make_hit_arr(signals, comparator)
     return ret
 end
 
+-- попытка нарисовать красивый треугольник в квадрате. 
+-- В соответствии с весом вписанной в квадрат окружности?
 function drawTestQuadAndTriangle()
     local w, h = 128, 128
     local x0, y0 = 0, 0
@@ -963,13 +958,14 @@ function nback.draw()
     end
 
     local bottom_text_line_y = h - nback.font:getHeight() * 3
+
     print_control_tips(bottom_text_line_y)
     print_escape_tip(bottom_text_line_y)
 
     g.setShader()
     g.pop()
 
-    drawTestQuadAndTriangle()
+    --drawTestQuadAndTriangle()
 end
 
 return nback
