@@ -14,6 +14,7 @@ local w, h = g.getDimensions()
 local linesbuf = Kons(0, 0)
 local alignedlabels = require "alignedlabels"
 local setupmenu = require "setupmenu"
+local signal = require "signal"
 
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
@@ -348,6 +349,7 @@ function nback.init()
     end
 
     nback.resize(g.getDimensions())
+    nback.signal = signal.new(nback.cell_width, "alphabet")
    
     nback.readSettings()
     nback.initShaders()
