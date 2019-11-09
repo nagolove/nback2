@@ -41,7 +41,6 @@ local pviewer = require "pviewer"
 local colorpicker = require "colorpicker"
 
 local picker = nil
-local to_resize = {}
 
 function love.load()
     lovebird.update()
@@ -53,11 +52,6 @@ function love.load()
     nback.init()
     pviewer.init()
     help.init()
-    --
-    to_resize[#to_resize + 1] = menu
-    to_resize[#to_resize + 1] = nback
-    to_resize[#to_resize + 1] = pviewer
-    to_resize[#to_resize + 1] = help
     states.push(menu)
     --states.push(splash)
 end
@@ -72,12 +66,6 @@ function love.update(dt)
     states.top().update(dt)
 end
 
-function love.resize(w, h)
-    for k, v in pairs(to_resize) do
-        if v["resize"] then v.resize(w, h) end
-    end
-end
-
 function make_screenshot()
     local i = 0
     local fname
@@ -88,10 +76,29 @@ function make_screenshot()
     love.graphics.captureScreenshot("screenshot" .. i .. ".png")
 end
 
+local screenMode = "win" -- or "fs"
+local to_resize = {menu, nback, pviewer, help}
+
+function dispatchWindowResize(w, h)
+    for k, v in pairs(to_resize) do
+        if v["resize"] then v.resize(w, h) end
+    end
+end
+
 function love.keypressed(key, scancode)
     print(string.format("key %s, scancode %s", key, scancode))
     if love.keyboard.isDown("ralt", "lalt") and key == "return" then
-        love.window.setFullscreen(not love.window.getFullscreen())
+        -- код дерьмовый, но работает
+        if screenMode == "fs" then
+            love.window.setMode(800, 600, {fullscreen = false})
+            screenMode = "win"
+            dispatchWindowResize(love.graphics.getDimensions())
+        else
+            love.window.setMode(0, 0, {fullscreen = true,
+                                       fullscreentype = "exclusive"})
+            screenMode = "fs"
+            dispatchWindowResize(love.graphics.getDimensions())
+        end
     elseif key == "`" then
         lurker.scan()
     elseif key == "f12" then make_screenshot()
