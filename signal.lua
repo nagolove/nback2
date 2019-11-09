@@ -11,7 +11,6 @@ signal.__index = signal
 function signal.new(width, soundPack)
     local self = {
         width = width,
-        height = width,
         sounds = {}, 
     }
 
@@ -98,11 +97,11 @@ function signal:drawRhombus(x, y, w, h)
 end
 
 local dispatch = {["quad"] = signal.drawQuad, 
-                      ["circle"] = signal.drawCircle,
-                      ["trup"] = signal.drawTrUp, 
-                      ["trdown"] = signal.drawTrDown, 
-                      ["trupdown"] = signal.drawTrUpDown, 
-                      ["rhombus"] = signal.drawRhombus}
+                  ["circle"] = signal.drawCircle,
+                  ["trup"] = signal.drawTrUp, 
+                  ["trdown"] = signal.drawTrDown, 
+                  ["trupdown"] = signal.drawTrUpDown, 
+                  ["rhombus"] = signal.drawRhombus}
 
 -- значения размера рисуемой фигурки берется из nback.cell_width
 -- xdim и ydim - позиция в сетке поля
@@ -110,7 +109,7 @@ local dispatch = {["quad"] = signal.drawQuad,
 -- треугольник вверх, пересечение треугольников, ромб)
 function signal:draw(x0, y0, type, color)
     local border = 5
-    local w, h = self.width - border * 2, self.height - border * 2
+    local w, h = self.width - border * 2, self.width - border * 2
     --local x, y = x0 + dim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
     --print("x0", serpent.block(x0))
     --print("y0", serpent.block(y0))

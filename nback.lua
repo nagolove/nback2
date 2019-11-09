@@ -348,8 +348,8 @@ function nback.init()
         table.insert(nback.sounds, love.audio.newSource(wave_path .. "/" .. v, "static"))
     end
 
-    nback.resize(g.getDimensions())
     nback.signal = signal.new(nback.cell_width, "alphabet")
+    nback.resize(g.getDimensions())
    
     nback.readSettings()
     nback.initShaders()
@@ -597,11 +597,12 @@ function nback.check(signalType)
 end
 
 function nback.resize(neww, newh)
-    print(string.format("nback resized to %d * %d", neww, newh))
+    print(string.format("resized to %d * %d", neww, newh))
     w = neww
     h = newh
     local pixels_border = 130 -- size of border around main game field
     nback.cell_width = (newh - pixels_border) / nback.dim
+    nback.signal.width = nback.cell_width
     nback.bhupur_h = nback.cell_width * nback.dim 
 end
 
@@ -795,7 +796,8 @@ function print_debug_info()
     linesbuf:pushi("current_sig = " .. nback.current_sig)
     linesbuf:pushi("nback.can_press = " .. tostring(nback.can_press))
     linesbuf:pushi("volume %.3f", nback.volume)
-    linesbuf:pushi(string.format("Mem: %.3f MB", collectgarbage("count") / 1024))
+    linesbuf:pushi("Mem: %.3f MB", collectgarbage("count") / 1024)
+    linesbuf:pushi("signal.width %d", nback.signal.width)
     linesbuf:draw()
 end
 
@@ -875,7 +877,9 @@ function draw_active_signal(x0, y0)
     if nback.figure_alpha then
         sig_color[4] = nback.figure_alpha
     end
-    draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
+    local type = nback.form_signals[nback.current_sig]
+    nback.signal:draw(x0, y0, type, sig_color)
+    --draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end
 
 function draw_bhupur(x0, y0)
