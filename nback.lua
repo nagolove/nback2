@@ -615,26 +615,6 @@ function make_hit_arr(signals, comparator)
     return ret
 end
 
--- попытка нарисовать красивый треугольник в квадрате. 
--- В соответствии с весом вписанной в квадрат окружности?
-function drawTestQuadAndTriangle()
-    local w, h = 128, 128
-    local x0, y0 = 0, 0
-    g.setColor{0.7, 1, 1}
-    --print("w, h", w, h)
-    g.rectangle("fill", x0, y0, w, h)
-    --g.setColor{1, 0.3, 0.2}
-    g.setColor{0, 0, 1}
-    local xc, yc = x0 + w / 2, y0 + h / 2
-    local startAngle = math.pi / 4
-    g.polygon("fill", { xc + math.sin(startAngle + 2 * math.pi / 3),
-                        yc + math.cos(startAngle + 2 * math.pi / 3),
-                        xc + math.sin(startAngle + 2 * math.pi / 3 * 2),
-                        yc + math.cos(startAngle + 2 * math.pi / 3 * 2),
-                        xc + math.sin(startAngle + 2 * math.pi / 3 * 3),
-                        yc + math.cos(startAngle + 2 * math.pi / 3 * 3)})
-end
-
 function draw_signal_form(x0, y0, formtype, xdim, ydim, color)
     local border = 5
     local x, y = x0 + xdim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
@@ -939,6 +919,8 @@ function nback.draw()
     local delta = 20 -- for avoiding intersection between field and bottom lines of text
     local x0 = (w - nback.dim * nback.cell_width) / 2
     local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
+
+    nback.signal:setCorner(x0, y0)
 
     g.push("all")
     g.setShader(nback.shader)

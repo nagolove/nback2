@@ -30,6 +30,11 @@ function signal:play(index)
     assert(index <= #self.sounds)
 end
 
+-- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
+function signal:setCorner(x, y)
+    self.x0, self.y0 = x, y
+end
+
 function signal:drawQuad(x, y, w, h)
     local delta = 5
     g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
