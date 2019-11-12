@@ -452,13 +452,13 @@ function nback:keypressed(key, scancode)
         -- флаг?
         if not nback.is_run and not nback.show_statistic then
             if key == "up" then
-                self:setupmenu:scrollUp()
+                self.setupmenu:scrollUp()
             elseif key == "down" then 
-                self:setupmenu:scrollDown()
+                self.setupmenu:scrollDown()
             elseif key == "left" then
-                self:setupmenu:leftPressed()
+                self.setupmenu:leftPressed()
             elseif key == "right" then
-                self:setupmenu:rightPressed()
+                self.setupmenu:rightPressed()
             end
         end
 
