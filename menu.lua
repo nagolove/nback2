@@ -121,7 +121,7 @@ function menu:keypressed(key)
     elseif key == "down" or key == "j" then self:moveDown()
     elseif key == "escape" then love.event.quit()
     elseif key == "return" or key == "space" then 
-        self.actions[self:active_item]()
+        self.actions[self.active_item]()
     end
 end
 

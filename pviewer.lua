@@ -12,6 +12,9 @@ local function div(a, b)
     return (a - a %b) / b
 end
 
+local pviewer = {}
+pviewer.__index = pviewer
+
 function pviewer.new()
     local self = {
         scroll_tip_text = "For scrolling table use ↓↑ arrows",
@@ -225,30 +228,30 @@ function pviewer.sort_by_column(idx)
 end
 
 function sort_by_previous_column()
-    if pviewer.sorted_by_column_num - 1 < 1 then
-        pviewer.sort_by_column(#columns_name)
+    if self.sorted_by_column_num - 1 < 1 then
+        self:sort_by_column(#columns_name)
     else
-        pviewer.sort_by_column(pviewer.sorted_by_column_num - 1)
+        self:sort_by_column(self.sorted_by_column_num - 1)
     end
 end
 
-function sort_by_next_column()
-    if pviewer.sorted_by_column_num + 1 > #columns_name then
-        pviewer.sort_by_column(1)
+function pviewer:sort_by_next_column()
+    if self.sorted_by_column_num + 1 > #columns_name then
+        self:sort_by_column(1)
     else
-        pviewer.sort_by_column(pviewer.sorted_by_column_num + 1)
+        self:sort_by_column(self.sorted_by_column_num + 1)
     end
 end
 
-function scroll_up()
-    if pviewer.start_line - pviewer.vertical_buf_len >= 1 then
-        pviewer.start_line = pviewer.start_line - pviewer.vertical_buf_len
+function pviewer:scroll_up()
+    if self.start_line - self.vertical_buf_len >= 1 then
+        self.start_line = self.start_line - self.vertical_buf_len
     end
 end
 
-function scroll_down()
-    if pviewer.start_line + pviewer.vertical_buf_len <= #pviewer.data then
-        pviewer.start_line = pviewer.start_line + pviewer.vertical_buf_len
+function pviewer:scroll_down()
+    if self.start_line + self.vertical_buf_len <= #self.data then
+        self.start_line = self.start_line + self.vertical_buf_len
     end
 end
 
@@ -343,7 +346,9 @@ function pviewer.update(dt)
     elseif kb.isDown("pagedown") then
         scroll_down()
     end
-    pviewer.timer:update(dt)
+    self.timer:update(dt)
 end
 
-return pviewer
+return {
+    new = pviewer.new
+}
