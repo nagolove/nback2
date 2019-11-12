@@ -170,7 +170,7 @@ function menu:draw()
             --print("angle = ", menu.rot_grid[l])
             g.draw(self.back_tile, quad, i, j, self.rot_grid[l], 
                 tile_size / self.back_tile:getWidth(), 
-                tile_size / menu.back_tile:getHeight(),
+                tile_size / self.back_tile:getHeight(),
                 self.back_tile:getWidth() / 2, self.back_tile:getHeight() / 2)
             --g.draw(menu.back_tile, quad, i, j, math.pi, 0.3, 0.3)
             l = l + 1
@@ -187,7 +187,7 @@ function menu:draw()
         q[4] = self.alpha
         g.setColor(q)
         g.printf(k, 0, y, w, "center")
-        y = y + menu.font:getHeight()
+        y = y + self.font:getHeight()
     end
 
     g.setLineWidth(3)
