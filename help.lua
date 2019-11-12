@@ -29,6 +29,9 @@ function help:draw()
     g.pop()
 end
 
+function help:update()
+end
+
 function help:keypressed(key)
     if key == "escape" then
         states.pop()

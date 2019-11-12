@@ -18,7 +18,7 @@ states = {
 function states.push(s)
     xassert(type(s) == "table", function() return "'s' should be a table" end)
     local prev = states.top()
-    if prev and prev.leave then prev.leave() end
+    if prev and prev.leave then prev:leave() end
     if s.enter then s:enter() end
     states.a[#states.a + 1] = s
 end
@@ -66,7 +66,10 @@ function love.update(dt)
 
     lovebird.update()
     timer:update()
-    states.top():update(dt)
+    --states.top():update(dt)
+    if states.top().update then
+        states.top():update(dt)
+    end
 end
 
 function make_screenshot()
@@ -114,7 +117,7 @@ function love.keypressed(key, scancode)
             print("picker deleted")
         end
     else
-        states.top().keypressed(key, scancode)
+        states.top():keypressed(key, scancode)
     end
 end
 
@@ -125,11 +128,12 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
-    local dr_func = function() states.top():draw() end or function() end
     if picker then
         picker:draw(dr_func)
     else
-        dr_func()
+        if states.top().draw then
+            states.top():draw()
+        end
     end
 end
 
