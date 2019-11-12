@@ -9,7 +9,8 @@ local g = love.graphics
 local w, h = g.getDimensions()
 local tile_size = 256
 
-local menu = {
+function menu.new()
+local self = {
     active_item = 1,
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
     back_tile = love.graphics.newImage("gfx/IMG_20190111_115755.png")
@@ -183,4 +184,6 @@ function menu.draw()
     g.pop()
 end
 
-return menu
+return {
+    new = menu.new
+}

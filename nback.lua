@@ -15,6 +15,7 @@ local linesbuf = Kons(0, 0)
 local alignedlabels = require "alignedlabels"
 local setupmenu = require "setupmenu"
 local signal = require "signal"
+local generate = require "generator".generate
 
 local color_constants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
@@ -25,43 +26,36 @@ local color_constants = {
         ["purple"] = {128 / 255, 7 / 255, 128 / 255},
 }
 
---[[
-local minimum_nb_level = 1
-local maximum_nb_level = 5
-local max_pause_time = 60
-local min_pause_time = 0.4
---]]
-
 local function safesend(shader, name, ...)
   if shader:hasUniform(name) then
     shader:send(name, ...)
   end
 end
 
-local nback = {
-    dim = 5,    -- количество ячеек поля
-    cell_width = 100,  -- width of game field in pixels
-    current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
-    sig_count = 8, -- количество сигналов
-    level = 2, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
-    is_run = false, -- индикатор запуска рабочего цикла
-    pause_time = 2.0, -- задержка между сигналами, в секундах
-    can_press = false, -- XXX FIXME зачем нужна эта переменная?
-    saveName2 = "nback-v0.3.lua",
-    statistic = { -- блок статистики, записываемый в файл save_name
-        pos_hits = 0,
-        color_hits = 0,
-        sound_hits = 0,
-        form_hits = 0,
-        success = 0,
-    },
-    show_statistic = false, -- индикатор показа статистики в конце сета
-    sounds = {},
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
-    central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
-    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
-    field_color = table.copy(pallete.field) -- копия таблицы по значению
-}
+local nback = {}
+nback.__index = nback
+
+function nback.new()
+    local self = {
+        dim = 5,    -- количество ячеек поля
+        cell_width = 100,  -- width of game field in pixels
+        current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
+        sig_count = 8, -- количество сигналов
+        level = 2, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
+        is_run = false, -- индикатор запуска рабочего цикла
+        pause_time = 2.0, -- задержка между сигналами, в секундах
+        can_press = false, -- XXX FIXME зачем нужна эта переменная?
+        saveName2 = "nback-v0.3.lua",
+        show_statistic = false, -- индикатор показа статистики в конце сета
+        sounds = {},
+        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
+        central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
+        statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+        field_color = table.copy(pallete.field) -- копия таблицы по значению
+    }
+
+    return setmetatable(self, nback)
+end
 
 function create_false_array(len)
     local ret = {}
@@ -71,123 +65,54 @@ function create_false_array(len)
     return ret
 end
 
-function generate_nback(sig_count, gen, cmp)
-    local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
-    --функцией.
-    local ratio = 8 --TODO FIXME XXX -- что за "отношение"?
-    local range = {1, 3} -- что делает эта таблица, задает границы цему-то?
-    local count = sig_count -- зачем это переименование переменной?
-    local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
-
-    -- забиваю пустыми значениями весь массив, по всей длине.
-    for i = 1, ratio * sig_count do
-        table.insert(ret, null)
-    end
-
-    repeat
-        local i = 1
-        repeat
-            if count > 0 then
-                -- вероятность выпадения значения
-                -- помоему здесб написана хрень
-                local prob = math.random(unpack(range))
-                print("prob", prob)
-                if prob == range[2] then
-                    if i + nback.level <= #ret and ret[i] == null and ret[i + nback.level] == null then
-                        ret[i] = gen()
-                        if type(ret[i]) == "table" then
-                            ret[i + nback.level] = lume.clone(ret[i])
-                        else
-                            ret[i + nback.level] = ret[i]
-                        end
-                        count = count - 1
-                    end
-                end
-            end
-            i = i + 1
-        until i > #ret
-    until count == 0
-
-    -- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
-    -- он не совпадал на текущем уровне n-назад
-    for i = 1, #ret do
-        if ret[i] == null then
-            repeat
-                ret[i] = gen()
-            until not (i + nback.level <= #ret and cmp(ret[i], ret[i + nback.level]))
-        end
-    end
-
-    return ret
-end
-
-function generate_signals()
+function nback.generate_signals()
     local color_arr = {}
     for k, _ in pairs(color_constants) do
         color_arr[#color_arr + 1] = k
     end
 
-    -- чем отличается от genArrays()?
-    function genArrays2()
-        nback.signals = {}
-        nback.signals.pos = generate_nback(nback.sig_count, 
-            function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
-            function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
-        print("pos", inspect(nback.signals.pos))
-
-        nback.signals.form = generate_nback(nback.sig_count,
-            function()
-                local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
-                return arr[math.random(1, 6)]
-            end,
-            function(a, b) return a == b end)
-        print("form", inspect(nback.signals.form))
-
-        nback.signals.sound = generate_nback(nback.sig_count, 
-            function() return math.random(1, #nback.sounds) end,
-            function(a, b) return a == b end)
-        print("snd", inspect(nback.signals.sound))
-
-        nback.signals.color = generate_nback(nback.sig_count,
-            function() return color_arr[math.random(1, 6)] end,
-            function(a, b)
-                print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
-                return a == b end)
-        print("color", inspect(nback.signals.color))
-
-        --nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
-        --nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
-        --nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
-        --nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
-    end
-
     function genArrays()
-        nback.pos_signals = generate_nback(nback.sig_count, 
-            function() return {math.random(1, nback.dim - 1), math.random(1, nback.dim - 1)} end,
-            function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
-        print("pos", inspect(nback.pos_signals))
-        nback.form_signals = generate_nback(nback.sig_count,
+        self.pos_signals = generate(self.sig_count, 
+            function() return {math.random(1, self.dim - 1), 
+                               math.random(1, self.dim - 1)} end,
+            function(a, b) return  a[1] == b[1] and a[2] == b[2] end,
+            self.level)
+        print("pos", inspect(self.pos_signals))
+        self.form_signals = generate(self.sig_count,
             function()
-                local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
+                local arr = {"trup", 
+                             "trdown", 
+                             "trupdown", 
+                             "quad", 
+                             "circle", 
+                             "rhombus"}
                 return arr[math.random(1, 6)]
             end,
-            function(a, b) return a == b end)
-        print("form", inspect(nback.form_signals))
-        nback.sound_signals = generate_nback(nback.sig_count, 
-            function() return math.random(1, #nback.sounds) end,
-            function(a, b) return a == b end)
-        print("snd", inspect(nback.sound_signals))
-        nback.color_signals = generate_nback(nback.sig_count,
+            function(a, b) return a == b end,
+            self.level)
+        print("form", inspect(self.form_signals))
+        self.sound_signals = generate(self.sig_count, 
+            function() return math.random(1, #self.sounds) end,
+            function(a, b) return a == b end,
+            self.level)
+        print("snd", inspect(self.sound_signals))
+        self.color_signals = generate(self.sig_count,
             function() return color_arr[math.random(1, 6)] end,
             function(a, b)
-                print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
-                return a == b end)
-        print("color", inspect(nback.color_signals))
+                print(string.format("color comparator a = %s, b = %s", 
+                    a, inspect(b)))
+                return a == b end,
+            self.level)
+        print("color", inspect(self.color_signals))
 
-        nback.pos_eq = make_hit_arr(nback.pos_signals, function(a, b) return a[1] == b[1] and a[2] == b[2] end)
-        nback.sound_eq = make_hit_arr(nback.sound_signals, function(a, b) return a == b end)
-        nback.color_eq = make_hit_arr(nback.color_signals, function(a, b) return a == b end)
-        nback.form_eq = make_hit_arr(nback.form_signals, function(a, b) return a == b end)
+        self.pos_eq = self:make_hit_arr(self.pos_signals, 
+            function(a, b) return a[1] == b[1] and a[2] == b[2] end)
+        self.sound_eq = self:make_hit_arr(self.sound_signals, 
+            function(a, b) return a == b end)
+        self.color_eq = self:make_hit_arr(self.color_signals, 
+            function(a, b) return a == b end)
+        self.form_eq = self:make_hit_arr(self.form_signals, 
+            function(a, b) return a == b end)
     end
 
     -- попытка балансировки массивов от множественного совпадения(более двух сигналов на фрейм)
@@ -197,14 +122,13 @@ function generate_signals()
         local changed = false
         repeat
             i = i + 1
-            genArrays()
-            genArrays2()
-            for k, v in pairs(nback.pos_eq) do
+            genArray()
+            for k, v in pairs(self.pos_eq) do
                 local n = 0
                 n = n + (v and 1 or 0)
-                n = n + (nback.sound_eq[k] and 1 or 0)
-                n = n + (nback.form_eq[k] and 1 or 0)
-                n = n + (nback.color_eq[k] and 1 or 0)
+                n = n + (self.sound_eq[k] and 1 or 0)
+                n = n + (self.form_eq[k] and 1 or 0)
+                n = n + (self.color_eq[k] and 1 or 0)
                 if n > 2 then
                     changed = true
                     print("changed")
@@ -221,50 +145,49 @@ end
 function nback.start()
     local q = pallete.field
     -- запуск анимации цвета игрового поля
-    nback.timer:tween(3, nback, { field_color = {q[1], q[2], q[3], 1}}, "linear")
+    self.timer:tween(3, nback, { field_color = {q[1], q[2], q[3], 1}}, "linear")
 
     print("start")
 
-    nback.pause = false
-    nback.is_run = true
+    self.pause = false
+    self.is_run = true
 
     generate_signals()
 
-    nback.current_sig = 1
-    nback.timestamp = love.timer.getTime() - nback.pause_time
-    nback.statistic.pos_hits  = 0
-    nback.show_statistic = false
+    self.current_sig = 1
+    self.timestamp = love.timer.getTime() - self.pause_time
+    self.show_statistic = false
 
     -- массивы хранящие булевские значения - нажат сигнал вот время обработки или нет?
-    nback.pos_pressed_arr = create_false_array(#nback.pos_signals)
-    nback.color_pressed_arr = create_false_array(#nback.color_signals)
-    nback.form_pressed_arr = create_false_array(#nback.form_signals)
-    nback.sound_pressed_arr = create_false_array(#nback.sound_signals)
-    print(inspect(nback.pos_pressed_arr))
-    print(inspect(nback.color_pressed_arr))
-    print(inspect(nback.form_pressed_arr))
-    print(inspect(nback.sound_pressed_arr))
+    self.pos_pressed_arr = create_false_array(#self.pos_signals)
+    self.color_pressed_arr = create_false_array(#self.color_signals)
+    self.form_pressed_arr = create_false_array(#self.form_signals)
+    self.sound_pressed_arr = create_false_array(#self.sound_signals)
+    print(inspect(self.pos_pressed_arr))
+    print(inspect(self.color_pressed_arr))
+    print(inspect(self.form_pressed_arr))
+    print(inspect(self.sound_pressed_arr))
 
-    nback.start_pause_rest = 4
-    nback.start_pause = true
-    nback.timer:every(1, function() 
-        nback.start_pause_rest = nback.start_pause_rest - 1 
+    self.start_pause_rest = 4
+    self.start_pause = true
+    self.timer:every(1, function() 
+        self.start_pause_rest = self.start_pause_rest - 1 
     end, 4, function()
-        nback.start_pause = false
+        self.start_pause = false
     end)
     print("end of start")
 end
 
 function nback.enter()
     -- установка альфа канала цвета сетки игрового поля
-    nback.field_color[4] = 0.2
+    self.field_color[4] = 0.2
 end
 
 function nback.leave()
-    nback.show_statistic = false
+    self.show_statistic = false
 end
 
-nback.setupmenu = nil 
+--nback.setupmenu = nil 
 
 -- изменяется в пределах 0..1
 local fragmentCode = [[
@@ -276,31 +199,31 @@ vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
 }
 ]]
 
-function nback.initShaders()
-    nback.shader = g.newShader(fragmentCode)
+function nback:initShaders()
+    self.shader = g.newShader(fragmentCode)
 end
 
-function nback.readSettings()
+function nback:readSettings()
     local data, _ = love.filesystem.read("settings.lua")
     if data then
         local settings = lume.deserialize(data, "all")
         print("settings loaded", inspect(settings))
-        nback.level = settings.level
-        nback.pause_time = settings.pause_time
-        nback.volume = settings.volume
+        self.level = settings.level
+        self.pause_time = settings.pause_time
+        self.volume = settings.volume
     else
-        nback.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
+        self.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
     end
-    love.audio.setVolume(nback.volume)
+    love.audio.setVolume(self.volume)
 end
 
-function nback.init()
+function nback:init()
     -- фигачу кастомную менюшку на лету
-    nback.setupmenu = setupmenu.new(
+    self.setupmenu = setupmenu.new(
         love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
         pallete.tip_text)
 
-    local mnu = nback.setupmenu
+    local mnu = self.setupmenu
 
     -- какие тут могут быть параметры?
     -- что выдает пункт меню для рисовки? статичный текст?
@@ -345,40 +268,40 @@ function nback.init()
 
     wave_path = "sfx/alphabet"
     for k, v in pairs(love.filesystem.getDirectoryItems(wave_path)) do
-        table.insert(nback.sounds, love.audio.newSource(wave_path .. "/" .. v, "static"))
+        table.insert(self.sounds, love.audio.newSource(wave_path .. "/" .. v, "static"))
     end
 
-    nback.signal = signal.new(nback.cell_width, "alphabet")
-    nback.resize(g.getDimensions())
-   
-    nback.readSettings()
-    nback.initShaders()
+    self.signal = signal.new(self.cell_width, "alphabet")
+
+    self:resize(g.getDimensions())
+    self:readSettings()
+    self:initShaders()
 end
 
-function nback.processSignal()
+function nback:processSignal()
     local time = love.timer.getTime()
-    if (time - nback.timestamp >= nback.pause_time) then
-        nback.timestamp = love.timer.getTime()
+    if (time - self.timestamp >= self.pause_time) then
+        self.timestamp = love.timer.getTime()
 
-        nback.current_sig = nback.current_sig + 1
-        nback.can_press = true
+        self.current_sig = self.current_sig + 1
+        self.can_press = true
 
         -- setup timer for figure alpha channel animation
-        nback.figure_alpha = 1
+        self.figure_alpha = 1
         local tween_time = 0.5
-        print("time delta = " .. nback.pause_time - tween_time)
-        nback.timer:after(nback.pause_time - tween_time - 0.1, function()
-            nback.timer:tween(tween_time, nback, {figure_alpha = 0}, "out-linear")
+        print("time delta = " .. self.pause_time - tween_time)
+        self.timer:after(self.pause_time - tween_time - 0.1, function()
+            self.timer:tween(tween_time, nback, {figure_alpha = 0}, "out-linear")
         end)
 
-        local snd = nback.sounds[nback.sound_signals[nback.current_sig]]
-        --print("snd", inspect(nback.sound_signals[nback.current_sig]), snd:getVolume(), snd:getDuration())
+        local snd = self.sounds[self.sound_signals[self.current_sig]]
+        --print("snd", inspect(self.sound_signals[self.current_sig]), snd:getVolume(), snd:getDuration())
         snd:play()
 
-        nback.pos_pressed = false
-        nback.sound_pressed = false
-        nback.form_pressed = false
-        nback.color_pressed = false
+        self.pos_pressed = false
+        self.sound_pressed = false
+        self.form_pressed = false
+        self.color_pressed = false
     end
 end
 
@@ -448,7 +371,6 @@ function nback.save_to_history()
                             sound_pressed_arr = nback.sound_pressed_arr,
                             color_pressed_arr = nback.color_pressed_arr,
                             time = os.time(d), 
-                            --stat = nback.statistic,
                             nlevel = nback.level,
                             pause_time = nback.pause_time,
                             percent = nback.percent})
@@ -541,9 +463,9 @@ function nback.keypressed(key, scancode)
         end
 
         if key == "-" then 
-            nback.loverVolume()
+            self.loverVolume()
         elseif key == "=" then
-            nback.raiseVolume()
+            self.raiseVolume()
         end
 
     if key == "2" then linesbuf.show = not linesbuf.show end
@@ -552,22 +474,22 @@ end
 local soundVolumeStep = 0.05
 
 function nback.loverVolume()
-    if nback.volume - soundVolumeStep >= 0 then
-        nback.volume = nback.volume - soundVolumeStep
-        love.audio.setVolume(nback.volume)
+    if self.volume - soundVolumeStep >= 0 then
+        self.volume = self.volume - soundVolumeStep
+        love.audio.setVolume(self.volume)
     end
 end
 
 function nback.raiseVolume()
-    if nback.volume + soundVolumeStep <= 1 then
-        nback.volume = nback.volume + soundVolumeStep
-        love.audio.setVolume(nback.volume)
+    if self.volume + soundVolumeStep <= 1 then
+        self.volume = self.volume + soundVolumeStep
+        love.audio.setVolume(self.volume)
     end
 end
 
 -- signal type may be "pos", "sound", "color", "form"
 function nback.check(signalType)
-    if not nback.is_run then
+    if not self.is_run then
         return
     end
     local signals = nback[signalType .. "_signals"]
@@ -579,38 +501,44 @@ function nback.check(signalType)
     end
     nback[signalType .. "_pressed"] = true
     -- ненадолго включаю подсветку введеной клавиши на игровом поле
-    nback.timer:after(0.2, function() 
+    self.timer:after(0.2, function() 
         nback[signalType .. "_pressed"] = false 
     end)
-    nback[signalType .. "_pressed_arr"][nback.current_sig] = true
-    if nback.current_sig - nback.level > 1 then
-        if cmp(signals[nback.current_sig], signals[nback.current_sig - nback.level]) then
+    nback[signalType .. "_pressed_arr"][self.current_sig] = true
+    if self.current_sig - self.level > 1 then
+        if cmp(signals[self.current_sig], signals[self.current_sig - self.level]) then
             --print(inspect(nback))
-            if nback.can_press then
+            if self.can_press then
                 print(signalType .. " hit!")
-                print(nback.statistic[signalType .. "_hits"])
-                nback.statistic[signalType .. "_hits"] = nback.statistic[signalType .. "_hits"]  + 1
-                nback.can_press = false
+                self.can_press = false
             end
         end
     end
 end
 
-function nback.resize(neww, newh)
+function nback:resize(neww, newh)
     print(string.format("resized to %d * %d", neww, newh))
+
     w = neww
     h = newh
+
     local pixels_border = 130 -- size of border around main game field
-    nback.cell_width = (newh - pixels_border) / nback.dim
-    nback.signal.width = nback.cell_width
-    nback.bhupur_h = nback.cell_width * nback.dim 
+    self.cell_width = (newh - pixels_border) / self.dim
+    self.signal.width = self.cell_width
+    self.bhupur_h = self.cell_width * self.dim 
+
+    local delta = 20 -- for avoiding intersection between field and bottom lines of text
+    self.x0 = (w - self.dim * self.cell_width) / 2
+    self.y0 = (h - self.dim * self.cell_width) / 2 - delta
+
+    self.signal:setCorner(self.x0, y0)
 end
 
 -- return array of boolean values in succesful indices
-function make_hit_arr(signals, comparator)
+function nback.make_hit_arr(signals, comparator)
     local ret = {}
     for k, v in pairs(signals) do
-        ret[#ret + 1] = k > nback.level and comparator(v, signals[k - nback.level])
+        ret[#ret + 1] = k > self.level and comparator(v, signals[k - self.level])
     end
     return ret
 end
@@ -916,11 +844,7 @@ end
 function nback.draw()
     love.graphics.clear(pallete.background)
 
-    local delta = 20 -- for avoiding intersection between field and bottom lines of text
-    local x0 = (w - nback.dim * nback.cell_width) / 2
-    local y0 = (h - nback.dim * nback.cell_width) / 2 - delta
-
-    nback.signal:setCorner(x0, y0)
+    self.signal:setCorner(x0, y0)
 
     g.push("all")
     g.setShader(nback.shader)
@@ -929,14 +853,14 @@ function nback.draw()
     draw_field_grid(x0, y0, nback.dim * nback.cell_width)
     draw_bhupur(x0, y0)
     print_debug_info()
-    if nback.is_run then
-        if nback.start_pause then
+    if self.is_run then
+        if self.start_pause then
             print_start_pause(y0)
         else
             draw_active_signal(x0, y0)
         end
     else
-        if nback.show_statistic then 
+        if self.show_statistic then 
             draw_statistic(x0, y0)
             print_set_results(x0, y0)
         else
@@ -945,15 +869,15 @@ function nback.draw()
         print_press_space_to_new_round(y0)
     end
 
-    local bottom_text_line_y = h - nback.font:getHeight() * 3
+    local bottom_text_line_y = h - self.font:getHeight() * 3
 
     print_control_tips(bottom_text_line_y)
     print_escape_tip(bottom_text_line_y)
 
     g.setShader()
     g.pop()
-
-    --drawTestQuadAndTriangle()
 end
 
-return nback
+return {
+    new = nback.new
+}

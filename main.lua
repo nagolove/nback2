@@ -39,7 +39,7 @@ local menu = require "menu"
 local nback = require "nback"
 local pviewer = require "pviewer"
 local colorpicker = require "colorpicker"
-
+local game = nil
 local picker = nil
 
 function love.load()
@@ -49,7 +49,10 @@ function love.load()
     -- Ручная инициализация модулей
     splash.init()
     menu.init()
-    nback.init()
+
+    game = nback.new()
+    game:init()
+
     pviewer.init()
     help.init()
     states.push(menu)
@@ -77,9 +80,10 @@ function make_screenshot()
 end
 
 local screenMode = "win" -- or "fs"
-local to_resize = {menu, nback, pviewer, help}
+local to_resize = {menu, pviewer, help}
 
 function dispatchWindowResize(w, h)
+    game:resize(w, h)
     for k, v in pairs(to_resize) do
         if v["resize"] then v.resize(w, h) end
     end
