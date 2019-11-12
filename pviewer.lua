@@ -136,13 +136,13 @@ function draw_chart_header(r)
     g.setColor({1, 1, 1})
     g.setFont(pviewer.font)
     local tbl = {}
-    for k, v in pairs(columns_name) do
+    for k, v in pairs(self.columns_name) do
         if k == pviewer.sorted_by_column_num then
             tbl[#tbl + 1] = pallete.active
         else
             tbl[#tbl + 1] = pallete.header
         end
-        if k ~= #columns_name then
+        if k ~= #self.columns_name then
             tbl[#tbl + 1] = v .. " / "
         else
             tbl[#tbl + 1] = v
@@ -160,7 +160,7 @@ end
 
 function print_dbg_info()
     linesbuffer:pushi("fps " .. love.timer.getFPS())
-    linesbuffer:pushi(string.format("sorted by %s = %d", columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
+    linesbuffer:pushi(string.format("sorted by %s = %d", self.columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
     linesbuffer:draw()
 end
 
@@ -200,10 +200,10 @@ function pviewer.draw()
     g.pop()
 end
 
-function pviewer.sort_by_column(idx)
-    pviewer.sorted_by_column_num = idx
-    table.sort(pviewer.data, function(a, b)
-        if columns_name[idx] == "date" then
+function pviewer:sort_by_column(idx)
+    self.sorted_by_column_num = idx
+    table.sort(self.data, function(a, b)
+        if self.columns_name[idx] == "date" then
             if a.date and b.date then
                 local t1 = a.date
                 local t2 = b.date
@@ -211,15 +211,15 @@ function pviewer.sort_by_column(idx)
                 local b_sec = t2.year * 365 * 24 * 60 * 60 + t2.yday * 24 * 60 * 60 + t2.hour * 60 * 60 + t2.min * 60 + t2.sec
                 return a_sec < b_sec
             end
-        elseif columns_name[idx] == "nlevel" then
+        elseif self.columns_name[idx] == "nlevel" then
             if a.nlevel and b.nlevel then
                 return a.nlevel < b.nlevel
             end
-        elseif columns_name[idx] == "rating" then
+        elseif self.columns_name[idx] == "rating" then
             if a.percent and b.percent then
                 return a.percent < b.percent
             end
-        elseif columns_name[idx] == "pause" then
+        elseif self.columns_name[idx] == "pause" then
             if a.pause and b.pause then
                 return a.pause < b.pause
             end
@@ -227,16 +227,16 @@ function pviewer.sort_by_column(idx)
     end)
 end
 
-function sort_by_previous_column()
+function pviewer:sort_by_previous_column()
     if self.sorted_by_column_num - 1 < 1 then
-        self:sort_by_column(#columns_name)
+        self:sort_by_column(#self.columns_name)
     else
         self:sort_by_column(self.sorted_by_column_num - 1)
     end
 end
 
 function pviewer:sort_by_next_column()
-    if self.sorted_by_column_num + 1 > #columns_name then
+    if self.sorted_by_column_num + 1 > #self.columns_name then
         self:sort_by_column(1)
     else
         self:sort_by_column(self.sorted_by_column_num + 1)
@@ -255,66 +255,49 @@ function pviewer:scroll_down()
     end
 end
 
-function pviewer.move_up()
-    --print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
-    if pviewer.cursor_index > 1 then
-        if not pviewer.cursor_move_up_animation then
-            pviewer.cursor_move_up_animation = true
-            pviewer.timer:after(0.1, function()
-                pviewer.cursor_move_up_animation = false;
-                pviewer.cursor_index = pviewer.cursor_index - 1
+function pviewer:move_up()
+    if self.cursor_index > 1 then
+        if not self.cursor_move_up_animation then
+            self.cursor_move_up_animation = true
+            self.timer:after(0.1, function()
+                self.cursor_move_up_animation = false;
+                self.cursor_index = self.cursor_index - 1
             end)
         end
-    elseif not pviewer.move_up_animation then
-        if pviewer.start_line > 1 then
-            --pviewer.start_line = pviewer.start_line - 1
-            pviewer.move_up_animation = true
-            pviewer.timer:during(0.1, function()
-                pviewer.start_line = pviewer.start_line - 0.1
+    elseif not self.move_up_animation then
+        if self.start_line > 1 then
+            self.move_up_animation = true
+            self.timer:during(0.1, function()
+                self.start_line = self.start_line - 0.1
             end, 
-            function()
-                pviewer.move_up_animation = false
-                --print("after timer")
-                --print("pviewer.start_line = " .. pviewer.start_line)
-            end)
+            function() self.move_up_animation = false end)
+        end
     end
 end
-end
 
-function pviewer.move_down()
+function pviewer:move_down()
     print("move down")
-    --print("pviewer.cursor_index = " .. pviewer.cursor_index, " pviewer.start_line " .. pviewer.start_line .. " pviewer.vertical_buf_len " .. pviewer.vertical_buf_len)
-    if pviewer.cursor_index + 1 < pviewer.vertical_buf_len then
-        if not pviewer.cursor_move_down_animation then
+    if self.cursor_index + 1 < self.vertical_buf_len then
+        if not self.cursor_move_down_animation then
             --print("after")
-            pviewer.cursor_move_down_animation = true
-            pviewer.timer:after(0.1, function()
-                pviewer.cursor_move_down_animation = false;
-                pviewer.cursor_index = pviewer.cursor_index + 1
+            self.cursor_move_down_animation = true
+            self.timer:after(0.1, function()
+                self.cursor_move_down_animation = false;
+                self.cursor_index = self.cursor_index + 1
             end)
         end
-    --end
-    elseif not pviewer.move_down_animation then
-        if pviewer.start_line + pviewer.vertical_buf_len <= #pviewer.data then
-            --pviewer.start_line = pviewer.start_line + 1
-            --print("pviewer.move_down()")
-            --print("pviewer.start_line = " .. pviewer.start_line)
-            pviewer.move_down_animation = true
-            pviewer.timer:during(0.1, function()
-                pviewer.start_line = pviewer.start_line + 0.1
-
-            end, 
-            function()
-                pviewer.move_down_animation = false
-                --print("after timer")
-                --print("pviewer.start_line = " .. pviewer.start_line)
-            end)
+    elseif not self.move_down_animation then
+        if self.start_line + self.vertical_buf_len <= #self.data then
+            self.move_down_animation = true
+            self.timer:during(0.1, function()
+                self.start_line = self.start_line + 0.1
+            end, function() self.move_down_animation = false end)
         end
     end
 end
 
 -- добавить клавиши управления для постраничной прокрутки списка результатов.
-function pviewer.keypressed(key)
+function pviewer:keypressed(key)
     if key == "escape" then
         states.pop()
     elseif key == "left" then
@@ -325,17 +308,17 @@ function pviewer.keypressed(key)
         -- TODO по нажатию клавиши показать конечную таблицу игры
     elseif key == "home" or key == "kp7" then
         print("pviewer.keypressed('home')")
-        pviewer.start_line = 1
-        pviewer.cursor_index = 1
+        self.start_line = 1
+        self.cursor_index = 1
     elseif key == "end" or key == "kp1" then
         print("pviewer.keypressed('end')")
-        pviewer.start_line = #pviewer.data - pviewer.vertical_buf_len + 1
+        self.start_line = #self.data - self.vertical_buf_len + 1
         print("pviewer.vertical_buf_len = ", pviewer.vertical_buf_len)
-        pviewer.cursor_index = pviewer.vertical_buf_len - 1
+        self.cursor_index = self.vertical_buf_len - 1
     end
 end
 
-function pviewer.update(dt)
+function pviewer:update(dt)
     local kb = love.keyboard
     if kb.isDown("up", "k") then
         pviewer.move_up()
