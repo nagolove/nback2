@@ -89,15 +89,15 @@ function menu:calc_rotation_grid()
 end
 
 function menu:enter()
-    menu.alpha = 0
-    menu.timer:tween(2, menu, { alpha = 1}, "linear")
+    self.alpha = 0
+    self.timer:tween(2, self, { alpha = 1}, "linear")
     print("menu.enter()")
-    menu.calc_rotation_grid()
+    self:calc_rotation_grid()
 end
 
 function menu:leave()
     print("menu.leave()")
-    menu.calc_rotation_grid()
+    self:calc_rotation_grid()
 end
 
 function menu:moveDown()
@@ -120,7 +120,8 @@ function menu:keypressed(key)
     if key == "up" or key == "k" then self:moveUp()
     elseif key == "down" or key == "j" then self:moveDown()
     elseif key == "escape" then love.event.quit()
-    elseif key == "return" or key == "space" then self.actions[menu.active_item]()
+    elseif key == "return" or key == "space" then 
+        self.actions[self:active_item]()
     end
 end
 
@@ -134,7 +135,9 @@ end
 
 function menu:process_menu_selection(x, y, dx, dy, istouch)
     for k, v in pairs(items_rects) do
-        if point_in_rect(x, y, v.x, v.y, v.w, v.h) then self.active_item = k end
+        if point_in_rect(x, y, v.x, v.y, v.w, v.h) then 
+            self.active_item = k 
+        end
     end
 end
 
@@ -144,7 +147,8 @@ end
 
 function menu:mousepressed(x, y, button, istouch)
     local active_rect = items_rects[self.active_item]
-    if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, active_rect.y, active_rect.w, active_rect.h) then
+    if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
+        active_rect.y, active_rect.w, active_rect.h) then
         self.actions[menu.active_item]()
     end
 end
@@ -176,7 +180,7 @@ function menu:draw()
     end
 
     -- печать вертикального списка меню
-    g.setFont(menu.font)
+    g.setFont(self.font)
     local y = y_pos
     for i, k in ipairs(self.items) do
         local q = self.active_item == i and pallete.active or pallete.inactive 
