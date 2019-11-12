@@ -35,7 +35,7 @@ end
 local nback = {}
 nback.__index = nback
 
-function nback.new(save_name)
+function nback.new()
     local self = {
         dim = 5,    -- количество ячеек поля
         cell_width = 100,  -- width of game field in pixels
@@ -45,7 +45,6 @@ function nback.new(save_name)
         is_run = false, -- индикатор запуска рабочего цикла
         pause_time = 2.0, -- задержка между сигналами, в секундах
         can_press = false, -- XXX FIXME зачем нужна эта переменная?
-        save_name = save_name,
         show_statistic = false, -- индикатор показа статистики в конце сета
         sounds = {},
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
@@ -217,7 +216,9 @@ function nback:readSettings()
     love.audio.setVolume(self.volume)
 end
 
-function nback:init()
+function nback:init(save_name)
+    self.save_name = save_name
+
     -- фигачу кастомную менюшку на лету
     self.setupmenu = setupmenu.new(
         love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),

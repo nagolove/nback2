@@ -36,7 +36,7 @@ local linesbuffer = Kons(x, y)
 
 function pviewer:init(save_name)
     self.save_name = save_name
-    self.resize(g.getDimensions())
+    self:resize(g.getDimensions())
     self.timer = timer()
 end
 
@@ -79,8 +79,10 @@ function pviewer:resize(neww, newh)
     print(inspect(pviewer.data))
     print(pviewer.cursor_index)
     if pviewer.cursor_index and pviewer.cursor_index > pviewer.vertical_buf_len then pviewer.cursor_index = pviewer.vertical_buf_len - 1 end -- why -1 ??
-    pviewer.rt = g.newCanvas(w, pviewer.vertical_buf_len * pviewer.font:getLineHeight() * pviewer.font:getHeight(), {format = "normal", msaa = 4})
-    if not pviewer then
+    self.rt = g.newCanvas(w, self.vertical_buf_len * 
+        self.font:getLineHeight() * self.font:getHeight(), 
+        {format = "normal", msaa = 4})
+    if not self.rt then
         error("Canvas not supported!")
     end
 end

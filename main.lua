@@ -34,12 +34,11 @@ function states.top()
 end
 
 local timer = Timer()
-local help = require "help"
+local help = require "help".new()
 local menu = require "menu".new()
-local nback = require "nback"
+local nback = require "nback".new()
 local pviewer = require "pviewer".new()
 local colorpicker = require "colorpicker"
-local game = nil
 local picker = nil
 
 function love.load()
@@ -51,11 +50,11 @@ function love.load()
     menu:init()
 
     local save_name = "nback-v0.3.lua"
-    game = nback.new(save_name)
-    game:init()
+    --game = nback.new(save_name)
+    nback:init(save_name)
 
     pviewer:init(save_name)
-    help.init()
+    help:init()
     states.push(menu)
     --states.push(splash)
 end
