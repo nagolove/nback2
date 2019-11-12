@@ -12,31 +12,34 @@ local function div(a, b)
     return (a - a %b) / b
 end
 
-local pviewer = {
-    scroll_tip_text = "For scrolling table use ↓↑ arrows",
-    header_text = "", 
-    border = 40, --y axis border in pixels for drawing chart
-    scrollx = 0,
-
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
-    scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
-    selected_item = 2,
-    start_line = 1,
-    sorted_by_column_num = 1,
-}
-
-local w, h = g.getDimensions()
-local columns_name = {"date", "nlevel", "rating", "pause"}
-local linesbuffer = Kons(x, y)
-
-function pviewer.init()
-    pviewer.resize(g.getDimensions())
-    pviewer.timer = timer()
+function pviewer.new()
+    local self = {
+        scroll_tip_text = "For scrolling table use ↓↑ arrows",
+        header_text = "", 
+        border = 40, --y axis border in pixels for drawing chart
+        scrollx = 0,
+        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+        scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
+        selected_item = 2,
+        start_line = 1,
+        sorted_by_column_num = 1,
+        columns_name = {"date", "nlevel", "rating", "pause"},
+    }
+    self.w, self.h = g.getDimensions()
+    return setmetatable(self, pviewer)
 end
 
-function pviewer.enter()
-    print("pviewer.enter()")
-    local tmp, size = love.filesystem.read(nback.save_name)
+local linesbuffer = Kons(x, y)
+
+function pviewer:init(save_name)
+    self.save_name = save_name
+    self.resize(g.getDimensions())
+    self.timer = timer()
+end
+
+function pviewer:enter()
+    print("pviewer:enter()")
+    local tmp, size = love.filesystem.read(self.save_name)
     if tmp ~= nil then
         pviewer.data = lume.deserialize(tmp)
     else

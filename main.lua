@@ -50,10 +50,11 @@ function love.load()
     splash.init()
     menu.init()
 
-    game = nback.new()
+    local save_name = "nback-v0.3.lua"
+    game = nback.new(save_name)
     game:init()
 
-    pviewer.init()
+    pviewer.init(save_name)
     help.init()
     states.push(menu)
     --states.push(splash)

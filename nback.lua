@@ -35,7 +35,7 @@ end
 local nback = {}
 nback.__index = nback
 
-function nback.new()
+function nback.new(save_name)
     local self = {
         dim = 5,    -- количество ячеек поля
         cell_width = 100,  -- width of game field in pixels
@@ -45,7 +45,7 @@ function nback.new()
         is_run = false, -- индикатор запуска рабочего цикла
         pause_time = 2.0, -- задержка между сигналами, в секундах
         can_press = false, -- XXX FIXME зачем нужна эта переменная?
-        saveName2 = "nback-v0.3.lua",
+        save_name = save_name,
         show_statistic = false, -- индикатор показа статистики в конце сета
         sounds = {},
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
@@ -355,9 +355,9 @@ function nback.loadFromHistory(signals, presses)
     --вопрос - как из истории загружать?
 end
 
-function nback.save_to_history()
+function nback:save_to_history()
     local history = {}
-    local data, size = love.filesystem.read(nback.saveName2)
+    local data, size = love.filesystem.read(self.save_name)
     if data ~= nil then
         ok, history = serpent.load(data)
     end
@@ -374,44 +374,41 @@ function nback.save_to_history()
                             nlevel = nback.level,
                             pause_time = nback.pause_time,
                             percent = nback.percent})
-    love.filesystem.write(nback.saveName2, serpent.dump(history))
+    love.filesystem.write(self.save_name, serpent.dump(history))
 end
 
-function nback.stop()
+function nback:stop()
     local q = pallete.field
     -- амимация альфа-канала игрового поля
-    nback.timer:tween(2, nback.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
+    self.timer:tween(2, nback.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
 
-    nback.is_run = false
-    nback.show_statistic = true
+    self.is_run = false
+    self.show_statistic = true
 
     print("stop")
-    print(inspect(nback.sound_pressed_arr))
-    print(inspect(nback.color_pressed_arr))
-    print(inspect(nback.form_pressed_arr))
-    print(inspect(nback.pos_pressed_arr))
+    print(inspect(self.sound_pressed_arr))
+    print(inspect(self.color_pressed_arr))
+    print(inspect(self.form_pressed_arr))
+    print(inspect(self.pos_pressed_arr))
 
-    --local p = calc_percent(nback.sound_eq, nback.sound_pressed_arr)
-    --p = p > 0.0 and p or 0
+    local p =  calc_percent(self.sound_eq, self.sound_pressed_arr)
+    self.sound_percent = p > 0.0 and p or 0.0
 
-    local p =  calc_percent(nback.sound_eq, nback.sound_pressed_arr)
-    nback.sound_percent = p > 0.0 and p or 0.0
+    p = calc_percent(self.color_eq, self.color_pressed_arr)
+    self.color_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(nback.color_eq, nback.color_pressed_arr)
-    nback.color_percent = p > 0.0 and p or 0.0
+    p = calc_percent(self.form_eq, self.form_pressed_arr)
+    self.form_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(nback.form_eq, nback.form_pressed_arr)
-    nback.form_percent = p > 0.0 and p or 0.0
+    p = calc_percent(self.pos_eq, self.pos_pressed_arr)
+    self.pos_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(nback.pos_eq, nback.pos_pressed_arr)
-    nback.pos_percent = p > 0.0 and p or 0.0
-
-    nback.percent = (nback.sound_percent + nback.color_percent + 
-        nback.form_percent + nback.pos_percent) / 4
+    self.percent = (self.sound_percent + self.color_percent + 
+        self.form_percent + self.pos_percent) / 4
 
     -- Раунд полностью закончен? - записываю историю
-    if nback.pos_signals and nback.current_sig == #nback.pos_signals then 
-        nback.save_to_history() 
+    if self.pos_signals and self.current_sig == #self.pos_signals then 
+        nback:save_to_history() 
     end
 end
 
