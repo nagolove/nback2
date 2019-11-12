@@ -633,23 +633,31 @@ end
 -- eq - массив-наложение на arr, для успешных попаданий?
 -- rect_size - размер отображаемого в сетке прямоугольника
 -- border - зазор между прямоугольниками.
-function draw_hit_rects(x, y, arr, eq, rect_size, border)
-    --print("border = " .. border)
+function nback:draw_hit_rects(x, y, arr, eq, rect_size, border)
     local hit_color = {200 / 255, 10 / 255, 10 / 255}
     for k, v in pairs(arr) do
         g.setColor(pallete.field)
         g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
         g.setColor(pallete.inactive)
-        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+        g.rectangle("fill", 
+            x + rect_size * (k - 1) + border, 
+            y + border, rect_size - border * 2, 
+            rect_size - border * 2)
         if v then
             g.setColor(hit_color)
-            g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+            g.rectangle("fill", 
+                x + rect_size * (k - 1) + border, 
+                y + border, rect_size - border * 2, 
+                rect_size - border * 2)
         end
         -- draw circle in center of quad if it is successful
         if eq[k] then
             local radius = 4
             g.setColor({0, 0, 0})
-            g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
+            g.circle("fill", 
+                x + rect_size * (k - 1) + rect_size / 2, 
+                y + rect_size / 2, 
+                radius)
         end
     end
     y = y + rect_size + 6
@@ -670,7 +678,7 @@ function draw_horizontal_string(x, y, rect_size)
 end
 
 -- draw one big letter in left side of draw_hit_rects() output
-function print_signal_type(x, y, rect_size, str, pixel_gap, delta)
+function nback:print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     local delta = (rect_size - g.getFont():getHeight()) / 2
     g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
     y = y + rect_size + 6
@@ -678,8 +686,9 @@ function print_signal_type(x, y, rect_size, str, pixel_gap, delta)
 end
 
 -- Почему название функции не draw_percents()?
-function print_percents(x, y, rect_size, pixel_gap, border, starty)
-    local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size - border * 2 + pixel_gap
+function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
+    local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size 
+        - border * 2 + pixel_gap
     g.setColor({200 / 255, 0, 200 / 255})
     g.setFont(nback.font)
     local formatStr = "%.3f"
@@ -695,52 +704,53 @@ function print_percents(x, y, rect_size, pixel_gap, border, starty)
     return x, y
 end
 
-function print_debug_info()
+function nback:print_debug_info()
     linesbuf:pushi("fps " .. love.timer.getFPS())
-    linesbuf:pushi("pos " .. inspect(nback.pos_signals))
-    linesbuf:pushi("sound " .. inspect(nback.sound_signals))
-    linesbuf:pushi("form " .. inspect(nback.form_signals))
-    linesbuf:pushi("color " .. inspect(nback.color_signals))
-    linesbuf:pushi("current_sig = " .. nback.current_sig)
-    linesbuf:pushi("nback.can_press = " .. tostring(nback.can_press))
-    linesbuf:pushi("volume %.3f", nback.volume)
+    linesbuf:pushi("pos " .. inspect(self.pos_signals))
+    linesbuf:pushi("sound " .. inspect(self.sound_signals))
+    linesbuf:pushi("form " .. inspect(self.form_signals))
+    linesbuf:pushi("color " .. inspect(self.color_signals))
+    linesbuf:pushi("current_sig = " .. self.current_sig)
+    linesbuf:pushi("nback.can_press = " .. tostring(self.can_press))
+    linesbuf:pushi("volume %.3f", self.volume)
     linesbuf:pushi("Mem: %.3f MB", collectgarbage("count") / 1024)
-    linesbuf:pushi("signal.width %d", nback.signal.width)
+    linesbuf:pushi("signal.width %d", self.signal.width)
     linesbuf:draw()
 end
 
-function print_set_results(x0, y0)
-        print(x0, y0)
-        local y = y0 + nback.font:getHeight()
-        g.printf(string.format("Set results:"), 0, y, w, "center")
-        y = y + nback.font:getHeight()
-        g.printf(string.format("level %d", nback.level), 0, y, w, "center")
-        y = y + nback.font:getHeight()
-        g.printf(string.format("Pause time %.1f sec", nback.pause_time), 0, y, w, "center")
+function nback:print_set_results(x0, y0)
+    print(x0, y0)
+    local y = y0 + self.font:getHeight()
+    g.printf(string.format("Set results:"), 0, y, w, "center")
+    y = y + self.font:getHeight()
+    g.printf(string.format("level %d", self.level), 0, y, w, "center")
+    y = y + self.font:getHeight()
+    g.printf(string.format("Pause time %.1f sec", self.pause_time), 
+        0, y, w, "center")
 end
 
-function draw_level_welcome()
-    g.setFont(nback.font)
+function nback:draw_level_welcome()
+    g.setFont(self.font)
     --FIXME Dissonance with color and variable name
     g.setColor(pallete.tip_text) 
 
     local y = (h - g.getFont():getHeight() * 4) / 2.5
-    g.printf(string.format("nback level is %d", nback.level), 0, y, w, "center")
+    g.printf(string.format("nback level is %d", self.level), 0, y, w, "center")
 
-    y = y + nback.font:getHeight()
+    y = y + self.font:getHeight()
     g.printf("Use ←→ arrows to setup", 0, y, w, "center")
 
-    y = y + nback.font:getHeight() * 2
+    y = y + self.font:getHeight() * 2
     -- почему здесь используется два разных слова? Переименовать переменную или
     -- переписать строку вывода
-    g.printf(string.format("delay time is %.1f sec", nback.pause_time), 0, y, w, "center")
+    g.printf(string.format("delay time is %.1f sec", self.pause_time), 0, y, w, "center")
 
-    y = y + nback.font:getHeight()
+    y = y + self.font:getHeight()
     g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
 end
 
 -- draw central_text - Press Space key
-function print_press_space_to_new_round(y0)
+function nback:print_press_space_to_new_round(y0)
     local central_text = "Press Space to new round"
     g.setFont(nback.central_font)
     g.setColor(pallete.signal)
