@@ -58,7 +58,7 @@ function menu:init()
         if w > max_width then max_width = w end
     end
 
-    compute_rects()
+    self:compute_rects()
 end
 
 function menu:resize(neww, newh)

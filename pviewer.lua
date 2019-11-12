@@ -65,15 +65,15 @@ function pviewer.leave()
     pviewer.data = nil
 end
 
-function get_max_lines_printed()
-    return div(h - 100, pviewer.font:getHeight())
+function pviewer:get_max_lines_printed()
+    return div(h - 100, self.font:getHeight())
 end
 
-function pviewer.resize(neww, newh)
+function pviewer:resize(neww, newh)
     print(string.format("pviewer.resize(%d, %d)", neww, newh))
     w = neww
     h = newh
-    pviewer.vertical_buf_len = get_max_lines_printed()
+    self.vertical_buf_len = self:get_max_lines_printed()
     print("vertical_buf_len = ", pviewer.vertical_buf_len)
     print(pviewer.data)
     print(inspect(pviewer.data))

@@ -1,15 +1,21 @@
 ﻿local pallete = require "pallete"
 local nback = require "nback"
 
-local help = {
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15),
-    init = function() end,
-    update = function() end,
-}
+local help = {}
+help.__index = help
+
+function help.new()
+    local self = {
+        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15),
+        init = function() end,
+        update = function() end,
+    }
+    return setmetatable(self, help)
+end
 
 local g = love.graphics
 
-function help.draw()
+function help:draw()
     g.setColor(1, 1, 1, 1)
     g.clear(pallete.background)
     g.push("all")
@@ -23,10 +29,12 @@ function help.draw()
     g.pop()
 end
 
-function help.keypressed(key)
+function help:keypressed(key)
     if key == "escape" then
         states.pop()
     end
 end
 
-return help
+return {
+    new = help.new
+}

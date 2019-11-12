@@ -6,7 +6,7 @@ local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
 local lurker = require "libs/lurker"
 local pallete = require "pallete"
-local splash = require "splash"
+--local splash = require "splash"
 
 --local ldebug = require "libs.lovedebug"
 local dbg = require "dbg"
@@ -35,9 +35,9 @@ end
 
 local timer = Timer()
 local help = require "help"
-local menu = require "menu"
+local menu = require "menu".new()
 local nback = require "nback"
-local pviewer = require "pviewer"
+local pviewer = require "pviewer".new()
 local colorpicker = require "colorpicker"
 local game = nil
 local picker = nil
@@ -47,14 +47,14 @@ function love.load()
     lovebird.maxlines = 2000
     love.window.setTitle("nback")
     -- Ручная инициализация модулей
-    splash.init()
-    menu.init()
+    --splash.init()
+    menu:init()
 
     local save_name = "nback-v0.3.lua"
     game = nback.new(save_name)
     game:init()
 
-    pviewer.init(save_name)
+    pviewer:init(save_name)
     help.init()
     states.push(menu)
     --states.push(splash)
@@ -86,7 +86,7 @@ local to_resize = {menu, pviewer, help}
 function dispatchWindowResize(w, h)
     game:resize(w, h)
     for k, v in pairs(to_resize) do
-        if v["resize"] then v.resize(w, h) end
+        if v["resize"] then v:resize(w, h) end
     end
 end
 
