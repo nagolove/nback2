@@ -839,48 +839,48 @@ function nback:draw_statistic(x0, y0)
 end
 
 -- draw central_text - Press Space key
-function print_start_pause(y0)
-    local central_text = string.format("Wait for %d second.", nback.start_pause_rest)
-    g.setFont(nback.central_font)
+function nback:print_start_pause(y0)
+    local central_text = string.format("Wait for %d second.", self.start_pause_rest)
+    g.setFont(self.central_font)
     g.setColor(pallete.signal)
-    local x = (w - nback.central_font:getWidth(central_text)) / 2
-    --y = h - nback.central_font:getHeight() * 2
-    local y = y0 + (nback.dim - 1) * nback.cell_width
+    local x = (w - self.central_font:getWidth(central_text)) / 2
+    --y = h - self.central_font:getHeight() * 2
+    local y = y0 + (self.dim - 1) * self.cell_width
     g.print(central_text, x, y)
 end
 
-function nback.draw()
+function nback:draw()
     love.graphics.clear(pallete.background)
 
-    self.signal:setCorner(x0, y0)
+    --self.signal:setCorner(x0, y0)
 
     g.push("all")
     g.setShader(nback.shader)
 
     -- этим вызовом рисуются только полосы сетки
-    draw_field_grid(x0, y0, nback.dim * nback.cell_width)
+    self:draw_field_grid(x0, y0, nback.dim * nback.cell_width)
     self:draw_bhupur(x0, y0)
-    print_debug_info()
+    self:print_debug_info()
     if self.is_run then
         if self.start_pause then
-            print_start_pause(y0)
+            self:print_start_pause(y0)
         else
-            draw_active_signal(x0, y0)
+            self:draw_active_signal(x0, y0)
         end
     else
         if self.show_statistic then 
-            draw_statistic(x0, y0)
-            print_set_results(x0, y0)
+            self:draw_statistic(x0, y0)
+            self:print_set_results(x0, y0)
         else
-            draw_level_welcome()
+            self:draw_level_welcome()
         end
-        print_press_space_to_new_round(y0)
+        self:print_press_space_to_new_round(y0)
     end
 
     local bottom_text_line_y = h - self.font:getHeight() * 3
 
-    print_control_tips(bottom_text_line_y)
-    print_escape_tip(bottom_text_line_y)
+    self:print_control_tips(bottom_text_line_y)
+    self:print_escape_tip(bottom_text_line_y)
 
     g.setShader()
     g.pop()
