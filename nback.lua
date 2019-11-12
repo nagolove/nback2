@@ -415,57 +415,57 @@ function nback.stop()
     end
 end
 
-function nback.quit()
-    nback.timer:destroy()
+function nback:quit()
+    self.timer:destroy()
     local settings_str = lume.serialize { 
         ["volume"] = love.audio.getVolume(), 
-        ["level"] = nback.level, 
-        ["pause_time"] = nback.pause_time }
+        ["level"] = self.level, 
+        ["pause_time"] = self.pause_time }
     ok, msg = love.filesystem.write("settings.lua", settings_str, 
         settings_str:len())
-    nback.stop()
+    self:stop()
     states.pop()
 end
 
 -- use scancode, Luke!
-function nback.keypressed(key, scancode)
+function nback:keypressed(key, scancode)
     if key == "escape" then
         if nback.is_run then
-            nback.stop()
+            self:stop()
         else
-            nback.quit()
+            self:quit()
         end
     elseif key == "space" or key == "return" then
-            nback.start()
+            self:start()
 
         elseif key == "a" then
-            nback.check("sound")
+            self:check("sound")
         elseif key == "f" then
-            nback.check("color")
+            self:check("color")
         elseif key == "j" then
-            nback.check("form")
+            self:check("form")
         elseif key == ";" then
-            nback.check("pos")
+            self:check("pos")
         end
 
         -- здесь другое игровое состояние, почему используется условие и булев
         -- флаг?
         if not nback.is_run and not nback.show_statistic then
             if key == "up" then
-                nback.setupmenu:scrollUp()
+                self:setupmenu:scrollUp()
             elseif key == "down" then 
-                nback.setupmenu:scrollDown()
+                self:setupmenu:scrollDown()
             elseif key == "left" then
-                nback.setupmenu:leftPressed()
+                self:setupmenu:leftPressed()
             elseif key == "right" then
-                nback.setupmenu:rightPressed()
+                self:setupmenu:rightPressed()
             end
         end
 
         if key == "-" then 
-            self.loverVolume()
+            self:loverVolume()
         elseif key == "=" then
-            self.raiseVolume()
+            self:raiseVolume()
         end
 
     if key == "2" then linesbuf.show = not linesbuf.show end
@@ -473,14 +473,14 @@ end
 
 local soundVolumeStep = 0.05
 
-function nback.loverVolume()
+function nback:loverVolume()
     if self.volume - soundVolumeStep >= 0 then
         self.volume = self.volume - soundVolumeStep
         love.audio.setVolume(self.volume)
     end
 end
 
-function nback.raiseVolume()
+function nback:raiseVolume()
     if self.volume + soundVolumeStep <= 1 then
         self.volume = self.volume + soundVolumeStep
         love.audio.setVolume(self.volume)
@@ -488,23 +488,23 @@ function nback.raiseVolume()
 end
 
 -- signal type may be "pos", "sound", "color", "form"
-function nback.check(signalType)
+function nback:check(signalType)
     if not self.is_run then
         return
     end
-    local signals = nback[signalType .. "_signals"]
+    local signals = self[signalType .. "_signals"]
     local cmp = function(a, b) return a == b end
     if signalType == "pos" then
         cmp = function(a, b)
             return a[1] == b[1] and a[2] == b[2]
         end
     end
-    nback[signalType .. "_pressed"] = true
+    self[signalType .. "_pressed"] = true
     -- ненадолго включаю подсветку введеной клавиши на игровом поле
     self.timer:after(0.2, function() 
         nback[signalType .. "_pressed"] = false 
     end)
-    nback[signalType .. "_pressed_arr"][self.current_sig] = true
+    self[signalType .. "_pressed_arr"][self.current_sig] = true
     if self.current_sig - self.level > 1 then
         if cmp(signals[self.current_sig], signals[self.current_sig - self.level]) then
             --print(inspect(nback))
@@ -535,7 +535,7 @@ function nback:resize(neww, newh)
 end
 
 -- return array of boolean values in succesful indices
-function nback.make_hit_arr(signals, comparator)
+function nback:make_hit_arr(signals, comparator)
     local ret = {}
     for k, v in pairs(signals) do
         ret[#ret + 1] = k > self.level and comparator(v, signals[k - self.level])
@@ -618,13 +618,13 @@ function draw_signal_form(x0, y0, formtype, xdim, ydim, color)
     --draw_central_circle()
 end
 
-function draw_field_grid(x0, y0, field_h)
-    g.setColor(nback.field_color)
-    for i = 0, nback.dim do
+function nback:draw_field_grid(x0, y0, field_h)
+    g.setColor(self.field_color)
+    for i = 0, self.dim do
         -- horizontal
-        g.line(x0, y0 + i * nback.cell_width, x0 + field_h, y0 + i * nback.cell_width)
+        g.line(x0, y0 + i * self.cell_width, x0 + field_h, y0 + i * self.cell_width)
         -- vertical
-        g.line(x0 + i * nback.cell_width, y0, x0 + i * nback.cell_width, y0 + field_h)
+        g.line(x0 + i * self.cell_width, y0, x0 + i * self.cell_width, y0 + field_h)
     end
 end
 
@@ -790,10 +790,10 @@ function draw_active_signal(x0, y0)
     --draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end
 
-function draw_bhupur(x0, y0)
+function nback:draw_bhupur(x0, y0)
     local delta = 5
-    bhupur.color = nback.field_color
-    bhupur.draw(x0 - delta, y0 - delta, nback.bhupur_h + delta * 2)
+    bhupur.color = self.field_color
+    bhupur.draw(x0 - delta, y0 - delta, self.bhupur_h + delta * 2)
 end
 
 -- рисовать статистику после конца сета
@@ -851,7 +851,7 @@ function nback.draw()
 
     -- этим вызовом рисуются только полосы сетки
     draw_field_grid(x0, y0, nback.dim * nback.cell_width)
-    draw_bhupur(x0, y0)
+    self:draw_bhupur(x0, y0)
     print_debug_info()
     if self.is_run then
         if self.start_pause then
