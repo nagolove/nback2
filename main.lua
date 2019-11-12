@@ -19,13 +19,13 @@ function states.push(s)
     xassert(type(s) == "table", function() return "'s' should be a table" end)
     local prev = states.top()
     if prev and prev.leave then prev.leave() end
-    if s.enter then s.enter() end
+    if s.enter then s:enter() end
     states.a[#states.a + 1] = s
 end
 
 function states.pop()
     local last = states.a[#states.a]
-    if last.leave then last.leave() end
+    if last.leave then last:leave() end
     states.a[#states.a] = nil
 end
 
@@ -66,7 +66,7 @@ function love.update(dt)
 
     lovebird.update()
     timer:update()
-    states.top().update(dt)
+    states.top():update(dt)
 end
 
 function make_screenshot()
@@ -125,7 +125,7 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
-    local dr_func = states.top().draw or function() end
+    local dr_func = function() states.top():draw() end or function() end
     if picker then
         picker:draw(dr_func)
     else
