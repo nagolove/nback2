@@ -43,7 +43,7 @@ function menu:init()
     self.items = {"play", "view progress", "help", "quit"}
     self.actions = { 
         function() 
-            print(inspect(nback))
+            print("pushing", inspect(nback))
             states.push(nback) 
         end, 
         function() states.push(pviewer) end, 

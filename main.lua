@@ -38,11 +38,11 @@ end
 
 local timer = Timer()
 
-help = require "help".new()
-menu = require "menu".new()
+local help = require "help".new()
+local menu = require "menu".new()
 print("nback before require", nback)
-nback = require "nback".new()
-pviewer = require "pviewer".new()
+local nback = require "nback".new()
+local pviewer = require "pviewer".new()
 
 local colorpicker = require "colorpicker"
 local picker = nil
@@ -61,8 +61,18 @@ function love.load()
     menu:init()
     help:init()
 
-    --states.push(menu)
-    states.push(nback)
+    -- проблема в том, что два раза определяю список состояний для одного меню.
+    -- Нужно как-то обойтись одним списком.
+    -- Задача - как выйти из текущего объекта состояния? Скажеи из pviewer'а?
+    -- Для этого нужно позвонить в объект меню, если он хранит весь список
+    -- состояний через метод, к примеру - menu:goBack()
+    menu:addItem("play", nback)
+    menu:addItem("view progress", pviewer)
+    menu:addItem("help", help)
+    menu:addItem("quit", quitObject)
+
+    states.push(menu)
+    --states.push(nback)
     --states.push(splash)
 end
 
