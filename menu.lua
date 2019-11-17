@@ -39,6 +39,8 @@ function menu:compute_rects()
     end
 end
 
+-- как лучше хранить актиный элемент из списка меню? По индексу?
+-- Важен порядок элементов. Значит добавлять в массив таблички по индексу.
 function menu:init()
     self.items = {"play", "view progress", "help", "quit"}
     self.actions = { 
@@ -78,6 +80,8 @@ function menu:resize(neww, newh)
     print(string.format("menu:resize() %d*%d -> %d*%d!", w, h, neww, newh))
 end
 
+-- здесь добавить генерацию разных маршрутов движения и преобразования
+-- элементов - "плиток"
 function menu:calc_rotation_grid()
     self.rot_grid = {}
     local i, j = 0, 0

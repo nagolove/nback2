@@ -12,6 +12,7 @@ local serpent = require "serpent"
 --local ldebug = require "libs.lovedebug"
 local dbg = require "dbg"
 
+-- эту переменную вообще не использовать и убрать  
 states = {
     a = {}
 }
