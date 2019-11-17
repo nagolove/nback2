@@ -64,11 +64,17 @@ function menu:init()
     self:compute_rects()
 end
 
+-- добавить новый пункт с заголовком name и обработчиком object.
+function menu:addItem(name, object)
+    assert(type(name) == "string")
+    self.items[name] = object
+end
+
 function menu:resize(neww, newh)
     w = neww
     h = newh
-    self.calc_rotation_grid()
-    compute_rects()
+    self:calc_rotation_grid()
+    self:compute_rects()
     print(string.format("menu:resize() %d*%d -> %d*%d!", w, h, neww, newh))
 end
 
@@ -130,6 +136,10 @@ end
 
 function menu:update(dt) 
     self.timer:update(dt)
+    
+    if self.active then
+        self.items[self.active]:update()
+    end
 end
 
 function point_in_rect(px, py, x, y, w, h)
@@ -156,32 +166,31 @@ function menu:mousepressed(x, y, button, istouch)
     end
 end
 
-function menu:draw()
-    g.push("all")
-
+function menu:drawBackground()
     g.clear(pallete.background)
     local quad = g.newQuad(0, 0, 
-        self.back_tile:getWidth(), self.back_tile:getHeight(), 
-        self.back_tile:getWidth(), self.back_tile:getHeight())
+    self.back_tile:getWidth(), self.back_tile:getHeight(), 
+    self.back_tile:getWidth(), self.back_tile:getHeight())
     local i, j = 0, 0
     local l = 1
-
     g.setColor(1, 1, 1, self.alpha)
     while i <= w do
         j = 0
         while j <= h do
             --print("angle = ", menu.rot_grid[l])
             g.draw(self.back_tile, quad, i, j, self.rot_grid[l], 
-                tile_size / self.back_tile:getWidth(), 
-                tile_size / self.back_tile:getHeight(),
-                self.back_tile:getWidth() / 2, self.back_tile:getHeight() / 2)
+            tile_size / self.back_tile:getWidth(), 
+            tile_size / self.back_tile:getHeight(),
+            self.back_tile:getWidth() / 2, self.back_tile:getHeight() / 2)
             --g.draw(menu.back_tile, quad, i, j, math.pi, 0.3, 0.3)
             l = l + 1
             j = j + tile_size
         end
         i = i + tile_size
     end
+end
 
+function menu:drawList()
     -- печать вертикального списка меню
     g.setFont(self.font)
     local y = y_pos
@@ -192,13 +201,25 @@ function menu:draw()
         g.printf(k, 0, y, w, "center")
         y = y + self.font:getHeight()
     end
+end
 
+function menu:drawCursor()
     g.setLineWidth(3)
     g.setColor{1, 0, 0}
     local v = items_rects[self.active_item]
     g.rectangle("line", v.x, v.y, v.w, v.h)
+end
 
-    g.pop()
+function menu:draw()
+    if self.active then
+        self.items[self.active]:draw()
+    else
+        g.push("all")
+        self:drawBackground()
+        self:drawList()
+        self:drawCursor()
+        g.pop()
+    end
 end
 
 return {

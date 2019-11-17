@@ -103,7 +103,6 @@ local screenMode = "win" -- or "fs"
 local to_resize = {menu, pviewer, help}
 
 function dispatchWindowResize(w, h)
-    game:resize(w, h)
     for k, v in pairs(to_resize) do
         if v["resize"] then v:resize(w, h) end
     end
