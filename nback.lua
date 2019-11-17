@@ -64,7 +64,7 @@ function create_false_array(len)
     return ret
 end
 
-function nback.generate_signals()
+function nback:generate_signals()
     local color_arr = {}
     for k, _ in pairs(color_constants) do
         color_arr[#color_arr + 1] = k
@@ -265,7 +265,7 @@ function nback:init(save_name)
     mnu:addItem()
 
     math.randomseed(os.time())
-    nback.timer = Timer()
+    self.timer = Timer()
 
     wave_path = "sfx/alphabet"
     for k, v in pairs(love.filesystem.getDirectoryItems(wave_path)) do
@@ -306,21 +306,21 @@ function nback:processSignal()
     end
 end
 
-function nback.update(dt)
-    nback.timer:update(dt)
+function nback:update(dt)
+    self.timer:update(dt)
 
-    if nback.pause or nback.start_pause then 
-        nback.timestamp = love.timer.getTime() - nback.pause_time
+    if self.pause or self.start_pause then 
+        self.timestamp = love.timer.getTime() - self.pause_time
         -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
-        -- если продолжительноть паузы больше nback.pause_time?
+        -- если продолжительноть паузы больше self.pause_time?
         return 
     end
 
-    if nback.is_run then
-        if nback.current_sig < #nback.pos_signals then
-            nback.processSignal()
+    if self.is_run then
+        if self.current_sig < #self.pos_signals then
+            self:processSignal()
         else
-            nback.stop()
+            self:stop()
         end
     end
 
@@ -352,7 +352,7 @@ end
 -- сигналы. Функция необходима для установки состояния из внещнего источника 
 -- при необходимости последующей отрисовки экрана статистики, загруженного из
 -- файла.
-function nback.loadFromHistory(signals, presses)
+function nback:loadFromHistory(signals, presses)
     --вопрос - как из истории загружать?
 end
 
@@ -363,25 +363,25 @@ function nback:save_to_history()
         ok, history = serpent.load(data)
     end
     table.insert(history, { date = d, 
-                            pos_signals = nback.pos_signals,
-                            form_signals = nback.form_signals,
-                            sound_signals = nback.sound_signals,
-                            color_signals = nback.color_signals,
-                            pos_pressed_arr = nback.pos_pressed_arr,
-                            form_pressed_arr = nback.form_pressed_arr,
-                            sound_pressed_arr = nback.sound_pressed_arr,
-                            color_pressed_arr = nback.color_pressed_arr,
+                            pos_signals = self.pos_signals,
+                            form_signals = self.form_signals,
+                            sound_signals = self.sound_signals,
+                            color_signals = self.color_signals,
+                            pos_pressed_arr = self.pos_pressed_arr,
+                            form_pressed_arr = self.form_pressed_arr,
+                            sound_pressed_arr = self.sound_pressed_arr,
+                            color_pressed_arr = self.color_pressed_arr,
                             time = os.time(d), 
-                            nlevel = nback.level,
-                            pause_time = nback.pause_time,
-                            percent = nback.percent})
+                            nlevel = self.level,
+                            pause_time = self.pause_time,
+                            percent = self.percent})
     love.filesystem.write(self.save_name, serpent.dump(history))
 end
 
 function nback:stop()
     local q = pallete.field
     -- амимация альфа-канала игрового поля
-    self.timer:tween(2, nback.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
+    self.timer:tween(2, self.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
 
     self.is_run = false
     self.show_statistic = true
@@ -409,7 +409,7 @@ function nback:stop()
 
     -- Раунд полностью закончен? - записываю историю
     if self.pos_signals and self.current_sig == #self.pos_signals then 
-        nback:save_to_history() 
+        self:save_to_history() 
     end
 end
 
@@ -428,7 +428,7 @@ end
 -- use scancode, Luke!
 function nback:keypressed(key, scancode)
     if key == "escape" then
-        if nback.is_run then
+        if self.is_run then
             self:stop()
         else
             self:quit()
@@ -448,7 +448,7 @@ function nback:keypressed(key, scancode)
 
         -- здесь другое игровое состояние, почему используется условие и булев
         -- флаг?
-        if not nback.is_run and not nback.show_statistic then
+        if not self.is_run and not self.show_statistic then
             if key == "up" then
                 self.setupmenu:scrollUp()
             elseif key == "down" then 
@@ -664,17 +664,6 @@ end
 
 local draw_iteration = 0 -- debug variable
 
--- drawing horizontal string with signal numbers
-function draw_horizontal_string(x, y, rect_size)
-    g.setColor({0.5, 0.5, 0.5})
-    g.setFont(nback.statistic_font)
-    for k, _ in pairs(nback.pos_pressed_arr) do
-        local delta = (rect_size - g.getFont():getWidth(tostring(k))) / 2
-        g.print(tostring(k), x + rect_size * (k - 1) + delta, y) -- п
-    end
-    return x, y
-end
-
 -- draw one big letter in left side of draw_hit_rects() output
 function nback:print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     local delta = (rect_size - g.getFont():getHeight()) / 2
@@ -814,7 +803,6 @@ function nback:draw_statistic(x0, y0)
     local y = starty
     local border = 2
 
-    --x, y = draw_horizontal_string(x, y, rect_size)
     y = y + g.getFont():getHeight() * 1.5
 
     local freeze_y = y
@@ -853,10 +841,10 @@ function nback:draw()
     --self.signal:setCorner(x0, y0)
 
     g.push("all")
-    g.setShader(nback.shader)
+    g.setShader(self.shader)
 
     -- этим вызовом рисуются только полосы сетки
-    self:draw_field_grid(x0, y0, nback.dim * nback.cell_width)
+    self:draw_field_grid(x0, y0, self.dim * self.cell_width)
     self:draw_bhupur(x0, y0)
     self:print_debug_info()
     if self.is_run then
