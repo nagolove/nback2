@@ -9,39 +9,12 @@ local pallete = require "pallete"
 local serpent = require "serpent"
 --local splash = require "splash"
 
---local ldebug = require "libs.lovedebug"
 local dbg = require "dbg"
-
--- эту переменную вообще не использовать и убрать  
-states = {
-    a = {}
-}
-
-function states.push(s)
-    --print("states dump", serpent.block(states))
-    print("states dump", inspect(states))
-    xassert(type(s) == "table", function() return "'s' should be a table" end)
-    local prev = states.top()
-    if prev and prev.leave then prev:leave() end
-    if s.enter then s:enter() end
-    states.a[#states.a + 1] = s
-end
-
-function states.pop()
-    local last = states.a[#states.a]
-    if last.leave then last:leave() end
-    states.a[#states.a] = nil
-end
-
-function states.top()
-    return states.a[#states.a]
-end
 
 local timer = Timer()
 
 local help = require "help".new()
 local menu = require "menu".new()
-print("nback before require", nback)
 local nback = require "nback".new()
 local pviewer = require "pviewer".new()
 
@@ -72,7 +45,7 @@ function love.load()
     menu:addItem("help", help)
     menu:addItem("quit", quitObject)
 
-    states.push(menu)
+    --states.push(menu)
     --states.push(nback)
     --states.push(splash)
 end
@@ -84,10 +57,7 @@ function love.update(dt)
 
     lovebird.update()
     timer:update()
-    --states.top():update(dt)
-    if states.top().update then
-        states.top():update(dt)
-    end
+    menu:update(dt)
 end
 
 function make_screenshot()
@@ -101,7 +71,7 @@ function make_screenshot()
 end
 
 local screenMode = "win" -- or "fs"
-local to_resize = {menu, pviewer, help}
+local to_resize = {nback, menu, pviewer, help}
 
 function dispatchWindowResize(w, h)
     for k, v in pairs(to_resize) do
@@ -150,9 +120,7 @@ function love.draw()
     if picker then
         picker:draw(dr_func)
     else
-        --if states.top().draw then
-            states.top():draw()
-        --end
+        menu:draw()
     end
 end
 

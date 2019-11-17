@@ -181,7 +181,7 @@ function menu:drawBackground()
     while i <= w do
         j = 0
         while j <= h do
-            --print("angle = ", menu.rot_grid[l])
+            --print("angle = ", self.rot_grid[l])
             g.draw(self.back_tile, quad, i, j, self.rot_grid[l], 
             tile_size / self.back_tile:getWidth(), 
             tile_size / self.back_tile:getHeight(),
