@@ -6,6 +6,7 @@ local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
 local lurker = require "libs/lurker"
 local pallete = require "pallete"
+local serpent = require "serpent"
 --local splash = require "splash"
 
 --local ldebug = require "libs.lovedebug"
@@ -16,6 +17,8 @@ states = {
 }
 
 function states.push(s)
+    --print("states dump", serpent.block(states))
+    print("states dump", inspect(states))
     xassert(type(s) == "table", function() return "'s' should be a table" end)
     local prev = states.top()
     if prev and prev.leave then prev:leave() end
@@ -34,10 +37,13 @@ function states.top()
 end
 
 local timer = Timer()
-local help = require "help".new()
-local menu = require "menu".new()
-local nback = require "nback".new()
-local pviewer = require "pviewer".new()
+
+help = require "help".new()
+menu = require "menu".new()
+print("nback before require", nback)
+nback = require "nback".new()
+pviewer = require "pviewer".new()
+
 local colorpicker = require "colorpicker"
 local picker = nil
 
@@ -45,17 +51,18 @@ function love.load()
     lovebird.update()
     lovebird.maxlines = 2000
     love.window.setTitle("nback")
-    -- Ручная инициализация модулей
     --splash.init()
-    menu:init()
 
     local save_name = "nback-v0.3.lua"
-    --game = nback.new(save_name)
-    nback:init(save_name)
 
+    -- Ручная инициализация модулей
+    nback:init(save_name)
     pviewer:init(save_name)
+    menu:init()
     help:init()
-    states.push(menu)
+
+    --states.push(menu)
+    states.push(nback)
     --states.push(splash)
 end
 
@@ -117,7 +124,9 @@ function love.keypressed(key, scancode)
             print("picker deleted")
         end
     else
-        states.top():keypressed(key, scancode)
+        if states.top().keypressed then
+            states.top():keypressed(key, scancode)
+        end
     end
 end
 
@@ -131,9 +140,9 @@ function love.draw()
     if picker then
         picker:draw(dr_func)
     else
-        if states.top().draw then
+        --if states.top().draw then
             states.top():draw()
-        end
+        --end
     end
 end
 

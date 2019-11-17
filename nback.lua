@@ -141,10 +141,10 @@ function nback.generate_signals()
     balance(5)
 end
 
-function nback.start()
+function nback:start()
     local q = pallete.field
     -- запуск анимации цвета игрового поля
-    self.timer:tween(3, nback, { field_color = {q[1], q[2], q[3], 1}}, "linear")
+    self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
 
     print("start")
 
@@ -177,12 +177,12 @@ function nback.start()
     print("end of start")
 end
 
-function nback.enter()
+function nback:enter()
     -- установка альфа канала цвета сетки игрового поля
     self.field_color[4] = 0.2
 end
 
-function nback.leave()
+function nback:leave()
     self.show_statistic = false
 end
 

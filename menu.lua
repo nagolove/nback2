@@ -42,7 +42,10 @@ end
 function menu:init()
     self.items = {"play", "view progress", "help", "quit"}
     self.actions = { 
-        function() states.push(nback) end, 
+        function() 
+            print(inspect(nback))
+            states.push(nback) 
+        end, 
         function() states.push(pviewer) end, 
         function() states.push(help) end, 
         function() love.event.quit() end,
