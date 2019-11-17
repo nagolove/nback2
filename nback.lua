@@ -121,7 +121,7 @@ function nback:generate_signals()
         local changed = false
         repeat
             i = i + 1
-            genArray()
+            genArrays()
             for k, v in pairs(self.pos_eq) do
                 local n = 0
                 n = n + (v and 1 or 0)
@@ -151,7 +151,7 @@ function nback:start()
     self.pause = false
     self.is_run = true
 
-    generate_signals()
+    self:generate_signals()
 
     self.current_sig = 1
     self.timestamp = love.timer.getTime() - self.pause_time
@@ -292,7 +292,7 @@ function nback:processSignal()
         local tween_time = 0.5
         print("time delta = " .. self.pause_time - tween_time)
         self.timer:after(self.pause_time - tween_time - 0.1, function()
-            self.timer:tween(tween_time, nback, {figure_alpha = 0}, "out-linear")
+            self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
         end)
 
         local snd = self.sounds[self.sound_signals[self.current_sig]]
@@ -620,9 +620,11 @@ function nback:draw_field_grid(x0, y0, field_h)
     g.setColor(self.field_color)
     for i = 0, self.dim do
         -- horizontal
-        g.line(x0, y0 + i * self.cell_width, x0 + field_h, y0 + i * self.cell_width)
+        g.line(self.x0, self.y0 + i * self.cell_width, 
+            self.x0 + field_h, self.y0 + i * self.cell_width)
         -- vertical
-        g.line(x0 + i * self.cell_width, y0, x0 + i * self.cell_width, y0 + field_h)
+        g.line(self.x0 + i * self.cell_width, self.y0, 
+            self.x0 + i * self.cell_width, self.y0 + field_h)
     end
 end
 
@@ -674,20 +676,20 @@ end
 
 -- Почему название функции не draw_percents()?
 function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
-    local sx = x + rect_size * (#nback.pos_signals - 1) + border + rect_size 
+    local sx = x + rect_size * (#self.pos_signals - 1) + border + rect_size 
         - border * 2 + pixel_gap
     g.setColor({200 / 255, 0, 200 / 255})
     g.setFont(nback.font)
     local formatStr = "%.3f"
-    g.print(string.format(formatStr, nback.sound_percent), sx, y)
+    g.print(string.format(formatStr, self.sound_percent), sx, y)
     y = y + rect_size + 6
-    g.print(string.format(formatStr, nback.color_percent), sx, y)
+    g.print(string.format(formatStr, self.color_percent), sx, y)
     y = y + rect_size + 6
-    g.print(string.format(formatStr, nback.form_percent), sx, y)
+    g.print(string.format(formatStr, self.form_percent), sx, y)
     y = y + rect_size + 6
-    g.print(string.format(formatStr, nback.pos_percent), sx, y)
+    g.print(string.format(formatStr, self.pos_percent), sx, y)
     y = starty + 4 * (rect_size + 20)
-    g.printf(string.format("rating " .. formatStr, nback.percent), 0, y, w, "center")
+    g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")
     return x, y
 end
 
@@ -743,12 +745,12 @@ function nback:print_press_space_to_new_round(y0)
     g.setColor(pallete.signal)
     local x = (w - self.central_font:getWidth(central_text)) / 2
     --y = h - self.central_font:getHeight() * 2
-    local y = y0 + (self.dim - 1) * self.cell_width
+    local y = self.y0 + (self.dim - 1) * self.cell_width
     g.print(central_text, x, y)
 end
 
 function nback:print_control_tips(bottom_text_line_y)
-    local keys_tip = alignedlabels.new(nback.font, w)
+    local keys_tip = alignedlabels.new(self.font, w)
 
     local color = self.sound_pressed and pallete.active or pallete.inactive
     keys_tip:add("Sound [", color, "a", pallete.highLightedTextColor, "]", color)
@@ -781,14 +783,14 @@ function nback:draw_active_signal(x0, y0)
         sig_color[4] = self.figure_alpha
     end
     local type = self.form_signals[self.current_sig]
-    self.signal:draw(x0, y0, type, sig_color)
+    self.signal:draw(self.x0, self.y0, type, sig_color)
     --draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end
 
 function nback:draw_bhupur(x0, y0)
     local delta = 5
     bhupur.color = self.field_color
-    bhupur.draw(x0 - delta, y0 - delta, self.bhupur_h + delta * 2)
+    bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
 end
 
 -- рисовать статистику после конца сета
@@ -831,7 +833,7 @@ function nback:print_start_pause(y0)
     g.setColor(pallete.signal)
     local x = (w - self.central_font:getWidth(central_text)) / 2
     --y = h - self.central_font:getHeight() * 2
-    local y = y0 + (self.dim - 1) * self.cell_width
+    local y = self.y0 + (self.dim - 1) * self.cell_width
     g.print(central_text, x, y)
 end
 

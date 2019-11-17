@@ -75,6 +75,7 @@ function signal:drawTrUp(x, y, w, h)
     g.polygon("fill", tri)
 end
 
+-- рисовать для нормального отображения анимации альфа канала через канвас.
 function signal:drawTrUpDown(x, y, w, h)
     local tri_up, tri_down = {}, {}
     local rad = w / 2
