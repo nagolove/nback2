@@ -71,7 +71,7 @@ end
 -- Или object может быть функцией(пока не реализовано).
 function menu:addItem(name, object)
     assert(type(name) == "string")
-    self.items[#self.items + 1] = { name = name, object = object }
+    self.items[#self.items + 1] = { name = name, obj= object }
     self:searchWidestText()
     self:compute_rects()
 end
@@ -134,7 +134,7 @@ function menu:update(dt)
     self.timer:update(dt)
     
     if self.active then
-        local obj = self.items[self.active_item]
+        local obj = self.items[self.active_item].obj
         if obj.update then obj:update(dt) end
     end
 end
@@ -153,7 +153,7 @@ end
 
 function menu:mousemoved(x, y, dx, dy, istouch)
     if self.active then
-        local obj = self.items[self.active_item]
+        local obj = self.items[self.active_item].obj
         if obj.mousemoved then obj:mousemoved(x, y, dx, dy, istouch) end
     else
         self:process_menu_selection(x, y, dx, dy, istouch)
@@ -162,7 +162,7 @@ end
 
 function menu:mousepressed(x, y, button, istouch)
     if self.active then
-        local obj = self.items[self.active_item]
+        local obj = self.items[self.active_item].obj
         if obj.mousepressed then obj:mousepressed(x, y, button, istouch) end
     else
         local active_rect = self.items_rects[self.active_item]
@@ -219,7 +219,7 @@ end
 
 function menu:draw()
     if self.active then
-        local obj = self.items[self.active_item]
+        local obj = self.items[self.active_item].obj
         if obj.draw then obj:draw() end
     else
         g.push("all")

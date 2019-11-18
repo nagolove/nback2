@@ -427,46 +427,46 @@ end
 
 -- use scancode, Luke!
 function nback:keypressed(key, scancode)
-    if key == "escape" then
+    if scancode == "escape" then
         if self.is_run then
             self:stop()
         else
             self:quit()
         end
-    elseif key == "space" or key == "return" then
+    elseif scancode == "space" or scancode == "return" then
             self:start()
 
-        elseif key == "a" then
+        elseif scancode == "a" then
             self:check("sound")
-        elseif key == "f" then
+        elseif scancode == "f" then
             self:check("color")
-        elseif key == "j" then
+        elseif scancode == "j" then
             self:check("form")
-        elseif key == ";" then
+        elseif scancode == ";" then
             self:check("pos")
         end
 
         -- здесь другое игровое состояние, почему используется условие и булев
         -- флаг?
         if not self.is_run and not self.show_statistic then
-            if key == "up" then
+            if scancode == "up" then
                 self.setupmenu:scrollUp()
-            elseif key == "down" then 
+            elseif scancode == "down" then 
                 self.setupmenu:scrollDown()
-            elseif key == "left" then
+            elseif scancode == "left" then
                 self.setupmenu:leftPressed()
-            elseif key == "right" then
+            elseif scancode == "right" then
                 self.setupmenu:rightPressed()
             end
         end
 
-        if key == "-" then 
+        if scancode == "-" then 
             self:loverVolume()
-        elseif key == "=" then
+        elseif scancode == "=" then
             self:raiseVolume()
         end
 
-    if key == "2" then linesbuf.show = not linesbuf.show end
+    if scancode == "2" then linesbuf.show = not linesbuf.show end
 end
 
 local soundVolumeStep = 0.05
