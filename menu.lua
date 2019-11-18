@@ -25,6 +25,8 @@ end
 
 -- вызывается из игрового состояния для возвращения в меню
 function menu:goBack()
+    local obj = self.items[self.active_item].obj
+    if obj.leave then obj:leave() end
     self.active = false
 end
 
@@ -135,6 +137,7 @@ function menu:keypressed(key, scancode)
                 obj()
             else
                 self.active = true
+                if obj.enter then obj:enter() end
             end
         end
     end
