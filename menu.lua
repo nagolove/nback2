@@ -152,22 +152,32 @@ function menu:process_menu_selection(x, y, dx, dy, istouch)
 end
 
 function menu:mousemoved(x, y, dx, dy, istouch)
-    self:process_menu_selection(x, y, dx, dy, istouch)
+    if self.active then
+        local obj = self.items[self.active_item]
+        if obj.mousemoved then obj:mousemoved(x, y, dx, dy, istouch) end
+    else
+        self:process_menu_selection(x, y, dx, dy, istouch)
+    end
 end
 
 function menu:mousepressed(x, y, button, istouch)
-    local active_rect = self.items_rects[self.active_item]
-    if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
-        active_rect.y, active_rect.w, active_rect.h) then
-        self.active = true
+    if self.active then
+        local obj = self.items[self.active_item]
+        if obj.mousepressed then obj:mousepressed(x, y, button, istouch) end
+    else
+        local active_rect = self.items_rects[self.active_item]
+        if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
+            active_rect.y, active_rect.w, active_rect.h) then
+            self.active = true
+        end
     end
 end
 
 function menu:drawBackground()
     g.clear(pallete.background)
-    local quad = g.newQuad(0, 0, 
-    self.back_tile:getWidth(), self.back_tile:getHeight(), 
-    self.back_tile:getWidth(), self.back_tile:getHeight())
+    local quad = g.newQuad(0, 0, self.back_tile:getWidth(), 
+        self.back_tile:getHeight(), self.back_tile:getWidth(), 
+        self.back_tile:getHeight())
     local i, j = 0, 0
     local l = 1
     g.setColor(1, 1, 1, self.alpha)
@@ -195,7 +205,7 @@ function menu:drawList()
         local q = self.active_item == i and pallete.active or pallete.inactive 
         q[4] = self.alpha
         g.setColor(q)
-        g.printf(k, 0, y, w, "center")
+        g.printf(k.name, 0, y, w, "center")
         y = y + self.font:getHeight()
     end
 end

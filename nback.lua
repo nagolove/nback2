@@ -422,7 +422,7 @@ function nback:quit()
     ok, msg = love.filesystem.write("settings.lua", settings_str, 
         settings_str:len())
     self:stop()
-    states.pop()
+    menu:goBack()
 end
 
 -- use scancode, Luke!
