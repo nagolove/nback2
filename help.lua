@@ -19,11 +19,11 @@ function help:draw()
     local w, h = g.getDimensions()
     local y = 20
     g.push("all")
-    g.setColor(1, 1, 1, 1)
+    g.setColor{1, 1, 1, 1}
     g.clear(pallete.background)
-    g.setFont(help.font)
+    g.setFont(self.font)
     g.printf("This is a bla-bla", 0, y, w, "center")
-    y = y + help.font:getHeight()
+    y = y + self.font:getHeight()
     g.printf("Put description here!", 0, y, w, "center")
     g.pop()
 end

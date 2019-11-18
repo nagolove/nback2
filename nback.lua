@@ -808,10 +808,14 @@ function nback:draw_statistic(x0, y0)
     y = y + g.getFont():getHeight() * 1.5
 
     local freeze_y = y
-    x, y = self:draw_hit_rects(x, y, self.sound_pressed_arr, self.sound_eq, rect_size, border)
-    x, y = self:draw_hit_rects(x, y, self.color_pressed_arr, self.color_eq, rect_size, border)
-    x, y = self:draw_hit_rects(x, y, self.form_pressed_arr, self.form_eq, rect_size, border)
-    x, y = self:draw_hit_rects(x, y, self.pos_pressed_arr, self.pos_eq, rect_size, border)
+    x, y = self:draw_hit_rects(x, y, self.sound_pressed_arr, self.sound_eq, 
+        rect_size, border)
+    x, y = self:draw_hit_rects(x, y, self.color_pressed_arr, self.color_eq, 
+        rect_size, border)
+    x, y = self:draw_hit_rects(x, y, self.form_pressed_arr, self.form_eq, 
+        rect_size, border)
+    x, y = self:draw_hit_rects(x, y, self.pos_pressed_arr, self.pos_eq, 
+        rect_size, border)
 
     -- drawing left column with letters
     g.setColor({200 / 255, 0, 200 / 255})
@@ -823,12 +827,14 @@ function nback:draw_statistic(x0, y0)
     x, y = self:print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
-    x, y = self:print_percents(x, freeze_y + 0, rect_size, pixel_gap, border, starty)
+    x, y = self:print_percents(x, freeze_y + 0, rect_size, pixel_gap, border, 
+        starty)
 end
 
 -- draw central_text - Press Space key
 function nback:print_start_pause(y0)
-    local central_text = string.format("Wait for %d second.", self.start_pause_rest)
+    local central_text = string.format("Wait for %d second.", 
+        self.start_pause_rest)
     g.setFont(self.central_font)
     g.setColor(pallete.signal)
     local x = (w - self.central_font:getWidth(central_text)) / 2

@@ -41,7 +41,7 @@ function love.load()
     menu:addItem("play", nback)
     menu:addItem("view progress", pviewer)
     menu:addItem("help", help)
-    menu:addItem("quit", quitObject)
+    menu:addItem("quit", function() love.event.quit() end)
 end
 
 function love.update(dt)

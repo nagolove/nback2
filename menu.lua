@@ -130,7 +130,12 @@ function menu:keypressed(key, scancode)
         elseif key == "down" or key == "j" then self:moveDown()
         elseif key == "escape" then love.event.quit()
         elseif key == "return" or key == "space" then 
-            self.active = true
+            local obj = self.items[self.active_item].obj
+            if type(obj) == "function" then
+                obj()
+            else
+                self.active = true
+            end
         end
     end
 end
