@@ -100,18 +100,6 @@ function menu:calc_rotation_grid()
     end
 end
 
-function menu:enter()
-    self.alpha = 0
-    self.timer:tween(2, self, { alpha = 1}, "linear")
-    print("menu.enter()")
-    self:calc_rotation_grid()
-end
-
-function menu:leave()
-    print("menu.leave()")
-    self:calc_rotation_grid()
-end
-
 function menu:moveDown()
     if self.active_item + 1 <= #self.items then
         self.active_item = self.active_item + 1
@@ -124,7 +112,7 @@ function menu:moveUp()
     if self.active_item - 1 >= 1 then
         self.active_item = self.active_item - 1
     else
-        self.active_item = #self.actions
+        self.active_item = #self.items
     end
 end
 

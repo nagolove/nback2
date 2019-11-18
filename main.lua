@@ -11,8 +11,6 @@ local serpent = require "serpent"
 
 local dbg = require "dbg"
 
-local timer = Timer()
-
 local help = require "help".new()
 local menu = require "menu".new()
 local nback = require "nback".new()
@@ -44,19 +42,13 @@ function love.load()
     menu:addItem("view progress", pviewer)
     menu:addItem("help", help)
     menu:addItem("quit", quitObject)
-
-    --states.push(menu)
-    --states.push(nback)
-    --states.push(splash)
 end
 
 function love.update(dt)
     if picker then
         picker:update(dt)
     end
-
     lovebird.update()
-    timer:update()
     menu:update(dt)
 end
 
