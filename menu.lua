@@ -14,7 +14,8 @@ menu.__index = menu
 
 function menu.new()
     local self = {
-        active_item = 1,
+        active_item = 1, -- указывает индекс выбранного пункта
+        active = nil, -- указывает, что запущено какое-то состояние из меню
         items = {},
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
         back_tile = love.graphics.newImage("gfx/IMG_20190111_115755.png")
@@ -43,22 +44,10 @@ end
 -- как лучше хранить актиный элемент из списка меню? По индексу?
 -- Важен порядок элементов. Значит добавлять в массив таблички по индексу.
 function menu:init()
-    --self.items = {"play", "view progress", "help", "quit"}
-    --self.actions = { 
-        --function() 
-            --print("pushing", inspect(nback))
-            --states.push(nback) 
-        --end, 
-        --function() states.push(pviewer) end, 
-        --function() states.push(help) end, 
-        --function() love.event.quit() end,
-    --}
     math.randomseed(os.time())
     self.timer = timer()
     self.alpha = 1
-
-    self:searchWidestText()
-    self:compute_rects()
+    self:calc_rotation_grid()
 end
 
 -- ищет наиболее длинный текст в списке пунктов меню и устанавливает
@@ -66,16 +55,20 @@ end
 function menu:searchWidestText()
     local maxWidth = 0
     for _, v in pairs(self.items) do
-        local w = self.font:getWidth(v)
+        local w = self.font:getWidth(v.name)
         if w > maxWidth then maxWidth = w end
     end
     self.maxWidth = maxWidth
 end
 
--- добавить новый пункт с заголовком name и обработчиком object.
+-- добавить следующий пункт с заголовком name и обработчиком object.
+-- object - таблица с методами update, draw, keypressed и другими.
+-- Или object может быть функцией(пока не реализовано).
 function menu:addItem(name, object)
     assert(type(name) == "string")
-    self.items[name] = object
+    self.items[#self.items + 1] = { name = name, object = object }
+    self:searchWidestText()
+    self:compute_rects()
 end
 
 function menu:resize(neww, newh)
@@ -165,7 +158,7 @@ function menu:process_menu_selection(x, y, dx, dy, istouch)
 end
 
 function menu:mousemoved(x, y, dx, dy, istouch)
-    self:rocess_menu_selection(x, y, dx, dy, istouch)
+    self:process_menu_selection(x, y, dx, dy, istouch)
 end
 
 function menu:mousepressed(x, y, button, istouch)

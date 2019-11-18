@@ -125,13 +125,13 @@ function love.draw()
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-    if states.top().mousemoved then states.top().mousemoved(x, y, dx, dy, istouch) end
+    menu:mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.mousepressed(x, y, button, istouch)
-    if states.top().mousepressed then states.top().mousepressed(x, y, button, istouch) end
+    menu:mousepressed(x, y, button, istouch)
 end
 
 function love.mousereleased(x, y, button, istouch)
-    if states.top().mousereleased then states.top().mousereleased(x, y, button, istouch) end
+    menu:mousereleased(x, y, button, istouch)
 end
