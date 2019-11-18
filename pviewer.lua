@@ -1,9 +1,8 @@
 ﻿local inspect = require "libs.inspect"
-local lume = require "libs.lume"
+local serpent = require "serpent"
 local timer = require "libs.Timer"
 
 local pallete = require "pallete"
-local nback = require "nback"
 local g = love.graphics
 local Kons = require "kons"
 
@@ -44,7 +43,10 @@ function pviewer:enter()
     print("pviewer:enter()")
     local tmp, size = love.filesystem.read(self.save_name)
     if tmp ~= nil then
-        self.data = lume.deserialize(tmp)
+        ok, self.data = serpent.load(tmp)
+        if not ok then 
+            error("Something wrong in restoring data " .. self.save_name)
+        end
     else
         self.data = {}
     end
@@ -114,9 +116,11 @@ function pviewer:draw_columns(k, j, deltax)
     g.setColor(pallete.chart)
     deltax = self:draw_column(k, j, deltax, 
         function(v) 
-            return string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d", 
-            v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, 
-            v.date.sec) 
+            if v.date then 
+                return string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d", 
+                    v.date.day, v.date.month, v.date.year, v.date.hour, 
+                    v.date.min, v.date.sec)
+            else return "" end 
         end)
     g.setColor(pallete.header)
     deltax = self:draw_column(k, j, deltax, function(v) return " / " end)
@@ -212,7 +216,7 @@ function pviewer:draw()
         g.rectangle("fill", x, y, chart_width, self.font:getHeight())
     end
 
-    print_dbg_info()
+    self:print_dbg_info()
 
     g.pop()
 end
@@ -318,9 +322,9 @@ function pviewer:keypressed(key)
     if key == "escape" then
         menu:goBack()
     elseif key == "left" then
-        sort_by_previous_column()
+        self:sort_by_previous_column()
     elseif key == "right" then
-        sort_by_next_column()
+        self:sort_by_next_column()
     elseif key == "return" or key == "space" then
         -- TODO по нажатию клавиши показать конечную таблицу игры
     elseif key == "home" or key == "kp7" then
@@ -338,13 +342,13 @@ end
 function pviewer:update(dt)
     local kb = love.keyboard
     if kb.isDown("up", "k") then
-        pviewer.move_up()
+        self:move_up()
     elseif kb.isDown("down", "j") then
-        pviewer.move_down()
+        self:move_down()
     elseif kb.isDown("pageup") then
-        scroll_up()
+        self:scroll_up()
     elseif kb.isDown("pagedown") then
-        scroll_down()
+        self:scroll_down()
     end
     self.timer:update(dt)
 end
