@@ -175,9 +175,11 @@ function pviewer:draw_scroll_tip(rect)
         rect.x2 - rect.x1, "center")
 end
 
-function print_dbg_info()
+function pviewer:print_dbg_info()
     linesbuffer:pushi("fps " .. love.timer.getFPS())
-    linesbuffer:pushi(string.format("sorted by %s = %d", self.columns_name[pviewer.sorted_by_column_num], pviewer.sorted_by_column_num))
+    linesbuffer:pushi("sorted by %s = %d", 
+        self.columns_name[self.sorted_by_column_num], 
+        self.sorted_by_column_num)
     linesbuffer:draw()
 end
 
