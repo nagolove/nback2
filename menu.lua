@@ -121,12 +121,17 @@ function menu:moveUp()
     end
 end
 
-function menu:keypressed(key)
-    if key == "up" or key == "k" then self:moveUp()
-    elseif key == "down" or key == "j" then self:moveDown()
-    elseif key == "escape" then love.event.quit()
-    elseif key == "return" or key == "space" then 
-        self.active = true
+function menu:keypressed(key, scancode)
+    if self.active then
+        local obj = self.items[self.active_item].obj
+        if obj.keypressed then obj:keypressed(key, scancode) end
+    else
+        if key == "up" or key == "k" then self:moveUp()
+        elseif key == "down" or key == "j" then self:moveDown()
+        elseif key == "escape" then love.event.quit()
+        elseif key == "return" or key == "space" then 
+            self.active = true
+        end
     end
 end
 

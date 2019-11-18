@@ -11,10 +11,10 @@ local serpent = require "serpent"
 
 local dbg = require "dbg"
 
-local help = require "help".new()
-local menu = require "menu".new()
-local nback = require "nback".new()
-local pviewer = require "pviewer".new()
+help = require "help".new()
+menu = require "menu".new()
+nback = require "nback".new()
+pviewer = require "pviewer".new()
 
 local colorpicker = require "colorpicker"
 local picker = nil

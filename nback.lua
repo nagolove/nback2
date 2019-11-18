@@ -679,7 +679,7 @@ function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
     local sx = x + rect_size * (#self.pos_signals - 1) + border + rect_size 
         - border * 2 + pixel_gap
     g.setColor({200 / 255, 0, 200 / 255})
-    g.setFont(nback.font)
+    g.setFont(self.font)
     local formatStr = "%.3f"
     g.print(string.format(formatStr, self.sound_percent), sx, y)
     y = y + rect_size + 6
@@ -841,6 +841,7 @@ function nback:draw()
     love.graphics.clear(pallete.background)
 
     --self.signal:setCorner(x0, y0)
+    local x0, y0 = self.x0, self.y0
 
     g.push("all")
     g.setShader(self.shader)
