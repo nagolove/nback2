@@ -15,12 +15,17 @@ menu.__index = menu
 function menu.new()
     local self = {
         active_item = 1, -- указывает индекс выбранного пункта
-        active = nil, -- указывает, что запущено какое-то состояние из меню
+        active = false,  -- указывает, что запущено какое-то состояние из меню
         items = {},
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
         back_tile = love.graphics.newImage("gfx/IMG_20190111_115755.png")
     }
     return setmetatable(self, menu)
+end
+
+-- вызывается из игрового состояния для возвращения в меню
+function menu:goBack()
+    self.active = false
 end
 
 function menu:compute_rects()
@@ -32,7 +37,7 @@ function menu:compute_rects()
     local y = self.y_pos
     local rect_width = self.maxWidth
     for i, k in ipairs(self.items) do
-        items_rects[#items_rects + 1] = { 
+        self.items_rects[#self.items_rects + 1] = { 
             x = (w - rect_width) / 2, 
             y = y, w = rect_width, 
             h = self.font:getHeight()
@@ -129,7 +134,8 @@ function menu:update(dt)
     self.timer:update(dt)
     
     if self.active then
-        self.items[self.active_item]:update(dt)
+        local obj = self.items[self.active_item]
+        if obj.update then obj:update(dt) end
     end
 end
 
@@ -153,7 +159,7 @@ function menu:mousepressed(x, y, button, istouch)
     local active_rect = self.items_rects[self.active_item]
     if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
         active_rect.y, active_rect.w, active_rect.h) then
-        self.actions[menu.active_item]()
+        self.active = true
     end
 end
 

@@ -73,6 +73,7 @@ end
 
 function love.keypressed(key, scancode)
     print(string.format("key %s, scancode %s", key, scancode))
+    -- переключение режимов экрана
     if love.keyboard.isDown("ralt", "lalt") and key == "return" then
         -- код дерьмовый, но работает
         if screenMode == "fs" then
@@ -96,9 +97,7 @@ function love.keypressed(key, scancode)
             print("picker deleted")
         end
     else
-        if states.top().keypressed then
-            states.top():keypressed(key, scancode)
-        end
+        menu:keypressed(key, scancode)
     end
 end
 
