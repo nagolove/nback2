@@ -15,6 +15,7 @@ menu.__index = menu
 function menu.new()
     local self = {
         active_item = 1,
+        items = {},
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
         back_tile = love.graphics.newImage("gfx/IMG_20190111_115755.png")
     }
@@ -28,7 +29,7 @@ function menu:compute_rects()
     -- заполнение прямоугольников меню
     items_rects = {}
     local y = y_pos
-    local rect_width = max_width
+    local rect_width = self.maxWidth
     for i, k in ipairs(self.items) do
         items_rects[#items_rects + 1] = { 
             x = (w - rect_width) / 2, 
@@ -42,28 +43,33 @@ end
 -- как лучше хранить актиный элемент из списка меню? По индексу?
 -- Важен порядок элементов. Значит добавлять в массив таблички по индексу.
 function menu:init()
-    self.items = {"play", "view progress", "help", "quit"}
-    self.actions = { 
-        function() 
-            print("pushing", inspect(nback))
-            states.push(nback) 
-        end, 
-        function() states.push(pviewer) end, 
-        function() states.push(help) end, 
-        function() love.event.quit() end,
-    }
+    --self.items = {"play", "view progress", "help", "quit"}
+    --self.actions = { 
+        --function() 
+            --print("pushing", inspect(nback))
+            --states.push(nback) 
+        --end, 
+        --function() states.push(pviewer) end, 
+        --function() states.push(help) end, 
+        --function() love.event.quit() end,
+    --}
     math.randomseed(os.time())
     self.timer = timer()
     self.alpha = 1
 
-    -- поиск наиболее широкого текста
-    max_width = 0
+    self:searchWidestText()
+    self:compute_rects()
+end
+
+-- ищет наиболее длинный текст в списке пунктов меню и устанавливает
+-- внутреннюю переменную menu.maxWidth по найденному значению(в знаках).
+function menu:searchWidestText()
+    local maxWidth = 0
     for _, v in pairs(self.items) do
         local w = self.font:getWidth(v)
-        if w > max_width then max_width = w end
+        if w > maxWidth then maxWidth = w end
     end
-
-    self:compute_rects()
+    self.maxWidth = maxWidth
 end
 
 -- добавить новый пункт с заголовком name и обработчиком object.
