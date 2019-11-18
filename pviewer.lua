@@ -44,25 +44,26 @@ function pviewer:enter()
     print("pviewer:enter()")
     local tmp, size = love.filesystem.read(self.save_name)
     if tmp ~= nil then
-        pviewer.data = lume.deserialize(tmp)
+        self.data = lume.deserialize(tmp)
     else
-        pviewer.data = {}
+        self.data = {}
     end
-    if #pviewer.data >= 1 then
-        pviewer.cursor_index = 1
+    if #self.data >= 1 then
+        self.cursor_index = 1
     else
-        pviewer.cursor_index = 0
+        self.cursor_index = 0
     end
     print("*** begining of pviewer.data ***")
-    local str = inspect(pviewer.data)
+    local str = inspect(self.data)
     --print(str)
     love.filesystem.write("pviewer_data_extracting.lua", str, str:len())
     print("*** end of pviewer.data ***")
-    --pviewer.sort_by_column(1)
+    --self.sort_by_column(1)
 end
 
-function pviewer.leave()
-    pviewer.data = nil
+-- пока методы enter()/leave() не поддерживаются в переключении меню
+function pviewer:leave()
+    self.data = nil
 end
 
 function pviewer:get_max_lines_printed()
@@ -74,72 +75,85 @@ function pviewer:resize(neww, newh)
     w = neww
     h = newh
     self.vertical_buf_len = self:get_max_lines_printed()
-    print("vertical_buf_len = ", pviewer.vertical_buf_len)
-    print(pviewer.data)
-    print(inspect(pviewer.data))
-    print(pviewer.cursor_index)
-    if pviewer.cursor_index and pviewer.cursor_index > pviewer.vertical_buf_len then pviewer.cursor_index = pviewer.vertical_buf_len - 1 end -- why -1 ??
+    print("vertical_buf_len = ", self.vertical_buf_len)
+    print(self.data)
+    print(inspect(self.data))
+    print(self.cursor_index)
+    if self.cursor_index and self.cursor_index > self.vertical_buf_len then 
+        self.cursor_index = self.vertical_buf_len - 1 -- why -1 ??
+    end 
     self.rt = g.newCanvas(w, self.vertical_buf_len * 
-        self.font:getLineHeight() * self.font:getHeight(), 
-        {format = "normal", msaa = 4})
+        self.font:getLineHeight() * self.font:getHeight(), {format = "normal", 
+        msaa = 4})
     if not self.rt then
         error("Canvas not supported!")
     end
 end
 
 -- draw column of table pviewer.data, from index k, to index j with func(v) access function
-function draw_column(k, j, deltax, func)
+function pviewer:draw_column(k, j, deltax, func)
     local oldcolor = {g.getColor()}
     local dx = 0
-    local y = 0 + pviewer.font:getHeight() -- start y position
-    if k + j > #pviewer.data then
-        j = #pviewer.data
+    local y = 0 + self.font:getHeight() -- start y position
+    if k + j > #self.data then
+        j = #self.data
     end
     for i = k, j do
-        local s = func(pviewer.data[i])
-        dx = math.max(dx, pviewer.font:getWidth(s))
+        local s = func(self.data[i])
+        dx = math.max(dx, self.font:getWidth(s))
         g.print(s, deltax, y)
-        y = y + pviewer.font:getHeight()
+        y = y + self.font:getHeight()
     end
     g.setColor(oldcolor)
     deltax = deltax + dx
     return deltax
 end
 
-function draw_columns(k, j, deltax)
-    g.setFont(pviewer.font)
+function pviewer:draw_columns(k, j, deltax)
+    g.setFont(self.font)
     g.setColor(pallete.chart)
-    deltax = draw_column(k, j, deltax, function(v) return string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d", v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, v.date.sec) end)
+    deltax = self:draw_column(k, j, deltax, 
+        function(v) 
+            return string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d", 
+            v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min, 
+            v.date.sec) 
+        end)
     g.setColor(pallete.header)
-    deltax = draw_column(k, j, deltax, function(v) return " / " end)
+    deltax = self:draw_column(k, j, deltax, function(v) return " / " end)
     g.setColor(pallete.chart)
-    deltax = draw_column(k, j, deltax, function(v) if v.nlevel then return string.format("%d", v.nlevel) else return "-" end end)
+    deltax = self:draw_column(k, j, deltax, 
+        function(v) if v.nlevel then 
+            return string.format("%d", v.nlevel) else return "-" end 
+        end)
     g.setColor(pallete.header)
-    deltax = draw_column(k, j, deltax, function(v) return " / " end)
+    deltax = self:draw_column(k, j, deltax, function(v) return " / " end)
     g.setColor(pallete.chart)
-    deltax = draw_column(k, j, deltax, function(v) if v.percent then return string.format("%.2f", v.percent) else return "-" end end)
+    deltax = self:draw_column(k, j, deltax, function(v) if v.percent then 
+        return string.format("%.2f", v.percent) else return "-" end 
+    end)
     g.setColor(pallete.header)
-    deltax = draw_column(k, j, deltax, function(v) return " / " end)
+    deltax = self:draw_column(k, j, deltax, function(v) return " / " end)
     g.setColor(pallete.chart)
-    deltax = draw_column(k, j, deltax, function(v) if v and v.pause then return string.format("%.2f", v.pause) else return "_" end end)
+    deltax = self:draw_column(k, j, deltax, function(v) if v and v.pause then 
+        return string.format("%.2f", v.pause) else return "_" end end)
     return deltax
 end
 
 -- draw pviewer.data from k to j index in vertical list on the center of screen
-function draw_chart(k, j)
+function pviewer:draw_chart(k, j)
     if k < 1 then k = 1 end
     local deltax = 0
     -- because k may be float value
-    deltax = draw_columns(math.floor(k), j, deltax)
+    deltax = self:draw_columns(math.floor(k), j, deltax)
     return deltax
 end
 
-function draw_chart_header(r)
+function pviewer:draw_chart_header(r)
     g.setColor({1, 1, 1})
-    g.setFont(pviewer.font)
+    g.setFont(self.font)
     local tbl = {}
     for k, v in pairs(self.columns_name) do
-        if k == pviewer.sorted_by_column_num then
+        if k == self.sorted_by_column_num then
             tbl[#tbl + 1] = pallete.active
         else
             tbl[#tbl + 1] = pallete.header
@@ -150,14 +164,15 @@ function draw_chart_header(r)
             tbl[#tbl + 1] = v
         end
     end
-    g.printf(tbl, r.x1, r.y1 - pviewer.border / 2, r.x2 - r.x1, "center")
+    g.printf(tbl, r.x1, r.y1 - self.border / 2, r.x2 - r.x1, "center")
 end
 
 --drawing scroll_tip_text
-function draw_scroll_tip(rect)
+function pviewer:draw_scroll_tip(rect)
     g.setColor(pallete.scroll_tip_text)
-    g.setFont(pviewer.scrool_tip_font)
-    g.printf(pviewer.scroll_tip_text, rect.x1, rect.y2 + pviewer.border / 2, rect.x2 - rect.x1, "center")
+    g.setFont(self.scrool_tip_font)
+    g.printf(self.scroll_tip_text, rect.x1, rect.y2 + self.border / 2, 
+        rect.x2 - rect.x1, "center")
 end
 
 function print_dbg_info()
@@ -166,15 +181,16 @@ function print_dbg_info()
     linesbuffer:draw()
 end
 
-function pviewer.draw()
+function pviewer:draw()
     love.graphics.clear(pallete.background)
 
-    local r = {x1 = pviewer.border, y1 = pviewer.border, x2 = w - pviewer.border, y2 = h - pviewer.border}
+    local r = {x1 = self.border, y1 = self.border, 
+        x2 = w - self.border, y2 = h - self.border}
 
     g.push("all")
 
-    draw_scroll_tip(r)
-    draw_chart_header(r)
+    self:draw_scroll_tip(r)
+    self:draw_chart_header(r)
 
     g.setColor({1, 1, 1, 1})
     g.setCanvas(pviewer.rt)
@@ -182,7 +198,8 @@ function pviewer.draw()
     do
         --g.clear()
         love.graphics.clear(pallete.background)
-        chart_width = draw_chart(pviewer.start_line, pviewer.start_line + pviewer.vertical_buf_len)
+        chart_width = self:draw_chart(pviewer.start_line, pviewer.start_line + 
+            pviewer.vertical_buf_len)
     end
     g.setCanvas()
 
