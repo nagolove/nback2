@@ -195,25 +195,21 @@ function pviewer:draw()
     self:draw_chart_header(r)
 
     g.setColor({1, 1, 1, 1})
-    g.setCanvas(pviewer.rt)
-    local chart_width
-    do
-        --g.clear()
-        love.graphics.clear(pallete.background)
-        chart_width = self:draw_chart(pviewer.start_line, pviewer.start_line + 
-            pviewer.vertical_buf_len)
-    end
+    g.setCanvas(self.rt)
+    
+    love.graphics.clear(pallete.background)
+    local chart_width = self:draw_chart(self.start_line, self.start_line + 
+        self.vertical_buf_len)
     g.setCanvas()
 
     g.setColor({1, 1, 1, 1})
-    g.draw(pviewer.rt, (w - chart_width) / 2, r.y1)
-    --g.draw(pviewer.rt, (w - chart_width) / 2, y1)
+    g.draw(self.rt, (w - chart_width) / 2, r.y1)
 
-    if pviewer.cursor_index > 0 then
+    if self.cursor_index > 0 then
         g.setColor(1, 1, 1, 0.3)
         local x = (w - chart_width) / 2
-        local y = r.y1 + pviewer.cursor_index * pviewer.font:getHeight()
-        g.rectangle("fill", x, y, chart_width, pviewer.font:getHeight())
+        local y = r.y1 + self.cursor_index * self.font:getHeight()
+        g.rectangle("fill", x, y, chart_width, self.font:getHeight())
     end
 
     print_dbg_info()
