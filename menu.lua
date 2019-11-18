@@ -25,11 +25,11 @@ end
 
 function menu:compute_rects()
     -- позиционирование игрек посредине высоты экрана
-    y_pos = (h - #self.items * self.font:getHeight()) / 2
+    self.y_pos = (h - #self.items * self.font:getHeight()) / 2
 
     -- заполнение прямоугольников меню
-    items_rects = {}
-    local y = y_pos
+    self.items_rects = {}
+    local y = self.y_pos
     local rect_width = self.maxWidth
     for i, k in ipairs(self.items) do
         items_rects[#items_rects + 1] = { 
@@ -121,7 +121,7 @@ function menu:keypressed(key)
     elseif key == "down" or key == "j" then self:moveDown()
     elseif key == "escape" then love.event.quit()
     elseif key == "return" or key == "space" then 
-        self.actions[self.active_item]()
+        self.active = true
     end
 end
 
@@ -129,7 +129,7 @@ function menu:update(dt)
     self.timer:update(dt)
     
     if self.active then
-        self.items[self.active]:update()
+        self.items[self.active_item]:update(dt)
     end
 end
 
@@ -138,7 +138,7 @@ function point_in_rect(px, py, x, y, w, h)
 end
 
 function menu:process_menu_selection(x, y, dx, dy, istouch)
-    for k, v in pairs(items_rects) do
+    for k, v in pairs(self.items_rects) do
         if point_in_rect(x, y, v.x, v.y, v.w, v.h) then 
             self.active_item = k 
         end
@@ -150,7 +150,7 @@ function menu:mousemoved(x, y, dx, dy, istouch)
 end
 
 function menu:mousepressed(x, y, button, istouch)
-    local active_rect = items_rects[self.active_item]
+    local active_rect = self.items_rects[self.active_item]
     if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
         active_rect.y, active_rect.w, active_rect.h) then
         self.actions[menu.active_item]()
@@ -181,10 +181,10 @@ function menu:drawBackground()
     end
 end
 
+-- печать вертикального списка меню
 function menu:drawList()
-    -- печать вертикального списка меню
+    local y = self.y_pos
     g.setFont(self.font)
-    local y = y_pos
     for i, k in ipairs(self.items) do
         local q = self.active_item == i and pallete.active or pallete.inactive 
         q[4] = self.alpha
@@ -195,15 +195,16 @@ function menu:drawList()
 end
 
 function menu:drawCursor()
+    local v = self.items_rects[self.active_item]
     g.setLineWidth(3)
     g.setColor{1, 0, 0}
-    local v = items_rects[self.active_item]
     g.rectangle("line", v.x, v.y, v.w, v.h)
 end
 
 function menu:draw()
     if self.active then
-        self.items[self.active]:draw()
+        local obj = self.items[self.active_item]
+        if obj.draw then obj:draw() end
     else
         g.push("all")
         self:drawBackground()
