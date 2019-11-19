@@ -109,13 +109,13 @@ function signal:trupdown(x, y, w, h)
     local rad = w / 2
     for i = 1, 3 do
         local alpha = 2 * math.pi * i / 3
-        local sx = x + w / 2 + rad * math.sin(alpha)
-        local sy = y + h / 2 + rad * math.cos(alpha)
+        local sx = w / 2 + rad * math.sin(alpha)
+        local sy = h / 2 + rad * math.cos(alpha)
         tri_up[#tri_up + 1] = sx
         tri_up[#tri_up + 1] = sy
         local alpha = math.pi + 2 * math.pi * i / 3
-        local sx = x + w / 2 + rad * math.sin(alpha)
-        local sy = y + h / 2 + rad * math.cos(alpha)
+        local sx = w / 2 + rad * math.sin(alpha)
+        local sy = h / 2 + rad * math.cos(alpha)
         tri_down[#tri_down + 1] = sx
         tri_down[#tri_down + 1] = sy
     end
