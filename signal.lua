@@ -26,14 +26,25 @@ function signal.new(width, soundPack)
         error("Could'not create Canvas for signal rendering.")
     end
 
+    self:setCorner(0, 0)
+
     return setmetatable(self, signal)
 end
 
--- значения размера рисуемой фигурки берется из nback.cell_width
--- xdim и ydim - позиция в сетке поля
--- formtype - тип рисуемой картинки(квадрат, круг, треугольник вниз, 
+-- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
+-- обязательно вызывать перед рисовкой.
+function signal:setCorner(x, y)
+    self.x0, self.y0 = x, y
+end
+
+-- xd, yd - целочисленная позиция фигуры в матрице
+-- type - тип рисуемой картинки(квадрат, круг, треугольник вниз, 
 -- треугольник вверх, пересечение треугольников, ромб)
-function signal:draw(x0, y0, type, color)
+-- color - текущий цвет
+function signal:draw(xd, yd, type, color)
+    -- значения размера рисуемой фигурки берется из nback.cell_width
+    -- xdim и ydim - позиция в сетке поля
+
     local border = 5
     local w, h = self.width - border * 2, self.width - border * 2
     --local x, y = x0 + dim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
@@ -41,7 +52,7 @@ function signal:draw(x0, y0, type, color)
     --print("y0", serpent.block(y0))
 
     g.setColor(color)
-    local x, y = x0 + border, y0 + border
+    local x, y = self.x0 + border, self.y0 + border
     --print("type", type)
     --print("dispatch", inspect(dispatch))
     --print("dispatch[type] = ", dispatch[type])
@@ -54,11 +65,6 @@ end
 -- сигнала диапазон возможных значений номеров сэмпла 1..samplesCount
 function signal:play(index)
     assert(index <= #self.sounds)
-end
-
--- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
-function signal:setCorner(x, y)
-    self.x0, self.y0 = x, y
 end
 
 function signal:quad(x, y, w, h)
