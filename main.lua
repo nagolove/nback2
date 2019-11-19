@@ -16,7 +16,6 @@ menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
 
-local colorpicker = require "colorpicker"
 local picker = nil
 
 function love.load()
@@ -45,9 +44,6 @@ function love.load()
 end
 
 function love.update(dt)
-    if picker then
-        picker:update(dt)
-    end
     lovebird.update()
     menu:update(dt)
 end
@@ -89,13 +85,6 @@ function love.keypressed(key, scancode)
     elseif key == "`" then
         lurker.scan()
     elseif key == "f12" then make_screenshot()
-    elseif key == "1" then
-        if not picker then
-            picker = colorpicker:new()
-        else
-            picker = nil
-            print("picker deleted")
-        end
     else
         menu:keypressed(key, scancode)
     end
