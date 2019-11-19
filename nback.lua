@@ -784,6 +784,7 @@ function nback:draw_active_signal(x0, y0)
     end
     local type = self.form_signals[self.current_sig]
     self.signal:draw(self.x0, self.y0, type, sig_color)
+    --self.signal:draw(self.x0, self.y0, "circle", sig_color)
     --draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end
 

@@ -1,4 +1,5 @@
 ﻿local serpent = require "serpent"
+local inspect = require "libs.inspect"
 local g = love.graphics
 
 local conbuf = require "kons".new(0, 0)
@@ -12,14 +13,46 @@ function signal.new(width, soundPack)
     local self = {
         width = width,
         sounds = {}, 
+        canvas = g.newCanvas(width, width, {msaa = 2})
     }
 
     wavePath = "sfx/" .. soundPack
     for k, v in pairs(love.filesystem.getDirectoryItems(wavePath)) do
-        table.insert(self.sounds, love.audio.newSource(wavePath .. "/" .. v, "static"))
+        table.insert(self.sounds, love.audio.newSource(wavePath .. "/" .. v, 
+            "static"))
+    end
+
+    if not self.canvas then
+        error("Could'not create Canvas for signal rendering.")
     end
 
     return setmetatable(self, signal)
+end
+
+dispatch = {["quad"] = signal.drawQuad, 
+                  ["circle"] = signal.drawCircle,
+                  ["trup"] = signal.drawTrUp, 
+                  ["trdown"] = signal.drawTrDown, 
+                  ["trupdown"] = signal.drawTrUpDown, 
+                  ["rhombus"] = signal.drawRhombus}
+
+-- значения размера рисуемой фигурки берется из nback.cell_width
+-- xdim и ydim - позиция в сетке поля
+-- formtype - тип рисуемой картинки(квадрат, круг, треугольник вниз, 
+-- треугольник вверх, пересечение треугольников, ромб)
+function signal:draw(x0, y0, type, color)
+    local border = 5
+    local w, h = self.width - border * 2, self.width - border * 2
+    --local x, y = x0 + dim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
+    --print("x0", serpent.block(x0))
+    --print("y0", serpent.block(y0))
+
+    g.setColor(color)
+    local x, y = x0 + border, y0 + border
+    print("type", type)
+    print("dispatch", inspect(dispatch))
+    print("dispatch[type] = ", dispatch[type])
+    dispatch[type](self, x, y, w, h)
 end
 
 -- хорошая идея добавить проигрывание звука, но как ориентироваться в
@@ -77,6 +110,8 @@ end
 
 -- рисовать для нормального отображения анимации альфа канала через канвас.
 function signal:drawTrUpDown(x, y, w, h)
+    g.setCanvas(self.canvas)
+
     local tri_up, tri_down = {}, {}
     local rad = w / 2
     for i = 1, 3 do
@@ -93,6 +128,9 @@ function signal:drawTrUpDown(x, y, w, h)
     end
     g.polygon("fill", tri_up)
     g.polygon("fill", tri_down)
+
+    g.setCanvas()
+    g.draw(self.canvas, x, y)
 end
 
 function signal:drawRhombus(x, y, w, h)
@@ -100,29 +138,6 @@ function signal:drawRhombus(x, y, w, h)
     g.polygon("fill", {x + delta, y + h / 2, x + w / 2, y + h - delta,
             x + w - delta, y + h / 2,
             x + w / 2, y + delta})
-end
-
-local dispatch = {["quad"] = signal.drawQuad, 
-                  ["circle"] = signal.drawCircle,
-                  ["trup"] = signal.drawTrUp, 
-                  ["trdown"] = signal.drawTrDown, 
-                  ["trupdown"] = signal.drawTrUpDown, 
-                  ["rhombus"] = signal.drawRhombus}
-
--- значения размера рисуемой фигурки берется из nback.cell_width
--- xdim и ydim - позиция в сетке поля
--- formtype - тип рисуемой картинки(квадрат, круг, треугольник вниз, 
--- треугольник вверх, пересечение треугольников, ромб)
-function signal:draw(x0, y0, type, color)
-    local border = 5
-    local w, h = self.width - border * 2, self.width - border * 2
-    --local x, y = x0 + dim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
-    --print("x0", serpent.block(x0))
-    --print("y0", serpent.block(y0))
-
-    g.setColor(color)
-    local x, y = x0 + border, y0 + border
-    dispatch[type](self, x, y, w, h)
 end
 
 return {
