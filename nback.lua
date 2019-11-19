@@ -541,81 +541,6 @@ function nback:make_hit_arr(signals, comparator)
     return ret
 end
 
-function draw_signal_form(x0, y0, formtype, xdim, ydim, color)
-    local border = 5
-    local x, y = x0 + xdim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
-    local w, h = nback.cell_width - border * 2, nback.cell_width - border * 2
-    g.setColor(color)
-
-    if formtype == "quad" then
-        local delta = 5
-        g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
-    elseif formtype == "circle" then
-        --g.circle("fill", x + w / 2, y + h / 2, w / 2)
-        --g.setColor({1, 0, 1})
-        g.circle("fill", x + w / 2, y + h / 2, w / 2.3)
-    elseif formtype == "trup" then
-        --g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
-        --g.polygon("fill", {x, y + h * (2.2 / 3), x + w / 2, y, x + w, y + h * (2.2 / 3)})
-        local tri = {}
-        local rad = w / 2
-        for i = 1, 3 do
-            local alpha = 2 * math.pi * i / 3
-            local sx = x + w / 2 + rad * math.sin(alpha)
-            local sy = y + h / 2 + rad * math.cos(alpha)
-            tri[#tri + 1] = sx
-            tri[#tri + 1] = sy
-        end
-        g.polygon("fill", tri)
-    elseif formtype == "trdown" then
-        --g.polygon("fill", {x, y + h / 3, x + w / 2, y + h, x + w, y + h / 3})
-        local tri = {}
-        local rad = w / 2
-        for i = 1, 3 do
-            local alpha = math.pi + 2 * math.pi * i / 3
-            local sx = x + w / 2 + rad * math.sin(alpha)
-            local sy = y + h / 2 + rad * math.cos(alpha)
-            tri[#tri + 1] = sx
-            tri[#tri + 1] = sy
-        end
-        g.polygon("fill", tri)
-    elseif formtype == "trupdown" then
-        --g.polygon("fill", {x, y + h * (2 / 3), x + w / 2, y, x + w, y + h * (2 / 3)})
-        --g.polygon("fill", {x, y + h / 3, x + w / 2, y + h, x + w, y + h / 3})
-        --g.setColor({0, 1, 1})
-        local tri_up, tri_down = {}, {}
-        local rad = w / 2
-        for i = 1, 3 do
-            local alpha = 2 * math.pi * i / 3
-            local sx = x + w / 2 + rad * math.sin(alpha)
-            local sy = y + h / 2 + rad * math.cos(alpha)
-            tri_up[#tri_up + 1] = sx
-            tri_up[#tri_up + 1] = sy
-            local alpha = math.pi + 2 * math.pi * i / 3
-            local sx = x + w / 2 + rad * math.sin(alpha)
-            local sy = y + h / 2 + rad * math.cos(alpha)
-            tri_down[#tri_down + 1] = sx
-            tri_down[#tri_down + 1] = sy
-        end
-        g.polygon("fill", tri_up)
-        g.polygon("fill", tri_down)
-    elseif formtype == "rhombus" then
-        --g.polygon("fill", {x, y + h / 2, x + w / 2, y + h,  x + w, y + h / 2, x + w / 2, y})
-        --g.setColor({0, 1, 1})
-        local delta = 0
-        g.polygon("fill", {x + delta, y + h / 2, 
-                           x + w / 2, y + h - delta,
-                           x + w - delta, y + h / 2,
-                           x + w / 2, y + delta})
-    end
-    function draw_central_circle()
-        local rad = 3
-        g.setColor({0, 0, 0})
-        g.circle("fill", x + w / 2 - rad / 2, y + h / 2 - rad / 2, rad)
-    end
-    --draw_central_circle()
-end
-
 function nback:draw_field_grid(x0, y0, field_h)
     g.setColor(self.field_color)
     for i = 0, self.dim do
@@ -783,8 +708,8 @@ function nback:draw_active_signal(x0, y0)
         sig_color[4] = self.figure_alpha
     end
     local type = self.form_signals[self.current_sig]
-    self.signal:draw(self.x0, self.y0, type, sig_color)
-    --self.signal:draw(self.x0, self.y0, "circle", sig_color)
+    --self.signal:draw(self.x0, self.y0, type, sig_color)
+    self.signal:draw(self.x0, self.y0, "trupdown", sig_color)
     --draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end
 
