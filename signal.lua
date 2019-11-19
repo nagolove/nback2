@@ -13,7 +13,7 @@ function signal.new(width, soundPack)
     local self = {
         width = width,
         sounds = {}, 
-        canvas = g.newCanvas(width, width, {msaa = 2})
+        canvas = g.newCanvas(width, width, {msaa = 2}),
     }
 
     wavePath = "sfx/" .. soundPack
@@ -29,13 +29,6 @@ function signal.new(width, soundPack)
     return setmetatable(self, signal)
 end
 
-dispatch = {["quad"] = signal.drawQuad, 
-                  ["circle"] = signal.drawCircle,
-                  ["trup"] = signal.drawTrUp, 
-                  ["trdown"] = signal.drawTrDown, 
-                  ["trupdown"] = signal.drawTrUpDown, 
-                  ["rhombus"] = signal.drawRhombus}
-
 -- значения размера рисуемой фигурки берется из nback.cell_width
 -- xdim и ydim - позиция в сетке поля
 -- formtype - тип рисуемой картинки(квадрат, круг, треугольник вниз, 
@@ -49,10 +42,10 @@ function signal:draw(x0, y0, type, color)
 
     g.setColor(color)
     local x, y = x0 + border, y0 + border
-    print("type", type)
-    print("dispatch", inspect(dispatch))
-    print("dispatch[type] = ", dispatch[type])
-    dispatch[type](self, x, y, w, h)
+    --print("type", type)
+    --print("dispatch", inspect(dispatch))
+    --print("dispatch[type] = ", dispatch[type])
+    self[type](self, x, y, w, h)
 end
 
 -- хорошая идея добавить проигрывание звука, но как ориентироваться в
@@ -68,18 +61,18 @@ function signal:setCorner(x, y)
     self.x0, self.y0 = x, y
 end
 
-function signal:drawQuad(x, y, w, h)
+function signal:quad(x, y, w, h)
     local delta = 5
     g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
 end
 
-function signal:drawCircle(x, y, w, h)
+function signal:circle(x, y, w, h)
     --g.circle("fill", x + w / 2, y + h / 2, w / 2)
     --g.setColor({1, 0, 1})
     g.circle("fill", x + w / 2, y + h / 2, w / 2.3)
 end
 
-function signal:drawTrDown(x, y, w, h)
+function signal:trdown(x, y, w, h)
     local magic = 2.64
     g.setColor{1, 1, 1}
     local tri = {}
@@ -94,7 +87,7 @@ function signal:drawTrDown(x, y, w, h)
     g.polygon("fill", tri)
 end
 
-function signal:drawTrUp(x, y, w, h)
+function signal:trup(x, y, w, h)
     local magic = 1.64
     local tri = {}
     local rad = w / 2
@@ -109,7 +102,7 @@ function signal:drawTrUp(x, y, w, h)
 end
 
 -- рисовать для нормального отображения анимации альфа канала через канвас.
-function signal:drawTrUpDown(x, y, w, h)
+function signal:trupdown(x, y, w, h)
     g.setCanvas(self.canvas)
 
     local tri_up, tri_down = {}, {}
@@ -133,7 +126,7 @@ function signal:drawTrUpDown(x, y, w, h)
     g.draw(self.canvas, x, y)
 end
 
-function signal:drawRhombus(x, y, w, h)
+function signal:rhombus(x, y, w, h)
     local delta = 0
     g.polygon("fill", {x + delta, y + h / 2, x + w / 2, y + h - delta,
             x + w - delta, y + h / 2,
