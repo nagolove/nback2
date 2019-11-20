@@ -517,19 +517,20 @@ end
 function nback:resize(neww, newh)
     print(string.format("resized to %d * %d", neww, newh))
 
+    local delta = 20 -- for avoiding intersection between field and bottom lines of text
+
     w = neww
     h = newh
 
     local pixels_border = 130 -- size of border around main game field
     self.cell_width = (newh - pixels_border) / self.dim
-    self.signal.width = self.cell_width
     self.bhupur_h = self.cell_width * self.dim 
 
-    local delta = 20 -- for avoiding intersection between field and bottom lines of text
     self.x0 = (w - self.dim * self.cell_width) / 2
     self.y0 = (h - self.dim * self.cell_width) / 2 - delta
 
     self.signal:setCorner(self.x0, self.y0)
+    self.signal:resize(self.cell_width)
 end
 
 -- return array of boolean values in succesful indices

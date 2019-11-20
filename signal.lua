@@ -13,7 +13,7 @@ function signal.new(width, soundPack)
     local self = {
         width = width,
         sounds = {}, 
-        canvas = g.newCanvas(width, width, {msaa = 2}),
+        canvas = nil,
     }
 
     wavePath = "sfx/" .. soundPack
@@ -22,12 +22,9 @@ function signal.new(width, soundPack)
             "static"))
     end
 
-    if not self.canvas then
-        error("Could'not create Canvas for signal rendering.")
-    end
-
     self = setmetatable(self, signal)
     self:setCorner(0, 0)
+    self:resize(self.width)
 
     return self
 end
@@ -36,6 +33,14 @@ end
 -- обязательно вызывать перед рисовкой.
 function signal:setCorner(x, y)
     self.x0, self.y0 = x, y
+end
+
+function signal:resize(width)
+    self.width = width
+    self.canvas = g.newCanvas(width, width, {msaa = 2})
+    if not self.canvas then
+        error("Could'not create Canvas for signal rendering.")
+    end
 end
 
 -- xd, yd - целочисленная позиция фигуры в матрице.
