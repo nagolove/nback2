@@ -118,6 +118,46 @@ function signal:trup(x, y, w, h)
     g.polygon("line", tri)
 end
 
+-- функция расчитывает и возвращает шесть точек пересечения между линиями
+-- двух треугольников. trUp, trDown - координаты точек треугольника вершинами
+-- вверх и вершинами вниз соответственно. Вершины лежат в массиве плоско.
+function signal:calculateIntersections(trUp, trDown)
+    local points = {}
+    local x, y
+    
+    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+        trDown[1], trDown[2], trDown[5], trDown[6])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+        trDown[1], trDown[2], trDown[5], trDown[6])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+        trDown[1], trDown[2], trDown[5], trDown[6])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+        trDown[1], trDown[2], trDown[5], trDown[6])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+        trDown[1], trDown[2], trDown[5], trDown[6])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+        trDown[1], trDown[2], trDown[5], trDown[6])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    return points
+end
+
 -- рисовать для нормального отображения анимации альфа канала через канвас.
 function signal:trupdown(x, y, w, h)
     g.setCanvas(self.canvas)
