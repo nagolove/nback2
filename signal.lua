@@ -183,16 +183,33 @@ function signal:trupdown(x, y, w, h)
     end
     g.polygon("fill", tri_up)
     g.polygon("fill", tri_down)
-    g.setColor(self.borderColor)
 
-    g.circle("fill", tri_up[1], tri_up[2], 3)
-    g.circle("fill", tri_down[1], tri_down[2], 3)
-    g.setColor{1, 0, 0}
-    g.circle("fill", tri_up[5], tri_up[6], 3)
-    g.circle("fill", tri_down[5], tri_down[6], 3)
-    g.setColor{0, 1, 0.3}
-    g.circle("fill", tri_up[5], tri_up[6], 3)
-    g.circle("fill", tri_down[5], tri_down[6], 3)
+    g.setColor(self.borderColor)
+    local points = self:calculateIntersections(tri_up, tri_down)
+    local borderVertices = {
+        tri_up[1], tri_up[2],
+        points[1], points[2],
+        tri_down[3], tri_down[4],
+        points[3], points[4],
+        tri_up[5], tri_up[6],
+        points[5], points[6],
+        tri_down[1], tri_down[2],
+        points[7], points[8],
+        tri_up[3], tri_up[4],
+        points[9], points[10],
+        tri_down[5], tri_down[6],
+        points[11], points[12],
+        tri_up[1], tri_up[2],
+    }
+    g.polygon("line", borderVertices)
+    --g.circle("fill", tri_up[1], tri_up[2], 3)
+    --g.circle("fill", tri_down[1], tri_down[2], 3)
+    --g.setColor{1, 0, 0}
+    --g.circle("fill", tri_up[5], tri_up[6], 3)
+    --g.circle("fill", tri_down[5], tri_down[6], 3)
+    --g.setColor{0, 1, 0.3}
+    --g.circle("fill", tri_up[5], tri_up[6], 3)
+    --g.circle("fill", tri_down[5], tri_down[6], 3)
     --g.polygon("line", tri_up)
     --g.polygon("line", tri_down)
 
