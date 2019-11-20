@@ -216,15 +216,11 @@ function nback:readSettings()
     love.audio.setVolume(self.volume)
 end
 
-function nback:init(save_name)
-    self.save_name = save_name
-
+function nback:createSetupMenu()
     -- фигачу кастомную менюшку на лету
     self.setupmenu = setupmenu.new(
         love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
         pallete.tip_text)
-
-    local mnu = self.setupmenu
 
     -- какие тут могут быть параметры?
     -- что выдает пункт меню для рисовки? статичный текст?
@@ -262,8 +258,12 @@ function nback:init(save_name)
 
     -- добавить здесь создание объекта, обеспечивающего внутри себя перемотку
     -- состояний.
-    mnu:addItem()
+    self.setupmenu:addItem()
+end
 
+function nback:init(save_name)
+    self.save_name = save_name
+    self:createSetupMenu()
     math.randomseed(os.time())
     self.timer = Timer()
 

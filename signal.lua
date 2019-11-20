@@ -14,6 +14,8 @@ function signal.new(width, soundPack)
         width = width,
         sounds = {}, 
         canvas = nil,
+        borderColor = {0, 0, 0},
+        borderLineWidth = 3,
     }
 
     wavePath = "sfx/" .. soundPack
@@ -54,12 +56,12 @@ function signal:draw(xd, yd, type, color)
     local y = self.y0 + yd * self.width + border
     print("x, y = ", x, y)
 
+    self.borderColor[4] = color[4] -- анимирую альфа-канал цвета рамки
     g.setColor(color)
-    --local x, y = self.x0 + border, self.y0 + border
-    --print("type", type)
-    --print("dispatch", inspect(dispatch))
-    --print("dispatch[type] = ", dispatch[type])
+    local oldWidth = g.getLineWidth()
+    g.setLineWidth(self.borderLineWidth)
     self[type](self, x, y, w, h)
+    g.setLineWidth(oldWidth)
 end
 
 -- хорошая идея добавить проигрывание звука, но как ориентироваться в
@@ -74,10 +76,14 @@ end
 function signal:quad(x, y, w, h)
     local delta = 5
     g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
+    g.setColor(self.borderColor)
+    g.rectangle("line", x + delta, y + delta, w - delta * 2, h - delta * 2)
 end
 
 function signal:circle(x, y, w, h)
     g.circle("fill", x + w / 2, y + h / 2, w / 2.3)
+    g.setColor(self.borderColor)
+    g.circle("line", x + w / 2, y + h / 2, w / 2.3)
 end
 
 function signal:trdown(x, y, w, h)
@@ -92,6 +98,8 @@ function signal:trdown(x, y, w, h)
         tri[#tri + 1] = sy
     end
     g.polygon("fill", tri)
+    g.setColor(self.borderColor)
+    g.polygon("line", tri)
 end
 
 function signal:trup(x, y, w, h)
@@ -106,6 +114,8 @@ function signal:trup(x, y, w, h)
         tri[#tri + 1] = sy
     end
     g.polygon("fill", tri)
+    g.setColor(self.borderColor)
+    g.polygon("line", tri)
 end
 
 -- рисовать для нормального отображения анимации альфа канала через канвас.
@@ -128,6 +138,9 @@ function signal:trupdown(x, y, w, h)
     end
     g.polygon("fill", tri_up)
     g.polygon("fill", tri_down)
+    g.setColor(self.borderColor)
+    g.polygon("fill", tri_up)
+    g.polygon("fill", tri_down)
 
     g.setCanvas()
     g.draw(self.canvas, x, y)
@@ -136,6 +149,10 @@ end
 function signal:rhombus(x, y, w, h)
     local delta = 0
     g.polygon("fill", {x + delta, y + h / 2, x + w / 2, y + h - delta,
+            x + w - delta, y + h / 2,
+            x + w / 2, y + delta})
+    g.setColor(self.borderColor)
+    g.polygon("line", {x + delta, y + h / 2, x + w / 2, y + h - delta,
             x + w - delta, y + h / 2,
             x + w / 2, y + delta})
 end
