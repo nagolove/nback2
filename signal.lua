@@ -157,6 +157,30 @@ function signal:rhombus(x, y, w, h)
             x + w / 2, y + delta})
 end
 
+-- функция проверяет, еть ли точки пересечения отрезков, обозначенных 
+-- координатами x1, y1, x2, y2, x3, y3, x4, y4
+-- возвращает координаты x, y точки пересечения или nil, если таковые 
+-- не найдены.  сделано методом копипаста, тестированием не покрывал
+function lineCross(x1, y1, x2, y2, x3, y3, x4, y4)
+    --print(x1, y1, x2, y2, x3, y3, x4, y4)
+    local divisor = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
+    
+    -- lines are parralell
+    if divisor == 0 then return nil end
+
+    local ua = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)
+    ua = ua / divisor
+    --local ub = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)
+    --ub = ub / divisor
+    --print("lineCross ua: ",ua, " ub: ", ub)
+    local x, y = x1 + ua * (x2 - x1), y1 + ua * (y2 - y1)
+    if not (x > x1 and x < x2 and y < y2 and y > y1) then 
+        --print("point is not on segment")
+        return nil
+    end
+    return x, y
+end
+
 return {
     new = signal.new,
 }
