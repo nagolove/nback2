@@ -309,8 +309,9 @@ function nback:update(dt)
 
     if self.pause or self.start_pause then 
         self.timestamp = love.timer.getTime() - self.pause_time
-        -- подумай, нужен ли здесь код строчкой выше. Могут ли возникнуть проблемы с таймером отсчета
-        -- если продолжительноть паузы больше self.pause_time?
+        -- подумай, нужен ли здесь код строчкой выше. 
+        -- Могут ли возникнуть проблемы с таймером отсчета если 
+        -- продолжительноть паузы больше self.pause_time?
         return 
     end
 
@@ -324,6 +325,9 @@ function nback:update(dt)
 
 end
 
+-- подсчет процентов успешности за раунд для данного массива.
+-- eq - массив с правильными нажатиями
+-- pressed_arr - массив с нажатиями игрока
 function calc_percent(eq, pressed_arr)
     if not eq then return 0 end --0% если не было нажатий
 
