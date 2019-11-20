@@ -119,47 +119,56 @@ function signal:trup(x, y, w, h)
 end
 
 -- функция расчитывает и возвращает шесть точек пересечения между линиями
--- двух треугольников. trUp, trDown - координаты точек треугольника вершинами
+-- двух треугольников. up, down - координаты точек треугольника вершинами
 -- вверх и вершинами вниз соответственно. Вершины лежат в массиве плоско.
-function signal:calculateIntersections(trUp, trDown)
+function signal:calculateIntersections(up, down)
     local points = {}
     local x, y
-   
+    print("calculateIntersections")
+    print("up", inspect(up))
+    print("down", inspect(down))
+
     -- 1
-    x, y = lineCross(trUp[1], trUp[2], trUp[5], trUp[6],
-        trDown[3], trDown[4], trDown[5], trDown[6])
+    x, y = lineCross(up[5], up[6], up[1], up[2],
+        down[5], down[6], down[3], down[4])
     points[#points + 1] = x
     points[#points + 1] = y
+    print(x, y)
 
     -- 2
-    x, y = lineCross(trUp[1], trUp[2], trUp[5], trUp[6],
-        trDown[3], trDown[4], trDown[1], trDown[2])
+    x, y = lineCross(up[5], up[5], up[1], up[2],
+        down[3], down[4], down[1], down[2])
     points[#points + 1] = x
     points[#points + 1] = y
+    print(x, y)
 
     -- 3
-    x, y = lineCross(trUp[3], trUp[4], trUp[5], trUp[6],
-        trDown[3], trDown[4], trDown[1], trDown[2])
+    x, y = lineCross(up[3], up[4], up[5], up[6],
+        down[3], down[4], down[1], down[2])
     points[#points + 1] = x
     points[#points + 1] = y
+    print(x, y)
 
     -- 4
-    x, y = lineCross(trUp[3], trUp[4], trUp[5], trUp[6],
-        trDown[1], trDown[2], trDown[5], trDown[6])
+    x, y = lineCross(up[3], up[4], up[5], up[6],
+        down[1], down[2], down[5], down[6])
     points[#points + 1] = x
     points[#points + 1] = y
+    print(x, y)
 
     -- 5
-    x, y = lineCross(trUp[3], trUp[4], trUp[1], trUp[2],
-        trDown[1], trDown[2], trDown[5], trDown[6])
+    x, y = lineCross(up[3], up[4], up[1], up[2],
+        down[1], down[2], down[5], down[6])
     points[#points + 1] = x
     points[#points + 1] = y
+    print(x, y)
 
     -- 6
-    x, y = lineCross(trUp[3], trUp[4], trUp[1], trUp[2],
-        trDown[3], trDown[4], trDown[5], trDown[6])
+    x, y = lineCross(up[3], up[4], up[1], up[2],
+        down[3], down[4], down[5], down[6])
     points[#points + 1] = x
     points[#points + 1] = y
+    print(x, y)
 
     return points
 end
@@ -186,6 +195,8 @@ function signal:trupdown(x, y, w, h)
 
     g.setColor(self.borderColor)
     local points = self:calculateIntersections(tri_up, tri_down)
+    print("#points", #points)
+    print("points", inspect(points))
     local borderVertices = {
         tri_up[1], tri_up[2],
         points[1], points[2],
@@ -201,7 +212,19 @@ function signal:trupdown(x, y, w, h)
         points[11], points[12],
         tri_up[1], tri_up[2],
     }
-    g.polygon("line", borderVertices)
+    print("#borderVertices", #borderVertices)
+    print("borderVertices", inspect(borderVertices))
+
+    g.polygon("line", points)
+    g.setColor{1, 1, 1}
+    for k = 1, #points - 1 do
+        g.circle("fill", points[k], points[k + 1], 3)
+        g.print(string.format("%d", k), points[k], points[k + 1])
+        --g.print(string.format("(%d, %d) %d", points[k], points[k + 1], k),
+            --points[k], points[k + 1])
+    end
+    --g.polygon("line", borderVertices)
+
     --g.circle("fill", tri_up[1], tri_up[2], 3)
     --g.circle("fill", tri_down[1], tri_down[2], 3)
     --g.setColor{1, 0, 0}
