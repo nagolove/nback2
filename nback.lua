@@ -529,7 +529,7 @@ function nback:resize(neww, newh)
     self.x0 = (w - self.dim * self.cell_width) / 2
     self.y0 = (h - self.dim * self.cell_width) / 2 - delta
 
-    self.signal:setCorner(self.x0, y0)
+    self.signal:setCorner(self.x0, self.y0)
 end
 
 -- return array of boolean values in succesful indices
@@ -708,7 +708,7 @@ function nback:draw_active_signal(x0, y0)
         sig_color[4] = self.figure_alpha
     end
     local type = self.form_signals[self.current_sig]
-    --self.signal:draw(self.x0, self.y0, type, sig_color)
+    self.signal:draw(x, y, type, sig_color)
     --self.signal:draw(self.x0, self.y0, "trupdown", sig_color)
     --draw_signal_form(x0, y0, nback.form_signals[nback.current_sig], x, y, sig_color)
 end

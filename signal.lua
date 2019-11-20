@@ -26,9 +26,10 @@ function signal.new(width, soundPack)
         error("Could'not create Canvas for signal rendering.")
     end
 
+    self = setmetatable(self, signal)
     self:setCorner(0, 0)
 
-    return setmetatable(self, signal)
+    return self
 end
 
 -- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
@@ -37,22 +38,19 @@ function signal:setCorner(x, y)
     self.x0, self.y0 = x, y
 end
 
--- xd, yd - целочисленная позиция фигуры в матрице
+-- xd, yd - целочисленная позиция фигуры в матрице.
 -- type - тип рисуемой картинки(квадрат, круг, треугольник вниз, 
 -- треугольник вверх, пересечение треугольников, ромб)
 -- color - текущий цвет
 function signal:draw(xd, yd, type, color)
-    -- значения размера рисуемой фигурки берется из nback.cell_width
-    -- xdim и ydim - позиция в сетке поля
-
     local border = 5
     local w, h = self.width - border * 2, self.width - border * 2
-    --local x, y = x0 + dim * nback.cell_width + border, y0 + ydim * nback.cell_width + border
-    --print("x0", serpent.block(x0))
-    --print("y0", serpent.block(y0))
+    local x = self.x0 + xd * self.width + border 
+    local y = self.y0 + yd * self.width + border
+    print("x, y = ", x, y)
 
     g.setColor(color)
-    local x, y = self.x0 + border, self.y0 + border
+    --local x, y = self.x0 + border, self.y0 + border
     --print("type", type)
     --print("dispatch", inspect(dispatch))
     --print("dispatch[type] = ", dispatch[type])
@@ -73,14 +71,11 @@ function signal:quad(x, y, w, h)
 end
 
 function signal:circle(x, y, w, h)
-    --g.circle("fill", x + w / 2, y + h / 2, w / 2)
-    --g.setColor({1, 0, 1})
     g.circle("fill", x + w / 2, y + h / 2, w / 2.3)
 end
 
 function signal:trdown(x, y, w, h)
     local magic = 2.64
-    g.setColor{1, 1, 1}
     local tri = {}
     local rad = w / 2
     for i = 1, 3 do
