@@ -91,7 +91,7 @@ function nback:generate_signals()
             self.level)
         print("form", inspect(self.form_signals))
         self.sound_signals = generate(self.sig_count, 
-            function() return math.random(1, #self.sounds) end,
+            function() return math.random(1, #self.signal.sounds) end,
             function(a, b) return a == b end,
             self.level)
         print("snd", inspect(self.sound_signals))
@@ -295,9 +295,7 @@ function nback:processSignal()
             self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
         end)
 
-        local snd = self.sounds[self.sound_signals[self.current_sig]]
-        --print("snd", inspect(self.sound_signals[self.current_sig]), snd:getVolume(), snd:getDuration())
-        snd:play()
+        self.signal:play(self.sound_signals[self.current_sig])
 
         self.pos_pressed = false
         self.sound_pressed = false

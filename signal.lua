@@ -68,6 +68,7 @@ end
 -- сигнала диапазон возможных значений номеров сэмпла 1..samplesCount
 function signal:play(index)
     assert(index <= #self.sounds)
+    self.sounds[index]:play()
 end
 
 function signal:quad(x, y, w, h)
