@@ -124,41 +124,46 @@ end
 function signal:calculateIntersections(trUp, trDown)
     local points = {}
     local x, y
-    
-    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+   
+    -- 1
+    x, y = lineCross(trUp[1], trUp[2], trUp[5], trUp[6],
+        trDown[3], trDown[4], trDown[5], trDown[6])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    -- 2
+    x, y = lineCross(trUp[1], trUp[2], trUp[5], trUp[6],
+        trDown[3], trDown[4], trDown[1], trDown[2])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    -- 3
+    x, y = lineCross(trUp[3], trUp[4], trUp[5], trUp[6],
+        trDown[3], trDown[4], trDown[1], trDown[2])
+    points[#points + 1] = x
+    points[#points + 1] = y
+
+    -- 4
+    x, y = lineCross(trUp[3], trUp[4], trUp[5], trUp[6],
         trDown[1], trDown[2], trDown[5], trDown[6])
     points[#points + 1] = x
     points[#points + 1] = y
 
-    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
+    -- 5
+    x, y = lineCross(trUp[3], trUp[4], trUp[1], trUp[2],
         trDown[1], trDown[2], trDown[5], trDown[6])
     points[#points + 1] = x
     points[#points + 1] = y
 
-    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
-        trDown[1], trDown[2], trDown[5], trDown[6])
-    points[#points + 1] = x
-    points[#points + 1] = y
-
-    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
-        trDown[1], trDown[2], trDown[5], trDown[6])
-    points[#points + 1] = x
-    points[#points + 1] = y
-
-    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
-        trDown[1], trDown[2], trDown[5], trDown[6])
-    points[#points + 1] = x
-    points[#points + 1] = y
-
-    x, y = lineCross(trUp[1], trUp[2], trUp[3], trUp[4],
-        trDown[1], trDown[2], trDown[5], trDown[6])
+    -- 6
+    x, y = lineCross(trUp[3], trUp[4], trUp[1], trUp[2],
+        trDown[3], trDown[4], trDown[5], trDown[6])
     points[#points + 1] = x
     points[#points + 1] = y
 
     return points
 end
 
--- рисовать для нормального отображения анимации альфа канала через канвас.
 function signal:trupdown(x, y, w, h)
     g.setCanvas(self.canvas)
 
@@ -179,10 +184,20 @@ function signal:trupdown(x, y, w, h)
     g.polygon("fill", tri_up)
     g.polygon("fill", tri_down)
     g.setColor(self.borderColor)
-    g.polygon("fill", tri_up)
-    g.polygon("fill", tri_down)
+
+    g.circle("fill", tri_up[1], tri_up[2], 3)
+    g.circle("fill", tri_down[1], tri_down[2], 3)
+    g.setColor{1, 0, 0}
+    g.circle("fill", tri_up[5], tri_up[6], 3)
+    g.circle("fill", tri_down[5], tri_down[6], 3)
+    g.setColor{0, 1, 0.3}
+    g.circle("fill", tri_up[5], tri_up[6], 3)
+    g.circle("fill", tri_down[5], tri_down[6], 3)
+    --g.polygon("line", tri_up)
+    --g.polygon("line", tri_down)
 
     g.setCanvas()
+    g.setColor{1, 1, 1, 1}
     g.draw(self.canvas, x, y)
 end
 
