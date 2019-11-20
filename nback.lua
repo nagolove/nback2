@@ -330,10 +330,7 @@ end
 -- pressed_arr - массив с нажатиями игрока
 function calc_percent(eq, pressed_arr)
     if not eq then return 0 end --0% если не было нажатий
-
-    local count = 0
-    local succ = 0
-    local mistake = 0
+    local succ, mistake, count = 0, 0, 0
     for k, v in pairs(eq) do
         if v then
             count = count + 1
@@ -351,7 +348,7 @@ function calc_percent(eq, pressed_arr)
 end
 
 -- считывает и устанавливает набор состояний сигналов и нажатий клавиша на 
--- сигналы. Функция необходима для установки состояния из внещнего источника 
+-- сигналы. Функция необходима для установки состояния из внешнего источника 
 -- при необходимости последующей отрисовки экрана статистики, загруженного из
 -- файла.
 function nback:loadFromHistory(signals, presses)
