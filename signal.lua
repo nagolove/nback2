@@ -39,6 +39,7 @@ end
 
 function signal:resize(width)
     self.width = width
+    --self.canvas = g.newCanvas(width, width, {msaa = 2})
     self.canvas = g.newCanvas(width, width, {msaa = 2})
     if not self.canvas then
         error("Could'not create Canvas for signal rendering.")
@@ -135,12 +136,24 @@ function signal:calculateIntersections(up, down)
     points[#points + 1] = y
     print(x, y)
 
+    local oldcolor = {g.getColor()}
+    g.setColor{0, 0, 1}
+    g.line(up[5], up[6], up[1], up[2])
+    g.line(down[5], down[6], down[3], down[4])
+    g.setColor(oldcolor)
+
     -- 2
-    x, y = lineCross(up[5], up[5], up[1], up[2],
+    x, y = lineCross(up[5], up[6], up[1], up[2],
         down[3], down[4], down[1], down[2])
     points[#points + 1] = x
     points[#points + 1] = y
     print(x, y)
+
+    local oldcolor = {g.getColor()}
+    g.setColor{0, 1, 1}
+    g.line(up[5], up[6], up[1], up[2])
+    g.line(down[3], down[4], down[1], down[2])
+    g.setColor(oldcolor)
 
     -- 3
     x, y = lineCross(up[3], up[4], up[5], up[6],
@@ -174,10 +187,11 @@ function signal:calculateIntersections(up, down)
 end
 
 function signal:trupdown(x, y, w, h)
-    g.setCanvas(self.canvas)
+    --g.setCanvas(self.canvas)
 
     local tri_up, tri_down = {}, {}
-    local rad = w / 2
+    --local rad = w / 2
+    local rad = w * 1.5
     for i = 1, 3 do
         local alpha = 2 * math.pi * i / 3
         local sx = w / 2 + rad * math.sin(alpha)
@@ -190,6 +204,10 @@ function signal:trupdown(x, y, w, h)
         tri_down[#tri_down + 1] = sx
         tri_down[#tri_down + 1] = sy
     end
+
+    g.push()
+    g.translate(200, 200)
+
     g.polygon("fill", tri_up)
     g.polygon("fill", tri_down)
 
@@ -197,6 +215,7 @@ function signal:trupdown(x, y, w, h)
     local points = self:calculateIntersections(tri_up, tri_down)
     print("#points", #points)
     print("points", inspect(points))
+
     local borderVertices = {
         tri_up[1], tri_up[2],
         points[1], points[2],
@@ -224,6 +243,7 @@ function signal:trupdown(x, y, w, h)
             --points[k], points[k + 1])
     end
     --g.polygon("line", borderVertices)
+    g.pop()
 
     --g.circle("fill", tri_up[1], tri_up[2], 3)
     --g.circle("fill", tri_down[1], tri_down[2], 3)
@@ -236,9 +256,9 @@ function signal:trupdown(x, y, w, h)
     --g.polygon("line", tri_up)
     --g.polygon("line", tri_down)
 
-    g.setCanvas()
-    g.setColor{1, 1, 1, 1}
-    g.draw(self.canvas, x, y)
+    --g.setCanvas()
+    --g.setColor{1, 1, 1, 1}
+    --g.draw(self.canvas, x, y)
 end
 
 function signal:rhombus(x, y, w, h)
