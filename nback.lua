@@ -541,7 +541,8 @@ function nback:make_hit_arr(signals, comparator)
     return ret
 end
 
-function nback:draw_field_grid(x0, y0, field_h)
+function nback:draw_field_grid()
+    local field_h = self.dim * self.cell_width
     g.setColor(self.field_color)
     for i = 0, self.dim do
         -- horizontal
@@ -633,7 +634,7 @@ function nback:print_debug_info()
 end
 
 function nback:print_set_results()
-    local y = y0 + self.font:getHeight()
+    local y = self.y0 + self.font:getHeight()
     g.printf(string.format("Set results:"), 0, y, w, "center")
     y = y + self.font:getHeight()
     g.printf(string.format("level %d", self.level), 0, y, w, "center")
@@ -777,7 +778,7 @@ function nback:draw()
     g.setShader(self.shader)
 
     -- этим вызовом рисуются только полосы сетки
-    self:draw_field_grid(x0, y0, self.dim * self.cell_width)
+    self:draw_field_grid()
     self:draw_bhupur()
     self:print_debug_info()
     if self.is_run then
