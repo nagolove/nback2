@@ -16,8 +16,6 @@ menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
 
-local picker = nil
-
 function love.load()
     lovebird.update()
     lovebird.maxlines = 2000
@@ -91,17 +89,10 @@ function love.keypressed(key, scancode)
 end
 
 function love.mousepressed(x, y, button, istouch)
-    if picker then
-        picker:mousepressed(x, y, button, istouch)
-    end
 end
 
 function love.draw()
-    if picker then
-        picker:draw(dr_func)
-    else
-        menu:draw()
-    end
+    menu:draw()
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
