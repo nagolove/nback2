@@ -632,8 +632,7 @@ function nback:print_debug_info()
     linesbuf:draw()
 end
 
-function nback:print_set_results(x0, y0)
-    print(x0, y0)
+function nback:print_set_results()
     local y = y0 + self.font:getHeight()
     g.printf(string.format("Set results:"), 0, y, w, "center")
     y = y + self.font:getHeight()
@@ -664,7 +663,7 @@ function nback:draw_level_welcome()
 end
 
 -- draw central_text - Press Space key
-function nback:print_press_space_to_new_round(y0)
+function nback:print_press_space_to_new_round()
     local central_text = "Press Space to new round"
     g.setFont(self.central_font)
     g.setColor(pallete.signal)
@@ -719,7 +718,7 @@ function nback:draw_bhupur()
 end
 
 -- рисовать статистику после конца сета
-function nback:draw_statistic(x0, y0)
+function nback:draw_statistic()
     g.setFont(self.font)
     g.setColor(pallete.statistic)
 
@@ -789,12 +788,12 @@ function nback:draw()
         end
     else
         if self.show_statistic then 
-            self:draw_statistic(x0, y0)
-            self:print_set_results(x0, y0)
+            self:draw_statistic()
+            self:print_set_results()
         else
             self:draw_level_welcome()
         end
-        self:print_press_space_to_new_round(y0)
+        self:print_press_space_to_new_round()
     end
 
     local bottom_text_line_y = h - self.font:getHeight() * 3
