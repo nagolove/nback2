@@ -701,7 +701,7 @@ function nback:print_escape_tip(bottom_text_line_y)
 end
 
 -- draw active signal quad
-function nback:draw_active_signal(x0, y0)
+function nback:draw_active_signal()
     local x, y = unpack(self.pos_signals[self.current_sig])
     local sig_color = color_constants[self.color_signals[self.current_sig]]
     if self.figure_alpha then
@@ -712,7 +712,7 @@ function nback:draw_active_signal(x0, y0)
     self.signal:draw(x, y, "trupdown", sig_color)
 end
 
-function nback:draw_bhupur(x0, y0)
+function nback:draw_bhupur()
     local delta = 5
     bhupur.color = self.field_color
     bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
@@ -757,7 +757,7 @@ function nback:draw_statistic(x0, y0)
 end
 
 -- draw central_text - Press Space key
-function nback:print_start_pause(y0)
+function nback:print_start_pause()
     local central_text = string.format("Wait for %d second.", 
         self.start_pause_rest)
     g.setFont(self.central_font)
@@ -779,13 +779,13 @@ function nback:draw()
 
     -- этим вызовом рисуются только полосы сетки
     self:draw_field_grid(x0, y0, self.dim * self.cell_width)
-    self:draw_bhupur(x0, y0)
+    self:draw_bhupur()
     self:print_debug_info()
     if self.is_run then
         if self.start_pause then
-            self:print_start_pause(y0)
+            self:print_start_pause()
         else
-            self:draw_active_signal(x0, y0)
+            self:draw_active_signal()
         end
     else
         if self.show_statistic then 
