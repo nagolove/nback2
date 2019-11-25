@@ -209,14 +209,13 @@ function signal:trupdown(x, y, w, h)
         tri_down[3], tri_down[4],
     }
 
-    print("#borderVertices", #borderVertices)
-    print("borderVertices", inspect(borderVertices))
-
+    local oldcolor = {g.getColor()}
     g.setColor(self.borderColor)
     g.polygon("line", borderVertices)
+    g.setColor(oldcolor)
 
     g.setCanvas()
-    g.setColor{1, 1, 1, 1}
+    --g.setColor{1, 1, 1, 1}
     g.draw(self.canvas, x, y)
 end
 
@@ -265,30 +264,6 @@ function intersection(start1, end1, start2, end2)
     local u = seg1_line2_start / (seg1_line2_start - seg1_line2_end);
 
     return start1 + u*dir1;
-end
-
--- функция проверяет, еть ли точки пересечения отрезков, обозначенных 
--- координатами x1, y1, x2, y2, x3, y3, x4, y4
--- возвращает координаты x, y точки пересечения или nil, если таковые 
--- не найдены.  сделано методом копипаста, тестированием не покрывал
-function lineCross(x1, y1, x2, y2, x3, y3, x4, y4)
-    --print(x1, y1, x2, y2, x3, y3, x4, y4)
-    local divisor = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
-    
-    -- lines are parralell
-    if divisor == 0 then return nil end
-
-    local ua = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)
-    ua = ua / divisor
-    --local ub = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)
-    --ub = ub / divisor
-    --print("lineCross ua: ",ua, " ub: ", ub)
-    local x, y = x1 + ua * (x2 - x1), y1 + ua * (y2 - y1)
-    if not (x > x1 and x < x2 and y < y2 and y > y1) then 
-        --print("point is not on segment")
-        return nil
-    end
-    return x, y
 end
 
 return {

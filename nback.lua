@@ -708,8 +708,7 @@ function nback:draw_active_signal()
         sig_color[4] = self.figure_alpha
     end
     local type = self.form_signals[self.current_sig]
-    --self.signal:draw(x, y, type, sig_color)
-    self.signal:draw(x, y, "trupdown", sig_color)
+    self.signal:draw(x, y, type, sig_color)
 end
 
 function nback:draw_bhupur()
