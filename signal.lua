@@ -1,6 +1,7 @@
-﻿local serpent = require "serpent"
+﻿local g = love.graphics
 local inspect = require "libs.inspect"
-local g = love.graphics
+local serpent = require "serpent"
+local vector = require "libs.vector"
 
 local conbuf = require "kons".new(0, 0)
 
@@ -125,62 +126,57 @@ end
 function signal:calculateIntersections(up, down)
     local points = {}
     local x, y
+    local p
     print("calculateIntersections")
     print("up", inspect(up))
     print("down", inspect(down))
 
     -- 1
-    x, y = lineCross(up[5], up[6], up[1], up[2],
-        down[5], down[6], down[3], down[4])
-    points[#points + 1] = x
-    points[#points + 1] = y
+    p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
+        vector(down[5], down[6]), vector(down[3], down[4]))
+    points[#points + 1] = p.x
+    points[#points + 1] = p.y
     print(x, y)
 
     local oldcolor = {g.getColor()}
     g.setColor{0, 0, 1}
-    g.line(up[5], up[6], up[1], up[2])
-    g.line(down[5], down[6], down[3], down[4])
+    g.line(up[1], up[2], up[5], up[6])
+    g.line(down[3], down[4], down[5], down[6])
     g.setColor(oldcolor)
 
     -- 2
-    x, y = lineCross(up[5], up[6], up[1], up[2],
-        down[3], down[4], down[1], down[2])
-    points[#points + 1] = x
-    points[#points + 1] = y
+    p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
+        vector(down[3], down[4]), vector(down[1], down[2]))
+    points[#points + 1] = p.x
+    points[#points + 1] = p.y
     print(x, y)
 
-    local oldcolor = {g.getColor()}
-    g.setColor{0, 1, 1}
-    g.line(up[5], up[6], up[1], up[2])
-    g.line(down[3], down[4], down[1], down[2])
-    g.setColor(oldcolor)
-
     -- 3
-    x, y = lineCross(up[3], up[4], up[5], up[6],
-        down[3], down[4], down[1], down[2])
-    points[#points + 1] = x
-    points[#points + 1] = y
+    p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
+        vector(down[3], down[4]), vector(down[1], down[2]))
+    points[#points + 1] = p.x
+    points[#points + 1] = p.y
     print(x, y)
 
     -- 4
-    x, y = lineCross(up[3], up[4], up[5], up[6],
-        down[1], down[2], down[5], down[6])
-    points[#points + 1] = x
-    points[#points + 1] = y
+    p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
+        vector(down[1], down[2]), vector(down[5], down[6]))
+    points[#points + 1] = p.x
+    points[#points + 1] = p.y
     print(x, y)
 
     -- 5
-    x, y = lineCross(up[3], up[4], up[1], up[2],
-        down[1], down[2], down[5], down[6])
-    points[#points + 1] = x
-    points[#points + 1] = y
+    p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
+        vector(down[1], down[2]), vector(down[5], down[6]))
+    points[#points + 1] = p.x
+    points[#points + 1] = p.y
     print(x, y)
 
     -- 6
-    x, y = lineCross(up[3], up[4], up[1], up[2],
-        down[3], down[4], down[5], down[6])
-    points[#points + 1] = x
-    points[#points + 1] = y
+    p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
+        vector(down[3], down[4]), vector(down[5], down[6]))
+    points[#points + 1] = p.x
+    points[#points + 1] = p.y
     print(x, y)
 
     return points
@@ -211,7 +207,14 @@ function signal:trupdown(x, y, w, h)
     g.polygon("fill", tri_up)
     g.polygon("fill", tri_down)
 
-    g.setColor(self.borderColor)
+    g.print(string.format("%d", 1), tri_down[1], tri_down[2])
+    g.print(string.format("%d", 2), tri_down[3], tri_down[4])
+    g.print(string.format("%d", 3), tri_down[5], tri_down[6])
+
+    g.print(string.format("%d", 1), tri_up[1], tri_up[2])
+    g.print(string.format("%d", 2), tri_up[3], tri_up[4])
+    g.print(string.format("%d", 3), tri_up[5], tri_up[6])
+
     local points = self:calculateIntersections(tri_up, tri_down)
     print("#points", #points)
     print("points", inspect(points))
@@ -230,19 +233,24 @@ function signal:trupdown(x, y, w, h)
         tri_down[5], tri_down[6],
         points[11], points[12],
         tri_up[1], tri_up[2],
+        tri_down[3], tri_down[4],
     }
     print("#borderVertices", #borderVertices)
     print("borderVertices", inspect(borderVertices))
 
-    g.polygon("line", points)
-    g.setColor{1, 1, 1}
-    for k = 1, #points - 1 do
-        g.circle("fill", points[k], points[k + 1], 3)
-        g.print(string.format("%d", k), points[k], points[k + 1])
-        --g.print(string.format("(%d, %d) %d", points[k], points[k + 1], k),
-            --points[k], points[k + 1])
-    end
-    --g.polygon("line", borderVertices)
+    --[[
+       [g.polygon("line", points)
+       [g.setColor{1, 1, 1}
+       [for k = 1, #points - 1 do
+       [    g.circle("fill", points[k], points[k + 1], 3)
+       [    g.print(string.format("%d", k), points[k], points[k + 1])
+       [    --g.print(string.format("(%d, %d) %d", points[k], points[k + 1], k),
+       [        --points[k], points[k + 1])
+       [end
+       ]]
+
+    g.setColor(self.borderColor)
+    g.polygon("line", borderVertices)
     g.pop()
 
     --g.circle("fill", tri_up[1], tri_up[2], 3)
@@ -270,6 +278,42 @@ function signal:rhombus(x, y, w, h)
     g.polygon("line", {x + delta, y + h / 2, x + w / 2, y + h - delta,
             x + w - delta, y + h / 2,
             x + w / 2, y + delta})
+end
+
+-- параметры - hump.vector
+-- источник: https://users.livejournal.com/-winnie/152327.html
+function intersection(start1, end1, start2, end2)
+    assert(vector.isvector(start1) and vector.isvector(end1) and
+        vector.isvector(start2) and vector.isvector(end2))
+
+    local dir1 = end1 - start1;
+    local dir2 = end2 - start2;
+
+    --считаем уравнения прямых проходящих через отрезки
+    local a1 = -dir1.y;
+    local b1 = dir1.x;
+    local d1 = -(a1*start1.x + b1*start1.y);
+
+    local a2 = -dir2.y;
+    local b2 = dir2.x;
+    local d2 = -(a2*start2.x + b2*start2.y);
+
+    --подставляем концы отрезков, для выяснения в каких полуплоскотях они
+    local seg1_line2_start = a2 * start1.x + b2 * start1.y + d2;
+    local seg1_line2_end = a2 * end1.x + b2 * end1.y + d2;
+
+    local seg2_line1_start = a1 * start2.x + b1 * start2.y + d1;
+    local seg2_line1_end = a1 * end2.x + b1 * end2.y + d1;
+
+    --если концы одного отрезка имеют один знак, значит он в одной полуплоскости и пересечения нет.
+    if (seg1_line2_start * seg1_line2_end >= 0 or 
+        seg2_line1_start * seg2_line1_end >= 0) then
+        return nil
+    end
+
+    local u = seg1_line2_start / (seg1_line2_start - seg1_line2_end);
+
+    return start1 + u*dir1;
 end
 
 -- функция проверяет, еть ли точки пересечения отрезков, обозначенных 
