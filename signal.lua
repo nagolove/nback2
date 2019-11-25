@@ -125,69 +125,52 @@ end
 -- вверх и вершинами вниз соответственно. Вершины лежат в массиве плоско.
 function signal:calculateIntersections(up, down)
     local points = {}
-    local x, y
     local p
-    print("calculateIntersections")
-    print("up", inspect(up))
-    print("down", inspect(down))
 
     -- 1
     p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
         vector(down[5], down[6]), vector(down[3], down[4]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
-    print(x, y)
-
-    local oldcolor = {g.getColor()}
-    g.setColor{0, 0, 1}
-    g.line(up[1], up[2], up[5], up[6])
-    g.line(down[3], down[4], down[5], down[6])
-    g.setColor(oldcolor)
 
     -- 2
     p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
         vector(down[3], down[4]), vector(down[1], down[2]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
-    print(x, y)
 
     -- 3
     p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
         vector(down[3], down[4]), vector(down[1], down[2]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
-    print(x, y)
 
     -- 4
     p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
         vector(down[1], down[2]), vector(down[5], down[6]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
-    print(x, y)
 
     -- 5
     p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
         vector(down[1], down[2]), vector(down[5], down[6]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
-    print(x, y)
 
     -- 6
     p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
         vector(down[3], down[4]), vector(down[5], down[6]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
-    print(x, y)
 
     return points
 end
 
 function signal:trupdown(x, y, w, h)
-    --g.setCanvas(self.canvas)
+    g.setCanvas(self.canvas)
 
     local tri_up, tri_down = {}, {}
-    --local rad = w / 2
-    local rad = w * 1.5
+    local rad = w / 2
     for i = 1, 3 do
         local alpha = 2 * math.pi * i / 3
         local sx = w / 2 + rad * math.sin(alpha)
@@ -201,21 +184,11 @@ function signal:trupdown(x, y, w, h)
         tri_down[#tri_down + 1] = sy
     end
 
-    g.push()
-    g.translate(200, 200)
-
     g.polygon("fill", tri_up)
     g.polygon("fill", tri_down)
 
-    g.print(string.format("%d", 1), tri_down[1], tri_down[2])
-    g.print(string.format("%d", 2), tri_down[3], tri_down[4])
-    g.print(string.format("%d", 3), tri_down[5], tri_down[6])
-
-    g.print(string.format("%d", 1), tri_up[1], tri_up[2])
-    g.print(string.format("%d", 2), tri_up[3], tri_up[4])
-    g.print(string.format("%d", 3), tri_up[5], tri_up[6])
-
     local points = self:calculateIntersections(tri_up, tri_down)
+
     print("#points", #points)
     print("points", inspect(points))
 
@@ -235,38 +208,16 @@ function signal:trupdown(x, y, w, h)
         tri_up[1], tri_up[2],
         tri_down[3], tri_down[4],
     }
+
     print("#borderVertices", #borderVertices)
     print("borderVertices", inspect(borderVertices))
 
-    --[[
-       [g.polygon("line", points)
-       [g.setColor{1, 1, 1}
-       [for k = 1, #points - 1 do
-       [    g.circle("fill", points[k], points[k + 1], 3)
-       [    g.print(string.format("%d", k), points[k], points[k + 1])
-       [    --g.print(string.format("(%d, %d) %d", points[k], points[k + 1], k),
-       [        --points[k], points[k + 1])
-       [end
-       ]]
-
     g.setColor(self.borderColor)
     g.polygon("line", borderVertices)
-    g.pop()
 
-    --g.circle("fill", tri_up[1], tri_up[2], 3)
-    --g.circle("fill", tri_down[1], tri_down[2], 3)
-    --g.setColor{1, 0, 0}
-    --g.circle("fill", tri_up[5], tri_up[6], 3)
-    --g.circle("fill", tri_down[5], tri_down[6], 3)
-    --g.setColor{0, 1, 0.3}
-    --g.circle("fill", tri_up[5], tri_up[6], 3)
-    --g.circle("fill", tri_down[5], tri_down[6], 3)
-    --g.polygon("line", tri_up)
-    --g.polygon("line", tri_down)
-
-    --g.setCanvas()
-    --g.setColor{1, 1, 1, 1}
-    --g.draw(self.canvas, x, y)
+    g.setCanvas()
+    g.setColor{1, 1, 1, 1}
+    g.draw(self.canvas, x, y)
 end
 
 function signal:rhombus(x, y, w, h)
