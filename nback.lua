@@ -542,16 +542,6 @@ function nback:make_hit_arr(signals, comparator)
 end
 
 function nback:draw_field_grid()
-    local field_h = self.dim * self.cell_width
-    g.setColor(self.field_color)
-    for i = 0, self.dim do
-        -- horizontal
-        g.line(self.x0, self.y0 + i * self.cell_width, 
-            self.x0 + field_h, self.y0 + i * self.cell_width)
-        -- vertical
-        g.line(self.x0 + i * self.cell_width, self.y0, 
-            self.x0 + i * self.cell_width, self.y0 + field_h)
-    end
 end
 
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
@@ -711,10 +701,21 @@ function nback:draw_active_signal()
     self.signal:draw(x, y, type, sig_color)
 end
 
-function nback:draw_bhupur()
+function nback:draw_field()
     local delta = 5
     bhupur.color = self.field_color
     bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
+
+    local field_h = self.dim * self.cell_width
+    g.setColor(self.field_color)
+    for i = 0, self.dim do
+        -- horizontal
+        g.line(self.x0, self.y0 + i * self.cell_width, 
+            self.x0 + field_h, self.y0 + i * self.cell_width)
+        -- vertical
+        g.line(self.x0 + i * self.cell_width, self.y0, 
+            self.x0 + i * self.cell_width, self.y0 + field_h)
+    end
 end
 
 -- рисовать статистику после конца сета
@@ -777,8 +778,8 @@ function nback:draw()
     g.setShader(self.shader)
 
     -- этим вызовом рисуются только полосы сетки
-    self:draw_field_grid()
-    self:draw_bhupur()
+    self:draw_field()
+
     self:print_debug_info()
     if self.is_run then
         if self.start_pause then
