@@ -66,6 +66,10 @@ function dispatchWindowResize(w, h)
 end
 
 function love.keypressed(key, scancode)
+    if love.keyboard.isScancodeDown("lctrl") and scancode == "d" then
+        debug.debug()
+    end
+
     print(string.format("key %s, scancode %s", key, scancode))
     -- переключение режимов экрана
     if love.keyboard.isDown("ralt", "lalt") and key == "return" then

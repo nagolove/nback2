@@ -215,7 +215,6 @@ function signal:trupdown(x, y, w, h)
     g.setColor(oldcolor)
 
     g.setCanvas()
-    --g.setColor{1, 1, 1, 1}
     g.draw(self.canvas, x, y)
 end
 
