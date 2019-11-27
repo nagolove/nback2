@@ -23,6 +23,7 @@ function menu.new(font, color)
         color = color,
         items = {},
         activeIndex = 1,
+        cursorLineWidth = 3,
     }
     return setmetatable(self, menu)
 end
@@ -58,6 +59,9 @@ function menu:addItem(t)
     assert(type(item.text == "string"), "oninit() should return string.")
 end
 
+function menu:update(dt)
+end
+
 -- может сделать лучше прокрутку списка клавишами по-кругу? В виде
 -- закольцованного списка?
 function menu:scrollUp()
@@ -80,11 +84,6 @@ end
 function menu:rightPressed()
 end
 
--- рисовать курсор на активной позиции
-function menu:drawCursor()
-end
-
--- рисовать менюшку с выравниванием относительно прямоугольника x, y, w, h
 -- целевая задача: рисовка одной единственной менюшки, в центре экрана, с
 -- выравниманием по-центру прямоугольника.
 function menu:draw()
@@ -95,10 +94,24 @@ function menu:draw()
     local oldfont = g.getFont()
     g.setColor(self.color)
     g.setFont(self.font)
+
+    local oldLineWidth = g.getLineWidth()
+    g.setLineWidth(self.cursorLineWidth)
+
     for k, v in pairs(self.items) do
        g.printf(v.text, 0, y, w, "center")
+       if k == self.activeIndex then 
+           local textWidth = g.getFont():getWidth(v.text)
+           local x = (w - textWidth) / 2
+           local oldcolor = {g.getColor()}
+           g.setColor{0.8, 0, 0}
+           g.rectangle("line", x, y, textWidth, g.getFont():getHeight())
+           g.setColor(oldcolor)
+       end
        y = y + self.font:getHeight()
     end
+
+    g.setLineWidth(oldLineWidth)
     g.setFont(oldfont)
 end
 
