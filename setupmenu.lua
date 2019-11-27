@@ -8,7 +8,9 @@
 --
 -- * вывод расчетного значения времени раунда(Почему "раунд"? Бокс что-ли?
 -- Попробуй заменить на время концентрации
+
 local inspect = require "libs.inspect"
+local g = love.graphics
 
 local menu = {}
 menu.__index = menu
@@ -85,9 +87,18 @@ end
 -- рисовать менюшку с выравниванием относительно прямоугольника x, y, w, h
 -- целевая задача: рисовка одной единственной менюшки, в центре экрана, с
 -- выравниманием по-центру прямоугольника.
-function menu:draw(x, y, w, h)
+function menu:draw()
+    local y0 = 0 -- вычислить на какой высоте начинать рисовать, что-бы меню
+                 -- оказалось в центре экрана по высоте.
+    local y = y0
+    local w = g.getWidth()
+    local oldfont = g.getFont()
+    g.setFont(self.font)
     for k, v in pairs(self.items) do
+       g.printf(v.text, 0, y, w)
+       y = y + self.font:getHeight()
     end
+    g.setFont(oldfont)
 end
 
 return setmetatable(menu, { __call = function(cls, ...)

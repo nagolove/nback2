@@ -218,11 +218,11 @@ end
 function nback:createSetupMenu()
     self.setupmenu = setupmenu(
         love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
-        pallete.tip_text)
+        pallete.signal)
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
-        oninit = function() return "start" end,
+        oninit = function() return "Start" end,
         onselect = function() -- что здесь должно быть?
         end})
 
@@ -235,18 +235,22 @@ function nback:createSetupMenu()
 
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
-        oninit = function() return expositionList[activePauseTimeListItem] end,
+        oninit = function() return 
+            "Exposition time " .. expositionList[activePauseTimeListItem] 
+        end,
         onleft = function()
             if activePauseTimeListItem - 1 >= 1 then
                 activePauseTimeListItem = activePauseTimeListItem - 1
             end
-            return expositionList[activePauseTimeListItem]
+            return "Exposition time " .. 
+                expositionList[activePauseTimeListItem]
         end,
         onright = function()
             if activePauseTimeListItem + 1 <= #expositionList then
                 activePauseTimeListItem = activePauseTimeListItem + 1
             end
-            return expositionList[activePauseTimeListItem]
+            return "Exposition time " .. 
+                expositionList[activePauseTimeListItem]
         end})
 
     local nbackLevel = 1 -- начальное значение. Можно менять исходя из
@@ -258,14 +262,14 @@ function nback:createSetupMenu()
 
     -- выбор уровня эн-назад
     self.setupmenu:addItem({
-        oninit = function() return nbackLevel end,
+        oninit = function() return "Difficulty level: " .. nbackLevel end,
         onleft = function()
             if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
-            return nbackLevel
+            return "Difficulty level: " .. nbackLevel
         end,
         onright = function()
             if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
-            return nbackLevel
+            return "Difficulty level: " .. lnbackLevel
         end,
         onselect = nil})
 end
@@ -322,6 +326,9 @@ function nback:update(dt)
             self:processSignal()
         else
             self:stop()
+        end
+        if not self.show_statistic then
+            self.setupmenu:update(dt)
         end
     end
 
@@ -795,7 +802,8 @@ function nback:draw()
             self:draw_statistic()
             self:print_set_results()
         else
-            self:draw_level_welcome()
+            --self:draw_level_welcome()
+            self.setupmenu:draw()
         end
         self:print_press_space_to_new_round()
     end
