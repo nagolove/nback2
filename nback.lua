@@ -663,17 +663,6 @@ function nback:draw_level_welcome()
     g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
 end
 
--- draw central_text - Press Space key
-function nback:print_press_space_to_new_round()
-    local central_text = "Press Space to new round"
-    g.setFont(self.central_font)
-    g.setColor(pallete.signal)
-    local x = (w - self.central_font:getWidth(central_text)) / 2
-    --y = h - self.central_font:getHeight() * 2
-    local y = self.y0 + (self.dim - 1) * self.cell_width
-    g.print(central_text, x, y)
-end
-
 function nback:print_control_tips(bottom_text_line_y)
     local keys_tip = alignedlabels.new(self.font, w)
 
@@ -805,7 +794,6 @@ function nback:draw()
             --self:draw_level_welcome()
             self.setupmenu:draw()
         end
-        self:print_press_space_to_new_round()
     end
 
     local bottom_text_line_y = h - self.font:getHeight() * 3
