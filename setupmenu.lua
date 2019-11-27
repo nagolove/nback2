@@ -88,14 +88,15 @@ end
 -- целевая задача: рисовка одной единственной менюшки, в центре экрана, с
 -- выравниманием по-центру прямоугольника.
 function menu:draw()
-    local y0 = 0 -- вычислить на какой высоте начинать рисовать, что-бы меню
-                 -- оказалось в центре экрана по высоте.
+    local y0 = (h - #self.items * self.font:getHeight()) / 2 
+    local w, h = g.getDimensions()
+    --local menuHeight = 
     local y = y0
-    local w = g.getWidth()
     local oldfont = g.getFont()
+    g.setColor(self.color)
     g.setFont(self.font)
     for k, v in pairs(self.items) do
-       g.printf(v.text, 0, y, w)
+       g.printf(v.text, 0, y, w, "center")
        y = y + self.font:getHeight()
     end
     g.setFont(oldfont)
