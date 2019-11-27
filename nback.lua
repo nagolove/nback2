@@ -267,11 +267,6 @@ function nback:init(save_name)
     math.randomseed(os.time())
     self.timer = Timer()
 
-    wave_path = "sfx/alphabet"
-    for k, v in pairs(love.filesystem.getDirectoryItems(wave_path)) do
-        table.insert(self.sounds, love.audio.newSource(wave_path .. "/" .. v, "static"))
-    end
-
     self.signal = signal.new(self.cell_width, "alphabet")
 
     self:resize(g.getDimensions())
