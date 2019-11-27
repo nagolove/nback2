@@ -10,7 +10,6 @@
 -- Попробуй заменить на время концентрации
 
 local menu = {}
-
 menu.__index = menu
 
 -- парамертрами могут быть - шрифт и его размер, цвет текста, стиль рамки
@@ -23,7 +22,9 @@ function menu.new(font, color)
     return setmetatable(self, menu)
 end
    
-function menu.addItem(ondraw, onleft, onright)
+-- oninit - пустое значение(nil) - недопустимая ситуация?
+-- onleft, onright равны nil - значение не регулируется?
+function menu.addItem(oninit, onleft, onright)
 end
 
 function menu.scrollUp()

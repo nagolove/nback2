@@ -186,8 +186,6 @@ function nback:leave()
     self.show_statistic = false
 end
 
---nback.setupmenu = nil 
-
 -- изменяется в пределах 0..1
 local fragmentCode = [[
 extern float time;
@@ -216,49 +214,60 @@ function nback:readSettings()
     love.audio.setVolume(self.volume)
 end
 
+-- фигачу кастомную менюшку на лету
 function nback:createSetupMenu()
-    -- фигачу кастомную менюшку на лету
-    self.setupmenu = setupmenu.new(
+    self.setupmenu = setupmenu(
         love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
         pallete.tip_text)
 
-    -- какие тут могут быть параметры?
-    -- что выдает пункт меню для рисовки? статичный текст?
-    local pauseTimeList = {
-        "1.4s .. 1.8s",
-        "1.8s .. 2.2s",
-        "2.2s .. 2.6s",
+    -- пункт меню - поехали!
+    self.setupmenu:addItem({
+        oninit = function() return "start" end,
+        onselect = function() -- что здесь должно быть?
+        end})
+
+    local expositionList = {
+        "1.4s .. 1.8s", -- 1 index
+        "1.8s .. 2.2s", -- 2 index
+        "2.2s .. 2.6s", -- 3 index
     }
     local activePauseTimeListItem = 2
 
-    -- возвращает строку для рисовки после перемотки влево.
-    function onleft()
-        -- эта строчка должна попадать во внутренний буфер вызывающего меню
-        if activePauseTimeListItem - 1 >= 1 then
-            activePauseTimeListItem = activePauseTimeListItem - 1
-        end
-        return pauseTimeList[activePauseTimeListItem]
-    end
+    -- выбор продолжительности экспозиции
+    self.setupmenu:addItem({
+        oninit = function() return expositionList[activePauseTimeListItem] end,
+        onleft = function()
+            if activePauseTimeListItem - 1 >= 1 then
+                activePauseTimeListItem = activePauseTimeListItem - 1
+            end
+            return expositionList[activePauseTimeListItem]
+        end,
+        onright = function()
+            if activePauseTimeListItem + 1 <= #expositionList then
+                activePauseTimeListItem = activePauseTimeListItem + 1
+            end
+            return expositionList[activePauseTimeListItem]
+        end})
 
-    -- возвращает строку для рисовки после перемотки вправо.
-    function onright()
-        if activePauseTimeListItem + 1 <= #pauseTimeList then
-            activePauseTimeListItem = activePauseTimeListItem + 1
-        end
-        return pauseTimeList[activePauseTimeListItem]
-    end
+    local nbackLevel = 1 -- начальное значение. Можно менять исходя из
+                         -- предыдущих игр, брать из файла настроек и т.д.
 
-    -- непонятно, рисовать прямо в функции или только возвращать строчку
-    -- текста для рисовки
-    -- какой структуры должен быть объект?
-    function ondraw(item, x, y, w, h)
-        local text = item.pauseTimeList[item.activePauseTimeListItem]
-        love.graphics.print(text)
-    end
+    local maxLevel = 8   -- значение должно поддерживаться генератором, 
+                         -- больше значение - длиннее последовательность и(или)
+                         -- меньше целевых сигналов в итоге.
 
-    -- добавить здесь создание объекта, обеспечивающего внутри себя перемотку
-    -- состояний.
-    self.setupmenu:addItem()
+    -- выбор уровня эн-назад
+    self.setupmenu:addItem({
+        oninit = function() return nbackLevel end,
+        onleft = function()
+            if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
+            return nbackLevel
+        end,
+        onright = function()
+            if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
+            return nbackLevel
+        end,
+        onselect = nil})
 end
 
 function nback:init(save_name)
@@ -440,6 +449,7 @@ function nback:keypressed(key, scancode)
 
         -- здесь другое игровое состояние, почему используется условие и булев
         -- флаг?
+        -- состояние - регулировка в меню перед игрой
         if not self.is_run and not self.show_statistic then
             if scancode == "up" then
                 self.setupmenu:scrollUp()
