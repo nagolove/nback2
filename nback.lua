@@ -262,13 +262,11 @@ function nback:createSetupMenu()
 end
 
 function nback:init(save_name)
-    self.save_name = save_name
-    self:createSetupMenu()
     math.randomseed(os.time())
+    self.save_name = save_name
     self.timer = Timer()
-
     self.signal = signal.new(self.cell_width, "alphabet")
-
+    self:createSetupMenu()
     self:resize(g.getDimensions())
     self:readSettings()
     self:initShaders()
