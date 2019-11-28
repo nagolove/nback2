@@ -216,6 +216,8 @@ end
 
 -- фигачу кастомную менюшку на лету
 function nback:createSetupMenu()
+    local parameterColor = {1, 1, 1}
+
     self.setupmenu = setupmenu(
         love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
         pallete.signal)
@@ -226,30 +228,38 @@ function nback:createSetupMenu()
         onselect = function() -- что здесь должно быть?
         end})
 
+    --local expositionList = {
+        --"1.4s .. 1.8s", -- 1 index
+        --"1.8s .. 2.2s", -- 2 index
+        --"2.2s .. 2.6s", -- 3 index
+    --}
     local expositionList = {
-        "1.4s .. 1.8s", -- 1 index
-        "1.8s .. 2.2s", -- 2 index
-        "2.2s .. 2.6s", -- 3 index
+        "1.4..1.8s", -- 1 index
+        "1.8..2.2s", -- 2 index
+        "2.2..2.6s", -- 3 index
     }
     local activePauseTimeListItem = 2
 
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
         oninit = function() return 
-            {"Exposition time " .. expositionList[activePauseTimeListItem]}
+            {pallete.signal, "Exposition time ", parameterColor, 
+            expositionList[activePauseTimeListItem]}
         end,
+
         onleft = function()
             if activePauseTimeListItem - 1 >= 1 then
                 activePauseTimeListItem = activePauseTimeListItem - 1
             end
-            return {"Exposition time " .. 
+            return {pallete.signal, "Exposition time ", parameterColor,
                 expositionList[activePauseTimeListItem]}
         end,
+
         onright = function()
             if activePauseTimeListItem + 1 <= #expositionList then
                 activePauseTimeListItem = activePauseTimeListItem + 1
             end
-            return {"Exposition time " .. 
+            return {pallete.signal, "Exposition time ", parameterColor,
                 expositionList[activePauseTimeListItem]}
         end})
 
@@ -262,16 +272,20 @@ function nback:createSetupMenu()
 
     -- выбор уровня эн-назад
     self.setupmenu:addItem({
-        oninit = function() return {"Difficulty level: " .. nbackLevel} end,
+        oninit = function() return {pallete.signal, "Difficulty level: ",
+            parameterColor, tostring(nbackLevel)} end,
+
         onleft = function()
             if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
-            return {"Difficulty level: " .. nbackLevel}
+            return {pallete.signal, "Difficulty level: ", parameterColor,
+                tostring(nbackLevel)}
         end,
+
         onright = function()
             if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
-            return {"Difficulty level: " .. nbackLevel}
-        end,
-        onselect = nil})
+            return {signal.color, "Difficulty level: ", parameterColor,
+                tostring(nbackLevel)}
+        end})
 end
 
 function nback:init(save_name)
