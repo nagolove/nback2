@@ -458,13 +458,13 @@ function nback:keypressed(key, scancode)
         -- флаг?
         -- состояние - регулировка в меню перед игрой
         if not self.is_run and not self.show_statistic then
-            if scancode == "up" then
+            if scancode == "up" or scancode == "k" then
                 self.setupmenu:scrollUp()
-            elseif scancode == "down" then 
+            elseif scancode == "down" or scancode == "j" then 
                 self.setupmenu:scrollDown()
-            elseif scancode == "left" then
+            elseif scancode == "left" or scancode == "h" then
                 self.setupmenu:leftPressed()
-            elseif scancode == "right" then
+            elseif scancode == "right" or scancode == "l" then
                 self.setupmenu:rightPressed()
             end
         end
