@@ -108,20 +108,19 @@ function menu:draw()
     local y = y0
 
     local oldfont = g.getFont()
-    g.setColor(self.color)
     g.setFont(self.font)
 
     local oldLineWidth = g.getLineWidth()
     g.setLineWidth(self.cursorLineWidth)
 
     local leftMarker, rightMarker = "<< ", " >>"
+    local leftMarkerColor, rightMarkerColor = {0, 0.8, 0}, {0, 0.8, 0}
     for k, v in pairs(self.items) do
         local text = ""
 
         if v.onleft then
             text = "<< "
         end
-        print("v.content", inspect(v.content))
         for _, p in pairs(v.content) do
             if type(p) == "string" then
                 text = text .. p
@@ -136,11 +135,14 @@ function menu:draw()
         local x = x0
 
         --g.printf(text, 0, y, w, "center")
+
         if v.onleft then
+            g.setColor(leftMarkerColor)
             g.print(leftMarker, x, y)
             x = x + g.getFont():getWidth(leftMarker)
         end
         local xLeft = x
+        g.setColor(self.color)
         for _, p in pairs(v.content) do
             if type(p) == "table" then
                 -- дополнительная проверка на соответствие таблицы структуре
@@ -155,6 +157,7 @@ function menu:draw()
         end
         local xRight = x
         if v.onright then
+            g.setColor(rightMarkerColor)
             g.print(rightMarker, x, y)
             x = x + g.getFont():getWidth(rightMarker)
         end
