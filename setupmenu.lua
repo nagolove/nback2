@@ -67,21 +67,33 @@ end
 function menu:scrollUp()
     if self.activeIndex - 1 >= 1 then
         self.activeIndex = self.activeIndex - 1
+    else
+        self.activeIndex = #self.items
     end
 end
 
 function menu:scrollDown()
     if self.activeIndex + 1 <= #self.items then
         self.activeIndex = self.activeIndex + 1
+    else
+        self.activeIndex = 1
     end
 end
 
 -- тут изменение параметра в меньшую стророну
 function menu:leftPressed()
+    local item = self.items[self.activeIndex]
+    if item.onleft then
+        item.text = item.onleft()
+    end
 end
 
 -- тут изменение параметра в большую строну
 function menu:rightPressed()
+    local item = self.items[self.activeIndex]
+    if item.onright then
+        item.text = item.onright()
+    end
 end
 
 -- целевая задача: рисовка одной единственной менюшки, в центре экрана, с
@@ -99,16 +111,27 @@ function menu:draw()
     g.setLineWidth(self.cursorLineWidth)
 
     for k, v in pairs(self.items) do
-       g.printf(v.text, 0, y, w, "center")
-       if k == self.activeIndex then 
-           local textWidth = g.getFont():getWidth(v.text)
-           local x = (w - textWidth) / 2
-           local oldcolor = {g.getColor()}
-           g.setColor{0.8, 0, 0}
-           g.rectangle("line", x, y, textWidth, g.getFont():getHeight())
-           g.setColor(oldcolor)
-       end
-       y = y + self.font:getHeight()
+        local text = ""
+
+        if v.onleft then
+            text = "<< "
+        end
+        text = text .. v.text
+        if v.onright then
+            text = text .. " >>"
+        end
+
+        g.printf(text, 0, y, w, "center")
+
+        if k == self.activeIndex then 
+            local textWidth = g.getFont():getWidth(v.text)
+            local x = (w - textWidth) / 2
+            local oldcolor = {g.getColor()}
+            g.setColor{0.8, 0, 0}
+            g.rectangle("line", x, y, textWidth, g.getFont():getHeight())
+            g.setColor(oldcolor)
+        end
+        y = y + self.font:getHeight()
     end
 
     g.setLineWidth(oldLineWidth)

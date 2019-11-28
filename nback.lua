@@ -269,7 +269,7 @@ function nback:createSetupMenu()
         end,
         onright = function()
             if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
-            return "Difficulty level: " .. lnbackLevel
+            return "Difficulty level: " .. nbackLevel
         end,
         onselect = nil})
 end
