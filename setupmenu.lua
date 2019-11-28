@@ -121,6 +121,7 @@ function menu:draw()
         if v.onleft then
             text = "<< "
         end
+        print("v.content", inspect(v.content))
         for _, p in pairs(v.content) do
             if type(p) == "string" then
                 text = text .. p
@@ -149,7 +150,7 @@ function menu:draw()
                 g.print(p, x, y)
                 x = x + g.getFont():getWidth(p)
             else
-                error("Unexpected type of value."
+                error("Unexpected type of value.")
             end
         end
         local xRight = x

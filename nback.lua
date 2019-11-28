@@ -222,7 +222,7 @@ function nback:createSetupMenu()
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
-        oninit = function() return "Start" end,
+        oninit = function() return {"Start"} end,
         onselect = function() -- что здесь должно быть?
         end})
 
@@ -262,7 +262,7 @@ function nback:createSetupMenu()
 
     -- выбор уровня эн-назад
     self.setupmenu:addItem({
-        oninit = function() return "Difficulty level: " .. nbackLevel end,
+        oninit = function() return {"Difficulty level: " .. nbackLevel} end,
         onleft = function()
             if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
             return {"Difficulty level: " .. nbackLevel}
