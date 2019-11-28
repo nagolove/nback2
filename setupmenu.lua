@@ -88,12 +88,20 @@ function menu:leftPressed()
     end
 end
 
+function menu:leftReleased()
+    print("menu:leftReleased()")
+end
+
 -- тут изменение параметра в большую строну
 function menu:rightPressed()
     local item = self.items[self.activeIndex]
     if item.onright then
         item.content = item.onright()
     end
+end
+
+function menu:rightReleased()
+    print("menu:rightReleased()")
 end
 
 -- целевая задача: рисовка одной единственной менюшки, в центре экрана, с

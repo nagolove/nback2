@@ -228,11 +228,6 @@ function nback:createSetupMenu()
         onselect = function() -- что здесь должно быть?
         end})
 
-    --local expositionList = {
-        --"1.4s .. 1.8s", -- 1 index
-        --"1.8s .. 2.2s", -- 2 index
-        --"2.2s .. 2.6s", -- 3 index
-    --}
     local expositionList = {
         "1.4..1.8s", -- 1 index
         "1.8..2.2s", -- 2 index
@@ -445,6 +440,17 @@ function nback:quit()
         settings_str:len())
     self:stop()
     menu:goBack()
+end
+
+function nback:keyreleased(key, scancode)
+    print(string.format("nback:keyreleased(%s)", scancode))
+    if not self.is_run and not self.show_statistic then
+        if scancode == "left" or scancode == "h" then
+            self.setupmenu:leftReleased()
+        elseif scancode == "right" or scancode == "l" then
+            self.setupmenu:rightReleased()
+        end
+    end
 end
 
 -- use scancode, Luke!

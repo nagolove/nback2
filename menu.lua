@@ -123,11 +123,24 @@ function menu:moveUp()
     end
 end
 
+function menu:keyreleased(key, scancode)
+    if self.active then
+        --пересылка обработки в активное состояние
+
+        local obj = self.items[self.active_item].obj
+        if obj.keyreleased then obj:keyreleased(key, scancode) end
+    end
+end
+
 function menu:keypressed(key, scancode)
     if self.active then
+        --пересылка обработки в активное состояние
+        
         local obj = self.items[self.active_item].obj
         if obj.keypressed then obj:keypressed(key, scancode) end
     else
+        --движение по меню
+
         if key == "up" or key == "k" then self:moveUp()
         elseif key == "down" or key == "j" then self:moveDown()
         elseif key == "escape" then love.event.quit()

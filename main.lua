@@ -71,6 +71,7 @@ function love.keypressed(key, scancode)
     end
 
     print(string.format("key %s, scancode %s", key, scancode))
+
     -- переключение режимов экрана
     if love.keyboard.isDown("ralt", "lalt") and key == "return" then
         -- код дерьмовый, но работает
@@ -90,6 +91,10 @@ function love.keypressed(key, scancode)
     else
         menu:keypressed(key, scancode)
     end
+end
+
+function love.keyreleased(key, scancode)
+    menu:keyreleased(key, scancode)
 end
 
 function love.mousepressed(x, y, button, istouch)
