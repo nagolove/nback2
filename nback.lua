@@ -236,21 +236,21 @@ function nback:createSetupMenu()
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
         oninit = function() return 
-            "Exposition time " .. expositionList[activePauseTimeListItem] 
+            {"Exposition time " .. expositionList[activePauseTimeListItem]}
         end,
         onleft = function()
             if activePauseTimeListItem - 1 >= 1 then
                 activePauseTimeListItem = activePauseTimeListItem - 1
             end
-            return "Exposition time " .. 
-                expositionList[activePauseTimeListItem]
+            return {"Exposition time " .. 
+                expositionList[activePauseTimeListItem]}
         end,
         onright = function()
             if activePauseTimeListItem + 1 <= #expositionList then
                 activePauseTimeListItem = activePauseTimeListItem + 1
             end
-            return "Exposition time " .. 
-                expositionList[activePauseTimeListItem]
+            return {"Exposition time " .. 
+                expositionList[activePauseTimeListItem]}
         end})
 
     local nbackLevel = 1 -- начальное значение. Можно менять исходя из
@@ -265,11 +265,11 @@ function nback:createSetupMenu()
         oninit = function() return "Difficulty level: " .. nbackLevel end,
         onleft = function()
             if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
-            return "Difficulty level: " .. nbackLevel
+            return {"Difficulty level: " .. nbackLevel}
         end,
         onright = function()
             if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
-            return "Difficulty level: " .. nbackLevel
+            return {"Difficulty level: " .. nbackLevel}
         end,
         onselect = nil})
 end

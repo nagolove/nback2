@@ -55,8 +55,8 @@ function menu:addItem(t)
 
     self.items[#self.items + 1] = t
     local item = self.items[#self.items]
-    item.text = item.oninit()
-    assert(type(item.text == "string"), "oninit() should return string.")
+    item.content = item.oninit()
+    assert(type(item.content == "table"), "oninit() should return table.")
 end
 
 function menu:update(dt)
@@ -84,7 +84,7 @@ end
 function menu:leftPressed()
     local item = self.items[self.activeIndex]
     if item.onleft then
-        item.text = item.onleft()
+        item.content = item.onleft()
     end
 end
 
@@ -92,17 +92,21 @@ end
 function menu:rightPressed()
     local item = self.items[self.activeIndex]
     if item.onright then
-        item.text = item.onright()
+        item.content = item.onright()
     end
 end
 
 -- целевая задача: рисовка одной единственной менюшки, в центре экрана, с
 -- выравниманием по-центру прямоугольника.
 function menu:draw()
+
+    function subDrawText(text)
+    end
+
     local y0 = (h - #self.items * self.font:getHeight()) / 2 
     local w, h = g.getDimensions()
-    --local menuHeight = 
     local y = y0
+
     local oldfont = g.getFont()
     g.setColor(self.color)
     g.setFont(self.font)
@@ -110,27 +114,60 @@ function menu:draw()
     local oldLineWidth = g.getLineWidth()
     g.setLineWidth(self.cursorLineWidth)
 
+    local leftMarker, rightMarker = "<< ", " >>"
     for k, v in pairs(self.items) do
         local text = ""
 
         if v.onleft then
             text = "<< "
         end
-        text = text .. v.text
+        for _, p in pairs(v.content) do
+            if type(p) == "string" then
+                text = text .. p
+            end
+        end
         if v.onright then
             text = text .. " >>"
         end
 
-        g.printf(text, 0, y, w, "center")
+        local textWidth = g.getFont():getWidth(text)
+        local x0 = (w - textWidth) / 2
+        local x = x0
+
+        --g.printf(text, 0, y, w, "center")
+        if v.onleft then
+            g.print(leftMarker, x, y)
+            x = x + g.getFont():getWidth(leftMarker)
+        end
+        local xLeft = x
+        for _, p in pairs(v.content) do
+            if type(p) == "table" then
+                -- дополнительная проверка на соответствие таблицы структуре
+                -- цвета?
+                g.setColor(p)
+            elseif type(p) == "string" then
+                g.print(p, x, y)
+                x = x + g.getFont():getWidth(p)
+            else
+                error("Unexpected type of value."
+            end
+        end
+        local xRight = x
+        if v.onright then
+            g.print(rightMarker, x, y)
+            x = x + g.getFont():getWidth(rightMarker)
+        end
 
         if k == self.activeIndex then 
-            local textWidth = g.getFont():getWidth(v.text)
-            local x = (w - textWidth) / 2
+            -- Переменная с таким именем уже испльзуется. Могут быть ошибки
+            --local textWidth = g.getFont():getWidth(v.text)
+            --local x = (w - textWidth) / 2
             local oldcolor = {g.getColor()}
             g.setColor{0.8, 0, 0}
-            g.rectangle("line", x, y, textWidth, g.getFont():getHeight())
+            g.rectangle("line", xLeft, y, xRight - xLeft, g.getFont():getHeight())
             g.setColor(oldcolor)
         end
+
         y = y + self.font:getHeight()
     end
 
