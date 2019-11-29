@@ -226,6 +226,7 @@ function nback:createSetupMenu()
     self.setupmenu:addItem({
         oninit = function() return {"Start"} end,
         onselect = function() -- что здесь должно быть?
+            self:start()
         end})
 
     local expositionList = {
@@ -462,39 +463,42 @@ function nback:keypressed(key, scancode)
         else
             self:quit()
         end
-    elseif scancode == "space" or scancode == "return" then
-            self:start()
+    end
 
-        elseif scancode == "a" then
-            self:check("sound")
-        elseif scancode == "f" then
-            self:check("color")
-        elseif scancode == "j" then
-            self:check("form")
-        elseif scancode == ";" then
-            self:check("pos")
-        end
+    --if scancode == "space" or scancode == "return" then
+        --self:start()
+    if scancode == "a" then
+        self:check("sound")
+    elseif scancode == "f" then
+        self:check("color")
+    elseif scancode == "j" then
+        self:check("form")
+    elseif scancode == ";" then
+        self:check("pos")
+    end
 
-        -- здесь другое игровое состояние, почему используется условие и булев
-        -- флаг?
-        -- состояние - регулировка в меню перед игрой
-        if not self.is_run and not self.show_statistic then
-            if scancode == "up" or scancode == "k" then
-                self.setupmenu:scrollUp()
-            elseif scancode == "down" or scancode == "j" then 
-                self.setupmenu:scrollDown()
-            elseif scancode == "left" or scancode == "h" then
-                self.setupmenu:leftPressed()
-            elseif scancode == "right" or scancode == "l" then
-                self.setupmenu:rightPressed()
-            end
+    -- здесь другое игровое состояние, почему используется условие и булев
+    -- флаг?
+    -- состояние - регулировка в меню перед игрой
+    if not self.is_run and not self.show_statistic then
+        if scancode == "space" or scancode == "return" then
+            self.setupmenu:select()
+        elseif scancode == "up" or scancode == "k" then
+            self.setupmenu:scrollUp()
+        elseif scancode == "down" or scancode == "j" then 
+            self.setupmenu:scrollDown()
+        elseif scancode == "left" or scancode == "h" then
+            self.setupmenu:leftPressed()
+        elseif scancode == "right" or scancode == "l" then
+            self.setupmenu:rightPressed()
         end
+    end
 
-        if scancode == "-" then 
-            self:loverVolume()
-        elseif scancode == "=" then
-            self:raiseVolume()
-        end
+    if scancode == "-" then 
+        self:loverVolume()
+    elseif scancode == "=" then
+        self:raiseVolume()
+    end
 
     if scancode == "2" then linesbuf.show = not linesbuf.show end
 end
@@ -517,9 +521,12 @@ end
 
 -- signal type may be "pos", "sound", "color", "form"
 function nback:check(signalType)
+
+    -- эта проверка должна выполняться в другом месте, снаружи данной функции.
     if not self.is_run then
         return
     end
+
     local signals = self[signalType .. "_signals"]
     local cmp = function(a, b) return a == b end
     if signalType == "pos" then
@@ -640,7 +647,7 @@ function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
     return x, y
 end
 
-function nback:print_debug_info()
+function nback:fill_linesbuf()
     linesbuf:pushi("fps " .. love.timer.getFPS())
     linesbuf:pushi("pos " .. inspect(self.pos_signals))
     linesbuf:pushi("sound " .. inspect(self.sound_signals))
@@ -791,16 +798,12 @@ end
 function nback:draw()
     love.graphics.clear(pallete.background)
 
-    --self.signal:setCorner(x0, y0)
     local x0, y0 = self.x0, self.y0
 
     g.push("all")
     g.setShader(self.shader)
 
-    -- этим вызовом рисуются только полосы сетки
     self:draw_field()
-
-    self:print_debug_info()
     if self.is_run then
         if self.start_pause then
             self:print_start_pause()
@@ -824,6 +827,8 @@ function nback:draw()
 
     g.setShader()
     g.pop()
+
+    self:fill_linesbuf()
 end
 
 return {

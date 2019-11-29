@@ -65,6 +65,13 @@ function menu:addItem(t)
     item.rightPressedKey = false
 end
 
+function menu:select()
+    local item = self.items[self.activeIndex]
+    if item.onselect then
+        item:onselect()
+    end
+end
+
 function menu:update(dt)
     --print("menu:update()")
     local item = self.items[self.activeIndex]
