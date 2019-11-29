@@ -219,8 +219,8 @@ function nback:createSetupMenu()
     local parameterColor = {1, 1, 1}
 
     self.setupmenu = setupmenu(
-        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
-        pallete.signal)
+        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25), pallete.signal, 
+        linesbuf)
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
@@ -336,6 +336,7 @@ function nback:update(dt)
         else
             self:stop()
         end
+    else
         if not self.show_statistic then
             self.setupmenu:update(dt)
         end
@@ -443,7 +444,7 @@ function nback:quit()
 end
 
 function nback:keyreleased(key, scancode)
-    print(string.format("nback:keyreleased(%s)", scancode))
+    --print(string.format("nback:keyreleased(%s)", scancode))
     if not self.is_run and not self.show_statistic then
         if scancode == "left" or scancode == "h" then
             self.setupmenu:leftReleased()
