@@ -228,14 +228,15 @@ function nback:createSetupMenu()
     -- меньше целевых сигналов в итоге.
     local maxLevel = 8   
 
-    local expositionList = {
-        "1.4..1.8s", -- 1 index
-        "1.8..2.2s", -- 2 index
-        "2.2..2.6s", -- 3 index
-    }
+    --local expositionList = {
+        --"1.4..1.8s", -- 1 index
+        --"1.8..2.2s", -- 2 index
+        --"2.2..2.6s", -- 3 index
+    --}
+    local expositionList = { "1", "2", "3", "4", "5", "6", }
     local activeExpositionItem = 2
 
-    local parameterColor = {1, 1, 1}
+    local parameterColor = {0, 0.9, 0}
 
     self.setupmenu = setupmenu(
         love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25), pallete.signal, 
@@ -246,6 +247,7 @@ function nback:createSetupMenu()
         oninit = function() return {"Start"} end,
         onselect = function() -- что здесь должно быть?
             self.level = nbackLevel
+            self.pause_time = tonumber(expositionList[activeExpositionItem])
             self:start()
         end})
 
@@ -253,7 +255,7 @@ function nback:createSetupMenu()
     self.setupmenu:addItem({
         oninit = function() return 
             {pallete.signal, "Exposition time ", parameterColor, 
-            expositionList[activeExpositionItem]},
+            expositionList[activeExpositionItem], pallete.signal, " sec."},
             activeExpositionItem == 1,
             activeExpositionItem == #expositionList
         end,
@@ -263,7 +265,7 @@ function nback:createSetupMenu()
                 activeExpositionItem = activeExpositionItem - 1
             end
             return {pallete.signal, "Exposition time ", parameterColor,
-                expositionList[activeExpositionItem]}, 
+                expositionList[activeExpositionItem], pallete.signal, " sec."}, 
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end,
@@ -273,7 +275,7 @@ function nback:createSetupMenu()
                 activeExpositionItem = activeExpositionItem + 1
             end
             return {pallete.signal, "Exposition time ", parameterColor,
-                expositionList[activeExpositionItem]},
+                expositionList[activeExpositionItem], pallete.signal, " sec."},
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end})
@@ -643,31 +645,29 @@ end
 -- eq - массив-наложение на arr, для успешных попаданий?
 -- rect_size - размер отображаемого в сетке прямоугольника
 -- border - зазор между прямоугольниками.
+-- что за пару x, y возвращает функция?
 function nback:draw_hit_rects(x, y, arr, eq, rect_size, border)
     local hit_color = {200 / 255, 10 / 255, 10 / 255}
     for k, v in pairs(arr) do
         g.setColor(pallete.field)
         g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
         g.setColor(pallete.inactive)
-        g.rectangle("fill", 
-            x + rect_size * (k - 1) + border, 
-            y + border, rect_size - border * 2, 
-            rect_size - border * 2)
+        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, 
+            rect_size - border * 2, rect_size - border * 2)
+
+        -- отмеченная игроком позиция
         if v then
             g.setColor(hit_color)
-            g.rectangle("fill", 
-                x + rect_size * (k - 1) + border, 
-                y + border, rect_size - border * 2, 
-                rect_size - border * 2)
+            g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, 
+                rect_size - border * 2, rect_size - border * 2)
         end
-        -- draw circle in center of quad if it is successful
+
+        -- правильная позиция нажатия
         if eq[k] then
             local radius = 4
             g.setColor({0, 0, 0})
-            g.circle("fill", 
-                x + rect_size * (k - 1) + rect_size / 2, 
-                y + rect_size / 2, 
-                radius)
+            g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, 
+                y + rect_size / 2, radius)
         end
     end
     y = y + rect_size + 6
@@ -688,9 +688,11 @@ end
 function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
     local sx = x + rect_size * (#self.pos_signals - 1) + border + rect_size 
         - border * 2 + pixel_gap
+    local formatStr = "%.3f"
+
     g.setColor({200 / 255, 0, 200 / 255})
     g.setFont(self.font)
-    local formatStr = "%.3f"
+
     g.print(string.format(formatStr, self.sound_percent), sx, y)
     y = y + rect_size + 6
     g.print(string.format(formatStr, self.color_percent), sx, y)
