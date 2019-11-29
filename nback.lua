@@ -239,7 +239,7 @@ function nback:createSetupMenu()
     local parameterColor = {0, 0.9, 0}
 
     self.setupmenu = setupmenu(
-        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25), pallete.signal, 
+        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 40), pallete.signal, 
         linesbuf)
 
     -- пункт меню - поехали!
@@ -670,13 +670,16 @@ function nback:draw_hit_rects(x, y, arr, eq, rect_size, border)
                 y + rect_size / 2, radius)
         end
     end
+
+    -- этот код должен быть в вызывающей функции
     y = y + rect_size + 6
     return x, y
+    -- этот код должен быть в вызывающей функции
 end
 
 local draw_iteration = 0 -- debug variable
 
--- draw one big letter in left side of draw_hit_rects() output
+-- draw one big letter in left side of hit rects output
 function nback:print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     local delta = (rect_size - g.getFont():getHeight()) / 2
     g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
