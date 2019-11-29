@@ -41,7 +41,7 @@ function nback.new()
         cell_width = 100,  -- width of game field in pixels
         current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
         sig_count = 8, -- количество сигналов
-        level = 2, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
+        level = 1, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
         is_run = false, -- индикатор запуска рабочего цикла
         pause_time = 2.0, -- задержка между сигналами, в секундах
         can_press = false, -- XXX FIXME зачем нужна эта переменная?
@@ -217,6 +217,21 @@ end
 
 -- фигачу кастомную менюшку на лету
 function nback:createSetupMenu()
+    -- начальное значение. Можно менять исходя из
+    -- предыдущих игр, брать из файла настроек и т.д.
+    local nbackLevel = self.level 
+    -- значение должно поддерживаться генератором, 
+    -- больше значение - длиннее последовательность и(или)
+    -- меньше целевых сигналов в итоге.
+    local maxLevel = 8   
+
+    local expositionList = {
+        "1.4..1.8s", -- 1 index
+        "1.8..2.2s", -- 2 index
+        "2.2..2.6s", -- 3 index
+    }
+    local activeExpositionItem = 2
+
     local parameterColor = {1, 1, 1}
 
     self.setupmenu = setupmenu(
@@ -227,15 +242,9 @@ function nback:createSetupMenu()
     self.setupmenu:addItem({
         oninit = function() return {"Start"} end,
         onselect = function() -- что здесь должно быть?
+            self.level = nbackLevel
             self:start()
         end})
-
-    local expositionList = {
-        "1.4..1.8s", -- 1 index
-        "1.8..2.2s", -- 2 index
-        "2.2..2.6s", -- 3 index
-    }
-    local activeExpositionItem = 2
 
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
@@ -265,13 +274,6 @@ function nback:createSetupMenu()
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end})
-
-    local nbackLevel = 1 -- начальное значение. Можно менять исходя из
-                         -- предыдущих игр, брать из файла настроек и т.д.
-
-    local maxLevel = 8   -- значение должно поддерживаться генератором, 
-                         -- больше значение - длиннее последовательность и(или)
-                         -- меньше целевых сигналов в итоге.
 
     -- выбор уровня эн-назад
     self.setupmenu:addItem({
@@ -303,9 +305,9 @@ function nback:init(save_name)
     self.save_name = save_name
     self.timer = Timer()
     self.signal = signal.new(self.cell_width, "alphabet")
+    self:readSettings()
     self:createSetupMenu()
     self:resize(g.getDimensions())
-    self:readSettings()
     self:initShaders()
 end
 

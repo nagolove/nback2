@@ -1,5 +1,8 @@
 local lume = require "libs.lume"
 local function generate(sig_count, gen, cmp, level)
+    print(string.format("generating signal array for %d signals of %d level.", 
+        sig_count, level))
+
     local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
     --функцией.
     local ratio = 8 --TODO FIXME XXX -- что за "отношение"?
