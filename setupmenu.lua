@@ -60,12 +60,14 @@ function menu:addItem(t)
     self.items[#self.items + 1] = t
     local item = self.items[#self.items]
     item.content, item.isfirst, item.islast = item.oninit()
+
     if not item.isfirst then
         item.isfirst = false
     end
     if not item.islast then
-        item.islast = true
+        item.islast = false
     end
+
     assert(type(item.content == "table"), "oninit() should return table.")
     item.leftPressedKey = false
     item.rightPressedKey = false
@@ -112,7 +114,7 @@ function menu:leftPressed()
             item.isfirst = false
         end
         if not item.islast then
-            item.islast = true
+            item.islast = false
         end
         item.leftPressedKey = true
     end
@@ -132,7 +134,7 @@ function menu:rightPressed()
             item.isfirst = false
         end
         if not item.islast then
-            item.islast = true
+            item.islast = false
         end
         item.rightPressedKey = true
     end
@@ -143,8 +145,8 @@ function menu:rightReleased()
     item.rightPressedKey = false
 end
 
--- целевая задача: рисовка одной единственной менюшки, в центре экрана, с
--- выравниманием по-центру прямоугольника.
+-- целевая задача: рисовка одной менюшки, в центре экрана, с выравниманием 
+-- по центру экрана
 function menu:draw()
 
     local y0 = (h - #self.items * self.font:getHeight()) / 2 
@@ -161,6 +163,7 @@ function menu:draw()
 
     local leftMarkerColor
     local rightMarkerColor 
+    local tmpColor
 
     for k, v in pairs(self.items) do
         local markerColor = {1, 1, 1}
@@ -168,18 +171,25 @@ function menu:draw()
         local inactiveMarkerColor = {0.5, 0.5, 0.5}
 
         --local markerColor = self.markerColor
-        local tmpColor = v.isfirst and inactiveMarkerColor or markerColor
+        
+        tmpColor = v.isfirst and inactiveMarkerColor or markerColor
         print("tmpColor", inspect(tmpColor))
         local leftMarkerColor = v.leftPressedKey and activeMarkerColor or 
             tmpColor
 
-        print("-- v.isfirst", v.isfirst)
-        print("-- v.islast", v.islast)
-        print("result color ", inspect(v.isfirst and inactiveMarkerColor or 
-            markerColor))
+        print("v.content", inspect(v.content))
+        print("v.isfirst", v.isfirst)
+        print("v.islast", v.islast)
 
+        --print("result color ", inspect(v.isfirst and inactiveMarkerColor or 
+            --markerColor))
+
+        tmpColor = v.islast and inactiveMarkerColor or markerColor
         local rightMarkerColor = v.rightPressedKey and activeMarkerColor or
-            (v.islast and inactiveMarkerColor or markerColor)
+            tmpColor
+
+        --local rightMarkerColor = v.rightPressedKey and activeMarkerColor or
+            --(v.islast and inactiveMarkerColor or markerColor)
 
         local text = ""
 
