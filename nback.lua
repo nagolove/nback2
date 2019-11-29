@@ -620,9 +620,6 @@ function nback:make_hit_arr(signals, comparator)
     return ret
 end
 
-function nback:draw_field_grid()
-end
-
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
 -- arr - массив со значениями чего?
 -- eq - массив-наложение на arr, для успешных попаданий?
@@ -803,7 +800,6 @@ function nback:draw_statistic()
 
     -- drawing left column with letters
     g.setColor({200 / 255, 0, 200 / 255})
-    g.setFont(self.font)
 
     local y = freezedY
     local pixel_gap = 10
