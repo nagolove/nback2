@@ -27,6 +27,9 @@ function menu.new(font, color, lb)
         activeIndex = 1,
         cursorLineWidth = 3,
         cursorColor = {0.8, 0, 0},
+        markerColor = {1, 1, 1},
+        activeMarkerColor = {0, 0.8, 0},
+        inactiveMarkerColor = {0.5, 0.5, 0.5},
     }
     linesbuf = lb
     return setmetatable(self, menu)
@@ -161,35 +164,16 @@ function menu:draw()
 
     local leftMarker, rightMarker = "<< ", " >>"
 
-    local leftMarkerColor
-    local rightMarkerColor 
-    local tmpColor
+    local leftMarkerColor, rightMarkerColor
 
     for k, v in pairs(self.items) do
-        local markerColor = {1, 1, 1}
         local activeMarkerColor = {0, 0.8, 0}
         local inactiveMarkerColor = {0.5, 0.5, 0.5}
-
-        --local markerColor = self.markerColor
         
-        tmpColor = v.isfirst and inactiveMarkerColor or markerColor
-        print("tmpColor", inspect(tmpColor))
-        local leftMarkerColor = v.leftPressedKey and activeMarkerColor or 
-            tmpColor
-
-        print("v.content", inspect(v.content))
-        print("v.isfirst", v.isfirst)
-        print("v.islast", v.islast)
-
-        --print("result color ", inspect(v.isfirst and inactiveMarkerColor or 
-            --markerColor))
-
-        tmpColor = v.islast and inactiveMarkerColor or markerColor
-        local rightMarkerColor = v.rightPressedKey and activeMarkerColor or
-            tmpColor
-
-        --local rightMarkerColor = v.rightPressedKey and activeMarkerColor or
-            --(v.islast and inactiveMarkerColor or markerColor)
+        local leftMarkerColor = v.leftPressedKey and self.activeMarkerColor 
+            or (v.isfirst and inactiveMarkerColor or self.markerColor)
+        local rightMarkerColor = v.rightPressedKey and self.activeMarkerColor 
+            or (v.islast and inactiveMarkerColor or self.markerColor)
 
         local text = ""
 
