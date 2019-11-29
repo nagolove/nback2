@@ -167,9 +167,6 @@ function menu:draw()
     local leftMarkerColor, rightMarkerColor
 
     for k, v in pairs(self.items) do
-        local activeMarkerColor = {0, 0.8, 0}
-        local inactiveMarkerColor = {0.5, 0.5, 0.5}
-        
         local leftMarkerColor = v.leftPressedKey and self.activeMarkerColor 
             or (v.isfirst and inactiveMarkerColor or self.markerColor)
         local rightMarkerColor = v.rightPressedKey and self.activeMarkerColor 
