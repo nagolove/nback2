@@ -167,7 +167,8 @@ function nback:start()
     print(inspect(self.form_pressed_arr))
     print(inspect(self.sound_pressed_arr))
 
-    self.start_pause_rest = 4
+    self.stopppedSignal = 0 -- сигнал, на котором остановилась партия
+    self.start_pause_rest = 3 -- время паузы перед раундом
     self.start_pause = true
     self.timer:every(1, function() 
         self.start_pause_rest = self.start_pause_rest - 1 
@@ -320,6 +321,41 @@ function nback:processSignal()
     end
 end
 
+function nback:draw()
+    love.graphics.clear(pallete.background)
+
+    local x0, y0 = self.x0, self.y0
+
+    g.push("all")
+    g.setShader(self.shader)
+
+    self:draw_field()
+    if self.is_run then
+        if self.start_pause then
+            self:print_start_pause()
+        else
+            self:draw_active_signal()
+        end
+    else
+        if self.show_statistic then 
+            self:draw_statistic()
+        else
+            --self:draw_level_welcome()
+            self.setupmenu:draw()
+        end
+    end
+
+    local bottom_text_line_y = h - self.font:getHeight() * 3
+
+    self:print_control_tips(bottom_text_line_y)
+    self:print_escape_tip(bottom_text_line_y)
+
+    g.setShader()
+    g.pop()
+
+    self:fill_linesbuf()
+end
+
 function nback:update(dt)
     self.timer:update(dt)
 
@@ -426,6 +462,11 @@ function nback:stop()
     self.percent = (self.sound_percent + self.color_percent + 
         self.form_percent + self.pos_percent) / 4
 
+    -- зачем нужна эта проверка? Расчет на то, что раунд был начат?
+    if self.pos_signals then
+        self.stopppedSignal = self.current_sig 
+    end
+
     -- Раунд полностью закончен? - записываю историю
     if self.pos_signals and self.current_sig == #self.pos_signals then 
         self:save_to_history() 
@@ -434,13 +475,13 @@ end
 
 function nback:quit()
     self.timer:destroy()
+    self:stop()
     local settings_str = lume.serialize { 
         ["volume"] = love.audio.getVolume(), 
         ["level"] = self.level, 
         ["pause_time"] = self.pause_time }
     ok, msg = love.filesystem.write("settings.lua", settings_str, 
         settings_str:len())
-    self:stop()
     menu:goBack()
 end
 
@@ -465,32 +506,32 @@ function nback:keypressed(key, scancode)
         end
     end
 
-    --if scancode == "space" or scancode == "return" then
-        --self:start()
-    if scancode == "a" then
-        self:check("sound")
-    elseif scancode == "f" then
-        self:check("color")
-    elseif scancode == "j" then
-        self:check("form")
-    elseif scancode == ";" then
-        self:check("pos")
-    end
-
-    -- здесь другое игровое состояние, почему используется условие и булев
-    -- флаг?
-    -- состояние - регулировка в меню перед игрой
-    if not self.is_run and not self.show_statistic then
-        if scancode == "space" or scancode == "return" then
-            self.setupmenu:select()
-        elseif scancode == "up" or scancode == "k" then
-            self.setupmenu:scrollUp()
-        elseif scancode == "down" or scancode == "j" then 
-            self.setupmenu:scrollDown()
-        elseif scancode == "left" or scancode == "h" then
-            self.setupmenu:leftPressed()
-        elseif scancode == "right" or scancode == "l" then
-            self.setupmenu:rightPressed()
+    if self.is_run then
+        if scancode == "a" then
+            self:check("sound")
+        elseif scancode == "f" then
+            self:check("color")
+        elseif scancode == "j" then
+            self:check("form")
+        elseif scancode == ";" then
+            self:check("pos")
+        end
+    else
+        -- здесь другое игровое состояние, почему используется условие и булев
+        -- флаг?
+        -- состояние - регулировка в меню перед игрой
+        if not self.show_statistic then
+            if scancode == "space" or scancode == "return" then
+                self.setupmenu:select()
+            elseif scancode == "up" or scancode == "k" then
+                self.setupmenu:scrollUp()
+            elseif scancode == "down" or scancode == "j" then 
+                self.setupmenu:scrollDown()
+            elseif scancode == "left" or scancode == "h" then
+                self.setupmenu:leftPressed()
+            elseif scancode == "right" or scancode == "l" then
+                self.setupmenu:rightPressed()
+            end
         end
     end
 
@@ -498,9 +539,9 @@ function nback:keypressed(key, scancode)
         self:loverVolume()
     elseif scancode == "=" then
         self:raiseVolume()
+    elseif scancode == "2" then 
+        linesbuf.show = not linesbuf.show 
     end
-
-    if scancode == "2" then linesbuf.show = not linesbuf.show end
 end
 
 local soundVolumeStep = 0.05
@@ -661,16 +702,6 @@ function nback:fill_linesbuf()
     linesbuf:draw()
 end
 
-function nback:print_set_results()
-    local y = self.y0 + self.font:getHeight()
-    g.printf(string.format("Set results:"), 0, y, w, "center")
-    y = y + self.font:getHeight()
-    g.printf(string.format("level %d", self.level), 0, y, w, "center")
-    y = y + self.font:getHeight()
-    g.printf(string.format("Pause time %.1f sec", self.pause_time), 
-        0, y, w, "center")
-end
-
 function nback:draw_level_welcome()
     g.setFont(self.font)
     --FIXME Dissonance with color and variable name
@@ -759,7 +790,8 @@ function nback:draw_statistic()
 
     y = y + g.getFont():getHeight() * 1.5
 
-    local freeze_y = y
+    local freezedY = y
+
     x, y = self:draw_hit_rects(x, y, self.sound_pressed_arr, self.sound_eq, 
         rect_size, border)
     x, y = self:draw_hit_rects(x, y, self.color_pressed_arr, self.color_eq, 
@@ -773,14 +805,22 @@ function nback:draw_statistic()
     g.setColor({200 / 255, 0, 200 / 255})
     g.setFont(self.font)
 
-    local y = freeze_y
+    local y = freezedY
     local pixel_gap = 10
     x, y = self:print_signal_type(x, y, rect_size, "S", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
-    x, y = self:print_percents(x, freeze_y + 0, rect_size, pixel_gap, border, 
+    x, y = self:print_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
         starty)
+
+    local y = self.y0 + self.font:getHeight()
+    g.printf(string.format("Set results:"), 0, y, w, "center")
+    y = y + self.font:getHeight()
+    g.printf(string.format("level %d", self.level), 0, y, w, "center")
+    y = y + self.font:getHeight()
+    g.printf(string.format("Pause time %.1f sec", self.pause_time), 
+        0, y, w, "center")
 end
 
 -- draw central_text - Press Space key
@@ -793,42 +833,6 @@ function nback:print_start_pause()
     --y = h - self.central_font:getHeight() * 2
     local y = self.y0 + (self.dim - 1) * self.cell_width
     g.print(central_text, x, y)
-end
-
-function nback:draw()
-    love.graphics.clear(pallete.background)
-
-    local x0, y0 = self.x0, self.y0
-
-    g.push("all")
-    g.setShader(self.shader)
-
-    self:draw_field()
-    if self.is_run then
-        if self.start_pause then
-            self:print_start_pause()
-        else
-            self:draw_active_signal()
-        end
-    else
-        if self.show_statistic then 
-            self:draw_statistic()
-            self:print_set_results()
-        else
-            --self:draw_level_welcome()
-            self.setupmenu:draw()
-        end
-    end
-
-    local bottom_text_line_y = h - self.font:getHeight() * 3
-
-    self:print_control_tips(bottom_text_line_y)
-    self:print_escape_tip(bottom_text_line_y)
-
-    g.setShader()
-    g.pop()
-
-    self:fill_linesbuf()
 end
 
 return {
