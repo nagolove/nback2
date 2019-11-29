@@ -167,12 +167,15 @@ function nback:start()
     print(inspect(self.form_pressed_arr))
     print(inspect(self.sound_pressed_arr))
 
-    self.stopppedSignal = 0 -- сигнал, на котором остановилась партия
+    -- сигнал, на котором остановилась партия. Используется для рисовки
+    -- вертикальной временной черты на графике нажатий
+    self.stopppedSignal = 0 
+
     self.start_pause_rest = 3 -- время паузы перед раундом
     self.start_pause = true
     self.timer:every(1, function() 
         self.start_pause_rest = self.start_pause_rest - 1 
-    end, 4, function()
+    end, self.start_pause_rest, function()
         self.start_pause = false
     end)
     print("end of start")
