@@ -235,29 +235,35 @@ function nback:createSetupMenu()
         "1.8..2.2s", -- 2 index
         "2.2..2.6s", -- 3 index
     }
-    local activePauseTimeListItem = 2
+    local activeExpositionItem = 2
 
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
         oninit = function() return 
             {pallete.signal, "Exposition time ", parameterColor, 
-            expositionList[activePauseTimeListItem]}
+            expositionList[activeExpositionItem]},
+            activeExpositionItem == 1,
+            activeExpositionItem == #expositionList
         end,
 
         onleft = function()
-            if activePauseTimeListItem - 1 >= 1 then
-                activePauseTimeListItem = activePauseTimeListItem - 1
+            if activeExpositionItem - 1 >= 1 then
+                activeExpositionItem = activeExpositionItem - 1
             end
             return {pallete.signal, "Exposition time ", parameterColor,
-                expositionList[activePauseTimeListItem]}
+                expositionList[activeExpositionItem]}, 
+                activeExpositionItem == 1,
+                activeExpositionItem == #expositionList
         end,
 
         onright = function()
-            if activePauseTimeListItem + 1 <= #expositionList then
-                activePauseTimeListItem = activePauseTimeListItem + 1
+            if activeExpositionItem + 1 <= #expositionList then
+                activeExpositionItem = activeExpositionItem + 1
             end
             return {pallete.signal, "Exposition time ", parameterColor,
-                expositionList[activePauseTimeListItem]}
+                expositionList[activeExpositionItem]},
+                activeExpositionItem == 1,
+                activeExpositionItem == #expositionList
         end})
 
     local nbackLevel = 1 -- начальное значение. Можно менять исходя из
@@ -270,18 +276,25 @@ function nback:createSetupMenu()
     -- выбор уровня эн-назад
     self.setupmenu:addItem({
         oninit = function() return {pallete.signal, "Difficulty level: ",
-            parameterColor, tostring(nbackLevel)} end,
+            parameterColor, tostring(nbackLevel)}, 
+            nbackLevel == 1,
+            nbackLevel == maxLevel
+        end,
 
         onleft = function()
             if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
             return {pallete.signal, "Difficulty level: ", parameterColor,
-                tostring(nbackLevel)}
+                tostring(nbackLevel)},
+                nbackLevel == 1,
+                nbackLevel == maxLevel
         end,
 
         onright = function()
             if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
             return {signal.color, "Difficulty level: ", parameterColor,
-                tostring(nbackLevel)}
+                tostring(nbackLevel)},
+                nbackLevel == 1,
+                nbackLevel == maxLevel
         end})
 end
 

@@ -59,7 +59,13 @@ function menu:addItem(t)
 
     self.items[#self.items + 1] = t
     local item = self.items[#self.items]
-    item.content = item.oninit()
+    item.content, item.isfirst, item.islast = item.oninit()
+    if not item.isfirst then
+        item.isfirst = false
+    end
+    if not item.islast then
+        item.islast = true
+    end
     assert(type(item.content == "table"), "oninit() should return table.")
     item.leftPressedKey = false
     item.rightPressedKey = false
@@ -77,6 +83,8 @@ function menu:update(dt)
     local item = self.items[self.activeIndex]
     --linesbuf:pushi("item.leftPressedKey = %s", tostring(item.leftPressedKey))
     --linesbuf:pushi("item.rightPressedKey = %s", tostring(item.rightPressedKey))
+    linesbuf:pushi("item.isfirst = %s, item.islast = %s", item.isfirst, 
+        item.islast)
 end
 
 function menu:scrollUp()
@@ -99,7 +107,13 @@ end
 function menu:leftPressed()
     local item = self.items[self.activeIndex]
     if item.onleft then
-        item.content = item.onleft()
+        item.content, item.isfirst, item.islast = item.onleft()
+        if not item.isfirst then
+            item.isfirst = false
+        end
+        if not item.islast then
+            item.islast = true
+        end
         item.leftPressedKey = true
     end
 end
@@ -113,7 +127,13 @@ end
 function menu:rightPressed()
     local item = self.items[self.activeIndex]
     if item.onright then
-        item.content = item.onright()
+        item.content, item.isfirst, item.islast = item.onright()
+        if not item.isfirst then
+            item.isfirst = false
+        end
+        if not item.islast then
+            item.islast = true
+        end
         item.rightPressedKey = true
     end
 end
@@ -143,8 +163,23 @@ function menu:draw()
     local rightMarkerColor 
 
     for k, v in pairs(self.items) do
-        local leftMarkerColor = v.leftPressedKey and {0, 0.8, 0} or {1, 1, 1}
-        local rightMarkerColor = v.rightPressedKey and {0, 0.8, 0} or {1, 1, 1}
+        local markerColor = {1, 1, 1}
+        local activeMarkerColor = {0, 0.8, 0}
+        local inactiveMarkerColor = {0.5, 0.5, 0.5}
+
+        --local markerColor = self.markerColor
+        local tmpColor = v.isfirst and inactiveMarkerColor or markerColor
+        print("tmpColor", inspect(tmpColor))
+        local leftMarkerColor = v.leftPressedKey and activeMarkerColor or 
+            tmpColor
+
+        print("-- v.isfirst", v.isfirst)
+        print("-- v.islast", v.islast)
+        print("result color ", inspect(v.isfirst and inactiveMarkerColor or 
+            markerColor))
+
+        local rightMarkerColor = v.rightPressedKey and activeMarkerColor or
+            (v.islast and inactiveMarkerColor or markerColor)
 
         local text = ""
 
