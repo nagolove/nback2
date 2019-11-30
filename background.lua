@@ -2,6 +2,32 @@ local g = love.graphics
 local inspect = require "libs.inspect"
 local pallete = require "pallete"
 
+local Block = {}
+Block.__index = Block
+
+function Block.new(img, size, x, y)
+    local self = {
+        img = img,
+        size = size,
+        x = x,
+        y = y,
+    }
+    setmetatable(self, Block)
+    return self
+end
+
+function Block:draw()
+    local quad = g.newQuad(0, 0, self.img:getWidth(), self.img:getHeight(), 
+        self.img:getWidth(), self.img:getHeight())
+    g.setColor{1, 1, 1, 1}
+    g.draw(self.img, quad, self.x, self.y, 0, self.size / self.tile:getWidth(),
+        self.size / self.tile:getHeight(), self.img:getWidth() / 2, 
+        self.img:getHeight() / 2)
+    --g.draw(menu.tile, quad, i, j, math.pi, 0.3, 0.3)
+end
+
+end
+
 local Background = {}
 Background.__index = Background
 
