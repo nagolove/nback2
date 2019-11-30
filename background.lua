@@ -13,6 +13,7 @@ function Block.new(img, size, x, y)
         y = y,
     }
     setmetatable(self, Block)
+    print(string.format("Block created at %d, %d", x, y))
     return self
 end
 
@@ -26,40 +27,37 @@ function Block:draw()
     --g.draw(menu.tile, quad, i, j, math.pi, 0.3, 0.3)
 end
 
-end
-
 local Background = {}
 Background.__index = Background
 
 function Background.new()
     local self = {
-        tile_size = 256,
         tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
+        blockSize = 256, -- нужная константа или придется менять на что-то?
     }
     setmetatable(self, Background)
+
     self:resize(g.getDimensions())
-    self:calc_rotation_grid()
     return self
 end
 
--- здесь добавить генерацию разных маршрутов движения и преобразования
--- элементов - "плиток"
-function Background:calc_rotation_grid()
-    self.rot_grid = {}
-    local i, j = 0, 0
-    while i <= self.w do
-        j = 0
-        while j <= self.h do
-            local v = math.random()
-            local angle = 0
-            if 0 <= v and v <= 0.25 then angle = 0
-            elseif 0.25 < v and v < 0.5 then angle = math.pi
-            elseif 0.5 < v and v < 0.75 then angle = math.pi * 3 / 4
-            elseif 0.75 < v and v <= 1 then angle = math.pi * 2 end
-            self.rot_grid[#self.rot_grid + 1] = angle
-            j = j + self.tile_size
+function Background:fillGrid()
+    local w, h = g.getDimensions()
+
+    self.blocks = {}
+
+    -- пример правильной адресации - смещение по горизонтали, потом - смещение
+    -- по вертикали
+    -- self.blocks[x][y] = block
+    -- значит в строках лежат колонки
+
+    for i = 1, w / self.blockSize do
+        local column = {}
+        for j = 1, h / self.blockSize do
+            column[#column + 1] = Block.new(self.tile, self.blockSize,
+            i * self.blockSize, j * self.blockSize)
         end
-        i = i + self.tile_size
+        self.blocks[#self.blocks + 1] = column
     end
 end
 
