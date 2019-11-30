@@ -3,22 +3,19 @@ local pviewer = require "pviewer"
 local nback = require "nback"
 local help = require "help"
 local pallete = require "pallete"
-local timer = require "libs.Timer"
 
 local g = love.graphics
-local w, h = g.getDimensions()
-local tile_size = 256
 
 local menu = {}
 menu.__index = menu
 
 function menu.new()
     local self = {
+        items = {},
         active_item = 1, -- указывает индекс выбранного пункта
         active = false,  -- указывает, что запущено какое-то состояние из меню
-        items = {},
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
-        back_tile = love.graphics.newImage("gfx/IMG_20190111_115755.png")
+        back = require "background".new()
     }
     return setmetatable(self, menu)
 end
@@ -32,7 +29,7 @@ end
 
 function menu:compute_rects()
     -- позиционирование игрек посредине высоты экрана
-    self.y_pos = (h - #self.items * self.font:getHeight()) / 2
+    self.y_pos = (self.h - #self.items * self.font:getHeight()) / 2
 
     -- заполнение прямоугольников меню
     self.items_rects = {}
@@ -40,7 +37,7 @@ function menu:compute_rects()
     local rect_width = self.maxWidth
     for i, k in ipairs(self.items) do
         self.items_rects[#self.items_rects + 1] = { 
-            x = (w - rect_width) / 2, 
+            x = (self.w - rect_width) / 2, 
             y = y, w = rect_width, 
             h = self.font:getHeight()
         }
@@ -52,9 +49,8 @@ end
 -- Важен порядок элементов. Значит добавлять в массив таблички по индексу.
 function menu:init()
     math.randomseed(os.time())
-    self.timer = timer()
+    self:resize(g.getDimensions())
     self.alpha = 1
-    self:calc_rotation_grid()
 end
 
 -- ищет наиболее длинный текст в списке пунктов меню и устанавливает
@@ -75,36 +71,15 @@ function menu:addItem(name, object)
     assert(type(name) == "string")
     self.items[#self.items + 1] = { name = name, obj= object }
     self:searchWidestText()
-    self:compute_rects()
+    self:resize(g.getDimensions())
 end
 
 function menu:resize(neww, newh)
-    w = neww
-    h = newh
-    self:calc_rotation_grid()
+    self.w = neww
+    self.h = newh
     self:compute_rects()
+    self.back:resize(neww, newh)
     print(string.format("menu:resize() %d*%d -> %d*%d!", w, h, neww, newh))
-end
-
--- здесь добавить генерацию разных маршрутов движения и преобразования
--- элементов - "плиток"
-function menu:calc_rotation_grid()
-    self.rot_grid = {}
-    local i, j = 0, 0
-    while i <= w do
-        j = 0
-        while j <= h do
-            local v = math.random()
-            local angle = 0
-            if 0 <= v and v <= 0.25 then angle = 0
-            elseif 0.25 < v and v < 0.5 then angle = math.pi
-            elseif 0.5 < v and v < 0.75 then angle = math.pi * 3 / 4
-            elseif 0.75 < v and v <= 1 then angle = math.pi * 2 end
-            self.rot_grid[#self.rot_grid + 1] = angle
-            j = j + tile_size
-        end
-        i = i + tile_size
-    end
 end
 
 function menu:moveDown()
@@ -126,7 +101,6 @@ end
 function menu:keyreleased(key, scancode)
     if self.active then
         --пересылка обработки в активное состояние
-
         local obj = self.items[self.active_item].obj
         if obj.keyreleased then obj:keyreleased(key, scancode) end
     end
@@ -135,7 +109,6 @@ end
 function menu:keypressed(key, scancode)
     if self.active then
         --пересылка обработки в активное состояние
-        
         local obj = self.items[self.active_item].obj
         if obj.keypressed then obj:keypressed(key, scancode) end
     else
@@ -157,11 +130,11 @@ function menu:keypressed(key, scancode)
 end
 
 function menu:update(dt) 
-    self.timer:update(dt)
-    
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.update then obj:update(dt) end
+    else
+        self.back:update(dt)
     end
 end
 
@@ -199,30 +172,6 @@ function menu:mousepressed(x, y, button, istouch)
     end
 end
 
-function menu:drawBackground()
-    g.clear(pallete.background)
-    local quad = g.newQuad(0, 0, self.back_tile:getWidth(), 
-        self.back_tile:getHeight(), self.back_tile:getWidth(), 
-        self.back_tile:getHeight())
-    local i, j = 0, 0
-    local l = 1
-    g.setColor(1, 1, 1, self.alpha)
-    while i <= w do
-        j = 0
-        while j <= h do
-            --print("angle = ", self.rot_grid[l])
-            g.draw(self.back_tile, quad, i, j, self.rot_grid[l], 
-            tile_size / self.back_tile:getWidth(), 
-            tile_size / self.back_tile:getHeight(),
-            self.back_tile:getWidth() / 2, self.back_tile:getHeight() / 2)
-            --g.draw(menu.back_tile, quad, i, j, math.pi, 0.3, 0.3)
-            l = l + 1
-            j = j + tile_size
-        end
-        i = i + tile_size
-    end
-end
-
 -- печать вертикального списка меню
 function menu:drawList()
     local y = self.y_pos
@@ -231,7 +180,7 @@ function menu:drawList()
         local q = self.active_item == i and pallete.active or pallete.inactive 
         q[4] = self.alpha
         g.setColor(q)
-        g.printf(k.name, 0, y, w, "center")
+        g.printf(k.name, 0, y, self.w, "center")
         y = y + self.font:getHeight()
     end
 end
@@ -249,7 +198,7 @@ function menu:draw()
         if obj.draw then obj:draw() end
     else
         g.push("all")
-        self:drawBackground()
+        self.back:draw()
         self:drawList()
         self:drawCursor()
         g.pop()
