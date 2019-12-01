@@ -111,22 +111,27 @@ function Background:fillGrid()
 
             if dir == 1 then
                 --left
-                if self.blocks[xidx - 1] and self.blocks[xidx - 1][ydx] then
+                if self.blocks[xidx - 1] and self.blocks[xidx - 1][yidx] then
+                    --self.execList[#self.execList + 1] = {
+                    self.blocks[xidx -1][yidx].active = true
                     inserted = true
                 end
             elseif dir == 2 then
                 --up
                 if self.blocks[xidx][yidx - 1] then
                     inserted = true
+                    self.blocks[xidx][yidx - 1].active = true
                 end
             elseif dir == 3 then
                 --right
-                if self.blocks[xidx + 1] and self.blocks[xidx + 1][ydx] then
+                if self.blocks[xidx + 1] and self.blocks[xidx + 1][yidx] then
+                    self.blocks[xidx + 1][yidx].active = true
                     inserted = true
                 end
             elseif dir == 4 then
                 --down
                 if self.blocks[xidx][yidx + 1] then
+                    self.blocks[xidx][yidx + 1].active = true
                     inserted = true
                 end
             end
