@@ -11,6 +11,7 @@ function Block.new(img, size, x, y)
         size = size,
         x = x,
         y = y,
+        active = false,
     }
     setmetatable(self, Block)
     print(string.format("Block created at %d, %d", x, y))
@@ -26,6 +27,13 @@ function Block:draw()
         --self.img:getHeight() / 2)
     g.draw(self.img, quad, self.x, self.y, 0, self.size / self.img:getWidth(),
         self.size / self.img:getHeight())
+    if self.active then
+        g.setColor{1, 1, 1}
+        local oldLineWidth = g.getLineWidth()
+        g.setLineWidth(3)
+        g.rectangle("line", self.x, self.y, self.size, self.size)
+        g.setLineWidth(oldLineWidth)
+    end
     --g.draw(self.img, quad, i, j, math.pi, 0.3, 0.3)
 end
 
@@ -33,8 +41,10 @@ end
 function Block:move(dirx, diry)
 end
 
+-- возвращает true если обработка движения еще не закончена. false если 
+-- обработка закончена и блок готов к новым командам.
 function Block:process()
-
+    return false
 end
 
 local Background = {}
@@ -45,6 +55,11 @@ function Background.new()
         tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
         blockSize = 128, -- нужная константа или придется менять на что-то?
         emptyNum = 2,
+
+        -- список блоков для обработки. Хранить индексы или ссылки на объекты?
+        -- Если хранить ссылки на объекты, то блок должен внутри хранить
+        -- свой индекс из blocks?
+        execList = {}, 
     }
     setmetatable(self, Background)
 
@@ -86,10 +101,54 @@ function Background:fillGrid()
         local xidx = math.random(1, fieldWidth)
         local yidx = math.random(1, fieldHeight)
         self.blocks[xidx][yidx] = {}
+
+        -- флаг того, что найдена нужная позиция для активного элемента
+        local inserted = false
+        -- счетчик безопасности от бесконечного цикла
+        local j = 1
+        while not inserted do
+            local dir = math.random(1, 4)
+
+            if dir == 1 then
+                --left
+                if self.blocks[xidx - 1] and self.blocks[xidx - 1][ydx] then
+                    inserted = true
+                end
+            elseif dir == 2 then
+                --up
+                if self.blocks[xidx][yidx - 1] then
+                    inserted = true
+                end
+            elseif dir == 3 then
+                --right
+                if self.blocks[xidx + 1] and self.blocks[xidx + 1][ydx] then
+                    inserted = true
+                end
+            elseif dir == 4 then
+                --down
+                if self.blocks[xidx][yidx + 1] then
+                    inserted = true
+                end
+            end
+
+            j = j + 1
+            if j > 8 then
+                error("Something wrong in block placing alrogithm.")
+            end
+        end
     end
+    --print("self.blocks[100]", self.blocks[100])
+    --print("self.blocks[100][100]", self.blocks[100][100])
 end
 
 function Background:update(dt)
+    for _, v in pairs(self.blocks) do
+        for _, p in pairs(v) do
+            if v.process then
+                local ret = v:process()
+            end
+        end
+    end
 end
 
 function Background:draw()
