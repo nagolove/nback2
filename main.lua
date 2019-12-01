@@ -17,6 +17,7 @@ nback = require "nback".new()
 pviewer = require "pviewer".new()
 
 function love.load()
+    math.randomseed(os.time())
     lovebird.update()
     lovebird.maxlines = 2000
     love.window.setTitle("nback")

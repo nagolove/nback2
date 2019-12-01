@@ -21,10 +21,20 @@ function Block:draw()
     local quad = g.newQuad(0, 0, self.img:getWidth(), self.img:getHeight(), 
         self.img:getWidth(), self.img:getHeight())
     g.setColor{1, 1, 1, 1}
-    g.draw(self.img, quad, self.x, self.y, 0, self.size / self.tile:getWidth(),
-        self.size / self.tile:getHeight(), self.img:getWidth() / 2, 
-        self.img:getHeight() / 2)
-    --g.draw(menu.tile, quad, i, j, math.pi, 0.3, 0.3)
+    --g.draw(self.img, quad, self.x, self.y, 0, self.size / self.img:getWidth(),
+        --self.size / self.img:getHeight(), self.img:getWidth() / 2, 
+        --self.img:getHeight() / 2)
+    g.draw(self.img, quad, self.x, self.y, 0, self.size / self.img:getWidth(),
+        self.size / self.img:getHeight())
+    --g.draw(self.img, quad, i, j, math.pi, 0.3, 0.3)
+end
+
+-- еденичное направление, в котором будет двигаться блок.
+function Block:move(dirx, diry)
+end
+
+function Block:process()
+
 end
 
 local Background = {}
@@ -33,11 +43,13 @@ Background.__index = Background
 function Background.new()
     local self = {
         tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
-        blockSize = 256, -- нужная константа или придется менять на что-то?
+        blockSize = 128, -- нужная константа или придется менять на что-то?
+        emptyNum = 2,
     }
     setmetatable(self, Background)
 
     self:resize(g.getDimensions())
+    self:fillGrid()
     return self
 end
 
@@ -51,13 +63,29 @@ function Background:fillGrid()
     -- self.blocks[x][y] = block
     -- значит в строках лежат колонки
 
-    for i = 1, w / self.blockSize do
+    print("w / self.blockSize", w / self.blockSize)
+    local i, j = 0, 0
+    while i <= w + self.blockSize do
         local column = {}
-        for j = 1, h / self.blockSize do
-            column[#column + 1] = Block.new(self.tile, self.blockSize,
-            i * self.blockSize, j * self.blockSize)
+        j = 0
+        while j <= h + self.blockSize do
+            column[#column + 1] = Block.new(self.tile, self.blockSize, i, j)
+            j = j + self.blockSize
         end
         self.blocks[#self.blocks + 1] = column
+        i = i + self.blockSize
+    end
+
+    --print("self.blocks", inspect(self.blocks))
+    print("#self.blocks", #self.blocks, "#self.blocks[1]", #self.blocks[1])
+
+    math.randomseed(os.time())
+
+    local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
+    for i = 1, self.emptyNum do
+        local xidx = math.random(1, fieldWidth)
+        local yidx = math.random(1, fieldHeight)
+        self.blocks[xidx][yidx] = {}
     end
 end
 
@@ -65,25 +93,12 @@ function Background:update(dt)
 end
 
 function Background:draw()
-    local quad = g.newQuad(0, 0, self.tile:getWidth(), self.tile:getHeight(), 
-        self.tile:getWidth(), self.tile:getHeight())
-    local i, j = 0, 0
-    local l = 1
     g.clear(pallete.background)
-    g.setColor(1, 1, 1, self.alpha)
-    while i <= self.w do
-        j = 0
-        while j <= self.h do
-            --print("angle = ", self.rot_grid[l])
-            g.draw(self.tile, quad, i, j, self.rot_grid[l], 
-                self.tile_size / self.tile:getWidth(), 
-                self.tile_size / self.tile:getHeight(),
-                self.tile:getWidth() / 2, self.tile:getHeight() / 2)
-            --g.draw(menu.tile, quad, i, j, math.pi, 0.3, 0.3)
-            l = l + 1
-            j = j + self.tile_size
+    --print("self.blocks", inspect(self.blocks))
+    for _, v in pairs(self.blocks) do
+        for _, p in pairs(v) do
+            if p.draw then p:draw() end
         end
-        i = i + self.tile_size
     end
 end
 

@@ -48,7 +48,6 @@ end
 -- как лучше хранить актиный элемент из списка меню? По индексу?
 -- Важен порядок элементов. Значит добавлять в массив таблички по индексу.
 function menu:init()
-    math.randomseed(os.time())
     self:resize(g.getDimensions())
     self.alpha = 1
 end
