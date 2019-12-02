@@ -45,6 +45,9 @@ function Block:move(dirx, diry)
     self.dirx = dirx
     self.diry = diry
     self.active = true
+    print("Block:move()")
+    print(string.format("startTime = %d, dirx = %d, diry = %d", self.startTime,
+        self.dirx, self.diry))
 end
 
 -- возвращает true если обработка движения еще не закончена. false если 
@@ -99,6 +102,7 @@ end
 -- возвращает пару индексов массива blocks, соседних с xidx, yidx из которых
 -- можно начинать движение
 function Background:findDirection(xidx, yidx)
+    local ret
     -- флаг того, что найдена нужная позиция для активного элемента
     local inserted = false
     -- счетчик безопасности от бесконечного цикла
@@ -109,25 +113,29 @@ function Background:findDirection(xidx, yidx)
         if dir == 1 then
             --left
             if self.blocks[xidx - 1] and self.blocks[xidx - 1][yidx] then
-                self.blocks[xidx -1][yidx].active = true
+                --self.blocks[xidx -1][yidx].active = true
+                ret = xidx - 1, yidx
                 inserted = true
             end
         elseif dir == 2 then
             --up
             if self.blocks[xidx][yidx - 1] then
                 inserted = true
-                self.blocks[xidx][yidx - 1].active = true
+                --self.blocks[xidx][yidx - 1].active = true
+                ret = xidx, yidx - 1
             end
         elseif dir == 3 then
             --right
             if self.blocks[xidx + 1] and self.blocks[xidx + 1][yidx] then
-                self.blocks[xidx + 1][yidx].active = true
+                --self.blocks[xidx + 1][yidx].active = true
+                ret = xidx + 1, yidx
                 inserted = true
             end
         elseif dir == 4 then
             --down
             if self.blocks[xidx][yidx + 1] then
-                self.blocks[xidx][yidx + 1].active = true
+                --self.blocks[xidx][yidx + 1].active = true
+                ret = xidx, yidx + 1
                 inserted = true
             end
         end
@@ -137,19 +145,21 @@ function Background:findDirection(xidx, yidx)
             error("Something wrong in block placing alrogithm.")
         end
     end
+
+    return ret
 end
 
 function Background:fillGrid()
     local w, h = g.getDimensions()
 
-    self.blocks = {}
-
     -- пример правильной адресации - смещение по горизонтали, потом - смещение
     -- по вертикали
     -- self.blocks[x][y] = block
     -- значит в строках лежат колонки
+    self.blocks = {}
 
     print("w / self.blockSize", w / self.blockSize)
+
     local i, j = 0, 0
     while i <= w + self.blockSize do
         local column = {}
@@ -163,7 +173,7 @@ function Background:fillGrid()
     end
 
     --print("self.blocks", inspect(self.blocks))
-    print("#self.blocks", #self.blocks, "#self.blocks[1]", #self.blocks[1])
+    --print("#self.blocks", #self.blocks, "#self.blocks[1]", #self.blocks[1])
 
     math.randomseed(os.time())
 
@@ -171,24 +181,42 @@ function Background:fillGrid()
     for i = 1, self.emptyNum do
         local xidx = math.random(1, fieldWidth)
         local yidx = math.random(1, fieldHeight)
+
+        -- случайный пустой блок, куда будет двигаться сосед
         self.blocks[xidx][yidx] = {}
 
-        self:findDirection(xidx, yidx)
+        -- поиск соседа пустого блока. Сосед будет двигаться на пустое место.
+        local x, y = self:findDirection(xidx, yidx)
+
+        print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
+
+        -- начало движения. Проверь действенность переданных в move() 
+        -- параметров.
+        self.blocks[x][y]:move(x - xidx, y - yidx)
+        -- добавляю индексы блока в список для выполнения
+        self.execList[#self.execList + 1] = {xidx = x, yidx = y}
     end
     --print("self.blocks[100]", self.blocks[100])
     --print("self.blocks[100][100]", self.blocks[100][100])
 end
 
 function Background:update(dt)
-    for _, v in pairs(self.blocks) do
-        for _, block in pairs(v) do
-            if block.process then
-                local ret = block:process(dt)
-                if not ret then
-                    -- начинаю новое движение
-                    block:move()
-                end
-            end
+    for _, v in pairs(self.execList) do
+        local block = self.blocks[v.xidx][v.yidx]
+        -- блок двигается
+        local ret = block:process(dt)
+        -- начинаю новое движение
+        if not ret then
+            -- поиск индексов нового блока
+            local x, y = self:findDirection(xidx, yidx)
+            print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
+
+            -- запуск нового движения
+            self.blocks[x][y]:move(x - xidx, y - yidx)
+
+            -- обновляю индексы блока
+            v.xidx = x
+            v.yidx = y
         end
     end
 end

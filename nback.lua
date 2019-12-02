@@ -461,10 +461,10 @@ function nback:stop()
     self.show_statistic = true
 
     print("stop")
-    print(inspect(self.sound_pressed_arr))
-    print(inspect(self.color_pressed_arr))
-    print(inspect(self.form_pressed_arr))
-    print(inspect(self.pos_pressed_arr))
+    --print(inspect(self.sound_pressed_arr))
+    --print(inspect(self.color_pressed_arr))
+    --print(inspect(self.form_pressed_arr))
+    --print(inspect(self.pos_pressed_arr))
 
     local p =  calc_percent(self.sound_eq, self.sound_pressed_arr)
     self.sound_percent = p > 0.0 and p or 0.0
