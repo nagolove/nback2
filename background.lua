@@ -113,29 +113,25 @@ function Background:findDirection(xidx, yidx)
         if dir == 1 then
             --left
             if self.blocks[xidx - 1] and self.blocks[xidx - 1][yidx] then
-                --self.blocks[xidx -1][yidx].active = true
-                ret = xidx - 1, yidx
+                xidx = xidx - 1
                 inserted = true
             end
         elseif dir == 2 then
             --up
             if self.blocks[xidx][yidx - 1] then
                 inserted = true
-                --self.blocks[xidx][yidx - 1].active = true
-                ret = xidx, yidx - 1
+                yidy = yidx - 1
             end
         elseif dir == 3 then
             --right
             if self.blocks[xidx + 1] and self.blocks[xidx + 1][yidx] then
-                --self.blocks[xidx + 1][yidx].active = true
-                ret = xidx + 1, yidx
+                xidx = xidx + 1
                 inserted = true
             end
         elseif dir == 4 then
             --down
             if self.blocks[xidx][yidx + 1] then
-                --self.blocks[xidx][yidx + 1].active = true
-                ret = xidx, yidx + 1
+                yidx = yidx + 1
                 inserted = true
             end
         end
@@ -146,7 +142,7 @@ function Background:findDirection(xidx, yidx)
         end
     end
 
-    return ret
+    return xidx, yidx
 end
 
 function Background:fillGrid()
@@ -188,6 +184,7 @@ function Background:fillGrid()
         -- поиск соседа пустого блока. Сосед будет двигаться на пустое место.
         local x, y = self:findDirection(xidx, yidx)
 
+        print(string.format("findDirection() = %d, %d", x, y))
         print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
 
         -- начало движения. Проверь действенность переданных в move() 
