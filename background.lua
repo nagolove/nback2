@@ -45,6 +45,8 @@ function Block:move(dirx, diry)
     self.dirx = dirx
     self.diry = diry
     self.active = true
+    -- счетчик анимации в пикселях. Уменьшается до 0
+    self.animCounter = self.size
     print("Block:move()")
     print(string.format("startTime = %d, dirx = %d, diry = %d", self.startTime,
         self.dirx, self.diry))
@@ -61,15 +63,23 @@ function Block:process(dt)
         dt, self.x * dt, self.y * dt))
 
     --print(inspect(self))
-    
-    if difference <= self.duration then
+   
+    print("dirx ", self.dirx)
+    print("diry ", self.diry)
+    local speed = 20
+    local ds = (dt * speed)
+
+    --if difference <= self.duration then
+    if self.animCounter - ds > 0 then
+        self.animCounter = self.animCounter - ds
+
         -- двигаемся
         assert(difference ~= 0)
         -- пройденная часть времени, стремится к еденице
         --local part = self.size * (duration / difference)
 
-        self.x = self.x + self.dirx * (dt * 20)
-        self.y = self.y + self.diry * (dt * 20)
+        self.x = self.x + self.dirx * ds
+        self.y = self.y + self.diry * ds
 
         ret = true
     else
@@ -108,6 +118,7 @@ function Background:findDirection(xidx, yidx)
     -- почему-то иногда возвращает не измененный результат, тотже, что и ввод.
     -- приводит к падению программы
 
+    print(string.format("findDirection() xidx = %d, yidx = %d", xidx, yidx))
 
     -- флаг того, что найдена нужная позиция для активного элемента
     local inserted = false
@@ -198,7 +209,8 @@ function Background:fillGrid()
         -- параметров.
         print(inspect(self.blocks[x][y]))
 
-        self.blocks[x][y]:move(x - xidx, y - yidx)
+        --self.blocks[x][y]:move(x - xidx, y - yidx)
+        self.blocks[x][y]:move(xidx - x, yidx - y)
         -- добавляю индексы блока в список для выполнения
         self.execList[#self.execList + 1] = {xidx = x, yidx = y}
     end
@@ -213,12 +225,18 @@ function Background:update(dt)
         local ret = block:process(dt)
         -- начинаю новое движение
         if not ret then
+            --local xidx, yidx = v.xidx, v.yidx
+            local xidx, yidx = block.x / block.size, block.y / block.size
+
+            print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
+
             -- поиск индексов нового блока
             local x, y = self:findDirection(xidx, yidx)
             print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
 
             -- запуск нового движения
-            self.blocks[x][y]:move(x - xidx, y - yidx)
+            --self.blocks[x][y]:move(x - xidx, y - yidx)
+            self.blocks[x][y]:move(xidx - x, yidx - y)
 
             -- обновляю индексы блока
             v.xidx = x
