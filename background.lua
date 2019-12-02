@@ -60,15 +60,16 @@ function Block:process(dt)
     print(string.format("dt = %f, self.x * dt = %f, self.y * dt = %f", 
         dt, self.x * dt, self.y * dt))
 
-    print(inspect(self))
+    --print(inspect(self))
+    
     if difference <= self.duration then
         -- двигаемся
         assert(difference ~= 0)
         -- пройденная часть времени, стремится к еденице
         --local part = self.size * (duration / difference)
 
-        self.x = self.x + self.dirx * dt
-        self.y = self.y + self.diry * dt
+        self.x = self.x + self.dirx * (dt * 20)
+        self.y = self.y + self.diry * (dt * 20)
 
         ret = true
     else
@@ -195,7 +196,7 @@ function Background:fillGrid()
 
         -- начало движения. Проверь действенность переданных в move() 
         -- параметров.
-        --print(inspect(self.blocks[x][y]))
+        print(inspect(self.blocks[x][y]))
 
         self.blocks[x][y]:move(x - xidx, y - yidx)
         -- добавляю индексы блока в список для выполнения
