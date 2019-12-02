@@ -103,36 +103,41 @@ end
 -- возвращает пару индексов массива blocks, соседних с xidx, yidx из которых
 -- можно начинать движение
 function Background:findDirection(xidx, yidx)
-    local ret
+    local x, y = xidx, yidx
+    -- почему-то иногда возвращает не измененный результат, тотже, что и ввод.
+    -- приводит к падению программы
+
+
     -- флаг того, что найдена нужная позиция для активного элемента
     local inserted = false
     -- счетчик безопасности от бесконечного цикла
     local j = 1
     while not inserted do
         local dir = math.random(1, 4)
+        print("random dir = ", dir)
 
         if dir == 1 then
             --left
             if self.blocks[xidx - 1] and self.blocks[xidx - 1][yidx] then
-                xidx = xidx - 1
+                x = x - 1
                 inserted = true
             end
         elseif dir == 2 then
             --up
             if self.blocks[xidx][yidx - 1] then
+                y = y - 1
                 inserted = true
-                yidy = yidx - 1
             end
         elseif dir == 3 then
             --right
             if self.blocks[xidx + 1] and self.blocks[xidx + 1][yidx] then
-                xidx = xidx + 1
+                x = x + 1
                 inserted = true
             end
         elseif dir == 4 then
             --down
             if self.blocks[xidx][yidx + 1] then
-                yidx = yidx + 1
+                y = y + 1
                 inserted = true
             end
         end
@@ -143,7 +148,7 @@ function Background:findDirection(xidx, yidx)
         end
     end
 
-    return xidx, yidx
+    return x, y
 end
 
 function Background:fillGrid()
@@ -162,7 +167,8 @@ function Background:fillGrid()
         local column = {}
         j = 0
         while j <= h + self.blockSize do
-            column[#column + 1] = Block.new(self.tile, self.blockSize, i, j)
+            column[#column + 1] = Block.new(self.tile, self.blockSize, i, j,
+                1000)
             j = j + self.blockSize
         end
         self.blocks[#self.blocks + 1] = column
@@ -176,10 +182,9 @@ function Background:fillGrid()
 
     local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
     for i = 1, self.emptyNum do
+        -- случайный пустой блок, куда будет двигаться сосед
         local xidx = math.random(1, fieldWidth)
         local yidx = math.random(1, fieldHeight)
-
-        -- случайный пустой блок, куда будет двигаться сосед
         self.blocks[xidx][yidx] = {}
 
         -- поиск соседа пустого блока. Сосед будет двигаться на пустое место.
@@ -191,6 +196,7 @@ function Background:fillGrid()
         -- начало движения. Проверь действенность переданных в move() 
         -- параметров.
         --print(inspect(self.blocks[x][y]))
+
         self.blocks[x][y]:move(x - xidx, y - yidx)
         -- добавляю индексы блока в список для выполнения
         self.execList[#self.execList + 1] = {xidx = x, yidx = y}
