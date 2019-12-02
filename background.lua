@@ -5,13 +5,14 @@ local pallete = require "pallete"
 local Block = {}
 Block.__index = Block
 
-function Block.new(img, size, x, y)
+function Block.new(img, size, x, y, duration)
     local self = {
         img = img,
         size = size,
         x = x,
         y = y,
         active = false,
+        duration = duration, -- длительность анимации движения(в секундах?)
     }
     setmetatable(self, Block)
     print(string.format("Block created at %d, %d", x, y))
@@ -37,14 +38,41 @@ function Block:draw()
     --g.draw(self.img, quad, i, j, math.pi, 0.3, 0.3)
 end
 
--- еденичное направление, в котором будет двигаться блок.
+-- начало анимации движения
+-- dirx, diry - еденичное направление, в котором будет двигаться блок.
 function Block:move(dirx, diry)
+    self.startTime = love.timer.getTime()
+    self.dirx = dirx
+    self.diry = diry
+    self.active = true
 end
 
 -- возвращает true если обработка движения еще не закончена. false если 
 -- обработка закончена и блок готов к новым командам.
-function Block:process()
-    return false
+function Block:process(dt)
+    local ret = false
+    local time = love.timer.getTime()
+    local difference = time - self.startTime
+
+    print(string.format("dt = %f, self.x * dt = %f, self.y * dt = %f", 
+        dt, self.x * dt, self.y * dt))
+
+    if difference <= duration then
+        -- двигаемся
+        assert(difference ~= 0)
+        -- пройденная часть времени, стремится к еденице
+        --local part = self.size * (duration / difference)
+
+        self.x = self.x + self.dirx * dt
+        self.y = self.y + self.diry * dt
+
+        ret = true
+    else
+        self.active = false
+        -- приехали
+    end
+
+    return ret
 end
 
 local Background = {}
@@ -54,7 +82,7 @@ function Background.new()
     local self = {
         tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
         blockSize = 128, -- нужная константа или придется менять на что-то?
-        emptyNum = 2,
+        emptyNum = 2, -- количество пустых клеток на поле
 
         -- список блоков для обработки. Хранить индексы или ссылки на объекты?
         -- Если хранить ссылки на объекты, то блок должен внутри хранить
@@ -66,6 +94,49 @@ function Background.new()
     self:resize(g.getDimensions())
     self:fillGrid()
     return self
+end
+
+-- возвращает пару индексов массива blocks, соседних с xidx, yidx из которых
+-- можно начинать движение
+function Background:findDirection(xidx, yidx)
+    -- флаг того, что найдена нужная позиция для активного элемента
+    local inserted = false
+    -- счетчик безопасности от бесконечного цикла
+    local j = 1
+    while not inserted do
+        local dir = math.random(1, 4)
+
+        if dir == 1 then
+            --left
+            if self.blocks[xidx - 1] and self.blocks[xidx - 1][yidx] then
+                self.blocks[xidx -1][yidx].active = true
+                inserted = true
+            end
+        elseif dir == 2 then
+            --up
+            if self.blocks[xidx][yidx - 1] then
+                inserted = true
+                self.blocks[xidx][yidx - 1].active = true
+            end
+        elseif dir == 3 then
+            --right
+            if self.blocks[xidx + 1] and self.blocks[xidx + 1][yidx] then
+                self.blocks[xidx + 1][yidx].active = true
+                inserted = true
+            end
+        elseif dir == 4 then
+            --down
+            if self.blocks[xidx][yidx + 1] then
+                self.blocks[xidx][yidx + 1].active = true
+                inserted = true
+            end
+        end
+
+        j = j + 1
+        if j > 8 then
+            error("Something wrong in block placing alrogithm.")
+        end
+    end
 end
 
 function Background:fillGrid()
@@ -102,45 +173,7 @@ function Background:fillGrid()
         local yidx = math.random(1, fieldHeight)
         self.blocks[xidx][yidx] = {}
 
-        -- флаг того, что найдена нужная позиция для активного элемента
-        local inserted = false
-        -- счетчик безопасности от бесконечного цикла
-        local j = 1
-        while not inserted do
-            local dir = math.random(1, 4)
-
-            if dir == 1 then
-                --left
-                if self.blocks[xidx - 1] and self.blocks[xidx - 1][yidx] then
-                    --self.execList[#self.execList + 1] = {
-                    self.blocks[xidx -1][yidx].active = true
-                    inserted = true
-                end
-            elseif dir == 2 then
-                --up
-                if self.blocks[xidx][yidx - 1] then
-                    inserted = true
-                    self.blocks[xidx][yidx - 1].active = true
-                end
-            elseif dir == 3 then
-                --right
-                if self.blocks[xidx + 1] and self.blocks[xidx + 1][yidx] then
-                    self.blocks[xidx + 1][yidx].active = true
-                    inserted = true
-                end
-            elseif dir == 4 then
-                --down
-                if self.blocks[xidx][yidx + 1] then
-                    self.blocks[xidx][yidx + 1].active = true
-                    inserted = true
-                end
-            end
-
-            j = j + 1
-            if j > 8 then
-                error("Something wrong in block placing alrogithm.")
-            end
-        end
+        self:findDirection(xidx, yidx)
     end
     --print("self.blocks[100]", self.blocks[100])
     --print("self.blocks[100][100]", self.blocks[100][100])
@@ -148,9 +181,13 @@ end
 
 function Background:update(dt)
     for _, v in pairs(self.blocks) do
-        for _, p in pairs(v) do
-            if v.process then
-                local ret = v:process()
+        for _, block in pairs(v) do
+            if block.process then
+                local ret = block:process(dt)
+                if not ret then
+                    -- начинаю новое движение
+                    block:move()
+                end
             end
         end
     end
