@@ -38,7 +38,7 @@ function Block:draw()
     end
 
     --print(self.duration)
-    local str = string.format("(%x, %x) act = %d dur = %d", self.x, self.y,
+    local str = string.format("(%d, %d) act = %d dur = %d", self.x, self.y,
         self.active and 1 or 0, self.duration)
     local oldFont = g.getFont()
     g.setFont(serviceFont)
@@ -133,7 +133,7 @@ end
 -- можно начинать движение
 function Background:findDirection(xidx, yidx)
     local x, y = xidx, yidx
-    -- почему-то иногда возвращает не измененный результат, тотже, что и ввод.
+    -- почему-то иногда возвращает не измененный результат, тот же, что и ввод.
     -- приводит к падению программы
 
     print(string.format("findDirection() xidx = %d, yidx = %d", xidx, yidx))
@@ -246,7 +246,8 @@ function Background:update(dt)
         -- начинаю новое движение
         if not ret then
             --local xidx, yidx = v.xidx, v.yidx
-            local xidx, yidx = block.x / block.size, block.y / block.size
+            local xidx, yidx = math.floor(block.x / block.size),
+                math.floor(block.y / block.size)
 
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
