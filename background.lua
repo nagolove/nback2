@@ -136,7 +136,7 @@ function Background:findDirection(xidx, yidx)
             end
         elseif dir == 2 then
             --up
-            if self.blocks[xidx][yidx - 1] then
+            if self.blocks[xidx] and self.blocks[xidx][yidx - 1] then
                 y = y - 1
                 inserted = true
             end
@@ -148,7 +148,7 @@ function Background:findDirection(xidx, yidx)
             end
         elseif dir == 4 then
             --down
-            if self.blocks[xidx][yidx + 1] then
+            if self.blocks[xidx] and self.blocks[xidx][yidx + 1] then
                 y = y + 1
                 inserted = true
             end
