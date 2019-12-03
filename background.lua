@@ -1,6 +1,7 @@
 local g = love.graphics
 local inspect = require "libs.inspect"
 local pallete = require "pallete"
+local serviceFont = love.graphics.newFont(10)
 
 local Block = {}
 Block.__index = Block
@@ -35,6 +36,14 @@ function Block:draw()
         g.rectangle("line", self.x, self.y, self.size, self.size)
         g.setLineWidth(oldLineWidth)
     end
+
+    --print(self.duration)
+    local str = string.format("(%x, %x) act = %d dur = %d", self.x, self.y,
+        self.active and 1 or 0, self.duration)
+    local oldFont = g.getFont()
+    g.setFont(serviceFont)
+    g.print(str, self.x, self.y)
+    g.setFont(oldFont)
     --g.draw(self.img, quad, i, j, math.pi, 0.3, 0.3)
 end
 
@@ -59,13 +68,14 @@ function Block:process(dt)
     local time = love.timer.getTime()
     local difference = time - self.startTime
 
-    print(string.format("dt = %f, self.x * dt = %f, self.y * dt = %f", 
-        dt, self.x * dt, self.y * dt))
+    --print(string.format("dt = %f, self.x * dt = %f, self.y * dt = %f", 
+        --dt, self.x * dt, self.y * dt))
 
     --print(inspect(self))
    
-    print("dirx ", self.dirx)
-    print("diry ", self.diry)
+    --print("dirx ", self.dirx)
+    --print("diry ", self.diry)
+    
     local speed = 20
     local ds = (dt * speed)
 
@@ -103,12 +113,20 @@ function Background.new()
         -- Если хранить ссылки на объекты, то блок должен внутри хранить
         -- свой индекс из blocks?
         execList = {}, 
+        paused = false,
     }
     setmetatable(self, Background)
 
     self:resize(g.getDimensions())
     self:fillGrid()
     return self
+end
+
+function Background:keypressed(_, scancode)
+    if scancode == "p" then
+        self.paused = not self.paused
+        print("self.paused", self.paused)
+    end
 end
 
 -- возвращает пару индексов массива blocks, соседних с xidx, yidx из которых
@@ -219,6 +237,8 @@ function Background:fillGrid()
 end
 
 function Background:update(dt)
+    if self.paused then return end
+
     for _, v in pairs(self.execList) do
         local block = self.blocks[v.xidx][v.yidx]
         -- блок двигается

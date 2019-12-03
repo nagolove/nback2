@@ -104,7 +104,7 @@ function menu:keyreleased(key, scancode)
         if obj.keyreleased then obj:keyreleased(key, scancode) end
     else
         if self.back.keyreleased then
-            self.back.keypressed(key, scancode)
+            self.back.keyreleased(key, scancode)
         end
     end
 end
@@ -118,8 +118,9 @@ function menu:keypressed(key, scancode)
         --движение по меню
 
         if self.back.keypressed then
-            self.back.keypressed(key, scancode)
+            self.back:keypressed(key, scancode)
         end
+
         --if key == "up" or key == "k" then self:moveUp()
         --elseif key == "down" or key == "j" then self:moveDown()
         --elseif key == "escape" then love.event.quit()
