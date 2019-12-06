@@ -3,13 +3,41 @@ local inspect = require "libs.inspect"
 local pallete = require "pallete"
 local serviceFont = love.graphics.newFont(10)
 
+local Background = {
+    size = 128,
+}
+Background.__index = Background
+
+function Background.new()
+    local self = {
+        tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
+        blockSize = 128, -- нужная константа или придется менять на что-то?
+        emptyNum = 2, -- количество пустых клеток на поле
+
+        -- список блоков для обработки. Хранить индексы или ссылки на объекты?
+        -- Если хранить ссылки на объекты, то блок должен внутри хранить
+        -- свой индекс из blocks?
+        execList = {}, 
+        paused = false,
+    }
+    setmetatable(self, Background)
+
+    self:resize(g.getDimensions())
+    self:fillGrid()
+    return self
+end
+
 local Block = {}
 Block.__index = Block
 
-function Block.new(img, size, x, y, duration)
+-- Зачем передавать размер блока, если он должен быть одинаковый для всех
+-- блоков, что-бы расчеты производились правильно. Куда лучше поместить
+-- переменную size?
+-- К примеру в таблицу Block записать.
+--
+function Block.new(img, x, y, duration)
     local self = {
         img = img,
-        size = size,
         x = x,
         y = y,
         active = false,
@@ -24,16 +52,17 @@ function Block:draw()
     local quad = g.newQuad(0, 0, self.img:getWidth(), self.img:getHeight(), 
         self.img:getWidth(), self.img:getHeight())
     g.setColor{1, 1, 1, 1}
-    --g.draw(self.img, quad, self.x, self.y, 0, self.size / self.img:getWidth(),
-        --self.size / self.img:getHeight(), self.img:getWidth() / 2, 
+    --g.draw(self.img, quad, self.x, self.y, 0, 
+        --Background.size / self.img:getWidth(),
+        --Background.size / self.img:getHeight(), self.img:getWidth() / 2, 
         --self.img:getHeight() / 2)
-    g.draw(self.img, quad, self.x, self.y, 0, self.size / self.img:getWidth(),
-        self.size / self.img:getHeight())
+    g.draw(self.img, quad, self.x, self.y, 0, Background.size / 
+        self.img:getWidth(), Background.size / self.img:getHeight())
     if self.active then
         g.setColor{1, 1, 1}
         local oldLineWidth = g.getLineWidth()
         g.setLineWidth(3)
-        g.rectangle("line", self.x, self.y, self.size, self.size)
+        g.rectangle("line", self.x, self.y, Background.size, Background.size)
         g.setLineWidth(oldLineWidth)
     end
 
@@ -55,7 +84,7 @@ function Block:move(dirx, diry)
     self.diry = diry
     self.active = true
     -- счетчик анимации в пикселях. Уменьшается до 0
-    self.animCounter = self.size
+    self.animCounter = Background.size
     print("Block:move()")
     print(string.format("startTime = %d, dirx = %d, diry = %d", self.startTime,
         self.dirx, self.diry))
@@ -86,7 +115,7 @@ function Block:process(dt)
         -- двигаемся
         assert(difference ~= 0)
         -- пройденная часть времени, стремится к еденице
-        --local part = self.size * (duration / difference)
+        --local part = Background.size * (duration / difference)
 
         self.x = self.x + self.dirx * ds
         self.y = self.y + self.diry * ds
@@ -98,28 +127,6 @@ function Block:process(dt)
     end
 
     return ret
-end
-
-local Background = {}
-Background.__index = Background
-
-function Background.new()
-    local self = {
-        tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
-        blockSize = 128, -- нужная константа или придется менять на что-то?
-        emptyNum = 2, -- количество пустых клеток на поле
-
-        -- список блоков для обработки. Хранить индексы или ссылки на объекты?
-        -- Если хранить ссылки на объекты, то блок должен внутри хранить
-        -- свой индекс из blocks?
-        execList = {}, 
-        paused = false,
-    }
-    setmetatable(self, Background)
-
-    self:resize(g.getDimensions())
-    self:fillGrid()
-    return self
 end
 
 function Background:keypressed(_, scancode)
@@ -190,19 +197,18 @@ function Background:fillGrid()
     -- значит в строках лежат колонки
     self.blocks = {}
 
-    print("w / self.blockSize", w / self.blockSize)
+    print("w / Background.size", w / Background.size)
 
     local i, j = 0, 0
-    while i <= w + self.blockSize do
+    while i <= w + Background.size do
         local column = {}
         j = 0
-        while j <= h + self.blockSize do
-            column[#column + 1] = Block.new(self.tile, self.blockSize, i, j,
-                1000)
-            j = j + self.blockSize
+        while j <= h + Background.size do
+            column[#column + 1] = Block.new(self.tile, i, j, 1000)
+            j = j + Background.size
         end
         self.blocks[#self.blocks + 1] = column
-        i = i + self.blockSize
+        i = i + Background.size
     end
 
     --print("self.blocks", inspect(self.blocks))
@@ -246,8 +252,8 @@ function Background:update(dt)
         -- начинаю новое движение
         if not ret then
             --local xidx, yidx = v.xidx, v.yidx
-            local xidx, yidx = math.floor(block.x / block.size),
-                math.floor(block.y / block.size)
+            local xidx, yidx = math.floor(block.x / Background.size),
+                math.floor(block.y / Background.size)
 
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
@@ -276,6 +282,10 @@ function Background:draw()
     end
 end
 
+-- Не работает. Нужно сделать так, чтобы при увеличении размера экрана
+-- добавлялись новые блоки, а при уменьшении - стирались невидимые(хотя
+-- необязательно их стирать, пусть остаются. Хм, если не стирать, то анимация
+-- сможет происходить на невидимой пользователю части экрана)
 function Background:resize(neww, newh)
     print("Background:resize()")
     self.w, self.h = neww, newh
