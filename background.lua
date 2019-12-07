@@ -4,7 +4,7 @@ local pallete = require "pallete"
 local serviceFont = love.graphics.newFont(10)
 
 local Background = {
-    size = 128,
+    bsize = 128, -- размер блока в пикселях
 }
 Background.__index = Background
 
@@ -56,13 +56,13 @@ function Block:draw()
         --Background.size / self.img:getWidth(),
         --Background.size / self.img:getHeight(), self.img:getWidth() / 2, 
         --self.img:getHeight() / 2)
-    g.draw(self.img, quad, self.x, self.y, 0, Background.size / 
-        self.img:getWidth(), Background.size / self.img:getHeight())
+    g.draw(self.img, quad, self.x, self.y, 0, Background.bsize / 
+        self.img:getWidth(), Background.bsize / self.img:getHeight())
     if self.active then
         g.setColor{1, 1, 1}
         local oldLineWidth = g.getLineWidth()
         g.setLineWidth(3)
-        g.rectangle("line", self.x, self.y, Background.size, Background.size)
+        g.rectangle("line", self.x, self.y, Background.bsize, Background.bsize)
         g.setLineWidth(oldLineWidth)
     end
 
@@ -84,7 +84,7 @@ function Block:move(dirx, diry)
     self.diry = diry
     self.active = true
     -- счетчик анимации в пикселях. Уменьшается до 0
-    self.animCounter = Background.size
+    self.animCounter = Background.bsize
     print("Block:move()")
     print(string.format("startTime = %d, dirx = %d, diry = %d", self.startTime,
         self.dirx, self.diry))
@@ -115,7 +115,7 @@ function Block:process(dt)
         -- двигаемся
         assert(difference ~= 0)
         -- пройденная часть времени, стремится к еденице
-        --local part = Background.size * (duration / difference)
+        --local part = Background.bsize * (duration / difference)
 
         self.x = self.x + self.dirx * ds
         self.y = self.y + self.diry * ds
@@ -161,7 +161,7 @@ function Background:findDirection(xidx, yidx)
             end
         elseif dir == 2 then
             --up
-            if self.blocks[xidx][yidx - 1] then
+            if self.blocks[xidx] and self.blocks[xidx][yidx - 1] then
                 y = y - 1
                 inserted = true
             end
@@ -173,15 +173,17 @@ function Background:findDirection(xidx, yidx)
             end
         elseif dir == 4 then
             --down
-            if self.blocks[xidx][yidx + 1] then
+            if self.blocks[xidx] and self.blocks[xidx][yidx + 1] then
                 y = y + 1
                 inserted = true
             end
         end
 
         j = j + 1
-        if j > 8 then
-            error("Something wrong in block placing alrogithm.")
+        if j > 16 then
+            error(string.format(
+                "Something wrong in block placing alrogithm on [%d][%d].",
+                xidx, yidx))
         end
     end
 
@@ -197,18 +199,18 @@ function Background:fillGrid()
     -- значит в строках лежат колонки
     self.blocks = {}
 
-    print("w / Background.size", w / Background.size)
+    print("w / Background.size", w / Background.bsize)
 
     local i, j = 0, 0
-    while i <= w + Background.size do
+    while i <= w + Background.bsize do
         local column = {}
         j = 0
-        while j <= h + Background.size do
+        while j <= h + Background.bsize do
             column[#column + 1] = Block.new(self.tile, i, j, 1000)
-            j = j + Background.size
+            j = j + Background.bsize
         end
         self.blocks[#self.blocks + 1] = column
-        i = i + Background.size
+        i = i + Background.bsize
     end
 
     --print("self.blocks", inspect(self.blocks))
@@ -252,12 +254,12 @@ function Background:update(dt)
         -- начинаю новое движение
         if not ret then
             --local xidx, yidx = v.xidx, v.yidx
-            local xidx, yidx = math.floor(block.x / Background.size),
-                math.floor(block.y / Background.size)
+            local xidx, yidx = math.floor(block.x / Background.bsize),
+                math.floor(block.y / Background.bsize)
 
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
-            -- поиск индексов нового блока
+            -- поиск индексов нового блока по новым рассчитанным индексам
             local x, y = self:findDirection(xidx, yidx)
             print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
 
