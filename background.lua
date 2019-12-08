@@ -257,6 +257,29 @@ function Background:update(dt)
             local xidx, yidx = math.floor(block.x / Background.bsize),
                 math.floor(block.y / Background.bsize)
 
+            -- здесь должна быть 3х секундная пауза с рисовкой квадрата по
+            -- координатам xidx, yidx перед выбором блока
+            if not v.findDirectionAnim then
+                v.timestamp = love.timer.getTime()
+                v.findDirectionAnim = true
+            end
+
+            if v.findDirectionAnim then
+                local time = love.timer.getTime()
+                local diff = time - v.timestamp
+
+                if diff >= 3000 then
+                    -- анимация прошла
+                    v.findDirectionAnim = false
+                else
+                    v.findDirectionAnim = true
+                    g.setColor{1, 0, 0}
+                    g.rectangle("line", xidx * Background.bsize, yidx *
+                        Background.bsize * yidx, Background.bsize, 
+                        Background.bsize)
+                end
+            end
+
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
             -- поиск индексов нового блока по новым рассчитанным индексам
