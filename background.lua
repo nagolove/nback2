@@ -24,17 +24,19 @@ function Background.new()
 
     self:resize(g.getDimensions())
     self:fillGrid()
+
+    -- TESTING --
+
+    self:findDirection(
+
+    -- TESTING --
+
     return self
 end
 
 local Block = {}
 Block.__index = Block
 
--- Зачем передавать размер блока, если он должен быть одинаковый для всех
--- блоков, что-бы расчеты производились правильно. Куда лучше поместить
--- переменную size?
--- К примеру в таблицу Block записать.
---
 function Block.new(img, x, y, duration)
     local self = {
         img = img,
@@ -137,7 +139,11 @@ function Background:keypressed(_, scancode)
 end
 
 -- возвращает пару индексов массива blocks, соседних с xidx, yidx из которых
--- можно начинать движение
+-- можно начинать движение. А что возвращает в качестве ошибки? Всегда ли
+-- существует пара подходящих индексов?
+-- Как можно разделить функцию на две части?
+-- Скажем одна делает обращение к массиву с проверкой границ и отладочным
+-- выводом, а другая - занимается поиском подходящей ячейки.
 function Background:findDirection(xidx, yidx)
     local x, y = xidx, yidx
     -- почему-то иногда возвращает не измененный результат, тот же, что и ввод.
@@ -257,28 +263,30 @@ function Background:update(dt)
             local xidx, yidx = math.floor(block.x / Background.bsize),
                 math.floor(block.y / Background.bsize)
 
-            -- здесь должна быть 3х секундная пауза с рисовкой квадрата по
-            -- координатам xidx, yidx перед выбором блока
-            if not v.findDirectionAnim then
-                v.timestamp = love.timer.getTime()
-                v.findDirectionAnim = true
-            end
-
-            if v.findDirectionAnim then
-                local time = love.timer.getTime()
-                local diff = time - v.timestamp
-
-                if diff >= 3000 then
-                    -- анимация прошла
-                    v.findDirectionAnim = false
-                else
-                    v.findDirectionAnim = true
-                    g.setColor{1, 0, 0}
-                    g.rectangle("line", xidx * Background.bsize, yidx *
-                        Background.bsize * yidx, Background.bsize, 
-                        Background.bsize)
-                end
-            end
+--[[
+   [            -- здесь должна быть 3х секундная пауза с рисовкой квадрата по
+   [            -- координатам xidx, yidx перед выбором блока
+   [            if not v.findDirectionAnim then
+   [                v.timestamp = love.timer.getTime()
+   [                v.findDirectionAnim = true
+   [            end
+   [
+   [            if v.findDirectionAnim then
+   [                local time = love.timer.getTime()
+   [                local diff = time - v.timestamp
+   [
+   [                if diff >= 3000 then
+   [                    -- анимация прошла
+   [                    v.findDirectionAnim = false
+   [                else
+   [                    v.findDirectionAnim = true
+   [                    g.setColor{1, 0, 0}
+   [                    g.rectangle("line", xidx * Background.bsize, yidx *
+   [                        Background.bsize * yidx, Background.bsize, 
+   [                        Background.bsize)
+   [                end
+   [            end
+   ]]
 
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
