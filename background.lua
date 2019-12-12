@@ -27,8 +27,10 @@ function Background.new()
 
     -- TESTING --
 
-    self:findDirection(
+    --self:findDirection(
+    --self:test_Get()
 
+    os.exit()
     -- TESTING --
 
     return self
@@ -144,6 +146,16 @@ end
 -- Как можно разделить функцию на две части?
 -- Скажем одна делает обращение к массиву с проверкой границ и отладочным
 -- выводом, а другая - занимается поиском подходящей ячейки.
+function Background:get(xidx, yidx)
+    local firstColumn = self.blocks[1]
+    print("xidx, yidx", xidx, yidx)
+    if xidx >= 1 and xidx <= #self.blocks and 
+        yidx >= 1 and yidx <= #firstColumn then
+        return self.blocks[xidx][yidx]
+    else
+        return nil
+    end
+end
 function Background:findDirection(xidx, yidx)
     local x, y = xidx, yidx
     -- почему-то иногда возвращает не измененный результат, тот же, что и ввод.
