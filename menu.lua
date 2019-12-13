@@ -102,10 +102,6 @@ function menu:keyreleased(key, scancode)
         --пересылка обработки в активное состояние
         local obj = self.items[self.active_item].obj
         if obj.keyreleased then obj:keyreleased(key, scancode) end
-    else
-        if self.back.keyreleased then
-            self.back.keyreleased(key, scancode)
-        end
     end
 end
 
@@ -117,22 +113,18 @@ function menu:keypressed(key, scancode)
     else
         --движение по меню
 
-        if self.back.keypressed then
-            self.back:keypressed(key, scancode)
+        if key == "up" or key == "k" then self:moveUp()
+        elseif key == "down" or key == "j" then self:moveDown()
+        elseif key == "escape" then love.event.quit()
+        elseif key == "return" or key == "space" then 
+            local obj = self.items[self.active_item].obj
+            if type(obj) == "function" then
+                obj()
+            else
+                self.active = true
+                if obj.enter then obj:enter() end
+            end
         end
-
-        --if key == "up" or key == "k" then self:moveUp()
-        --elseif key == "down" or key == "j" then self:moveDown()
-        --elseif key == "escape" then love.event.quit()
-        --elseif key == "return" or key == "space" then 
-            --local obj = self.items[self.active_item].obj
-            --if type(obj) == "function" then
-                --obj()
-            --else
-                --self.active = true
-                --if obj.enter then obj:enter() end
-            --end
-        --end
     end
 end
 
@@ -162,10 +154,7 @@ function menu:mousemoved(x, y, dx, dy, istouch)
         local obj = self.items[self.active_item].obj
         if obj.mousemoved then obj:mousemoved(x, y, dx, dy, istouch) end
     else
-        if self.back.mousemoved then
-            self.back:mousemoved(x, y, dx, dy, istouch)
-        end
-        --self:process_menu_selection(x, y, dx, dy, istouch)
+        self:process_menu_selection(x, y, dx, dy, istouch)
     end
 end
 
@@ -174,14 +163,11 @@ function menu:mousepressed(x, y, button, istouch)
         local obj = self.items[self.active_item].obj
         if obj.mousepressed then obj:mousepressed(x, y, button, istouch) end
     else
-        if self.back.mousepressed then
-            self.back:mousepressed(x, y, button, istouch)
+        local active_rect = self.items_rects[self.active_item]
+        if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
+            active_rect.y, active_rect.w, active_rect.h) then
+            self.active = true
         end
-        --local active_rect = self.items_rects[self.active_item]
-        --if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
-            --active_rect.y, active_rect.w, active_rect.h) then
-            --self.active = true
-        --end
     end
 end
 
@@ -212,8 +198,8 @@ function menu:draw()
     else
         g.push("all")
         self.back:draw()
-        --self:drawList()
-        --self:drawCursor()
+        self:drawList()
+        self:drawCursor()
         g.pop()
     end
 end
