@@ -165,10 +165,10 @@ function Background:findDirection(xidx, yidx)
     -- почему-то иногда возвращает не измененный результат, тот же, что и ввод.
     -- приводит к падению программы
 
-    local column = self.blocks[1]
+    local columnMax = #self.blocks[1]
     -- left, up, right, down
-    local directions = {xidx - 1 >= 1, yidx - 1 >= 1, xidx + 1 <= #self.blocks,
-        yidx + 1 <= #column}
+    local directions = {xidx - 1 >= 1, yidx - 1 >= 1, xidx + 1 <= columnMax,
+        yidx + 1 <= columnMax}
 
     print(string.format("findDirection() xidx = %d, yidx = %d", xidx, yidx))
     print("self.blocks[xidx - 1]", self.blocks[xidx - 1])
@@ -244,14 +244,9 @@ function Background:fillGrid()
         self.blocks[#self.blocks + 1] = column
     end
 
-    --print("self.blocks", inspect(self.blocks))
-    --print("#self.blocks", #self.blocks, "#self.blocks[1]", #self.blocks[1])
-
     math.randomseed(os.time())
 
     local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
-    print("xcount, ycount", xcount, ycount)
-    print("fieldWidth, fieldHeight", fieldWidth, fieldHeight)
     for i = 1, self.emptyNum do
         -- случайный пустой блок, куда будет двигаться сосед
         local xidx = math.random(1, fieldWidth)
@@ -261,26 +256,15 @@ function Background:fillGrid()
         -- поиск соседа пустого блока. Сосед будет двигаться на пустое место.
         local x, y = self:findDirection(xidx, yidx)
 
-        print(string.format("findDirection() = %d, %d", x, y))
-        print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
-
-        -- начало движения. Проверь действенность переданных в move() 
-        -- параметров.
-        --print(inspect(self.blocks[x][y]))
-
-        --self.blocks[x][y]:move(x - xidx, y - yidx)
         self.blocks[x][y]:move(xidx - x, yidx - y)
-        -- вместо индекстов добавляю ссылку на блок.
         self.execList[#self.execList + 1] = self.blocks[x][y]
     end
-    --print("self.blocks[100]", self.blocks[100])
-    --print("self.blocks[100][100]", self.blocks[100][100])
 end
 
 function Background:update(dt)
     if self.paused then return end
 
-    for _, v in pairs(self.execList) do
+    for k, v in pairs(self.execList) do
         local block = v
         --print(inspect(v))
         -- блок двигается
@@ -291,16 +275,17 @@ function Background:update(dt)
             --local xidx, yidx = math.floor(block.x / Background.bsize),
                 --math.floor(block.y / Background.bsize)
 
-            local xidx, yidx = block.oldXidx, block.oldYidx
+            local xidx, yidx = block.oldXidx or block.xidx, 
+                block.oldYidx or block.yidx
 
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
             -- поиск индексов нового блока по новым рассчитанным индексам
             local x, y = self:findDirection(xidx, yidx)
             --print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
-            print(string.format("x = %d, y = %d", x, y))
-            print(string.format("xidx - x = %d, yidx - y = %d", 
-                xidx - x, yidx - y))
+            print(string.format("xidx = %d, yidx = %d", xidx, yidx))
+            --print(string.format("xidx - x = %d, yidx - y = %d", 
+                --xidx - x, yidx - y))
 
             -- запуск нового движения
             -- здесь какие-то неправильные индексы используются. При
@@ -315,9 +300,10 @@ function Background:update(dt)
                 error("Ououou " .. inspect(self.blocks[x][y]))
             end
 
+            self.execList[k] = self.blocks[x][y]
             -- обновляю индексы блока
-            v.xidx = x
-            v.yidx = y
+            --v.xidx = x
+            --v.yidx = y
         end
     end
 end
