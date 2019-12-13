@@ -37,8 +37,10 @@ end
 local Block = {}
 Block.__index = Block
 
-function Block.new(img, xidx, yidx, duration)
+-- back - экземпляр класса Background
+function Block.new(back, img, xidx, yidx, duration)
     local self = {
+        back = back,
         img = img,
         x = (xidx - 1) * Background.bsize,
         y = (yidx - 1) * Background.bsize,
@@ -90,16 +92,15 @@ end
 -- начало анимации движения
 -- dirx, diry - еденичное направление, в котором будет двигаться блок.
 function Block:move(dirx, diry)
-    -- для начала движения нужно знать текущий индекс блока
-    self.startTime = love.timer.getTime()
+    print("Block:move()", dirx, diry)
     self.dirx = dirx
     self.diry = diry
+    -- новое значение индексов, которое будет использоваться после перемещения
+    self.newXidx = self.xidx + dirx
+    self.newYidx = self.yidx + diry
     self.active = true
     -- счетчик анимации в пикселях. Уменьшается до 0
     self.animCounter = Background.bsize
-    print("Block:move()")
-    print(string.format("startTime = %d, dirx = %d, diry = %d", self.startTime,
-        self.dirx, self.diry))
 end
 
 -- возвращает true если обработка движения еще не закончена. false если 
@@ -107,31 +108,28 @@ end
 function Block:process(dt)
     local ret = false
 
-    --print(string.format("dt = %f, self.x * dt = %f, self.y * dt = %f", 
-        --dt, self.x * dt, self.y * dt))
-
-    --print(inspect(self))
-   
     --print("dirx ", self.dirx)
     --print("diry ", self.diry)
     
     local speed = 20
     local ds = (dt * speed)
 
-    -- тут мне не нравится, что происходят сравнения чисел с плавающей точкой.
-    -- Лучше записать новые индексы блока перед начал движения, рассчитав их
-    -- целочисленно.
     if self.animCounter - ds > 0 then
         self.animCounter = self.animCounter - ds
-
         self.x = self.x + self.dirx * ds
         self.y = self.y + self.diry * ds
-
         ret = true
     else
+        -- приехали
         -- флаг ничего не делает, влияет только на рисовку обводки блока.
         self.active = false 
-        -- приехали
+        self.back.blocks[self.xidx][self.yidx] = {}
+        self.back.blocks[self.newXidx][self.newYidx] = self
+        self.oldXidx, self.oldYidx = self.xidx, self.yidx
+        self.xidx = self.newXidx
+        self.yidx = self.newYidx
+        self.newXidx = -1
+        self.newYidx = -1
     end
 
     return ret
@@ -166,7 +164,14 @@ function Background:findDirection(xidx, yidx)
     -- почему-то иногда возвращает не измененный результат, тот же, что и ввод.
     -- приводит к падению программы
 
+    local column = self.blocks[1]
+    -- left, up, right, down
+    local directions = {xidx - 1 >= 1, yidx - 1 >= 1, xidx + 1 <= #self.blocks,
+        yidx + 1 <= #column}
+
     print(string.format("findDirection() xidx = %d, yidx = %d", xidx, yidx))
+    print("self.blocks[xidx - 1]", self.blocks[xidx - 1])
+    print("directions", inspect(directions))
 
     -- флаг того, что найдена нужная позиция для активного элемента
     local inserted = false
@@ -178,25 +183,29 @@ function Background:findDirection(xidx, yidx)
 
         if dir == 1 then
             --left
-            if self.blocks[xidx - 1] and self.blocks[xidx - 1][yidx] then
+            if directions[dir] and self.blocks[xidx - 1] and 
+                self.blocks[xidx - 1][yidx] then
                 x = x - 1
                 inserted = true
             end
         elseif dir == 2 then
             --up
-            if self.blocks[xidx] and self.blocks[xidx][yidx - 1] then
+            if directions[dir] and self.blocks[xidx] and 
+                self.blocks[xidx][yidx - 1] then
                 y = y - 1
                 inserted = true
             end
         elseif dir == 3 then
             --right
-            if self.blocks[xidx + 1] and self.blocks[xidx + 1][yidx] then
+            if directions[dir] and self.blocks[xidx + 1] and 
+                self.blocks[xidx + 1][yidx] then
                 x = x + 1
                 inserted = true
             end
         elseif dir == 4 then
             --down
-            if self.blocks[xidx] and self.blocks[xidx][yidx + 1] then
+            if directions[dire] and self.blocks[xidx] and 
+                self.blocks[xidx][yidx + 1] then
                 y = y + 1
                 inserted = true
             end
@@ -229,7 +238,7 @@ function Background:fillGrid()
     for i = 1, xcount do
         local column = {}
         for j = 1, ycount do
-            column[#column + 1] = Block.new(self.tile, i, j, 1000)
+            column[#column + 1] = Block.new(self, self.tile, i, j, 1000)
         end
         self.blocks[#self.blocks + 1] = column
     end
@@ -260,8 +269,8 @@ function Background:fillGrid()
 
         --self.blocks[x][y]:move(x - xidx, y - yidx)
         self.blocks[x][y]:move(xidx - x, yidx - y)
-        -- добавляю индексы блока в список для выполнения
-        self.execList[#self.execList + 1] = {xidx = x, yidx = y}
+        -- вместо индекстов добавляю ссылку на блок.
+        self.execList[#self.execList + 1] = self.blocks[xidx][yidx]
     end
     --print("self.blocks[100]", self.blocks[100])
     --print("self.blocks[100][100]", self.blocks[100][100])
@@ -271,14 +280,16 @@ function Background:update(dt)
     if self.paused then return end
 
     for _, v in pairs(self.execList) do
-        local block = self.blocks[v.xidx][v.yidx]
+        local block = v.block
         -- блок двигается
         local ret = block:process(dt)
         -- начинаю новое движение
         if not ret then
             --local xidx, yidx = v.xidx, v.yidx
-            local xidx, yidx = math.floor(block.x / Background.bsize),
-                math.floor(block.y / Background.bsize)
+            --local xidx, yidx = math.floor(block.x / Background.bsize),
+                --math.floor(block.y / Background.bsize)
+
+            local xidx, yidx = block.oldXidx, block.oldYidx
 
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
@@ -287,6 +298,9 @@ function Background:update(dt)
             print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
 
             -- запуск нового движения
+            -- здесь какие-то неправильные индексы используются. При
+            -- первом движении работает нормально, а следущие - генерируются
+            -- совсем не так, как должны.
             --self.blocks[x][y]:move(x - xidx, y - yidx)
             self.blocks[x][y]:move(xidx - x, yidx - y)
 
