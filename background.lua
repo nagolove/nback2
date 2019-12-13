@@ -28,9 +28,7 @@ function Background.new()
     -- TESTING --
 
     --self:findDirection(
-    --self:test_Get()
 
-    os.exit()
     -- TESTING --
 
     return self
@@ -39,29 +37,35 @@ end
 local Block = {}
 Block.__index = Block
 
-function Block.new(img, x, y, duration)
+function Block.new(img, xidx, yidx, duration)
     local self = {
         img = img,
-        x = x,
-        y = y,
+        x = (xidx - 1) * Background.bsize,
+        y = (yidx - 1) * Background.bsize,
+        xidx = xidx,
+        yidx = yidx,
         active = false,
         duration = duration, -- длительность анимации движения(в секундах?)
     }
     setmetatable(self, Block)
-    print(string.format("Block created at %d, %d", x, y))
+    print(string.format("Block created at %d, %d", self.x, self.y))
     return self
 end
 
 function Block:draw()
     local quad = g.newQuad(0, 0, self.img:getWidth(), self.img:getHeight(), 
         self.img:getWidth(), self.img:getHeight())
+
     g.setColor{1, 1, 1, 1}
+
     --g.draw(self.img, quad, self.x, self.y, 0, 
         --Background.size / self.img:getWidth(),
         --Background.size / self.img:getHeight(), self.img:getWidth() / 2, 
         --self.img:getHeight() / 2)
+        
     g.draw(self.img, quad, self.x, self.y, 0, Background.bsize / 
         self.img:getWidth(), Background.bsize / self.img:getHeight())
+
     if self.active then
         g.setColor{1, 1, 1}
         local oldLineWidth = g.getLineWidth()
@@ -71,8 +75,11 @@ function Block:draw()
     end
 
     --print(self.duration)
-    local str = string.format("(%d, %d) act = %d dur = %d", self.x, self.y,
+    local xidx, yidx = math.floor(self.x / Background.bsize),
+        math.floor(self.y / Background.bsize)
+    local str = string.format("(%d, %d) act = %d dur = %d", xidx, yidx,
         self.active and 1 or 0, self.duration)
+
     local oldFont = g.getFont()
     g.setFont(serviceFont)
     g.print(str, self.x, self.y)
@@ -83,6 +90,7 @@ end
 -- начало анимации движения
 -- dirx, diry - еденичное направление, в котором будет двигаться блок.
 function Block:move(dirx, diry)
+    -- для начала движения нужно знать текущий индекс блока
     self.startTime = love.timer.getTime()
     self.dirx = dirx
     self.diry = diry
@@ -98,8 +106,6 @@ end
 -- обработка закончена и блок готов к новым командам.
 function Block:process(dt)
     local ret = false
-    local time = love.timer.getTime()
-    local difference = time - self.startTime
 
     --print(string.format("dt = %f, self.x * dt = %f, self.y * dt = %f", 
         --dt, self.x * dt, self.y * dt))
@@ -112,21 +118,19 @@ function Block:process(dt)
     local speed = 20
     local ds = (dt * speed)
 
-    --if difference <= self.duration then
+    -- тут мне не нравится, что происходят сравнения чисел с плавающей точкой.
+    -- Лучше записать новые индексы блока перед начал движения, рассчитав их
+    -- целочисленно.
     if self.animCounter - ds > 0 then
         self.animCounter = self.animCounter - ds
-
-        -- двигаемся
-        assert(difference ~= 0)
-        -- пройденная часть времени, стремится к еденице
-        --local part = Background.bsize * (duration / difference)
 
         self.x = self.x + self.dirx * ds
         self.y = self.y + self.diry * ds
 
         ret = true
     else
-        self.active = false
+        -- флаг ничего не делает, влияет только на рисовку обводки блока.
+        self.active = false 
         -- приехали
     end
 
@@ -140,15 +144,9 @@ function Background:keypressed(_, scancode)
     end
 end
 
--- возвращает пару индексов массива blocks, соседних с xidx, yidx из которых
--- можно начинать движение. А что возвращает в качестве ошибки? Всегда ли
--- существует пара подходящих индексов?
--- Как можно разделить функцию на две части?
--- Скажем одна делает обращение к массиву с проверкой границ и отладочным
--- выводом, а другая - занимается поиском подходящей ячейки.
 function Background:get(xidx, yidx)
     local firstColumn = self.blocks[1]
-    print("xidx, yidx", xidx, yidx)
+    --print("xidx, yidx", xidx, yidx)
     if xidx >= 1 and xidx <= #self.blocks and 
         yidx >= 1 and yidx <= #firstColumn then
         return self.blocks[xidx][yidx]
@@ -156,6 +154,13 @@ function Background:get(xidx, yidx)
         return nil
     end
 end
+
+-- возвращает пару индексов массива blocks, соседних с xidx, yidx из которых
+-- можно начинать движение. А что возвращает в качестве ошибки? Всегда ли
+-- существует пара подходящих индексов?
+-- Как можно разделить функцию на две части?
+-- Скажем одна делает обращение к массиву с проверкой границ и отладочным
+-- выводом, а другая - занимается поиском подходящей ячейки.
 function Background:findDirection(xidx, yidx)
     local x, y = xidx, yidx
     -- почему-то иногда возвращает не измененный результат, тот же, что и ввод.
@@ -219,16 +224,32 @@ function Background:fillGrid()
 
     print("w / Background.size", w / Background.bsize)
 
-    local i, j = 0, 0
-    while i <= w + Background.bsize do
+    -- как происходит создание блоков? В блок нужно передавать индексы
+    -- содержащего его массива. Левый верхний имеет индексы 0, 0. А мог бы
+    -- иметь значения 1, 1. Не принципиально.
+    -- Но важно - как рассчитывать координаты для рисовки блока?
+    -- Через домножение индекса на ширину блока?
+    --[[
+       [local i, j = 0, 0
+       [while i <= w + Background.bsize do
+       [    local column = {}
+       [    j = 0
+       [    while j <= h + Background.bsize do
+       [        column[#column + 1] = Block.new(self.tile, i, j, 1000)
+       [        j = j + Background.bsize
+       [    end
+       [    self.blocks[#self.blocks + 1] = column
+       [    i = i + Background.bsize
+       [end
+       ]]
+    local xcount, ycount = (w / Background.bsize) + 1, 
+        (h / Background.bsize) + 1
+    for i = 1, xcount do
         local column = {}
-        j = 0
-        while j <= h + Background.bsize do
+        for j = 1, ycount do
             column[#column + 1] = Block.new(self.tile, i, j, 1000)
-            j = j + Background.bsize
         end
         self.blocks[#self.blocks + 1] = column
-        i = i + Background.bsize
     end
 
     --print("self.blocks", inspect(self.blocks))
@@ -274,31 +295,6 @@ function Background:update(dt)
             --local xidx, yidx = v.xidx, v.yidx
             local xidx, yidx = math.floor(block.x / Background.bsize),
                 math.floor(block.y / Background.bsize)
-
---[[
-   [            -- здесь должна быть 3х секундная пауза с рисовкой квадрата по
-   [            -- координатам xidx, yidx перед выбором блока
-   [            if not v.findDirectionAnim then
-   [                v.timestamp = love.timer.getTime()
-   [                v.findDirectionAnim = true
-   [            end
-   [
-   [            if v.findDirectionAnim then
-   [                local time = love.timer.getTime()
-   [                local diff = time - v.timestamp
-   [
-   [                if diff >= 3000 then
-   [                    -- анимация прошла
-   [                    v.findDirectionAnim = false
-   [                else
-   [                    v.findDirectionAnim = true
-   [                    g.setColor{1, 0, 0}
-   [                    g.rectangle("line", xidx * Background.bsize, yidx *
-   [                        Background.bsize * yidx, Background.bsize, 
-   [                        Background.bsize)
-   [                end
-   [            end
-   ]]
 
             print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
