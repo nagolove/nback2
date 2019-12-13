@@ -25,12 +25,6 @@ function Background.new()
     self:resize(g.getDimensions())
     self:fillGrid()
 
-    -- TESTING --
-
-    --self:findDirection(
-
-    -- TESTING --
-
     return self
 end
 
