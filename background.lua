@@ -124,6 +124,7 @@ function Block:process(dt)
         -- флаг ничего не делает, влияет только на рисовку обводки блока.
         self.active = false 
         self.back.blocks[self.xidx][self.yidx] = {}
+        print("self.newXidx, self.newYidx", self.newXidx, self.newYidx)
         self.back.blocks[self.newXidx][self.newYidx] = self
         self.oldXidx, self.oldYidx = self.xidx, self.yidx
         self.xidx = self.newXidx
@@ -171,7 +172,7 @@ function Background:findDirection(xidx, yidx)
 
     print(string.format("findDirection() xidx = %d, yidx = %d", xidx, yidx))
     print("self.blocks[xidx - 1]", self.blocks[xidx - 1])
-    print("directions", inspect(directions))
+    --print("directions", inspect(directions))
 
     -- флаг того, что найдена нужная позиция для активного элемента
     local inserted = false
@@ -265,12 +266,12 @@ function Background:fillGrid()
 
         -- начало движения. Проверь действенность переданных в move() 
         -- параметров.
-        print(inspect(self.blocks[x][y]))
+        --print(inspect(self.blocks[x][y]))
 
         --self.blocks[x][y]:move(x - xidx, y - yidx)
         self.blocks[x][y]:move(xidx - x, yidx - y)
         -- вместо индекстов добавляю ссылку на блок.
-        self.execList[#self.execList + 1] = self.blocks[xidx][yidx]
+        self.execList[#self.execList + 1] = self.blocks[x][y]
     end
     --print("self.blocks[100]", self.blocks[100])
     --print("self.blocks[100][100]", self.blocks[100][100])
@@ -280,7 +281,8 @@ function Background:update(dt)
     if self.paused then return end
 
     for _, v in pairs(self.execList) do
-        local block = v.block
+        local block = v
+        --print(inspect(v))
         -- блок двигается
         local ret = block:process(dt)
         -- начинаю новое движение
