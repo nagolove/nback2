@@ -307,7 +307,13 @@ function Background:update(dt)
             -- первом движении работает нормально, а следущие - генерируются
             -- совсем не так, как должны.
             --self.blocks[x][y]:move(x - xidx, y - yidx)
-            self.blocks[x][y]:move(xidx - x, yidx - y)
+            if self.blocks[x][y].move then
+                self.blocks[x][y]:move(xidx - x, yidx - y)
+            elseif self.blocks[x][y] == {} then
+                error("{} block")
+            else
+                error("Ououou " .. inspect(self.blocks[x][y]))
+            end
 
             -- обновляю индексы блока
             v.xidx = x
