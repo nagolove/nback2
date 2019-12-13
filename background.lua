@@ -12,7 +12,7 @@ function Background.new()
     local self = {
         tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
         blockSize = 128, -- нужная константа или придется менять на что-то?
-        emptyNum = 2, -- количество пустых клеток на поле
+        emptyNum = 1, -- количество пустых клеток на поле
 
         -- список блоков для обработки. Хранить индексы или ссылки на объекты?
         -- Если хранить ссылки на объекты, то блок должен внутри хранить
@@ -76,13 +76,13 @@ function Block:draw()
         g.setLineWidth(oldLineWidth)
     end
 
-    --print(self.duration)
-    local xidx, yidx = math.floor(self.x / Background.bsize),
-        math.floor(self.y / Background.bsize)
-    local str = string.format("(%d, %d) act = %d dur = %d", xidx, yidx,
-        self.active and 1 or 0, self.duration)
+    local str = string.format("idx (%d, %d)\nnew (%s, %s)\nold (%s, %s)", 
+        self.xidx, self.yidx, tostring(self.newXidx or nil), 
+        tostring(self.newYidx or nil), tostring(self.oldXidx or nil), 
+        tostring(self.oldYidx or nil))
 
     local oldFont = g.getFont()
+    g.setColor{0, 0, 0}
     g.setFont(serviceFont)
     g.print(str, self.x, self.y)
     g.setFont(oldFont)
@@ -129,8 +129,8 @@ function Block:process(dt)
         self.oldXidx, self.oldYidx = self.xidx, self.yidx
         self.xidx = self.newXidx
         self.yidx = self.newYidx
-        self.newXidx = -1
-        self.newYidx = -1
+        --self.newXidx = -1
+        --self.newYidx = -1
     end
 
     return ret
@@ -297,7 +297,10 @@ function Background:update(dt)
 
             -- поиск индексов нового блока по новым рассчитанным индексам
             local x, y = self:findDirection(xidx, yidx)
-            print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
+            --print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
+            print(string.format("x = %d, y = %d", x, y))
+            print(string.format("xidx - x = %d, yidx - y = %d", 
+                xidx - x, yidx - y))
 
             -- запуск нового движения
             -- здесь какие-то неправильные индексы используются. При
