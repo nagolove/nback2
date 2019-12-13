@@ -224,26 +224,8 @@ function Background:fillGrid()
 
     print("w / Background.size", w / Background.bsize)
 
-    -- как происходит создание блоков? В блок нужно передавать индексы
-    -- содержащего его массива. Левый верхний имеет индексы 0, 0. А мог бы
-    -- иметь значения 1, 1. Не принципиально.
-    -- Но важно - как рассчитывать координаты для рисовки блока?
-    -- Через домножение индекса на ширину блока?
-    --[[
-       [local i, j = 0, 0
-       [while i <= w + Background.bsize do
-       [    local column = {}
-       [    j = 0
-       [    while j <= h + Background.bsize do
-       [        column[#column + 1] = Block.new(self.tile, i, j, 1000)
-       [        j = j + Background.bsize
-       [    end
-       [    self.blocks[#self.blocks + 1] = column
-       [    i = i + Background.bsize
-       [end
-       ]]
-    local xcount, ycount = (w / Background.bsize) + 1, 
-        (h / Background.bsize) + 1
+    local xcount, ycount = math.floor(w / Background.bsize) + 1, 
+        math.floor(h / Background.bsize) + 1
     for i = 1, xcount do
         local column = {}
         for j = 1, ycount do
@@ -258,6 +240,8 @@ function Background:fillGrid()
     math.randomseed(os.time())
 
     local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
+    print("xcount, ycount", xcount, ycount)
+    print("fieldWidth, fieldHeight", fieldWidth, fieldHeight)
     for i = 1, self.emptyNum do
         -- случайный пустой блок, куда будет двигаться сосед
         local xidx = math.random(1, fieldWidth)
