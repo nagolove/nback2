@@ -170,7 +170,8 @@ function menu:mousepressed(x, y, button, istouch)
             active_rect.y, active_rect.w, active_rect.h) then
             self.active = true
             local obj = self.items[self.active_item].obj
-            if obj.enter then obj:enter() end
+            if type(obj) == "table" and obj.enter then obj:enter()
+            elseif type(obj) == "function" then obj() end
         end
     end
 end
