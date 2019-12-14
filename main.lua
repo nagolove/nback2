@@ -114,5 +114,7 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.mousereleased(x, y, button, istouch)
-    menu:mousereleased(x, y, button, istouch)
+    if menu.mousereleased then
+        menu:mousereleased(x, y, button, istouch)
+    end
 end

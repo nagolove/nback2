@@ -109,6 +109,7 @@ function menu:keypressed(key, scancode)
     if self.active then
         --пересылка обработки в активное состояние
         local obj = self.items[self.active_item].obj
+        assert(obj)
         if obj.keypressed then obj:keypressed(key, scancode) end
     else
         --движение по меню
@@ -161,12 +162,15 @@ end
 function menu:mousepressed(x, y, button, istouch)
     if self.active then
         local obj = self.items[self.active_item].obj
+        assert(obj)
         if obj.mousepressed then obj:mousepressed(x, y, button, istouch) end
     else
         local active_rect = self.items_rects[self.active_item]
         if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
             active_rect.y, active_rect.w, active_rect.h) then
             self.active = true
+            local obj = self.items[self.active_item].obj
+            if obj.enter then obj:enter() end
         end
     end
 end
@@ -176,7 +180,8 @@ function menu:drawList()
     local y = self.y_pos
     g.setFont(self.font)
     for i, k in ipairs(self.items) do
-        local q = self.active_item == i and pallete.active or pallete.inactive 
+        --local q = self.active_item == i and pallete.active or pallete.inactive 
+        local q = self.active_item == i and {1, 1, 1, 1} or {0, 0, 0, 1}
         q[4] = self.alpha
         g.setColor(q)
         g.printf(k.name, 0, y, self.w, "center")

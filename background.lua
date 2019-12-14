@@ -22,8 +22,8 @@ function Background.new()
     }
     setmetatable(self, Background)
 
-    self:resize(g.getDimensions())
     self:fillGrid()
+    self:resize(g.getDimensions())
 
     return self
 end
@@ -241,6 +241,7 @@ function Background:fillGrid()
     math.randomseed(os.time())
 
     local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
+    self.execList = {}
     for i = 1, self.emptyNum do
         -- случайный пустой блок, куда будет двигаться сосед
         local xidx = math.random(1, fieldWidth)
@@ -318,7 +319,8 @@ end
 -- сможет происходить на невидимой пользователю части экрана)
 function Background:resize(neww, newh)
     print("Background:resize()")
-    self.w, self.h = neww, newh
+    -- увеличиваем размер плиточного поля
+    self:fillGrid()
 end
 
 return {
