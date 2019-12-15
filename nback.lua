@@ -177,6 +177,8 @@ function nback:start()
         self.start_pause_rest = self.start_pause_rest - 1 
     end, self.start_pause_rest, function()
         self.start_pause = false
+        -- фиксирую время начала игры
+        self.timestamp = love.timer.getTime()
     end)
     print("end of start")
 end
@@ -484,6 +486,14 @@ function nback:stop()
     -- зачем нужна эта проверка? Расчет на то, что раунд был начат?
     if self.pos_signals then
         self.stopppedSignal = self.current_sig 
+    end
+
+    if self.timestamp then
+        local time = love.timer.getTime() - self.timestamp
+        self.durationMin = math.floor(time / 60)
+        self.durationSec = time - self.durationMin * 60
+        print(string.format("durationMin %f, durationSec %f", self.durationMin,
+            self.durationSec))
     end
 
     -- Раунд полностью закончен? - записываю историю
@@ -837,8 +847,14 @@ function nback:draw_statistic()
     y = y + self.font:getHeight()
     g.printf(string.format("level %d", self.level), 0, y, w, "center")
     y = y + self.font:getHeight()
-    g.printf(string.format("Pause time %.1f sec", self.pause_time), 
+    g.printf(string.format("Exposition time %.1f sec", self.pause_time), 
         0, y, w, "center")
+
+    y = y + self.font:getHeight()
+    if self.durationMin and self.durationSec then
+        g.printf(string.format("Duration %d min %d sec.", self.durationMin,
+            self.durationSec), 0, y, w, "center")
+    end
 end
 
 -- draw central_text - Press Space key
@@ -851,6 +867,14 @@ function nback:print_start_pause()
     --y = h - self.central_font:getHeight() * 2
     local y = self.y0 + (self.dim - 1) * self.cell_width
     g.print(central_text, x, y)
+end
+
+function nback:mousemoved(x, y, dx, dy, istouch)
+    print("nback:mousemoved()")
+end
+
+function nback:mousepressed(x, y, btn, istouch)
+    print("nback:mousepressed()")
 end
 
 return {
