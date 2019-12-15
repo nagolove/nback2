@@ -245,6 +245,13 @@ function menu:mousemoved(x, y, dx, dy, istouch)
 end
 
 function menu:mousepressed(x, y, btn, istouch)
+    if btn == 1 then
+        for k, v in pairs(self.rects) do
+            if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+                self:select()
+            end
+        end
+    end
 end
 
 return setmetatable(menu, { __call = function(cls, ...)
