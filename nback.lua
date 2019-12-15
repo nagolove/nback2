@@ -871,11 +871,15 @@ function nback:print_start_pause()
 end
 
 function nback:mousemoved(x, y, dx, dy, istouch)
-    print("nback:mousemoved()")
+    if not self.is_run and not self.show_statistic then
+        self.setupmenu:mousemoved(x, y, dx, dy, istouch)
+    end
 end
 
 function nback:mousepressed(x, y, btn, istouch)
-    print("nback:mousepressed()")
+    if not self.is_run and not self.show_statistic then
+        self.setupmenu:mousepressed(x, y, btn, istouch)
+    end
 end
 
 return {

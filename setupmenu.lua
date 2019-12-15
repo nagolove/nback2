@@ -6,6 +6,7 @@
 -- * вывод расчетного значения времени раунда(Почему "раунд"? Бокс что-ли?
 -- Попробуй заменить на время концентрации
 
+require("common")
 local inspect = require "libs.inspect"
 local g = love.graphics
 
@@ -160,9 +161,9 @@ function menu:draw()
     g.setLineWidth(self.cursorLineWidth)
 
     local leftMarker, rightMarker = "<< ", " >>"
-
     local leftMarkerColor, rightMarkerColor
 
+    self.rects = {}
     for k, v in pairs(self.items) do
         local leftMarkerColor = v.leftPressedKey and self.activeMarkerColor 
             or (v.isfirst and inactiveMarkerColor or self.markerColor)
@@ -211,6 +212,15 @@ function menu:draw()
             x = x + g.getFont():getWidth(rightMarker)
         end
 
+        -- здесь можно заполнить внутреннюю табличку, содержащую координаты
+        -- всех прямоугольников меню
+        -- плохой код так как он дублируется чуть ниже и заполнения и стирания
+        -- производятся каждый кадр
+        -- x, y, w, h, k
+        self.rects[#self.rects + 1] = {x = xLeft, y = y, 
+            w = xRight - xLeft, h = g.getFont():getHeight(), 
+            k = k}
+
         if k == self.activeIndex then 
             local oldcolor = {g.getColor()}
             g.setColor(self.cursorColor)
@@ -224,6 +234,17 @@ function menu:draw()
 
     g.setLineWidth(oldLineWidth)
     g.setFont(oldfont)
+end
+
+function menu:mousemoved(x, y, dx, dy, istouch)
+    for k, v in pairs(self.rects) do
+        if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+            self.activeIndex = k
+        end
+    end
+end
+
+function menu:mousepressed(x, y, btn, istouch)
 end
 
 return setmetatable(menu, { __call = function(cls, ...)

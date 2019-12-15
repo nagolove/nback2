@@ -138,13 +138,9 @@ function menu:update(dt)
     end
 end
 
-function point_in_rect(px, py, x, y, w, h)
-    return px > x and py > y and px < x + w and py < y + h
-end
-
 function menu:process_menu_selection(x, y, dx, dy, istouch)
     for k, v in pairs(self.items_rects) do
-        if point_in_rect(x, y, v.x, v.y, v.w, v.h) then 
+        if pointInRect(x, y, v.x, v.y, v.w, v.h) then 
             self.active_item = k 
         end
     end
@@ -166,7 +162,7 @@ function menu:mousepressed(x, y, button, istouch)
         if obj.mousepressed then obj:mousepressed(x, y, button, istouch) end
     else
         local active_rect = self.items_rects[self.active_item]
-        if button == 1 and active_rect and point_in_rect(x, y, active_rect.x, 
+        if button == 1 and active_rect and pointInRect(x, y, active_rect.x, 
             active_rect.y, active_rect.w, active_rect.h) then
             self.active = true
             local obj = self.items[self.active_item].obj
