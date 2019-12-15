@@ -1,4 +1,5 @@
-﻿local inspect = require "libs.inspect"
+﻿-- vim: set foldmethod=indent
+local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local lume = require "libs.lume"
 local math = require "math"
@@ -178,7 +179,7 @@ function nback:start()
     end, self.start_pause_rest, function()
         self.start_pause = false
         -- фиксирую время начала игры
-        self.timestamp = love.timer.getTime()
+        self.startTime = love.timer.getTime()
     end)
     print("end of start")
 end
@@ -488,8 +489,8 @@ function nback:stop()
         self.stopppedSignal = self.current_sig 
     end
 
-    if self.timestamp then
-        local time = love.timer.getTime() - self.timestamp
+    if self.startTime then
+        local time = love.timer.getTime() - self.startTime
         self.durationMin = math.floor(time / 60)
         self.durationSec = time - self.durationMin * 60
         print(string.format("durationMin %f, durationSec %f", self.durationMin,
