@@ -66,7 +66,7 @@ function Block:draw()
         g.setColor{1, 1, 1}
         local oldLineWidth = g.getLineWidth()
         g.setLineWidth(3)
-        g.rectangle("line", self.x, self.y, Background.bsize, Background.bsize)
+        --g.rectangle("line", self.x, self.y, Background.bsize, Background.bsize)
         g.setLineWidth(oldLineWidth)
     end
 
@@ -78,7 +78,7 @@ function Block:draw()
     local oldFont = g.getFont()
     g.setColor{0, 0, 0}
     g.setFont(serviceFont)
-    g.print(str, self.x, self.y)
+    --g.print(str, self.x, self.y)
     g.setFont(oldFont)
     --g.draw(self.img, quad, i, j, math.pi, 0.3, 0.3)
 end
