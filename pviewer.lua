@@ -7,6 +7,9 @@
 --
 -- Строчки списка сортировать по дате - от последних к первым. Поддержка
 -- клавиш выстрой перемотки. Для мобильной версии - наличие визуальных кнопок.
+--
+-- План работ: загрузка данных, сортировка данных, вывод списка. Клавиши
+-- управления. Подсказки клавиш управления.
 -- ]]
 
 local inspect = require "libs.inspect"
@@ -28,12 +31,10 @@ pviewer.__index = pviewer
 function pviewer.new()
     local self = {
         scroll_tip_text = "For scrolling table use ↓↑ arrows",
-        header_text = "", 
         border = 40, --y axis border in pixels for drawing chart
         scrollx = 0,
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
         scrool_tip_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
-        selected_item = 2,
         start_line = 1,
         sorted_by_column_num = 1,
         columns_name = {"date", "nlevel", "rating", "pause"},
@@ -63,6 +64,9 @@ function pviewer:enter()
     else
         self.data = {}
     end
+
+    self.data = self.data or nil
+
     if #self.data >= 1 then
         self.cursor_index = 1
     else
@@ -70,14 +74,15 @@ function pviewer:enter()
     end
     print("*** begining of pviewer.data ***")
     local str = inspect(self.data)
+    print("Length of pviewer.data =", #self.data)
     --print(str)
     love.filesystem.write("pviewer_data_extracting.lua", str, str:len())
     print("*** end of pviewer.data ***")
     --self.sort_by_column(1)
 end
 
--- пока методы enter()/leave() не поддерживаются в переключении меню
 function pviewer:leave()
+    print("pviewer:leave()")
     self.data = nil
 end
 
@@ -105,7 +110,8 @@ function pviewer:resize(neww, newh)
     end
 end
 
--- draw column of table pviewer.data, from index k, to index j with func(v) access function
+-- draw column of table pviewer.data, from index k, to index j with func(v) 
+-- access function
 function pviewer:draw_column(k, j, deltax, func)
     local oldcolor = {g.getColor()}
     local dx = 0
@@ -293,7 +299,7 @@ function pviewer:move_up()
     if self.cursor_index > 1 then
         if not self.cursor_move_up_animation then
             self.cursor_move_up_animation = true
-            self.timer:after(0.1, function()
+            self.timer:after(0.05, function()
                 self.cursor_move_up_animation = false;
                 self.cursor_index = self.cursor_index - 1
             end)
@@ -301,7 +307,7 @@ function pviewer:move_up()
     elseif not self.move_up_animation then
         if self.start_line > 1 then
             self.move_up_animation = true
-            self.timer:during(0.1, function()
+            self.timer:during(0.05, function()
                 self.start_line = self.start_line - 0.1
             end, 
             function() self.move_up_animation = false end)
@@ -315,7 +321,7 @@ function pviewer:move_down()
         if not self.cursor_move_down_animation then
             --print("after")
             self.cursor_move_down_animation = true
-            self.timer:after(0.1, function()
+            self.timer:after(0.05, function()
                 self.cursor_move_down_animation = false;
                 self.cursor_index = self.cursor_index + 1
             end)
@@ -323,7 +329,7 @@ function pviewer:move_down()
     elseif not self.move_down_animation then
         if self.start_line + self.vertical_buf_len <= #self.data then
             self.move_down_animation = true
-            self.timer:during(0.1, function()
+            self.timer:during(0.05, function()
                 self.start_line = self.start_line + 0.1
             end, function() self.move_down_animation = false end)
         end
