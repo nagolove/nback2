@@ -67,8 +67,13 @@ function dispatchWindowResize(w, h)
 end
 
 function love.keypressed(key, scancode)
+    -- ctrl-d hotkey to start debugger
     if love.keyboard.isScancodeDown("lctrl") and scancode == "d" then
         debug.debug()
+    end
+    -- ctrl-s hotkey for save gamedata to file
+    if love.keyboard.isScancodeDown("lctrl") and scancode == "s" then
+        nback:save_to_history()
     end
 
     print(string.format("key %s, scancode %s", key, scancode))
