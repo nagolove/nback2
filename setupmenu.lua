@@ -76,7 +76,7 @@ end
 
 function menu:select()
     local item = self.items[self.activeIndex]
-    if item.onselect then
+    if item and item.onselect then
         item:onselect()
     end
 end
@@ -86,8 +86,10 @@ function menu:update(dt)
     local item = self.items[self.activeIndex]
     --linesbuf:pushi("item.leftPressedKey = %s", tostring(item.leftPressedKey))
     --linesbuf:pushi("item.rightPressedKey = %s", tostring(item.rightPressedKey))
-    linesbuf:pushi("item.isfirst = %s, item.islast = %s", item.isfirst, 
-        item.islast)
+    if item then
+        linesbuf:pushi("item.isfirst = %s, item.islast = %s", item.isfirst, 
+            item.islast)
+    end
 end
 
 function menu:scrollUp()
@@ -163,8 +165,9 @@ function menu:draw()
     local leftMarker, rightMarker = "<< ", " >>"
     local leftMarkerColor, rightMarkerColor
 
-    self.rects = {}
+    --self.rects = {}
     for k, v in pairs(self.items) do
+        --v.leftBorder, v.rightBorder = false, false
         local leftMarkerColor = v.leftPressedKey and self.activeMarkerColor 
             or (v.isfirst and inactiveMarkerColor or self.markerColor)
         local rightMarkerColor = v.rightPressedKey and self.activeMarkerColor 
@@ -191,7 +194,18 @@ function menu:draw()
         if v.onleft then
             g.setColor(leftMarkerColor)
             g.print(leftMarker, x, y)
-            x = x + g.getFont():getWidth(leftMarker)
+
+            local width = g.getFont():getWidth(leftMarker)
+            v.leftRect = { x = x, y = y, w = width,
+                h = g.getFont():getHeight(), k = k}
+            
+            if v.leftBorder then
+                g.setColor(self.cursorColor)
+                g.rectangle("line", v.leftRect.x, v.leftRect.y, v.leftRect.w,
+                    v.leftRect.h)
+            end
+
+            x = x + width
         end
         local xLeft = x
         g.setColor(self.color)
@@ -209,7 +223,17 @@ function menu:draw()
         if v.onright then
             g.setColor(rightMarkerColor)
             g.print(rightMarker, x, y)
-            x = x + g.getFont():getWidth(rightMarker)
+            local width = g.getFont():getWidth(rightMarker)
+            v.rightRect = { x = x, y = y, w = width,
+                h = g.getFont():getHeight(), k = k}
+
+            if v.rightBorder then
+                g.setColor(self.cursorColor)
+                g.rectangle("line", v.rightRect.x, v.rightRect.y, v.rightRect.w,
+                    v.rightRect.h)
+            end
+
+            x = x + width
         end
 
         -- здесь можно заполнить внутреннюю табличку, содержащую координаты
@@ -217,9 +241,8 @@ function menu:draw()
         -- плохой код так как он дублируется чуть ниже и заполнения и стирания
         -- производятся каждый кадр
         -- x, y, w, h, k
-        self.rects[#self.rects + 1] = {x = xLeft, y = y, 
-            w = xRight - xLeft, h = g.getFont():getHeight(), 
-            k = k}
+        v.rect = {x = xLeft, y = y, w = xRight - xLeft, 
+            h = g.getFont():getHeight(), k = k}
 
         if k == self.activeIndex then 
             local oldcolor = {g.getColor()}
@@ -237,17 +260,25 @@ function menu:draw()
 end
 
 function menu:mousemoved(x, y, dx, dy, istouch)
-    for k, v in pairs(self.rects) do
-        if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+    for k, v in pairs(self.items) do
+        local rect = v.rect
+        if pointInRect(x, y, rect.x, rect.y, rect.w, rect.h) then
             self.activeIndex = k
         end
+        local leftRect = v.leftRect
+        v.leftBorder = leftRect and pointInRect(x, y, leftRect.x, leftRect.y, leftRect.w,
+            leftRect.h)
+        local rightRect = v.rightRect
+        v.rightBorder = rightRect and pointInRect(x, y, rightRect.x, rightRect.y, rightRect.w,
+            rightRect.h)
     end
 end
 
 function menu:mousepressed(x, y, btn, istouch)
     if btn == 1 then
-        for k, v in pairs(self.rects) do
-            if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+        for k, v in pairs(self.items) do
+            local rect = v.rect
+            if pointInRect(x, y, rect.x, rect.y, rect.w, rect.h) then
                 self:select()
             end
         end
