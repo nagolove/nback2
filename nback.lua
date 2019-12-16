@@ -844,13 +844,12 @@ function nback:draw_statistic()
         starty)
 
     local y = self.y0 + self.font:getHeight()
-    g.printf(string.format("Set results:"), 0, y, w, "center")
+    --g.printf(string.format("Set results:"), 0, y, w, "center")
     y = y + self.font:getHeight()
-    g.printf(string.format("level %d", self.level), 0, y, w, "center")
+    g.printf(string.format("Level %d", self.level), 0, y, w, "center")
     y = y + self.font:getHeight()
     g.printf(string.format("Exposition time %.1f sec", self.pause_time), 
         0, y, w, "center")
-
     y = y + self.font:getHeight()
     if self.durationMin and self.durationSec then
         g.printf(string.format("Duration %d min %d sec.", self.durationMin,
