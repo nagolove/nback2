@@ -36,24 +36,33 @@ end
 local nback = {}
 nback.__index = nback
 
-function nback.new()
-    local self = {
-        dim = 5,    -- количество ячеек поля
-        cell_width = 100,  -- width of game field in pixels
-        current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
-        sig_count = 8, -- количество сигналов
-        level = 1, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
-        is_run = false, -- индикатор запуска рабочего цикла
-        pause_time = 2.0, -- задержка между сигналами, в секундах
-        can_press = false, -- XXX FIXME зачем нужна эта переменная?
-        show_statistic = false, -- индикатор показа статистики в конце сета
-        sounds = {},
-        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
-        central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
-        statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
-        field_color = table.copy(pallete.field) -- копия таблицы по значению
-    }
+local nbackSelf = {
+    dim = 5,    -- количество ячеек поля
+    cell_width = 100,  -- width of game field in pixels
+    current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
+    sig_count = 8, -- количество сигналов
+    level = 1, -- уровень, на сколько позиций назад нужно нажимать клавишу сигнала
+    is_run = false, -- индикатор запуска рабочего цикла
+    pause_time = 2.0, -- задержка между сигналами, в секундах
+    can_press = false, -- XXX FIXME зачем нужна эта переменная?
+    show_statistic = false, -- индикатор показа статистики в конце сета
+    sounds = {},
+    field_color = table.copy(pallete.field), -- копия таблицы по значению
+    -- хорошо-бы закешировать загрузку этих ресурсов
+    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
+    central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
+    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+}
 
+-- создать объект и загрузить в него статистику из файла для последующей
+-- рисовки результатов.
+function nback.newStatisticRender(filename)
+    local self = deepcopy(nbackSelf)
+    return setmetatable(self, nback)
+end
+
+function nback.new()
+    local self = deepcopy(nbackSelf)
     return setmetatable(self, nback)
 end
 
@@ -438,8 +447,23 @@ function nback:save_to_history()
     local data, size = love.filesystem.read(self.save_name)
     if data ~= nil then
         ok, history = serpent.load(data)
+        -- нужно выходить?
+        if not ok then
+            return
+        end
     end
-    table.insert(history, { date = d, 
+    print("nback:save_to_history()")
+    --[[
+    -- Здесь добавляется информация к уже загруженной таблице со всеми данными.
+    -- Плохой способ так как непонятно как рассортировать данные.
+    -- И считывать приходится все подряд. Как можно сделать лучше?
+    -- Хранить результаты в отдельных файлах - так себе вариант, может
+    -- накопиться много файлов. serpent записывает компактно.
+    --]]
+    os.setlocale("C")
+    local date = os.date("*t")
+    print("date", inspect(date))
+    table.insert(history, { date = date, 
                             pos_signals = self.pos_signals,
                             form_signals = self.form_signals,
                             sound_signals = self.sound_signals,
@@ -448,7 +472,7 @@ function nback:save_to_history()
                             form_pressed_arr = self.form_pressed_arr,
                             sound_pressed_arr = self.sound_pressed_arr,
                             color_pressed_arr = self.color_pressed_arr,
-                            time = os.time(d), 
+                            --time = os.time(date), 
                             nlevel = self.level,
                             pause_time = self.pause_time,
                             percent = self.percent})
@@ -822,6 +846,8 @@ function nback:draw_statistic()
 
     local freezedY = y
 
+    -- массивы вида self.**_eq содержат значения истина на тех индексах, где
+    -- должны быть нажаты обработчики сигналов
     x, y = self:draw_hit_rects(x, y, self.sound_pressed_arr, self.sound_eq, 
         rect_size, border)
     x, y = self:draw_hit_rects(x, y, self.color_pressed_arr, self.color_eq, 
