@@ -266,11 +266,11 @@ function menu:mousemoved(x, y, dx, dy, istouch)
             self.activeIndex = k
         end
         local leftRect = v.leftRect
-        v.leftBorder = leftRect and pointInRect(x, y, leftRect.x, leftRect.y, leftRect.w,
-            leftRect.h)
+        v.leftBorder = leftRect and pointInRect(x, y, leftRect.x, 
+            leftRect.y, leftRect.w, leftRect.h)
         local rightRect = v.rightRect
-        v.rightBorder = rightRect and pointInRect(x, y, rightRect.x, rightRect.y, rightRect.w,
-            rightRect.h)
+        v.rightBorder = rightRect and pointInRect(x, y, rightRect.x, 
+            rightRect.y, rightRect.w, rightRect.h)
     end
 end
 
@@ -280,6 +280,18 @@ function menu:mousepressed(x, y, btn, istouch)
             local rect = v.rect
             if pointInRect(x, y, rect.x, rect.y, rect.w, rect.h) then
                 self:select()
+            end
+            local leftRect = v.leftRect
+            if leftRect and pointInRect(x, y, leftRect.x, leftRect.y,
+                leftRect.w, leftRect.h) and self.activeIndex == k then
+                self:leftPressed()
+                self:leftReleased()
+            end
+            local rightRect = v.rightRect
+            if rightRect and pointInRect(x, y, rightRect.x, rightRect.y,
+                rightRect.w, rightRect.h) and self.activeIndex == k then
+                self:rightPressed()
+                self:rightReleased()
             end
         end
     end
