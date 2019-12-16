@@ -1,4 +1,15 @@
-﻿local inspect = require "libs.inspect"
+﻿-- [[
+-- Класс должен рисовать список сохраненных игр в левой части экрана.
+-- В правой части экрана - вывод результатов через 
+-- nback:drawStatistic2Canvas(). Следи за аккуратной обработкой ошибок -
+-- могут быть различные версии данных в файле результатов, их нужно корректно
+-- не показывать, но не падать.
+--
+-- Строчки списка сортировать по дате - от последних к первым. Поддержка
+-- клавиш выстрой перемотки. Для мобильной версии - наличие визуальных кнопок.
+-- ]]
+
+local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local timer = require "libs.Timer"
 
@@ -45,6 +56,8 @@ function pviewer:enter()
     if tmp ~= nil then
         ok, self.data = serpent.load(tmp)
         if not ok then 
+            -- эту строчку с падением при ошибке заменить на показ пустой
+            -- статистики.
             error("Something wrong in restoring data " .. self.save_name)
         end
     else
