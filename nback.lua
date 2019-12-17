@@ -59,15 +59,22 @@ local nbackSelf = {
 function nback.newStatisticRender(data)
     local self = deepcopy(nbackSelf)
     setmetatable(self, nback)
-    
+   
+    print("data.color_signals", inspect(data.color_signals))
+
     self.color_signals = deepcopy(data.color_signals)
     self.form_signals = deepcopy(data.form_signals)
     self.pos_signals = deepcopy(data.pos_signals)
     self.sound_signals = deepcopy(data.sound_signals)
 
+    print("self.color_signals", inspect(self.color_signals))
+    print("self.form_signals", inspect(self.form_signals))
+    print("self.pos_signals", inspect(self.pos_signals))
+    print("self.sound_signals", inspect(self.sound_signals))
+
     self.color_pressed_arr = deepcopy(data.color_pressed_arr)
     self.form_pressed_arr = deepcopy(data.form_pressed_arr)
-    self.po_pressed_arr = deepcopy(data.pos_pressed_arr)
+    self.pos_pressed_arr = deepcopy(data.pos_pressed_arr)
     self.sound_pressed_arr = deepcopy(data.sound_pressed_arr)
 
     self:makeEqArrays()
@@ -694,8 +701,10 @@ end
 -- return array of boolean values in succesful indices
 function nback:make_hit_arr(signals, comparator)
     local ret = {}
-    for k, v in pairs(signals) do
-        ret[#ret + 1] = k > self.level and comparator(v, signals[k - self.level])
+    if signals then
+        for k, v in pairs(signals) do
+            ret[#ret + 1] = k > self.level and comparator(v, signals[k - self.level])
+        end
     end
     return ret
 end
@@ -934,5 +943,6 @@ function nback:mousepressed(x, y, btn, istouch)
 end
 
 return {
-    new = nback.new
+    new = nback.new,
+    newStatisticRender = nback.newStatisticRender,
 }

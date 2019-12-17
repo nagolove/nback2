@@ -17,6 +17,7 @@ require("common")
 local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local timer = require "libs.Timer"
+local newStatisticRender = require "nback".newStatisticRender
 
 local pallete = require "pallete"
 local g = love.graphics
@@ -44,6 +45,14 @@ function pviewer:init(save_name)
     self.timer = timer()
 end
 
+-- создает новый экземпляр просмотрщика статистики для текущего положения
+-- индекса pviewer.activeIndex
+function pviewer:updateNbackRender()
+    if self.data and self.activeIndex >= 1 then
+        self.nb = newStatisticRender(self.data[self.activeIndex])
+    end
+end
+
 function pviewer:enter()
     print("pviewer:enter()")
     local tmp, size = love.filesystem.read(self.save_name)
@@ -59,6 +68,21 @@ function pviewer:enter()
     end
 
     self.data = self.data or nil
+
+    -- очищаю от данных которые не содержат поля даты
+    -- можно сделать в цикле for со счетчиком от конца к началу и удалением
+    -- элемента через table.remove()
+    local cleanedData = {}
+    for k, v in pairs(self.data) do
+        if v.date then
+            cleanedData[#cleanedData + 1] = v
+        end
+    end
+
+    self.data = cleanedData
+    self.activeIndex = #self.data >= 1 and 1 or 0
+
+    self:updateNbackRender()
 
     print("*** begining of pviewer.data ***")
     local str = inspect(self.data)
@@ -100,37 +124,55 @@ end
 function pviewer:draw()
     g.push("all")
 
-    love.graphics.clear(pallete.background)
+    g.clear(pallete.background)
+    local oldFont = g.getFont()
+    g.setFont(self.font)
 
     local x = 30
     local y = self.border
+    local fontHeight = g.getFont():getHeight()
 
     for k, v in pairs(self.data) do
-        if v.date then
-            local str = string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d",
-            v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
-            v.date.sec)
-            print(v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
-            v.date.sec)
-            g.printf(str, x, y, 600, "left")
-            y = y + g.getFont():getHeight()
+        local str = string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d",
+        v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
+        v.date.sec)
+        print(v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
+        v.date.sec)
+        local textWidth = self.font:getWidth(str)
+        if self.activeIndex ~= 0 and k == self.activeIndex then
+            local oldcolor = {g.getColor()}
+            g.setColor{0.5, 0.5, 0.5, 0.5}
+            g.rectangle("fill", x, y, textWidth, fontHeight)
+            g.setColor(oldcolor)
         end
+        --g.printf(str, x, y, 600, "left")
+        g.print(str, x, y)
+
+        y = y + fontHeight
     end
 
+    g.setFont(oldFont)
     self:print_dbg_info()
 
     g.pop()
 end
 
+-- перемотка на страницу вверх
 function pviewer:pageUp()
 end
 
+-- перемотка на страницу вниз
 function pviewer:pageDown()
 end
 
+-- сместить курсор на строчку вверх
 function pviewer:scrollUp()
+    if self.activeIndex - 1 >= 1 then
+        self.activeIndex = self.activeIndex - 1
+    end
 end
 
+-- сместить курсор на строчку вниз
 function pviewer:scrollDown()
 end
 
