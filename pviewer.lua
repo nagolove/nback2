@@ -30,7 +30,7 @@ function pviewer.new()
         border = 40, --y axis border in pixels for drawing chart
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
         scroolTipFont = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
-        startLine = 1,
+        activeIndex = 0, -- обработай случаи если таблица истории пустая
     }
     self.w, self.h = g.getDimensions()
     return setmetatable(self, pviewer)

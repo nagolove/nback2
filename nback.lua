@@ -54,11 +54,25 @@ local nbackSelf = {
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
 }
 
--- создать объект и загрузить в него статистику из файла для последующей
--- рисовки результатов.
-function nback.newStatisticRender(filename)
+-- создать объект и загрузить в него статистику из таблицы, загруженной из
+-- файла истории. Теперь можно рисовать статистику результатов.
+function nback.newStatisticRender(data)
     local self = deepcopy(nbackSelf)
-    return setmetatable(self, nback)
+    setmetatable(self, nback)
+    
+    self.color_signals = deepcopy(data.color_signals)
+    self.form_signals = deepcopy(data.form_signals)
+    self.pos_signals = deepcopy(data.pos_signals)
+    self.sound_signals = deepcopy(data.sound_signals)
+
+    self.color_pressed_arr = deepcopy(data.color_pressed_arr)
+    self.form_pressed_arr = deepcopy(data.form_pressed_arr)
+    self.po_pressed_arr = deepcopy(data.pos_pressed_arr)
+    self.sound_pressed_arr = deepcopy(data.sound_pressed_arr)
+
+    self:makeEqArrays()
+
+    return self
 end
 
 function nback.new()
@@ -72,6 +86,17 @@ function create_false_array(len)
         ret[#ret + 1] = false
     end
     return ret
+end
+
+function nback:makeEqArrays()
+    self.pos_eq = self:make_hit_arr(self.pos_signals, 
+        function(a, b) return a[1] == b[1] and a[2] == b[2] end)
+    self.sound_eq = self:make_hit_arr(self.sound_signals, 
+        function(a, b) return a == b end)
+    self.color_eq = self:make_hit_arr(self.color_signals, 
+        function(a, b) return a == b end)
+    self.form_eq = self:make_hit_arr(self.form_signals, 
+        function(a, b) return a == b end)
 end
 
 function nback:generate_signals()
@@ -114,14 +139,7 @@ function nback:generate_signals()
             self.level)
         print("color", inspect(self.color_signals))
 
-        self.pos_eq = self:make_hit_arr(self.pos_signals, 
-            function(a, b) return a[1] == b[1] and a[2] == b[2] end)
-        self.sound_eq = self:make_hit_arr(self.sound_signals, 
-            function(a, b) return a == b end)
-        self.color_eq = self:make_hit_arr(self.color_signals, 
-            function(a, b) return a == b end)
-        self.form_eq = self:make_hit_arr(self.form_signals, 
-            function(a, b) return a == b end)
+        self:makeEqArrays()
     end
 
     -- попытка балансировки массивов от множественного совпадения(более двух сигналов на фрейм)
