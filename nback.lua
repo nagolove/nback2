@@ -152,6 +152,7 @@ function nback:generate_signals()
 end
 
 function nback:start()
+    self.written = false
     local q = pallete.field
     -- запуск анимации цвета игрового поля
     self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
@@ -443,6 +444,12 @@ function nback:loadFromHistory(signals, presses)
 end
 
 function nback:save_to_history()
+    if self.written then
+        return
+    end
+    if not self.written then
+        self.written = true
+    end
     local history = {}
     local data, size = love.filesystem.read(self.save_name)
     if data ~= nil then
@@ -554,6 +561,7 @@ end
 function nback:keypressed(key, scancode)
     if scancode == "escape" then
         if self.is_run then
+            print("stop by escape")
             self:stop()
         else
             self:quit()
