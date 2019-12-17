@@ -66,6 +66,7 @@ function nback.newStatisticRender(data)
     self.form_signals = deepcopy(data.form_signals)
     self.pos_signals = deepcopy(data.pos_signals)
     self.sound_signals = deepcopy(data.sound_signals)
+    self.percent = data.percent
 
     print("self.color_signals", inspect(self.color_signals))
     print("self.form_signals", inspect(self.form_signals))
@@ -78,6 +79,8 @@ function nback.newStatisticRender(data)
     self.sound_pressed_arr = deepcopy(data.sound_pressed_arr)
 
     self:makeEqArrays()
+
+    self:resize(g.getDimensions())
 
     return self
 end
@@ -694,8 +697,10 @@ function nback:resize(neww, newh)
     self.x0 = (w - self.dim * self.cell_width) / 2
     self.y0 = (h - self.dim * self.cell_width) / 2 - delta
 
-    self.signal:setCorner(self.x0, self.y0)
-    self.signal:resize(self.cell_width)
+    if self.signal then
+        self.signal:setCorner(self.x0, self.y0)
+        self.signal:resize(self.cell_width)
+    end
 end
 
 -- return array of boolean values in succesful indices
@@ -759,20 +764,28 @@ end
 -- Почему название функции не draw_percents()?
 function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
     local sx = x + rect_size * (#self.pos_signals - 1) + border + rect_size 
-        - border * 2 + pixel_gap
+    - border * 2 + pixel_gap
     local formatStr = "%.3f"
 
     g.setColor({200 / 255, 0, 200 / 255})
     g.setFont(self.font)
 
-    g.print(string.format(formatStr, self.sound_percent), sx, y)
-    y = y + rect_size + 6
-    g.print(string.format(formatStr, self.color_percent), sx, y)
-    y = y + rect_size + 6
-    g.print(string.format(formatStr, self.form_percent), sx, y)
-    y = y + rect_size + 6
-    g.print(string.format(formatStr, self.pos_percent), sx, y)
-    y = starty + 4 * (rect_size + 20)
+    if self.sound_percent then
+        g.print(string.format(formatStr, self.sound_percent), sx, y)
+        y = y + rect_size + 6
+    end
+    if self.color_percent then
+        g.print(string.format(formatStr, self.color_percent), sx, y)
+        y = y + rect_size + 6
+    end
+    if self.form_percent then
+        g.print(string.format(formatStr, self.form_percent), sx, y)
+        y = y + rect_size + 6
+    end
+    if self.pos_percent then
+        g.print(string.format(formatStr, self.pos_percent), sx, y)
+        y = starty + 4 * (rect_size + 20)
+    end
     g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")
     return x, y
 end
@@ -867,6 +880,10 @@ end
 
 -- рисовать статистику после конца сета
 function nback:draw_statistic()
+    if not self.pos_signals then
+        return
+    end
+
     g.setFont(self.font)
     g.setColor(pallete.statistic)
 

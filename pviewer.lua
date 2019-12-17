@@ -105,14 +105,12 @@ function pviewer:resize(neww, newh)
     w = neww
     h = newh
     self.verticalBufLen = self:get_max_lines_printed()
-    --[[
-       [self.rt = g.newCanvas(w, self.vertical_buf_len * 
-       [    self.font:getLineHeight() * self.font:getHeight(), {format = "normal", 
-       [    msaa = 4})
-       [if not self.rt then
-       [    error("Canvas not supported!")
-       [end
-       ]]
+    -- обрати внимание на размер создаваемого полотна. Взят от балды.
+    self.rt = g.newCanvas(w, h, {format = "normal", 
+        msaa = 4})
+    if not self.rt then
+        error("Sorry, canvases are not supported!")
+    end
 end
 
 function pviewer:print_dbg_info()
@@ -151,6 +149,12 @@ function pviewer:draw()
         y = y + fontHeight
     end
 
+    g.setCanvas(self.rt)
+    self.nb:draw_statistic()
+    g.setCanvas()
+
+    g.draw(self.rt, 0, 0)
+
     g.setFont(oldFont)
     self:print_dbg_info()
 
@@ -169,11 +173,16 @@ end
 function pviewer:scrollUp()
     if self.activeIndex - 1 >= 1 then
         self.activeIndex = self.activeIndex - 1
+        self:updateNbackRender()
     end
 end
 
 -- сместить курсор на строчку вниз
 function pviewer:scrollDown()
+    if self.activeIndex + 1 <= #self.data then
+        self.activeIndex = self.activeIndex + 1
+        self:updateNbackRender()
+    end
 end
 
 -- добавить клавиши управления для постраничной прокрутки списка результатов.
