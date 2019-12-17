@@ -3,6 +3,11 @@ function pack(...)
     return {...}
 end
 
+-- integer division
+function div(a, b)
+    return (a - a % b) / b
+end
+
 function xassert(a, ...)
     if a then return a, ... end
     local f = ...
