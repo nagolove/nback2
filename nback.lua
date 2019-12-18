@@ -760,8 +760,7 @@ function nback:print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     return x, y
 end
 
--- Почему название функции не draw_percents()?
-function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
+function nback:draw_percents(x, y, rect_size, pixel_gap, border, starty)
     local sx = x + rect_size * (#self.pos_signals - 1) + border + rect_size 
     - border * 2 + pixel_gap
     local formatStr = "%.3f"
@@ -924,7 +923,7 @@ function nback:draw_statistic()
     x, y = self:print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
-    x, y = self:print_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
+    x, y = self:draw_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
         starty)
 
     if not self.statisticRender then
