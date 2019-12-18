@@ -664,8 +664,8 @@ function nback:check(signalType)
             return a[1] == b[1] and a[2] == b[2]
         end
     end
-    self[signalType .. "_pressed"] = true
     -- ненадолго включаю подсветку введеной клавиши на игровом поле
+    self[signalType .. "_pressed"] = true
     self.timer:after(0.2, function() 
         nback[signalType .. "_pressed"] = false 
     end)
@@ -706,8 +706,10 @@ end
 function nback:make_hit_arr(signals, comparator)
     local ret = {}
     if signals then
+        print("make_hit_arr")
         for k, v in pairs(signals) do
-            ret[#ret + 1] = k > self.level and comparator(v, signals[k - self.level])
+            ret[#ret + 1] = k > self.level and comparator(v, 
+                signals[k - self.level])
         end
     end
     return ret
@@ -882,7 +884,7 @@ end
 -- рисовать статистику после конца сета
 function nback:draw_statistic()
     -- условие нужно что-бы не падала программа при создании рендера истории.
-    -- но из-за этого пункта может быть неправильное отображение графики
+    -- но из-за этого пункта может быть неправильное отображение графики?
     if not self.pos_signals then
         return
     end
@@ -893,9 +895,14 @@ function nback:draw_statistic()
     local width_k = 3 / 4
     -- XXX depend on screen resolution
     local rect_size = math.floor(w * width_k / #self.pos_signals)
-    print("rect_size", rect_size)
-    local x = (w - w * width_k) / 2
-    local starty = 200
+
+    --print("rect_size", rect_size)
+    --print("self.statisticRender", self.statisticRender)
+
+    local x = self.statisticRender and (w - w * width_k) / 2 or 0
+    --local x = (w - w * width_k) / 2 
+
+    local starty = self.statisticRender and 0 or 200
     local y = starty
     local border = 2
 
@@ -923,21 +930,22 @@ function nback:draw_statistic()
     x, y = self:print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
     x, y = self:print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
-    x, y = self:draw_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
-        starty)
 
     if not self.statisticRender then
+        x, y = self:draw_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
+        starty)
+
         local y = self.y0 + self.font:getHeight()
         --g.printf(string.format("Set results:"), 0, y, w, "center")
         y = y + self.font:getHeight()
         g.printf(string.format("Level %d", self.level), 0, y, w, "center")
         y = y + self.font:getHeight()
         g.printf(string.format("Exposition time %.1f sec", self.pause_time), 
-            0, y, w, "center")
+        0, y, w, "center")
         y = y + self.font:getHeight()
         if self.durationMin and self.durationSec then
             g.printf(string.format("Duration %d min %d sec.", self.durationMin,
-                self.durationSec), 0, y, w, "center")
+            self.durationSec), 0, y, w, "center")
         end
     end
 end
