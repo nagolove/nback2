@@ -78,8 +78,8 @@ function nback.newStatisticRender(data)
     self.pos_pressed_arr = deepcopy(data.pos_pressed_arr)
     self.sound_pressed_arr = deepcopy(data.sound_pressed_arr)
 
+    self.statisticRender = true
     self:makeEqArrays()
-
     self:resize(g.getDimensions())
 
     return self
@@ -507,8 +507,7 @@ function nback:save_to_history()
                             form_pressed_arr = self.form_pressed_arr,
                             sound_pressed_arr = self.sound_pressed_arr,
                             color_pressed_arr = self.color_pressed_arr,
-                            --time = os.time(date), 
-                            nlevel = self.level,
+                            level = self.level,
                             pause_time = self.pause_time,
                             percent = self.percent})
     love.filesystem.write(self.save_name, serpent.dump(history))
@@ -770,6 +769,7 @@ function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
     g.setColor({200 / 255, 0, 200 / 255})
     g.setFont(self.font)
 
+    -- эти условия нужно как-то убрать или заменить на что-то
     if self.sound_percent then
         g.print(string.format(formatStr, self.sound_percent), sx, y)
         y = y + rect_size + 6
@@ -786,7 +786,9 @@ function nback:print_percents(x, y, rect_size, pixel_gap, border, starty)
         g.print(string.format(formatStr, self.pos_percent), sx, y)
         y = starty + 4 * (rect_size + 20)
     end
-    g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")
+    if not self.statisticRender then
+        g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")
+    end
     return x, y
 end
 
@@ -880,6 +882,8 @@ end
 
 -- рисовать статистику после конца сета
 function nback:draw_statistic()
+    -- условие нужно что-бы не падала программа при создании рендера истории.
+    -- но из-за этого пункта может быть неправильное отображение графики
     if not self.pos_signals then
         return
     end
@@ -888,7 +892,9 @@ function nback:draw_statistic()
     g.setColor(pallete.statistic)
 
     local width_k = 3 / 4
-    local rect_size = w * width_k / #self.pos_signals -- XXX depend on screen resolution
+    -- XXX depend on screen resolution
+    local rect_size = math.floor(w * width_k / #self.pos_signals)
+    print("rect_size", rect_size)
     local x = (w - w * width_k) / 2
     local starty = 200
     local y = starty
@@ -921,17 +927,19 @@ function nback:draw_statistic()
     x, y = self:print_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
         starty)
 
-    local y = self.y0 + self.font:getHeight()
-    --g.printf(string.format("Set results:"), 0, y, w, "center")
-    y = y + self.font:getHeight()
-    g.printf(string.format("Level %d", self.level), 0, y, w, "center")
-    y = y + self.font:getHeight()
-    g.printf(string.format("Exposition time %.1f sec", self.pause_time), 
-        0, y, w, "center")
-    y = y + self.font:getHeight()
-    if self.durationMin and self.durationSec then
-        g.printf(string.format("Duration %d min %d sec.", self.durationMin,
-            self.durationSec), 0, y, w, "center")
+    if not self.statisticRender then
+        local y = self.y0 + self.font:getHeight()
+        --g.printf(string.format("Set results:"), 0, y, w, "center")
+        y = y + self.font:getHeight()
+        g.printf(string.format("Level %d", self.level), 0, y, w, "center")
+        y = y + self.font:getHeight()
+        g.printf(string.format("Exposition time %.1f sec", self.pause_time), 
+            0, y, w, "center")
+        y = y + self.font:getHeight()
+        if self.durationMin and self.durationSec then
+            g.printf(string.format("Duration %d min %d sec.", self.durationMin,
+                self.durationSec), 0, y, w, "center")
+        end
     end
 end
 

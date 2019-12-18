@@ -78,7 +78,6 @@ function pviewer:enter()
             cleanedData[#cleanedData + 1] = v
         end
     end
-
     self.data = cleanedData
     self.activeIndex = #self.data >= 1 and 1 or 0
 
@@ -129,14 +128,16 @@ function pviewer:draw()
     local x = 30
     local y = self.border
     local fontHeight = g.getFont():getHeight()
+    local maxWidth = 0
 
     for k, v in pairs(self.data) do
         local str = string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d",
         v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
         v.date.sec)
-        print(v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
-        v.date.sec)
+        --print(v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
+        --v.date.sec)
         local textWidth = self.font:getWidth(str)
+        maxWidth = textWidth >= maxWidth and textWidth or maxWidth
         if self.activeIndex ~= 0 and k == self.activeIndex then
             local oldcolor = {g.getColor()}
             g.setColor{0.5, 0.5, 0.5, 0.5}
@@ -149,11 +150,13 @@ function pviewer:draw()
         y = y + fontHeight
     end
 
+    g.setColor{1, 1, 1}
     g.setCanvas(self.rt)
     self.nb:draw_statistic()
     g.setCanvas()
 
-    g.draw(self.rt, 0, 0)
+    g.setColor{1, 1, 1}
+    g.draw(self.rt, x + maxWidth, 0)
 
     g.setFont(oldFont)
     self:print_dbg_info()
@@ -186,27 +189,36 @@ function pviewer:scrollDown()
 end
 
 -- добавить клавиши управления для постраничной прокрутки списка результатов.
-function pviewer:keypressed(key)
+function pviewer:keypressed(_, key)
     if key == "escape" then
         menu:goBack()
     elseif key == "return" or key == "space" then
         -- TODO по нажатию клавиши показать конечную таблицу игры
     elseif key == "home" or key == "kp7" then
     elseif key == "end" or key == "kp1" then
+    elseif key == "up" or key == "k" then
+        self:scrollUp()
+    elseif key == "down" or key == "j" then
+        self:scrollDown()
+    elseif key == "pageup" then
+        self:pageUp()
+    elseif key == "pagedown" then
+        self:pageDown()
     end
 end
 
 function pviewer:update(dt)
     local kb = love.keyboard
-    if kb.isDown("up", "k") then
-        self:scrollUp()
-    elseif kb.isDown("down", "j") then
-        self:scrollDown()
-    elseif kb.isDown("pageup") then
-        self:pageUp()
-    elseif kb.isDown("pagedown") then
-        self:pageDown()
-    end
+    --if kb.isDown("up", "k") then
+        --self:scrollUp()
+    --elseif kb.isDown("down", "j") then
+        --self:scrollDown()
+    --elseif kb.isDown("pageup") then
+        --self:pageUp()
+    --elseif kb.isDown("pagedown") then
+        --self:pageDown()
+    --end
+
     self.timer:update(dt)
 end
 
