@@ -5,9 +5,11 @@ local function generate(sig_count, gen, cmp, level)
 
     local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
     --функцией.
-    local ratio = 8 --TODO FIXME XXX -- что за "отношение"?
-    local range = {1, 3} -- что делает эта таблица, задает границы цему-то?
-    local count = sig_count -- зачем это переименование переменной?
+    --Если поставить меньше 3, то может зависать генерация в бесконечном цикле.
+    local ratio = 5 
+    -- что делает эта таблица, задает границы цему-то? С какой вероятностью
+    -- должно выпадать событие? 1/3?
+    local range = {1, 3} 
     local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
 
     -- забиваю пустыми значениями весь массив, по всей длине.
@@ -18,7 +20,7 @@ local function generate(sig_count, gen, cmp, level)
     repeat
         local i = 1
         repeat
-            if count > 0 then
+            if sig_count > 0 then
                 -- вероятность выпадения значения
                 -- помоему здесб написана хрень
                 local prob = math.random(unpack(range))
@@ -31,13 +33,13 @@ local function generate(sig_count, gen, cmp, level)
                         else
                             ret[i + level] = ret[i]
                         end
-                        count = count - 1
+                        sig_count = sig_count - 1
                     end
                 end
             end
             i = i + 1
         until i > #ret
-    until count == 0
+    until sig_count == 0
 
     -- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
     -- он не совпадал на текущем уровне n-назад

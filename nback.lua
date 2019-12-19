@@ -148,7 +148,6 @@ function nback:generate_signals()
                 return a == b end,
             self.level)
         print("color", inspect(self.color_signals))
-
         self:makeEqArrays()
     end
 
@@ -721,9 +720,10 @@ end
 -- rect_size - размер отображаемого в сетке прямоугольника
 -- border - зазор между прямоугольниками.
 -- что за пару x, y возвращает функция?
-function nback:draw_hit_rects(x, y, arr, eq, rect_size, border)
+function nback:draw_hit_rects(x, y, pressed_arr, eq_arr, 
+    rect_size, border)
     local hit_color = {200 / 255, 10 / 255, 10 / 255}
-    for k, v in pairs(arr) do
+    for k, v in pairs(pressed_arr) do
         g.setColor(pallete.field)
         g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
         g.setColor(pallete.inactive)
@@ -738,10 +738,14 @@ function nback:draw_hit_rects(x, y, arr, eq, rect_size, border)
         end
 
         -- правильная позиция нажатия
-        if eq[k] then
+        if eq_arr[k] then
             local radius = 4
-            g.setColor({0, 0, 0})
+            g.setColor{0, 0, 0}
             g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, 
+                y + rect_size / 2, radius)
+
+            g.setColor{1, 1, 1}
+            g.circle("line", x + rect_size * ((k -self.level) - 1) + rect_size / 2, 
                 y + rect_size / 2, radius)
         end
     end
@@ -899,7 +903,7 @@ function nback:draw_statistic()
     --print("rect_size", rect_size)
     --print("self.statisticRender", self.statisticRender)
 
-    local x = self.statisticRender and (w - w * width_k) / 2 or 0
+    local x = self.statisticRender and 0 or (w - w * width_k) / 2
     --local x = (w - w * width_k) / 2 
 
     local starty = self.statisticRender and 0 or 200

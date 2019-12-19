@@ -152,6 +152,7 @@ function pviewer:draw()
 
     g.setColor{1, 1, 1}
     g.setCanvas(self.rt)
+    g.clear(pallete.background)
     self.nb:draw_statistic()
     g.setCanvas()
 
