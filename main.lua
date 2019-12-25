@@ -108,6 +108,7 @@ end
 
 function love.draw()
     menu:draw()
+    love.timer.sleep(0.01)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
