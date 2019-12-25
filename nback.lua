@@ -60,8 +60,6 @@ function nback.newStatisticRender(data)
     local self = deepcopy(nbackSelf)
     setmetatable(self, nback)
    
-    print("data.color_signals", inspect(data.color_signals))
-
     self.color_signals = deepcopy(data.color_signals)
     self.form_signals = deepcopy(data.form_signals)
     self.pos_signals = deepcopy(data.pos_signals)
@@ -107,6 +105,11 @@ function nback:makeEqArrays()
         function(a, b) return a == b end)
     self.form_eq = self:make_hit_arr(self.form_signals, 
         function(a, b) return a == b end)
+
+    print("pos_eq", inspect(self.pos_eq))
+    print("sound_eq", inspect(self.sound_eq))
+    print("form_eq", inspect(self.pos_eq))
+    print("color_eq", inspect(self.color_eq))
 end
 
 function nback:generate_signals()
@@ -743,8 +746,8 @@ function nback:draw_hit_rects(x, y, pressed_arr, eq_arr,
             g.setColor{0, 0, 0}
             g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, 
                 y + rect_size / 2, radius)
-
-            g.setColor{1, 1, 1}
+            -- кружок на место предудущего сигнала
+            g.setColor{1, 1, 1, 0.5}
             g.circle("line", x + rect_size * ((k -self.level) - 1) + rect_size / 2, 
                 y + rect_size / 2, radius)
         end
