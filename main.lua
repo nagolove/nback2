@@ -1,10 +1,11 @@
-﻿require("common")
+﻿onAndroid = love.system.getOS() == "Android" or false
+
+require("common")
 
 local Timer = require "libs/Timer"
 local inspect = require "libs/inspect"
 local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
-local lurker = require "libs/lurker"
 local pallete = require "pallete"
 local serpent = require "serpent"
 --local splash = require "splash"
@@ -61,6 +62,13 @@ function love.load()
 
         file:close()
     end
+
+    if onAndroid then
+        love.window.setMode(0, 0, {fullscreen = true, 
+            fullscreentype = "exclusive"})
+        screenMode = "fs"
+        dispatchWindowResize(love.graphics.getDimensions())
+    end
 end
 
 function love.update(dt)
@@ -100,23 +108,24 @@ function love.keypressed(key, scancode)
     print(string.format("key %s, scancode %s", key, scancode))
 
     -- переключение режимов экрана
-    if love.keyboard.isDown("ralt", "lalt") and key == "return" then
-        -- код дерьмовый, но работает
-        if screenMode == "fs" then
-            love.window.setMode(800, 600, {fullscreen = false})
-            screenMode = "win"
-            dispatchWindowResize(love.graphics.getDimensions())
-        else
-            love.window.setMode(0, 0, {fullscreen = true,
-                                       fullscreentype = "exclusive"})
-            screenMode = "fs"
-            dispatchWindowResize(love.graphics.getDimensions())
+    if not onAndroid then
+        if love.keyboard.isDown("ralt", "lalt") and key == "return" then
+            -- код дерьмовый, но работает
+            if screenMode == "fs" then
+                love.window.setMode(800, 600, {fullscreen = false})
+                screenMode = "win"
+                dispatchWindowResize(love.graphics.getDimensions())
+            else
+                love.window.setMode(0, 0, {fullscreen = true,
+                fullscreentype = "exclusive"})
+                screenMode = "fs"
+                dispatchWindowResize(love.graphics.getDimensions())
+            end
         end
-    elseif key == "`" then
-        lurker.scan()
-    elseif key == "f12" then make_screenshot()
-    else
-        menu:keypressed(key, scancode)
+        if key == "f12" then make_screenshot()
+        else
+            menu:keypressed(key, scancode)
+        end
     end
 end
 
