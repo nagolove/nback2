@@ -40,6 +40,27 @@ function love.load()
     menu:addItem("view progress", pviewer)
     menu:addItem("help", help)
     menu:addItem("quit", function() love.event.quit() end)
+
+    local lf = love.filesystem
+    local file, error = lf.newFile("nback_info.txt", "w")
+    if file then
+        local str = "getSaveDirectory() = " .. 
+            love.filesystem.getSaveDirectory() .. "\n"
+        file:write(str, #str)
+
+        local w, h = love.graphics.getDimensions()
+        str = string.format("screen resolution %d x %d\n", w, h)
+        file:write(str, #str)
+
+        str = string.format("cpu count %d\n",
+            love.system.getProcessorCount())
+        file:write(str, #str)
+
+        str = string.format("os %s\n", love.system.getOS())
+        file:write(str, #str)
+
+        file:close()
+    end
 end
 
 function love.update(dt)
