@@ -1,4 +1,5 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
+netLogging = true
 
 require("common")
 
@@ -8,6 +9,13 @@ local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
 local pallete = require "pallete"
 local serpent = require "serpent"
+
+if netLogging then
+    logclient = require "logclient".new("visualdoj.ru", 10081)
+else
+    logclient = require "logclient".newDummy()
+end
+
 --local splash = require "splash"
 
 local dbg = require "dbg"
@@ -16,6 +24,27 @@ help = require "help".new()
 menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
+
+function write2Log()
+    local str = "getSaveDirectory() = " .. 
+        love.filesystem.getSaveDirectory() .. "\n"
+
+    logclient:write(str)
+
+    local w, h = love.graphics.getDimensions()
+    str = string.format("screen resolution %d x %d\n", w, h)
+
+    logclient:write(str)
+
+    str = string.format("cpu count %d\n",
+    love.system.getProcessorCount())
+
+    logclient:write(str)
+
+    str = string.format("os %s\n", love.system.getOS())
+
+    logclient:write(str)
+end
 
 function love.load()
     math.randomseed(os.time())
@@ -42,26 +71,6 @@ function love.load()
     menu:addItem("help", help)
     menu:addItem("quit", function() love.event.quit() end)
 
-    local lf = love.filesystem
-    local file, error = lf.newFile("nback_info.txt", "w")
-    if file then
-        local str = "getSaveDirectory() = " .. 
-            love.filesystem.getSaveDirectory() .. "\n"
-        file:write(str, #str)
-
-        local w, h = love.graphics.getDimensions()
-        str = string.format("screen resolution %d x %d\n", w, h)
-        file:write(str, #str)
-
-        str = string.format("cpu count %d\n",
-            love.system.getProcessorCount())
-        file:write(str, #str)
-
-        str = string.format("os %s\n", love.system.getOS())
-        file:write(str, #str)
-
-        file:close()
-    end
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true, 
