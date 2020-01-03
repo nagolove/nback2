@@ -44,7 +44,7 @@ function Block.new(back, img, xidx, yidx, duration)
         duration = duration, -- длительность анимации движения(в секундах?)
     }
     setmetatable(self, Block)
-    print(string.format("Block created at %d, %d", self.x, self.y))
+    --print(string.format("Block created at %d, %d", self.x, self.y))
     return self
 end
 
@@ -86,7 +86,7 @@ end
 -- начало анимации движения
 -- dirx, diry - еденичное направление, в котором будет двигаться блок.
 function Block:move(dirx, diry)
-    print("Block:move()", dirx, diry)
+    --print("Block:move()", dirx, diry)
     self.dirx = dirx
     self.diry = diry
     -- новое значение индексов, которое будет использоваться после перемещения
@@ -118,7 +118,7 @@ function Block:process(dt)
         -- флаг ничего не делает, влияет только на рисовку обводки блока.
         self.active = false 
         self.back.blocks[self.xidx][self.yidx] = {}
-        print("self.newXidx, self.newYidx", self.newXidx, self.newYidx)
+        --print("self.newXidx, self.newYidx", self.newXidx, self.newYidx)
         self.back.blocks[self.newXidx][self.newYidx] = self
         self.oldXidx, self.oldYidx = self.xidx, self.yidx
         self.xidx = self.newXidx
@@ -131,10 +131,10 @@ function Block:process(dt)
 end
 
 function Background:keypressed(_, scancode)
-    if scancode == "p" then
-        self.paused = not self.paused
-        print("self.paused", self.paused)
-    end
+    --if scancode == "p" then
+        --self.paused = not self.paused
+        --print("self.paused", self.paused)
+    --end
 end
 
 function Background:get(xidx, yidx)
@@ -164,8 +164,8 @@ function Background:findDirection(xidx, yidx)
     local directions = {xidx - 1 >= 1, yidx - 1 >= 1, xidx + 1 <= columnMax,
         yidx + 1 <= columnMax}
 
-    print(string.format("findDirection() xidx = %d, yidx = %d", xidx, yidx))
-    print("self.blocks[xidx - 1]", self.blocks[xidx - 1])
+    --print(string.format("findDirection() xidx = %d, yidx = %d", xidx, yidx))
+    --print("self.blocks[xidx - 1]", self.blocks[xidx - 1])
     --print("directions", inspect(directions))
 
     -- флаг того, что найдена нужная позиция для активного элемента
@@ -174,7 +174,7 @@ function Background:findDirection(xidx, yidx)
     local j = 1
     while not inserted do
         local dir = math.random(1, 4)
-        print("random dir = ", dir)
+        --print("random dir = ", dir)
 
         if dir == 1 then
             --left
