@@ -13,7 +13,17 @@ local conn = socket.tcp()
 local ok, msg, tmsg
 local finish = false
 
-ok, errmsg = conn:connect(host, port)
+conn:settimeout(0.1)
+local ok, errmsg = conn:connect(host, port)
+
+--local logfile = love.filesystem.newFile("tlog.txt", "w")
+--love.filesystem.write("example2.txt", "stroka")
+--print("stroka")
+--local str = "hihi"
+--love.filesystem.write("tlog_ex.txt", str, str:len())
+--if logfile then
+    --logfile:write("log created.\n")
+--end
 
 if not ok then
     print("Connection error", errmsg)
@@ -22,16 +32,18 @@ else
     print("connected")
 end
 
-local logfile = love.filesystem.newFile("tlog.txt", "w")
-
-local str = "hihi"
-love.filesystem.write("tlog_ex.txt", str, str:len())
-
-if logfile then
-    logfile:write("log created.\n")
-end
-
 repeat
+    if not ok then
+        print("recon")
+        ok, errmsg = conn:connect(host, port)
+        if not ok then
+            print("Connection error", errmsg)
+            return
+        else
+            print("connected")
+        end
+    end
+
     tmsg = chan:pop()
     if tmsg then
         if type(tmsg) == "string" and tmsg == "closethread" then
