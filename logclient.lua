@@ -24,15 +24,17 @@ function logclient.newDummy()
     return setmetatable({}, logclient)
 end
 
--- можно писать строку или таблицу, которая будет обработана serpent'ом.
--- неплохо-бы сделать ... произвольное количество параметров.
-function logclient:write(obj)
+function logclient:write(msg)
     --print("logclient:write")
     --print("object type", type(obj))
-    self.chan:push(obj)
+    self.chan:push({cmd = "write", msg = msg})
 end
 
 function logclientDummy:write(obj)
+end
+
+function logclient:quit()
+    self.chan:push({cmd = "closethread"})
 end
 
 return { new = logclient.new }

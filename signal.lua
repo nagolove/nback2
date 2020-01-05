@@ -35,7 +35,7 @@ function signal.new(width, soundPack)
     self:resize(self.width)
 
     self:drawFigures2Canvas()
-    self:drawBorders2Canvs()
+    self:drawBorders2Canvas()
 
     return self
 end
@@ -69,10 +69,12 @@ function signal:drawFigures2Canvas()
     local x = self.x0 + xd * self.width + border 
     local y = self.y0 + yd * self.width + border
 
-    --g.setCanvas(self.canvas)
+    g.setColor{1, 1, 1}
+    g.setCanvas(self.canvas)
+    g.setCanvas()
 end
 
-function signal:drawBorders2Canvs()
+function signal:drawBorders2Canvas()
 end
 
 -- xd, yd - целочисленная позиция фигуры в матрице.

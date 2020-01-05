@@ -37,7 +37,7 @@ local nback = {}
 nback.__index = nback
 
 local nbackSelf = {
-    dim = 5,    -- количество ячеек поля
+    dim = 8,    -- количество ячеек поля
     cell_width = 100,  -- width of game field in pixels
     current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
     sig_count = 8, -- количество сигналов
@@ -282,7 +282,7 @@ function nback:createSetupMenu()
     local parameterColor = {0, 0.9, 0}
 
     self.setupmenu = setupmenu(
-        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 40), pallete.signal, 
+        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 30), pallete.signal, 
         linesbuf)
 
     -- пункт меню - поехали!
@@ -872,9 +872,9 @@ function nback:draw_active_signal()
 end
 
 function nback:draw_field()
-    local delta = 5
-    bhupur.color = self.field_color
-    bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
+    local delta = 1
+    --bhupur.color = self.field_color
+    --bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
 
     local field_h = self.dim * self.cell_width
     g.setColor(self.field_color)

@@ -46,6 +46,10 @@ function write2Log()
     logclient:write(str)
 end
 
+function love.quit()
+    logclient:quit()
+end
+
 function love.load()
     math.randomseed(os.time())
     lovebird.update()
@@ -71,13 +75,14 @@ function love.load()
     menu:addItem("help", help)
     menu:addItem("quit", function() love.event.quit() end)
 
-
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true, 
             fullscreentype = "exclusive"})
         screenMode = "fs"
         dispatchWindowResize(love.graphics.getDimensions())
     end
+
+    if netLogging then write2Log() end
 end
 
 function love.update(dt)

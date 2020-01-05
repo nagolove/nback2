@@ -22,22 +22,43 @@ else
     print("connected")
 end
 
+local logfile = love.filesystem.newFile("tlog.txt", "w")
+
+local str = "hihi"
+love.filesystem.write("tlog_ex.txt", str, str:len())
+
+if logfile then
+    logfile:write("log created.\n")
+end
+
 repeat
     tmsg = chan:pop()
     if tmsg then
-        --if type(tmsg) == "string" and tmsg == "closethread" then
-        --finish = true
-        --end
+        if type(tmsg) == "string" and tmsg == "closethread" then
+            finish = true
+        end
+        local cmd = tmsg["cmd"]
 
-        local serialized = serpent.dump(tmsg)
-        print(string.format("try to send %d bytes %s", #serialized, 
-        serialized))
-        local bytessend, err = conn:send(serialized .. "\n")
-        print("send", bytessend, "err", err)
-        --socket.sleep(0.02)
+        if cmd == "closethread" then
+            finish = true
+        elseif cmd == "write" then
+            local serialized = serpent.dump(tmsg.msg)
+            print(string.format("try to send %d bytes %s", #serialized, 
+            serialized))
+            local bytessend, err = conn:send(serialized .. "\n")
+            print("send", bytessend, "err", err)
+        end
+
+        local recv, err = conn:receive("*l")
+        print(recv, err)
+
+        if recv == "getfile" then
+        end
+
+        socket.sleep(0.02)
     end
 until finish
 
 conn:close()
-
+logfile:close()
 print("client thread finish")
