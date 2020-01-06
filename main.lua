@@ -1,4 +1,5 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
+--onAndroid = true
 netLogging = true
 
 require("common")
@@ -76,8 +77,9 @@ function love.load()
     menu:addItem("quit", function() love.event.quit() end)
 
     if onAndroid then
-        love.window.setMode(0, 0, {fullscreen = true, 
-            fullscreentype = "exclusive"})
+        love.window.setMode(0, 0, {fullscreen = true})
+        --love.window.setMode(0, 0, {fullscreen = true, 
+            --fullscreentype = "exclusive"})
         screenMode = "fs"
         dispatchWindowResize(love.graphics.getDimensions())
     end

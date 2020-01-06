@@ -409,8 +409,10 @@ function nback:draw()
 
     local bottom_text_line_y = h - self.font:getHeight() * 3
 
-    self:print_control_tips(bottom_text_line_y)
-    self:print_escape_tip(bottom_text_line_y)
+    if not onAndroid then
+        self:print_control_tips(bottom_text_line_y)
+        self:print_escape_tip(bottom_text_line_y)
+    end
 
     g.setShader()
     g.pop()

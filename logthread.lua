@@ -10,11 +10,13 @@ local host, port = chan:pop(), chan:pop()
 print("host", host, "port", port)
 
 local conn = socket.tcp()
+conn:setoption("keepalive", true)
 local ok, msg, tmsg
 local finish = false
 
 conn:settimeout(0.1)
-local ok, errmsg = conn:connect(host, port)
+
+local ok, errmsg
 
 --local logfile = love.filesystem.newFile("tlog.txt", "w")
 --love.filesystem.write("example2.txt", "stroka")
@@ -24,82 +26,69 @@ local ok, errmsg = conn:connect(host, port)
 --if logfile then
     --logfile:write("log created.\n")
 --end
+local helloSend = false
 
-if not ok then
-    print("Connection error", errmsg)
-    return
-else
-    print("connected")
+while not ok do
+    ok, errmsg = conn:connect(host, port)
 end
 
 repeat
-    if not ok then
-        print("recon")
-        ok, errmsg = conn:connect(host, port)
-        if not ok then
-            print("Connection error", errmsg)
-            return
-        else
-            print("connected")
-        end
+    local r1, r2
+    if not helloSend then
+        r1, r2 = conn:send("$server:hello\n")
+        helloSend = true
     end
 
-    if ok then
-        local data, status, err = conn:receive("*l")
-        print("data", data, "st", status, "err", err)
-        --[[
-           [while data do
-           [    data, status, err = conn:receive("*l")
-           [    print("data", data, "st", status, "err", err)
-           [end
-           ]]
-        if data == "push_file" then
-            local r1, r2 = conn:send("$logserver:get_file_size")
-            print(r2, r2)
-            
-            local msg, err = conn:receive("*l")
-            print(msg, err)
+    --[[
+    [while data do
+    [    data, status, err = conn:receive("*l")
+    [    print("data", data, "st", status, "err", err)
+    [end
+    ]]
+    --local data, status, err = conn:receive("*l")
+    local data, status, err = conn:receive()
+    print("data", data, "st", status, "err", err)
 
-            local fileSize = string.match(msg, " (%d+)")
-            print("fileSize", fileSize)
+    local cmd, param 
+    string.match(data, "$client:(%a+) (.+)")
+    print("cmd", cmd, "param", param)
 
-            r1, r2 = conn:send("$logserver:start_send_file")
-            print(r1, r2)
+    if cmd == "push_file" then
+        local _, fileSize = string.match(data, "$client:(%a+) (%d+)")
+        print("fileSize", fileSize)
 
-            local t = {}
-            local msg, err = conn:receive(fileSize)
-            print(msg, err)
+        r1, r2 = conn:send("$server:start_send_file\n")
+        print(r1, r2)
 
-            r1, r2 = conn:send("$logserver:ok")
-            print(r1, r2)
-        end
+        local t = {}
+        local msg, err = conn:receive(fileSize)
+        print(msg, err)
+
+        r1, r2 = conn:send("$server:ok\n")
+        print(r1, r2)
     end
 
-    tmsg = chan:pop()
-    if tmsg then
-        if type(tmsg) == "string" and tmsg == "closethread" then
-            finish = true
-        end
-        local cmd = tmsg["cmd"]
+    --tmsg = chan:pop()
+    --if tmsg then
+    --if type(tmsg) == "string" and tmsg == "closethread" then
+    --finish = true
+    --end
+    --local cmd = tmsg["cmd"]
 
-        if cmd == "closethread" then
-            finish = true
-        elseif cmd == "write" then
-            local serialized = serpent.dump(tmsg.msg)
-            print(string.format("try to send %d bytes %s", #serialized, 
-            serialized))
-            local bytessend, err = conn:send(serialized .. "\n")
-            print("send", bytessend, "err", err)
-        end
+    --[[
+    [if cmd == "closethread" then
+    [    finish = true
+    [elseif cmd == "write" then
+    [    local serialized = serpent.dump(tmsg.msg)
+    [    print(string.format("try to send %d bytes %s", #serialized, 
+    [    serialized))
+    [    local bytessend, err = conn:send(serialized .. "\n")
+    [    print("send", bytessend, "err", err)
+    [end
+    ]]
 
-        local recv, err = conn:receive("*l")
-        print(recv, err)
-
-        if recv == "getfile" then
-        end
-
-        socket.sleep(0.02)
-    end
+    --end
+    socket.sleep(0.01)
 until finish
 
 conn:close()
