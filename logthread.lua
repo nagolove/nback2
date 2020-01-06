@@ -44,6 +44,37 @@ repeat
         end
     end
 
+    if ok then
+        local data, status, err = conn:receive("*l")
+        print("data", data, "st", status, "err", err)
+        --[[
+           [while data do
+           [    data, status, err = conn:receive("*l")
+           [    print("data", data, "st", status, "err", err)
+           [end
+           ]]
+        if data == "push_file" then
+            local r1, r2 = conn:send("$logserver:get_file_size")
+            print(r2, r2)
+            
+            local msg, err = conn:receive("*l")
+            print(msg, err)
+
+            local fileSize = string.match(msg, " (%d+)")
+            print("fileSize", fileSize)
+
+            r1, r2 = conn:send("$logserver:start_send_file")
+            print(r1, r2)
+
+            local t = {}
+            local msg, err = conn:receive(fileSize)
+            print(msg, err)
+
+            r1, r2 = conn:send("$logserver:ok")
+            print(r1, r2)
+        end
+    end
+
     tmsg = chan:pop()
     if tmsg then
         if type(tmsg) == "string" and tmsg == "closethread" then
