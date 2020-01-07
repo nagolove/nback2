@@ -49,9 +49,11 @@ repeat
     local data, status, err = conn:receive()
     print("data", data, "st", status, "err", err)
 
-    local cmd, param 
-    string.match(data, "$client:(%a+) (.+)")
-    print("cmd", cmd, "param", param)
+    local cmd, param
+    if data then
+        cmd, param = string.match(data, "$client:(%a+) (.+)")
+        print("cmd", cmd, "param", param)
+    end
 
     if cmd == "push_file" then
         local _, fileSize = string.match(data, "$client:(%a+) (%d+)")
