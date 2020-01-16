@@ -1,5 +1,7 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
+--onAndroid = true
 netLogging = true
+--netLogging = false
 
 require("common")
 
@@ -10,10 +12,17 @@ local lume = require "libs/lume"
 local pallete = require "pallete"
 local serpent = require "serpent"
 
+--[[
+  Диапазон портов:
+  10081 - logclient
+  10085 - receving files
+]]--
+
+local ntwk
 if netLogging then
-    logclient = require "logclient".new("visualdoj.ru", 10081)
+    ntwk = require "ntwk".new("visualdoj.ru", 10081)
 else
-    logclient = require "logclient".newDummy()
+    ntwk = require "ntwk".dummy()
 end
 
 --local splash = require "splash"
@@ -25,25 +34,21 @@ menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
 
-function write2Log()
-    local str = "getSaveDirectory() = " .. 
-        love.filesystem.getSaveDirectory() .. "\n"
-
-    logclient:write(str)
+function print2log()
+    ntwk:print("getSaveDirectory() = " .. 
+        love.filesystem.getSaveDirectory() .. "\n")
 
     local w, h = love.graphics.getDimensions()
-    str = string.format("screen resolution %d x %d\n", w, h)
+    ntwk:print(string.format("screen resolution %d x %d\n", w, h))
 
-    logclient:write(str)
+    ntwk:print(string.format("cpu count %d\n", 
+        love.system.getProcessorCount()))
 
-    str = string.format("cpu count %d\n",
-    love.system.getProcessorCount())
+    ntwk:print(string.format("os %s\n", love.system.getOS()))
+end
 
-    logclient:write(str)
-
-    str = string.format("os %s\n", love.system.getOS())
-
-    logclient:write(str)
+function love.quit()
+    ntwk:quit()
 end
 
 function love.load()
@@ -71,13 +76,15 @@ function love.load()
     menu:addItem("help", help)
     menu:addItem("quit", function() love.event.quit() end)
 
-
     if onAndroid then
-        love.window.setMode(0, 0, {fullscreen = true, 
-            fullscreentype = "exclusive"})
+        love.window.setMode(0, 0, {fullscreen = true})
+        --love.window.setMode(0, 0, {fullscreen = true, 
+            --fullscreentype = "exclusive"})
         screenMode = "fs"
         dispatchWindowResize(love.graphics.getDimensions())
     end
+
+    print2log()
 end
 
 function love.update(dt)

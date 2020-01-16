@@ -37,7 +37,7 @@ local nback = {}
 nback.__index = nback
 
 local nbackSelf = {
-    dim = 5,    -- количество ячеек поля
+    dim = 8,    -- количество ячеек поля
     cell_width = 100,  -- width of game field in pixels
     current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
     sig_count = 8, -- количество сигналов
@@ -233,7 +233,8 @@ function nback:leave()
     self.show_statistic = false
 end
 
--- изменяется в пределах 0..1
+
+-- time изменяется в пределах 0..1
 local fragmentCode = [[
 extern float time;
 vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
@@ -270,26 +271,26 @@ function nback:createSetupMenu()
     -- больше значение - длиннее последовательность и(или)
     -- меньше целевых сигналов в итоге.
     local maxLevel = 8   
-
-    --local expositionList = {
-        --"1.4..1.8s", -- 1 index
-        --"1.8..2.2s", -- 2 index
-        --"2.2..2.6s", -- 3 index
-    --}
+    
+    local dim = 4
+    local minDim, maxDim = 4, 20
+        
     local expositionList = { "1", "2", "3", "4", "5", "6", }
     local activeExpositionItem = 2
 
     local parameterColor = {0, 0.9, 0}
 
     self.setupmenu = setupmenu(
-        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 40), pallete.signal, 
+        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 30), pallete.signal, 
         linesbuf)
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
         oninit = function() return {"Start"} end,
-        onselect = function() -- что здесь должно быть?
+        onselect = function() --  точка входа в игру
             self.level = nbackLevel
+            self.dim = dim
+            self:resize(g.getDimensions())
             self.pause_time = tonumber(expositionList[activeExpositionItem])
             self:start()
         end})
@@ -345,6 +346,30 @@ function nback:createSetupMenu()
                 tostring(nbackLevel)},
                 nbackLevel == 1,
                 nbackLevel == maxLevel
+        end})
+    
+    --  выбор разрешения поля клеток для сигнала "позиция". Рабочее значение : от 4 до 8-10-20?
+    self.setupmenu:addItem({
+        oninit = function() return {pallete.signal, "Dim level: ",
+            parameterColor, tostring(dim)}, 
+            dim == 1,
+            dim == maxDim
+        end,
+
+        onleft = function()
+            if dim - 1 >= minDim then dim = dim - 1 end
+            return {pallete.signal, "Dim level: ", parameterColor,
+                tostring(dim)},
+                dim == 1,
+                dim == maxLevel
+        end,
+
+        onright = function()
+            if dim + 1 <= maxDim then dim = dim + 1 end
+            return {signal.color, "Dim level: ", parameterColor,
+                tostring(dim)},
+                dim == 1,
+                dim == maxLevel
         end})
 end
 
@@ -409,8 +434,10 @@ function nback:draw()
 
     local bottom_text_line_y = h - self.font:getHeight() * 3
 
-    self:print_control_tips(bottom_text_line_y)
-    self:print_escape_tip(bottom_text_line_y)
+    if not onAndroid then
+        self:print_control_tips(bottom_text_line_y)
+        self:print_escape_tip(bottom_text_line_y)
+    end
 
     g.setShader()
     g.pop()
@@ -872,9 +899,9 @@ function nback:draw_active_signal()
 end
 
 function nback:draw_field()
-    local delta = 5
-    bhupur.color = self.field_color
-    bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
+    local delta = 1
+    --bhupur.color = self.field_color
+    --bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
 
     local field_h = self.dim * self.cell_width
     g.setColor(self.field_color)
