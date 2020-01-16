@@ -11,6 +11,12 @@ local lume = require "libs/lume"
 local pallete = require "pallete"
 local serpent = require "serpent"
 
+--[[
+  Диапазон портов:
+  10081 - logclient
+  10085 - receving files
+]]--
+
 if netLogging then
     logclient = require "logclient".new("visualdoj.ru", 10081)
 else

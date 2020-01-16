@@ -24,60 +24,60 @@ local ok, errmsg
 --local str = "hihi"
 --love.filesystem.write("tlog_ex.txt", str, str:len())
 --if logfile then
-    --logfile:write("log created.\n")
+--logfile:write("log created.\n")
 --end
 local helloSend = false
 
 while not ok do
-    ok, errmsg = conn:connect(host, port)
+  ok, errmsg = conn:connect(host, port)
 end
 
 repeat
-    local r1, r2
-    if not helloSend then
-        r1, r2 = conn:send("$server:hello\n")
-        helloSend = true
-    end
+  local r1, r2
+  if not helloSend then
+    r1, r2 = conn:send("$server:hello\n")
+    helloSend = true
+  end
 
-    --[[
+  --[[
     [while data do
     [    data, status, err = conn:receive("*l")
     [    print("data", data, "st", status, "err", err)
     [end
     ]]
-    --local data, status, err = conn:receive("*l")
-    local data, status, err = conn:receive()
-    print("data", data, "st", status, "err", err)
+  --local data, status, err = conn:receive("*l")
+  local data, status, err = conn:receive()
+  print("data", data, "st", status, "err", err)
 
-    local cmd, param
-    if data then
-        cmd, param = string.match(data, "$client:(%a+) (.+)")
-        print("cmd", cmd, "param", param)
-    end
+  local cmd, param
+  if data then
+    cmd, param = string.match(data, "$client:(%a+) (.+)")
+    print("cmd", cmd, "param", param)
+  end
 
-    if cmd == "push_file" then
-        local _, fileSize = string.match(data, "$client:(%a+) (%d+)")
-        print("fileSize", fileSize)
+  if cmd == "push_file" then
+    local _, fileSize = string.match(data, "$client:(%a+) (%d+)")
+    print("fileSize", fileSize)
 
-        r1, r2 = conn:send("$server:start_send_file\n")
-        print(r1, r2)
+    r1, r2 = conn:send("$server:start_send_file\n")
+    print(r1, r2)
 
-        local t = {}
-        local msg, err = conn:receive(fileSize)
-        print(msg, err)
+    local t = {}
+    local msg, err = conn:receive(fileSize)
+    print(msg, err)
 
-        r1, r2 = conn:send("$server:ok\n")
-        print(r1, r2)
-    end
+    r1, r2 = conn:send("$server:ok\n")
+    print(r1, r2)
+  end
 
-    --tmsg = chan:pop()
-    --if tmsg then
-    --if type(tmsg) == "string" and tmsg == "closethread" then
-    --finish = true
-    --end
-    --local cmd = tmsg["cmd"]
+  --tmsg = chan:pop()
+  --if tmsg then
+  --if type(tmsg) == "string" and tmsg == "closethread" then
+  --finish = true
+  --end
+  --local cmd = tmsg["cmd"]
 
-    --[[
+  --[[
     [if cmd == "closethread" then
     [    finish = true
     [elseif cmd == "write" then
@@ -89,8 +89,8 @@ repeat
     [end
     ]]
 
-    --end
-    socket.sleep(0.01)
+  --end
+  socket.sleep(0.01)
 until finish
 
 conn:close()

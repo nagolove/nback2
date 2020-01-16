@@ -233,7 +233,8 @@ function nback:leave()
     self.show_statistic = false
 end
 
--- изменяется в пределах 0..1
+
+-- time изменяется в пределах 0..1
 local fragmentCode = [[
 extern float time;
 vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
@@ -270,12 +271,10 @@ function nback:createSetupMenu()
     -- больше значение - длиннее последовательность и(или)
     -- меньше целевых сигналов в итоге.
     local maxLevel = 8   
-
-    --local expositionList = {
-        --"1.4..1.8s", -- 1 index
-        --"1.8..2.2s", -- 2 index
-        --"2.2..2.6s", -- 3 index
-    --}
+    
+    local dim = 4
+    local minDim, maxDim = 4, 20
+        
     local expositionList = { "1", "2", "3", "4", "5", "6", }
     local activeExpositionItem = 2
 
@@ -288,8 +287,10 @@ function nback:createSetupMenu()
     -- пункт меню - поехали!
     self.setupmenu:addItem({
         oninit = function() return {"Start"} end,
-        onselect = function() -- что здесь должно быть?
+        onselect = function() --  точка входа в игру
             self.level = nbackLevel
+            self.dim = dim
+            self:resize(g.getDimensions())
             self.pause_time = tonumber(expositionList[activeExpositionItem])
             self:start()
         end})
@@ -345,6 +346,30 @@ function nback:createSetupMenu()
                 tostring(nbackLevel)},
                 nbackLevel == 1,
                 nbackLevel == maxLevel
+        end})
+    
+    --  выбор разрешения поля клеток для сигнала "позиция". Рабочее значение : от 4 до 8-10-20?
+    self.setupmenu:addItem({
+        oninit = function() return {pallete.signal, "Dim level: ",
+            parameterColor, tostring(dim)}, 
+            dim == 1,
+            dim == maxDim
+        end,
+
+        onleft = function()
+            if dim - 1 >= minDim then dim = dim - 1 end
+            return {pallete.signal, "Dim level: ", parameterColor,
+                tostring(dim)},
+                dim == 1,
+                dim == maxLevel
+        end,
+
+        onright = function()
+            if dim + 1 <= maxDim then dim = dim + 1 end
+            return {signal.color, "Dim level: ", parameterColor,
+                tostring(dim)},
+                dim == 1,
+                dim == maxLevel
         end})
 end
 
