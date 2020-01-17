@@ -24,27 +24,27 @@ function client.new(host, port)
 
     setmetatable(self, client)
 
-    self.logchan:push(host) self.logchan:push(port)
-    self.logThread:start()
-
-    self.cmdchan:push(host) self.cmdchan:push(port + 1)
+    self.cmdchan:push(host) self.cmdchan:push(port)
     self.cmdThread:start()
+
+    self.logchan:push(host) self.logchan:push(port + 1)
+    self.logThread:start()
 
     return self
 end
 
 function client:print(...)
-    --print("client:write")
-    --print("object type", type(obj))
     local str = ""
     for i = 1, select("#", ...) do
         str = str .. tostring(select(i, ...))
     end
-    self.logchan:push({cmd = "write", msg = str .. "\n"})
+    print("client:print()", str)
+    self.logchan:push(str .. "\n")
 end
 
 function client:quit()
-    self.logchan:push({cmd = "closethread"})
+    self.logchan:push("$closethread$")
+    self.cmdchan:push("$closethread$")
 end
 
 ---------------- dummy interface ------------------

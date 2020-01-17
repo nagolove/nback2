@@ -14,13 +14,14 @@ local serpent = require "serpent"
 
 --[[
   Диапазон портов:
-  10081 - logclient
-  10085 - receving files
+  10081 - cmdclient
+  10082 - logclient
 ]]--
 
 local ntwk
 if netLogging then
-    ntwk = require "ntwk".new("visualdoj.ru", 10081)
+    --ntwk = require "ntwk".new("visualdoj.ru", 10081)
+    ntwk = require "ntwk".new("127.0.0.1", 10081)
 else
     ntwk = require "ntwk".dummy()
 end
