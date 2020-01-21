@@ -1,5 +1,5 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
---onAndroid = true
+onAndroid = true
 netLogging = true
 --netLogging = false
 
@@ -10,25 +10,19 @@ local inspect = require "libs/inspect"
 local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
 local pallete = require "pallete"
-local serpent = require "serpent"
 
 --[[
   Диапазон портов:
   10081 - cmdclient
   10082 - logclient
 ]]--
-
 local ntwk
 if netLogging then
     --ntwk = require "ntwk".new("visualdoj.ru", 10081)
-    ntwk = require "ntwk".new("127.0.0.1", 10081)
+    --ntwk = require "ntwk".new("127.0.0.1", 10081)
 else
-    ntwk = require "ntwk".dummy()
+    --ntwk = require "ntwk".dummy()
 end
-
---local splash = require "splash"
-
-local dbg = require "dbg"
 
 help = require "help".new()
 menu = require "menu".new()
@@ -36,30 +30,29 @@ nback = require "nback".new()
 pviewer = require "pviewer".new()
 
 function print2log()
-    ntwk:print("getSaveDirectory() = " .. 
-        love.filesystem.getSaveDirectory() .. "\n")
+    --ntwk:print("getSaveDirectory() = " .. 
+        --love.filesystem.getSaveDirectory() .. "\n")
 
-    local w, h = love.graphics.getDimensions()
-    ntwk:print(string.format("screen resolution %d x %d\n", w, h))
+    --local w, h = love.graphics.getDimensions()
+    --ntwk:print(string.format("screen resolution %d x %d\n", w, h))
 
-    ntwk:print(string.format("cpu count %d\n", 
-        love.system.getProcessorCount()))
+    --ntwk:print(string.format("cpu count %d\n", 
+        --love.system.getProcessorCount()))
 
-    ntwk:print(string.format("os %s\n", love.system.getOS()))
+    --ntwk:print(string.format("os %s\n", love.system.getOS()))
 end
 
 function love.quit()
-    ntwk:quit()
 end
+
+local save_name = "nback-v0.3.lua"
 
 function love.load()
     math.randomseed(os.time())
     lovebird.update()
     lovebird.maxlines = 2000
     love.window.setTitle("nback")
-    --splash.init()
-
-    local save_name = "nback-v0.3.lua"
+    --require "splash".init()
 
     -- Ручная инициализация модулей
     nback:init(save_name)
@@ -89,7 +82,6 @@ function love.load()
 end
 
 function love.update(dt)
-    lovebird.update()
     menu:update(dt)
 end
 
@@ -113,6 +105,8 @@ function dispatchWindowResize(w, h)
 end
 
 function love.keypressed(key, scancode)
+    if onAndroid then return end
+
     -- ctrl-d hotkey to start debugger
     if love.keyboard.isScancodeDown("lctrl") and scancode == "d" then
         debug.debug()
@@ -124,25 +118,22 @@ function love.keypressed(key, scancode)
 
     print(string.format("key %s, scancode %s", key, scancode))
 
-    -- переключение режимов экрана
-    if not onAndroid then
-        if love.keyboard.isDown("ralt", "lalt") and key == "return" then
-            -- код дерьмовый, но работает
-            if screenMode == "fs" then
-                love.window.setMode(800, 600, {fullscreen = false})
-                screenMode = "win"
-                dispatchWindowResize(love.graphics.getDimensions())
-            else
-                love.window.setMode(0, 0, {fullscreen = true,
-                fullscreentype = "exclusive"})
-                screenMode = "fs"
-                dispatchWindowResize(love.graphics.getDimensions())
-            end
-        end
-        if key == "f12" then make_screenshot()
+    if love.keyboard.isDown("ralt", "lalt") and key == "return" then
+        -- код дерьмовый, но работает
+        if screenMode == "fs" then
+            love.window.setMode(800, 600, {fullscreen = false})
+            screenMode = "win"
+            dispatchWindowResize(love.graphics.getDimensions())
         else
-            menu:keypressed(key, scancode)
+            love.window.setMode(0, 0, {fullscreen = true,
+            fullscreentype = "exclusive"})
+            screenMode = "fs"
+            dispatchWindowResize(love.graphics.getDimensions())
         end
+    end
+    if key == "f12" then make_screenshot()
+    else
+        menu:keypressed(key, scancode)
     end
 end
 
