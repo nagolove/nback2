@@ -1,99 +1,117 @@
-print("client thread start")
+local lf = love.filesystem
+print("cmd thread start")
 
 local chan = love.thread.getChannel("cmd")
---local crc32 = require "crc32lua".crc32
 local inspect = require "inspect"
 local serpent = require "serpent"
 local socket = require "socket"
 
+function processArchiveList(conn)
+    local files = lf.getDirectoryItems("archives")
+    print("files", inspect(files))
+    local listStr = string.format("\"%s\"", table.concat(files, " ")) .. "\n"
+    print("listStr", listStr)
+    local send, err, last = conn:send(listStr)
+    print("send", send, "err", err, "last", last)
+end
+
+function processPushFile(conn)
+    print("processPushFile")
+    local data, err, partial = conn:receive("*l")
+    local fname, filesizeStr = string.match(data, "(.+) (.+)")
+    print("fname", fname, "filesizeStr", filesizeStr)
+    print("filesize", filesizeStr, "err", err, "partial", partial)
+    local filesize = tonumber(filesizeStr)
+    if not filesize then 
+        error("filesize is nil. Something gone wrong.")
+    end
+    print(filesize)
+    local send, err, last = conn:send("ready\n")
+    local data, err, partial = conn:receive(filesize)
+    if not data then
+        error(string.format("Nothing to write %s", err))
+    end
+    if #data ~= filesize then
+        print(string.format("strange things #data = %d, filesize = %d", #data,
+            filesize))
+    end
+    local succ = lf.createDirectory("archives")
+    local succ, msg = lf.write("archives/" .. fname, data, #data)
+    if not succ then
+        print(string.format("write file error %s", msg))
+    end
+end
+
+function processSetArchive(conn)
+    print("processSetArchive")
+    local archivename, err, partial = conn:receive("*l")
+    print("archivename", archivename)
+    chan:push({ "mount_please", archivename })
+end
+
+local actions = { 
+    list = processArchiveList,
+    push = processPushFile,
+    set = processSetArchive,
+}
+
 local host, port = chan:pop(), chan:pop()
-print("host", host, "port", port)
+print("cmd host", host, "port", port)
 
 local conn = socket.tcp()
-conn:setoption("keepalive", true)
+--conn:setoption("keepalive", true)
 local ok, msg, tmsg
 local finish = false
 
-conn:settimeout(0.1)
+--conn:settimeout(0.1)
+--conn:settimeout(10)
 
 local ok, errmsg
 
---local logfile = love.filesystem.newFile("tlog.txt", "w")
---love.filesystem.write("example2.txt", "stroka")
---print("stroka")
---local str = "hihi"
---love.filesystem.write("tlog_ex.txt", str, str:len())
---if logfile then
---logfile:write("log created.\n")
---end
-local helloSend = false
-
-while not ok do
-  ok, errmsg = conn:connect(host, port)
+function connect()
+    --if conn then conn:close() end
+    conn = nil
+    conn = socket.tcp()
+    repeat
+        ok, errmsg = conn:connect(host, port)
+        socket.sleep(0.1)
+    until ok
+    print("ok", ok, "errmsg", errmsg)
 end
 
 repeat
-  local r1, r2
-  if not helloSend then
-    r1, r2 = conn:send("$server:hello\n")
-    helloSend = true
-  end
+    if not ok then
+        connect()
+    end
 
-  --[[
-    [while data do
-    [    data, status, err = conn:receive("*l")
-    [    print("data", data, "st", status, "err", err)
-    [end
-    ]]
-  --local data, status, err = conn:receive("*l")
-  local data, status, err = conn:receive()
-  print("data", data, "st", status, "err", err)
+    local msg = chan:peek()
+    if type(msg) == "string" and msg == "$closethread$" then 
+        chan:pop()
+        break 
+        --return
+    else
+        print("msg", msg)
+    end
 
-  local cmd, param
-  if data then
-    cmd, param = string.match(data, "$client:(%a+) (.+)")
-    print("cmd", cmd, "param", param)
-  end
-
-  if cmd == "push_file" then
-    local _, fileSize = string.match(data, "$client:(%a+) (%d+)")
-    print("fileSize", fileSize)
-
-    r1, r2 = conn:send("$server:start_send_file\n")
-    print(r1, r2)
-
-    local t = {}
-    local msg, err = conn:receive(fileSize)
-    print(msg, err)
-
-    r1, r2 = conn:send("$server:ok\n")
-    print(r1, r2)
-  end
-
-  --tmsg = chan:pop()
-  --if tmsg then
-  --if type(tmsg) == "string" and tmsg == "closethread" then
-  --finish = true
-  --end
-  --local cmd = tmsg["cmd"]
-
-  --[[
-    [if cmd == "closethread" then
-    [    finish = true
-    [elseif cmd == "write" then
-    [    local serialized = serpent.dump(tmsg.msg)
-    [    print(string.format("try to send %d bytes %s", #serialized, 
-    [    serialized))
-    [    local bytessend, err = conn:send(serialized .. "\n")
-    [    print("send", bytessend, "err", err)
-    [end
-    ]]
-
-  --end
-  socket.sleep(0.01)
-until finish
+    if ok then
+        local data, err, partial = conn:receive("*l")
+        print("data", data, "err", err, "partial", partial)
+        if err == "closed" then
+            print("err", err)
+            ok = nil
+            --conn:close()
+            --connect()
+        end
+        local procedure = actions[data]
+        if procedure then
+            procedure(conn)
+        --else
+            --error(string.format("Unknown command %s", action))
+        end
+    end
+until false
 
 conn:close()
-logfile:close()
-print("client thread finish")
+
+print("cmd thread finish")
 
