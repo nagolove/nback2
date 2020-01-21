@@ -1,4 +1,5 @@
 local lt = love.thread
+local inspect = require "inspect"
 local serpent = require "serpent"
 
 local client = {}
@@ -10,8 +11,6 @@ local modname = ...
 
 function client.new(host, port)
     local self = {
-        host = host,
-        port = port,
         -- поток логирования выполняет только одну задачу - передает
         -- содержимое через метод write по сети на сервер для вывода.
         logThread = lt.newThread(modname .. "/logthread.lua"),
@@ -35,24 +34,73 @@ end
 
 function client:print(...)
     local str = ""
-    for i = 1, select("#", ...) do
+    local n = select("#", ...)
+    for i = 1, n do
         str = str .. tostring(select(i, ...))
+        if i < n then
+            str = str .. " "
+        end
     end
     print("client:print()", str)
     self.logchan:push(str .. "\n")
 end
 
-function client:quit()
-    self.logchan:push("$closethread$")
-    self.cmdchan:push("$closethread$")
+function client:close()
+    local logchan = lt.getChannel("log")
+    local cmdchan = lt.getChannel("cmd")
+    logchan:push("$closethread$")
+    cmdchan:push("$closethread$")
 end
 
+function client:mountAndRun(archivename)
+    local path = "archives/" .. archivename
+    print("path", path)
+    local succ = love.filesystem.mount(path, "/", false)
+    print("succ", succ)
+    if succ then
+        --print("package.loaded", inspect(package.loaded.main))
+        package.loaded.main = nil
+        package.loaded.conf = nil
+        require "main"
+        local updfunc = love.update
+        local quitfunc = love.quit
+        --[[
+           [love.update = function(dt)
+           [    if client then
+           [        client:update()
+           [    end
+           [    if updafunc then updfunc(dt) end
+           [end
+           [love.quit = function()
+           [    if client then
+           [        client:close()
+           [    end
+           [    if quitfunc then
+           [        quitfunc()
+           [    end
+           [end
+           ]]
+        love.init()
+        if love.load then
+            love.load(arg)
+        end
+    end
+end
+
+-- вызывается в основном цикле love.update(). При получении команды setarchive
+-- устанавливает новый исполнямый архив.
+function client:update()
+    local cmdchan = lt.getChannel("cmd")
+    local msg = cmdchan:peek()
+    if type(msg) == "table" and msg[1] == "mount_please" then
+        cmdchan:pop()
+        self:mountAndRun(msg[2])
+    end
+end
 ---------------- dummy interface ------------------
-function dummyClient:print(...)
-end
-
-function dummyClient:quit()
-end
+function dummyClient:update() end
+function dummyClient:print(...) end
+function dummyClient:quit() end
 
 function dummyClient.new()
     return setmetatable({}, dummyClient)

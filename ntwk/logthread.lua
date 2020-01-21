@@ -26,7 +26,7 @@ repeat
   if tmsg and type(tmsg) == "string" then
       if tmsg == "$closethread$" then break end
       local size, err, last = conn:send(tmsg)
-      --print("send", size, err, last)
+      print("log send size", size, "err", err, "last", last)
   end
   socket.sleep(0.01)
 until finish
