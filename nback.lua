@@ -18,7 +18,7 @@ local setupmenu = require "setupmenu"
 local signal = require "signal"
 local generate = require "generator".generate
 
-local color_constants = {
+local colorConstants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
         ["green"] = {72 / 255, 180 / 255, 66 / 255},
         ["blue"] = {27 / 255, 30 / 255, 249 / 255},
@@ -114,7 +114,7 @@ end
 
 function nback:generate_signals()
     local color_arr = {}
-    for k, _ in pairs(color_constants) do
+    for k, _ in pairs(colorConstants) do
         color_arr[#color_arr + 1] = k
     end
 
@@ -222,6 +222,7 @@ function nback:start()
         self.startTime = love.timer.getTime()
     end)
     print("end of start")
+    self:initButtons()
 end
 
 function nback:enter()
@@ -408,6 +409,44 @@ function nback:processSignal()
     end
 end
 
+-- [[
+-- Нужно как-то упорядочить визуальные клавиши: их координаты упрятать в
+-- таблицу, с помощью которой проверять нажатия. Использовать мультитач.
+-- Как проверять нажатия? Зафиксировать за каждой клавишей действие.
+-- ]]
+function nback:initButtons()
+    -- зазор в пикселях между левой границе кнопки и экрана. Также между правой
+    -- границей кнопки и игровым полем.
+    local xgap, ygap = 2, 2
+
+    local w, h = g.getDimensions()
+    local buttonHeight = h / 4
+    local buttonWidth = self.x0 - xgap * 2
+    local x, y = xgap, (h - buttonHeight * 2) / 2
+
+    self.buttons = {}
+    table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
+        h = buttonHeight, 
+        ontouch = function() self:check("sound") end })
+    table.insert(self.buttons, { x = w - buttonWidth - xgap, y = y, 
+        w = buttonWidth, h = buttonHeight,
+        ontouch = function() self:check("position") end })
+    y = y + buttonHeight + ygap
+    table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
+        h = buttonHeight, 
+        ontouch = function() self:check("form") end })
+    table.insert(self.buttons, { x = w - buttonWidth - xgap, y = y, 
+        w = buttonWidth, h = buttonHeight, 
+        ontouch = function() self:check("color") end  })
+end
+
+function nback:drawButtons()
+    if not self.buttons then return end
+    for k, v in pairs(self.buttons) do
+        g.rectangle("fill", v.x, v.y, v.w, v.h)
+    end
+end
+
 function nback:draw()
     love.graphics.clear(pallete.background)
 
@@ -417,11 +456,13 @@ function nback:draw()
     g.setShader(self.shader)
 
     self:draw_field()
+
     if self.is_run then
         if self.start_pause then
             self:print_start_pause()
         else
             self:draw_active_signal()
+            self:drawButtons()
         end
     else
         if self.show_statistic then 
@@ -432,17 +473,15 @@ function nback:draw()
         end
     end
 
-    local bottom_text_line_y = h - self.font:getHeight() * 3
-
-    if not onAndroid then
-        self:print_control_tips(bottom_text_line_y)
-        self:print_escape_tip(bottom_text_line_y)
-    end
-
+    local touches = love.touch.getTouches()
+   for i, id in ipairs(touches) do
+       local x, y = love.touch.getPosition(id)
+       love.graphics.circle("fill", x, y, 20)
+   end
     g.setShader()
     g.pop()
 
-    self:fill_linesbuf()
+    --self:fill_linesbuf()
 end
 
 function nback:update(dt)
@@ -861,36 +900,10 @@ function nback:draw_level_welcome()
     g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
 end
 
-function nback:print_control_tips(bottom_text_line_y)
-    local keys_tip = alignedlabels.new(self.font, w)
-
-    local color = self.sound_pressed and pallete.active or pallete.inactive
-    keys_tip:add("Sound [", color, "a", pallete.highLightedTextColor, "]", color)
-
-    color = self.color_pressed and pallete.active or pallete.inactive
-    keys_tip:add("Color [", color, "f", pallete.highLightedTextColor, "]", color)
-
-    color = self.form_pressed and pallete.active or pallete.inactive
-    keys_tip:add("Form [", color, "j", pallete.highLightedTextColor, 
-        "]", color)
-
-    color = self.pos_pressed and pallete.active or pallete.inactive
-    keys_tip:add("Position [", color, ";", pallete.highLightedTextColor, "]", color)
-
-    keys_tip:draw(0, bottom_text_line_y)
-end
-
--- draw escape tip
-function nback:print_escape_tip(bottom_text_line_y)
-    g.setFont(self.font)
-    g.setColor(pallete.tip_text)
-    g.printf("Escape - go to menu", 0, bottom_text_line_y + self.font:getHeight(), w, "center")
-end
-
 -- draw active signal quad
 function nback:draw_active_signal()
     local x, y = unpack(self.pos_signals[self.current_sig])
-    local sig_color = color_constants[self.color_signals[self.current_sig]]
+    local sig_color = colorConstants[self.color_signals[self.current_sig]]
     if self.figure_alpha then
         sig_color[4] = self.figure_alpha
     end
