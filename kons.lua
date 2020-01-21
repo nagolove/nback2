@@ -82,7 +82,6 @@ function kons:draw(x0, y0)
     if not self.show then return end
 
     local y = y0
-    g.setColor(self.color)
     for k, v in pairs(self.strings_i) do
         g.print(v, x0, y)
         y = y + g.getFont():getHeight()
