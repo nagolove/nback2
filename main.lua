@@ -18,7 +18,7 @@ local pallete = require "pallete"
 ]]--
 --local ntwk
 if netLogging then
-    ntwk = require "ntwk".new("visualdoj.ru", 10081)
+    ntwk = require "ntwk".new("visualdoj.ru", 10081, true)
     --ntwk = require "ntwk".new("127.0.0.1", 10081)
 else
     --ntwk = require "ntwk".dummy()
