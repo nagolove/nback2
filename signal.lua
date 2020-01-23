@@ -88,7 +88,7 @@ function signal:draw(xd, yd, type, color)
     local w, h = self.width - border * 2, self.width - border * 2
     local x = self.x0 + xd * self.width + border 
     local y = self.y0 + yd * self.width + border
-    print("x, y = ", x, y)
+    --print("x, y = ", x, y)
 
     self.borderColor[4] = color[4] -- анимирую альфа-канал цвета рамки
     g.setColor(color)
