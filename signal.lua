@@ -97,10 +97,10 @@ function signal:draw(xd, yd, type, color)
     self[type](self, x, y, w, h)
     g.setLineWidth(oldWidth)
 
-    g.setColor{1, 1, 1}
-    g.draw(self.figureCanvas, 0, 0)
-    local h = self.figureCanvas:getHeight()
-    g.draw(self.borderCanvas, 0, h)
+    --g.setColor{1, 1, 1}
+    --g.draw(self.figureCanvas, 0, 0)
+    --local h = self.figureCanvas:getHeight()
+    --g.draw(self.borderCanvas, 0, h)
 end
 
 -- хорошая идея добавить проигрывание звука, но как ориентироваться в
