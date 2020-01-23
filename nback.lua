@@ -382,6 +382,12 @@ function nback:init(save_name)
     self:createSetupMenu()
     self:resize(g.getDimensions())
     self:initShaders()
+
+    if ntwk then
+        ntwk:print("nback:init()")
+    else
+        print("No ntwk variable(")
+    end
 end
 
 function nback:processSignal()
@@ -440,11 +446,23 @@ function nback:initButtons()
         ontouch = function() self:check("color") end  })
 end
 
+local buttonColor = {0.29, 0.29, 0.2}
+local buttonColor2 = {1, 0.42, 0.5}
+
 function nback:drawButtons()
+    -- эта строчка необходима так как initButtons() вызывается не в саммом
+    -- подходящем месте. Найдешь место лучше, эта строчка не будет нужна.
     if not self.buttons then return end
+
+    local oldwidth = g.getLineWidth()
     for k, v in pairs(self.buttons) do
+        g.setColor(buttonColor2)
         g.rectangle("fill", v.x, v.y, v.w, v.h)
+        g.setColor{0, 0, 0}
+        g.setLineWidth(2)
+        g.rectangle("line", v.x + 2, v.y + 2, v.w - 2, v.h - 2)
     end
+    g.setLineWidth(oldwidth)
 end
 
 function nback:draw()
@@ -654,6 +672,8 @@ end
 
 -- use scancode, Luke!
 function nback:keypressed(key, scancode)
+    if onAndroid then return end
+
     if scancode == "escape" then
         if self.is_run then
             print("stop by escape")
