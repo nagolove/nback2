@@ -240,7 +240,9 @@ local fragmentCode = [[
 extern float time;
 vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
     vec4 pixel = Texel(image, uvs);
-    float av = (pixel.r + pixel.g + pixel.b) / time;
+    //float av = (pixel.r + pixel.g + pixel.b) / time;
+    color.a = time;
+    //return pixel * color;
     return pixel * color;
 }
 ]]
@@ -388,6 +390,18 @@ function nback:init(save_name)
     else
         print("No ntwk variable(")
     end
+
+    self.shaderTimer = 0
+    self.shaderEnabled = true
+    self.timer:during(4, function(dt, time, delay) 
+        print(time, delay, self.shaderTimer)
+        local delta = 0.2 * dt
+        if self.shaderTimer + delta <= 1 then
+            self.shaderTimer = self.shaderTimer + delta
+        end
+    end, function() 
+        self.shaderEnabled = false
+    end)
 end
 
 function nback:processSignal()
@@ -471,7 +485,11 @@ function nback:draw()
     local x0, y0 = self.x0, self.y0
 
     g.push("all")
-    g.setShader(self.shader)
+
+    if self.shaderEnabled then
+        g.setShader(self.shader)
+        self.shader:send("time", self.shaderTimer)
+    end
 
     self:draw_field()
 
@@ -492,10 +510,12 @@ function nback:draw()
     end
 
     local touches = love.touch.getTouches()
-   for i, id in ipairs(touches) do
-       local x, y = love.touch.getPosition(id)
-       love.graphics.circle("fill", x, y, 20)
-   end
+    for i, id in ipairs(touches) do
+        local x, y = love.touch.getPosition(id)
+        g.setColor{0, 0, 0}
+        g.circle("fill", x, y, 20)
+    end
+
     g.setShader()
     g.pop()
 
@@ -524,7 +544,6 @@ function nback:update(dt)
             self.setupmenu:update(dt)
         end
     end
-
 end
 
 -- подсчет процентов успешности за раунд для данного массива.
