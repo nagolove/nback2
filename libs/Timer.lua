@@ -24,6 +24,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
+--[[
+-- timer.time - начальное время, устанавливается равным 0 при создании таймера
+-- timer.delay - задержка в секундах(используется в during)
+--]]
+
 local Timer = {}
 Timer.__index = Timer
 
@@ -58,7 +63,7 @@ function Timer:update(dt)
             end
 
         elseif timer.type == 'during' then
-            timer.action(dt)
+            timer.action(dt, timer.time, timer.delay)
             if timer.time >= timer.delay then
                 timer.after(dt)
                 self.timers[tag] = nil
