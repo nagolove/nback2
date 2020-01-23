@@ -59,14 +59,12 @@ local host, port = chan:pop(), chan:pop()
 print("cmd host", host, "port", port)
 
 local conn = socket.tcp()
---conn:setoption("keepalive", true)
-local ok, msg, tmsg
 local finish = false
+local ok, errmsg
 
 --conn:settimeout(0.1)
 --conn:settimeout(10)
-
-local ok, errmsg
+--conn:setoption("keepalive", true)
 
 function connect()
     --if conn then conn:close() end
@@ -96,17 +94,15 @@ repeat
     if ok then
         local data, err, partial = conn:receive("*l")
         print("data", data, "err", err, "partial", partial)
-        if err == "closed" then
+        --if err == "closed" then
+        if err then
             print("err", err)
-            ok = nil
-            --conn:close()
-            --connect()
+            ok = false
+            conn = nil
         end
         local procedure = actions[data]
         if procedure then
             procedure(conn)
-        --else
-            --error(string.format("Unknown command %s", action))
         end
     end
 until false

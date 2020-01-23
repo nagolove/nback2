@@ -27,6 +27,9 @@ function client.new(host, port, logonly)
 
     setmetatable(self, client)
 
+    print("client.new()", host, port)
+    self.logchan:push("isworking?")
+
     self.logchan:push(host) self.logchan:push(port + 1)
     self.logThread:start()
 
