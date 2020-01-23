@@ -9,22 +9,23 @@ dummyClient.__index = dummyClient
 
 local modname = ...
 
-function client.new(host, port)
+function client.new(host, port, logonly)
     local self = {
         -- поток логирования выполняет только одну задачу - передает
         -- содержимое через метод write по сети на сервер для вывода.
         logThread = lt.newThread(modname .. "/logthread.lua"),
+        logchan = lt.getChannel("log"),
+    }
+    if not logonly then
         -- командный поток - передает файлы через сеть, передает команды -
         -- показать список файлов, установить новый архив и тд.
-        cmdThread = lt.newThread(modname .. "/cmdthread.lua"),
-        logchan = lt.getChannel("log"),
-        cmdchan = lt.getChannel("cmd"),
-    }
+        self.cmdThread = lt.newThread(modname .. "/cmdthread.lua")
+        self.cmdchan = lt.getChannel("cmd")
+        self.cmdchan:push(host) self.cmdchan:push(port)
+        self.cmdThread:start()
+    end
 
     setmetatable(self, client)
-
-    self.cmdchan:push(host) self.cmdchan:push(port)
-    self.cmdThread:start()
 
     self.logchan:push(host) self.logchan:push(port + 1)
     self.logThread:start()
@@ -48,8 +49,8 @@ end
 function client:close()
     local logchan = lt.getChannel("log")
     local cmdchan = lt.getChannel("cmd")
-    logchan:push("$closethread$")
-    cmdchan:push("$closethread$")
+    if logchan then logchan:push("$closethread$") end
+    if cmdchan then cmdchan:push("$closethread$") end
 end
 
 function client:mountAndRun(archivename)
@@ -64,23 +65,21 @@ function client:mountAndRun(archivename)
         require "main"
         local updfunc = love.update
         local quitfunc = love.quit
-        --[[
-           [love.update = function(dt)
-           [    if client then
-           [        client:update()
-           [    end
-           [    if updafunc then updfunc(dt) end
-           [end
-           [love.quit = function()
-           [    if client then
-           [        client:close()
-           [    end
-           [    if quitfunc then
-           [        quitfunc()
-           [    end
-           [end
-           ]]
         love.init()
+        love.update = function(dt)
+            if client then
+                client:update()
+            end
+            if updafunc then updfunc(dt) end
+        end
+        love.quit = function()
+            if client then
+                client:close()
+            end
+            if quitfunc then
+                quitfunc()
+            end
+        end
         if love.load then
             love.load(arg)
         end
