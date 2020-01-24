@@ -5,11 +5,14 @@ netLogging = true
 
 require("common")
 
+local lg = love.graphics
 local Timer = require "libs/Timer"
 local inspect = require "libs/inspect"
 local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
 local pallete = require "pallete"
+local splash = require "splash"
+local kons = require "kons"
 
 --[[
   Диапазон портов:
