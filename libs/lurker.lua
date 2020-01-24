@@ -16,11 +16,17 @@ local lurker = { _version = "1.0.1" }
 
 local dir = love.filesystem.enumerate or love.filesystem.getDirectoryItems
 local time = love.timer.getTime or os.time
+
 -- deprecated since Love 0.11
---local isdir = love.filesystem.isDirectory
---local lastmodified = love.filesystem.getLastModified
-local isdir = function(item) return love.filesystem.getInfo(item).type == "directory" end --love.filesystem.isDirectory
-local lastmodified = function(item) return love.filesystem.getInfo(item).modtime end --love.filesystem.getLastModifiedlocal 
+local maj, min, rev, _ = love.getVersion()
+local isdir, lastmodified
+if maj == 0 and min < 11 then
+    isdir = love.filesystem.isDirectory
+    lastmodified = love.filesystem.getLastModified
+else
+    isdir = function(item) return love.filesystem.getInfo(item).type == "directory" end --love.filesystem.isDirectory
+    lastmodified = function(item) return love.filesystem.getInfo(item).modtime end --love.filesystem.getLastModified 
+end
 
 lovecallbacknames = {
   "update",

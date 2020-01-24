@@ -1,22 +1,22 @@
 ﻿-- vim: set foldmethod=indent
+require "common"
+local Timer = require "libs.Timer"
+local alignedlabels = require "alignedlabels"
+local bhupur = require "bhupur"
+local g = love.graphics
+local generate = require "generator".generate
 local inspect = require "libs.inspect"
-local serpent = require "serpent"
+local linesbuf = require "kons"(0, 0)
 local lume = require "libs.lume"
 local math = require "math"
 local os = require "os"
-local string = require "string"
-local table = require "table"
-local Timer = require "libs.Timer"
-local Kons = require "kons"
 local pallete = require "pallete"
-local bhupur = require "bhupur"
-local g = love.graphics
-local w, h = g.getDimensions()
-local linesbuf = Kons(0, 0)
-local alignedlabels = require "alignedlabels"
+local serpent = require "serpent"
 local setupmenu = require "setupmenu"
 local signal = require "signal"
-local generate = require "generator".generate
+local string = require "string"
+local table = require "table"
+local w, h = g.getDimensions()
 
 local colorConstants = {
         ["brown"] = {136 / 255, 55 / 255, 41 / 255},
@@ -392,7 +392,7 @@ function nback:init(save_name)
     end
 
     self.shaderTimer = 0
-    self.shaderEnabled = true
+    self.shaderTimeEnabled = true -- непутевое название переменной
     self.timer:during(4, function(dt, time, delay) 
         print(time, delay, self.shaderTimer)
         local delta = 0.2 * dt
@@ -400,7 +400,7 @@ function nback:init(save_name)
             self.shaderTimer = self.shaderTimer + delta
         end
     end, function() 
-        self.shaderEnabled = false
+        self.shaderTimeEnabled = false
     end)
 end
 
@@ -441,21 +441,39 @@ function nback:initButtons()
 
     local w, h = g.getDimensions()
     local buttonHeight = h / 4
-    local buttonWidth = self.x0 - xgap * 2
-    local x, y = xgap, (h - buttonHeight * 2) / 2
+    local buttonWidth = self.x0 * 0.8
+    local x, y = (self.x0 - buttonWidth) / 2, (h - buttonHeight * 2) / 2
 
     self.buttons = {}
+    -- клавиша выхода слева
+    table.insert(self.buttons, { x = x, y = self.y0, w = buttonWidth,
+        h = buttonHeight * 0.3,
+        ontouch = function() love.event.quit() end})
+
+    -- клавиша дополнительных настроек справа
+    table.insert(self.buttons, { x = w - x - buttonWidth, 
+        y = self.y0, w = buttonWidth, h = buttonHeight * 0.3,
+        ontouch = function() love.event.quit() end})
+
+    -- левая верхняя клавиша управления
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
         ontouch = function() self:check("sound") end })
-    table.insert(self.buttons, { x = w - buttonWidth - xgap, y = y, 
+
+    -- правая верхняя клавиша управления
+    table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight,
         ontouch = function() self:check("position") end })
-    y = y + buttonHeight + ygap
+
+    y = y + buttonHeight + buttonHeight * 0.1
+
+    -- левая нижняя клавиша управления
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
         ontouch = function() self:check("form") end })
-    table.insert(self.buttons, { x = w - buttonWidth - xgap, y = y, 
+
+    -- правая нижняя клавиша управления
+    table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight, 
         ontouch = function() self:check("color") end  })
 end
@@ -471,12 +489,21 @@ function nback:drawButtons()
     local oldwidth = g.getLineWidth()
     for k, v in pairs(self.buttons) do
         g.setColor(buttonColor2)
-        g.rectangle("fill", v.x, v.y, v.w, v.h)
+        g.rectangle("fill", v.x, v.y, v.w, v.h, 6, 6)
         g.setColor{0, 0, 0}
         g.setLineWidth(2)
-        g.rectangle("line", v.x + 2, v.y + 2, v.w - 2, v.h - 2)
+        g.rectangle("line", v.x, v.y, v.w, v.h, 6, 6)
     end
     g.setLineWidth(oldwidth)
+end
+
+function drawTouches()
+    local touches = love.touch.getTouches()
+    for i, id in ipairs(touches) do
+        local x, y = love.touch.getPosition(id)
+        g.setColor{0, 0, 0}
+        g.circle("fill", x, y, 20)
+    end
 end
 
 function nback:draw()
@@ -486,8 +513,8 @@ function nback:draw()
 
     g.push("all")
 
-    if self.shaderEnabled then
-        g.setShader(self.shader)
+    g.setShader(self.shader)
+    if self.shaderTimeEnabled then
         self.shader:send("time", self.shaderTimer)
     end
 
@@ -509,12 +536,7 @@ function nback:draw()
         end
     end
 
-    local touches = love.touch.getTouches()
-    for i, id in ipairs(touches) do
-        local x, y = love.touch.getPosition(id)
-        g.setColor{0, 0, 0}
-        g.circle("fill", x, y, 20)
-    end
+    drawTouches()
 
     g.setShader()
     g.pop()
@@ -534,6 +556,16 @@ function nback:update(dt)
     end
 
     if self.is_run then
+        local touches = love.touch.getTouches()
+        for i, id in pairs(touches) do
+            local x, y = love.touch.getPosition(id)
+            for k, v in pairs(self.buttons) do
+                if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+                    v.ontouch()
+                end
+            end
+        end
+
         if self.current_sig < #self.pos_signals then
             self:processSignal()
         else
@@ -791,17 +823,14 @@ end
 function nback:resize(neww, newh)
     print(string.format("resized to %d * %d", neww, newh))
 
-    local delta = 20 -- for avoiding intersection between field and bottom lines of text
-
-    w = neww
-    h = newh
+    w, h = neww, newh
 
     local pixels_border = 130 -- size of border around main game field
     self.cell_width = (newh - pixels_border) / self.dim
     self.bhupur_h = self.cell_width * self.dim 
 
     self.x0 = (w - self.dim * self.cell_width) / 2
-    self.y0 = (h - self.dim * self.cell_width) / 2 - delta
+    self.y0 = (h - self.dim * self.cell_width) / 2
 
     if self.signal then
         self.signal:setCorner(self.x0, self.y0)
