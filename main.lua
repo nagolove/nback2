@@ -18,7 +18,7 @@ local pallete = require "pallete"
 ]]--
 --local ntwk
 if netLogging then
-    ntwk = require "ntwk".new("visualdoj.ru", 10081, true)
+    --ntwk = require "ntwk".new("visualdoj.ru", 10081, true)
     --ntwk = require "ntwk".new("127.0.0.1", 10081)
 else
     --ntwk = require "ntwk".dummy()
@@ -30,8 +30,8 @@ nback = require "nback".new()
 pviewer = require "pviewer".new()
 
 function print2log()
-    ntwk:print("getSaveDirectory() = " .. 
-        love.filesystem.getSaveDirectory() .. "\n")
+    --ntwk:print("getSaveDirectory() = " .. 
+        --love.filesystem.getSaveDirectory() .. "\n")
 
     --local w, h = love.graphics.getDimensions()
     --ntwk:print(string.format("screen resolution %d x %d\n", w, h))
