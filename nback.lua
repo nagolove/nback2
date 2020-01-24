@@ -443,26 +443,32 @@ function nback:initButtons()
     local buttonHeight = h / 4
     local buttonWidth = self.x0 * 0.8
     local x, y = (self.x0 - buttonWidth) / 2, (h - buttonHeight * 2) / 2
+    local lowerButtonHeight = buttonHeight * 0.3
 
     self.buttons = {}
     -- клавиша выхода слева
-    table.insert(self.buttons, { x = x, y = self.y0, w = buttonWidth,
-        h = buttonHeight * 0.3,
+    table.insert(self.buttons, { x = x, y = 2, w = buttonWidth,
+        h = lowerButtonHeight,
+        title = "Exit",
         ontouch = function() love.event.quit() end})
 
     -- клавиша дополнительных настроек справа
     table.insert(self.buttons, { x = w - x - buttonWidth, 
-        y = self.y0, w = buttonWidth, h = buttonHeight * 0.3,
+        y = 2, w = buttonWidth, 
+        h = lowerButtonHeight,
+        title = "Настройки",
         ontouch = function() love.event.quit() end})
 
     -- левая верхняя клавиша управления
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
+        title = "Sound",
         ontouch = function() self:check("sound") end })
 
     -- правая верхняя клавиша управления
     table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight,
+        title = "Position",
         ontouch = function() self:check("position") end })
 
     y = y + buttonHeight + buttonHeight * 0.1
@@ -470,11 +476,13 @@ function nback:initButtons()
     -- левая нижняя клавиша управления
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
+        title = "Form",
         ontouch = function() self:check("form") end })
 
     -- правая нижняя клавиша управления
     table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight, 
+        title = "Color",
         ontouch = function() self:check("color") end  })
 end
 
