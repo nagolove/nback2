@@ -1,7 +1,15 @@
-﻿onAndroid = love.system.getOS() == "Android" or false
+﻿--[[
+   [function premount()
+   [    local succ = love.filesystem.mount("nback_data.zip", "/")
+   [    print("mounting nback_data.zip", succ)
+   [end
+   ]]
+
+onAndroid = love.system.getOS() == "Android" or false
+useKeyboard = true
 onAndroid = true
-netLogging = true
---netLogging = false
+--netLogging = true
+netLogging = false
 
 require("common")
 
@@ -24,7 +32,7 @@ if netLogging then
     --ntwk = require "ntwk".new("visualdoj.ru", 10081, true)
     --ntwk = require "ntwk".new("127.0.0.1", 10081)
 else
-    --ntwk = require "ntwk".dummy()
+    ntwk = require "ntwk".dummy()
 end
 
 help = require "help".new()
@@ -33,8 +41,8 @@ nback = require "nback".new()
 pviewer = require "pviewer".new()
 
 function print2log()
-    --ntwk:print("getSaveDirectory() = " .. 
-        --love.filesystem.getSaveDirectory() .. "\n")
+    ntwk:print("getSaveDirectory() = " .. 
+        love.filesystem.getSaveDirectory() .. "\n")
 
     --local w, h = love.graphics.getDimensions()
     --ntwk:print(string.format("screen resolution %d x %d\n", w, h))

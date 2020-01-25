@@ -221,8 +221,8 @@ function nback:start()
         -- фиксирую время начала игры
         self.startTime = love.timer.getTime()
     end)
-    print("end of start")
     self:initButtons()
+    print("end of start")
 end
 
 function nback:enter()
@@ -351,7 +351,8 @@ function nback:createSetupMenu()
                 nbackLevel == maxLevel
         end})
     
-    --  выбор разрешения поля клеток для сигнала "позиция". Рабочее значение : от 4 до 8-10-20?
+    --  выбор разрешения поля клеток для сигнала "позиция". 
+    --  Рабочее значение : от 4 до 8-10-20?
     self.setupmenu:addItem({
         oninit = function() return {pallete.signal, "Dim level: ",
             parameterColor, tostring(dim)}, 
@@ -393,9 +394,9 @@ function nback:init(save_name)
 
     self.shaderTimer = 0
     self.shaderTimeEnabled = true -- непутевое название переменной
-    self.timer:during(4, function(dt, time, delay) 
+    self.timer:during(2, function(dt, time, delay) 
         print(time, delay, self.shaderTimer)
-        local delta = 0.2 * dt
+        local delta = 0.4 * dt
         if self.shaderTimer + delta <= 1 then
             self.shaderTimer = self.shaderTimer + delta
         end
@@ -435,47 +436,87 @@ end
 -- Как проверять нажатия? Зафиксировать за каждой клавишей действие.
 -- ]]
 function nback:initButtons()
-    -- зазор в пикселях между левой границе кнопки и экрана. Также между правой
-    -- границей кнопки и игровым полем.
-    local xgap, ygap = 2, 2
-
     local w, h = g.getDimensions()
     local buttonHeight = h / 4
     local buttonWidth = self.x0 * 0.8
+    local lowerButtonHeight = buttonHeight * 0.3
     local x, y = (self.x0 - buttonWidth) / 2, (h - buttonHeight * 2) / 2
 
+    print("self.font:getHeight()", self.font:getHeight())
+    print("lowerButtonHeight", lowerButtonHeight)
     self.buttons = {}
     -- клавиша выхода слева
-    table.insert(self.buttons, { x = x, y = self.y0, w = buttonWidth,
-        h = buttonHeight * 0.3,
-        ontouch = function() love.event.quit() end})
+    table.insert(self.buttons, { 
+        x = x, 
+        y = 2, 
+        w = buttonWidth,
+        h = lowerButtonHeight,
+        title = "Quit",
+        ontouch = function() 
+            love.event.quit() 
+        end})
 
     -- клавиша дополнительных настроек справа
-    table.insert(self.buttons, { x = w - x - buttonWidth, 
-        y = self.y0, w = buttonWidth, h = buttonHeight * 0.3,
-        ontouch = function() love.event.quit() end})
+    table.insert(self.buttons, { 
+        x = w - x - buttonWidth, 
+        y = 2, 
+        w = buttonWidth, 
+        h = lowerButtonHeight,
+        title = "Settings",
+        ontouch = function() 
+            love.event.quit() 
+        end})
 
     -- левая верхняя клавиша управления
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
-        ontouch = function() self:check("sound") end })
+        title = "Sound",
+        ontouch = function() 
+            if self.is_run then
+                self:check("sound") 
+            end
+        end})
 
     -- правая верхняя клавиша управления
     table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight,
-        ontouch = function() self:check("position") end })
+        title = "Position",
+        ontouch = function() 
+            if self.is_run then
+                self:check("pos") 
+            end
+        end})
 
     y = y + buttonHeight + buttonHeight * 0.1
 
     -- левая нижняя клавиша управления
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
-        ontouch = function() self:check("form") end })
+        title = "Form",
+        ontouch = function() 
+            if self.is_run then
+                self:check("form") 
+            end
+        end})
 
     -- правая нижняя клавиша управления
     table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight, 
-        ontouch = function() self:check("color") end  })
+        title = "Color",
+        ontouch = function() 
+            if self.is_run then
+                self:check("color") 
+            end
+        end})
+
+    self:setupButtonsTextPositions()
+end
+
+function nback:setupButtonsTextPositions()
+    for k, v in pairs(self.buttons) do
+        v.textx = v.x
+        v.texty = v.y + v.h / 2 - self.font:getHeight()
+    end
 end
 
 local buttonColor = {0.29, 0.29, 0.2}
@@ -493,6 +534,10 @@ function nback:drawButtons()
         g.setColor{0, 0, 0}
         g.setLineWidth(2)
         g.rectangle("line", v.x, v.y, v.w, v.h, 6, 6)
+
+        g.setColor{0, 0, 0}
+        g.setFont(self.font)
+        g.printf(v.title, v.textx, v.texty, v.w, "center")
     end
     g.setLineWidth(oldwidth)
 end
@@ -544,6 +589,16 @@ function nback:draw()
     --self:fill_linesbuf()
 end
 
+function nback:checkButtonsTouch(x, y)
+    if self.buttons then
+        for k, v in pairs(self.buttons) do
+            if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+                v.ontouch()
+            end
+        end
+    end
+end
+
 function nback:update(dt)
     self.timer:update(dt)
 
@@ -555,17 +610,13 @@ function nback:update(dt)
         return 
     end
 
-    if self.is_run then
-        local touches = love.touch.getTouches()
-        for i, id in pairs(touches) do
-            local x, y = love.touch.getPosition(id)
-            for k, v in pairs(self.buttons) do
-                if pointInRect(x, y, v.x, v.y, v.w, v.h) then
-                    v.ontouch()
-                end
-            end
-        end
+    local touches = love.touch.getTouches()
+    for i, id in pairs(touches) do
+        local x, y = love.touch.getPosition(id)
+        self:checkButtonsTouch(x, y)
+    end
 
+    if self.is_run then
         if self.current_sig < #self.pos_signals then
             self:processSignal()
         else
@@ -723,7 +774,7 @@ end
 
 -- use scancode, Luke!
 function nback:keypressed(key, scancode)
-    if onAndroid then return end
+    if not useKeyboard then return end
 
     if scancode == "escape" then
         if self.is_run then
