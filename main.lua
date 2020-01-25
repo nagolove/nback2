@@ -1,4 +1,12 @@
-﻿onAndroid = love.system.getOS() == "Android" or false
+﻿--[[
+   [function premount()
+   [    local succ = love.filesystem.mount("nback_data.zip", "/")
+   [    print("mounting nback_data.zip", succ)
+   [end
+   ]]
+
+onAndroid = love.system.getOS() == "Android" or false
+useKeyboard = true
 onAndroid = true
 --netLogging = true
 netLogging = false

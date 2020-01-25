@@ -221,8 +221,8 @@ function nback:start()
         -- фиксирую время начала игры
         self.startTime = love.timer.getTime()
     end)
-    print("end of start")
     self:initButtons()
+    print("end of start")
 end
 
 function nback:enter()
@@ -394,9 +394,9 @@ function nback:init(save_name)
 
     self.shaderTimer = 0
     self.shaderTimeEnabled = true -- непутевое название переменной
-    self.timer:during(4, function(dt, time, delay) 
+    self.timer:during(2, function(dt, time, delay) 
         print(time, delay, self.shaderTimer)
-        local delta = 0.2 * dt
+        local delta = 0.4 * dt
         if self.shaderTimer + delta <= 1 then
             self.shaderTimer = self.shaderTimer + delta
         end
@@ -446,29 +446,46 @@ function nback:initButtons()
     print("lowerButtonHeight", lowerButtonHeight)
     self.buttons = {}
     -- клавиша выхода слева
-    table.insert(self.buttons, { x = x, y = 2, w = buttonWidth,
+    table.insert(self.buttons, { 
+        x = x, 
+        y = 2, 
+        w = buttonWidth,
         h = lowerButtonHeight,
-        title = "Exit",
-        ontouch = function() love.event.quit() end})
+        title = "Quit",
+        ontouch = function() 
+            love.event.quit() 
+        end})
 
     -- клавиша дополнительных настроек справа
-    table.insert(self.buttons, { x = w - x - buttonWidth, 
-        y = 2, w = buttonWidth, 
+    table.insert(self.buttons, { 
+        x = w - x - buttonWidth, 
+        y = 2, 
+        w = buttonWidth, 
         h = lowerButtonHeight,
-        title = "Настройки",
-        ontouch = function() love.event.quit() end})
+        title = "Settings",
+        ontouch = function() 
+            love.event.quit() 
+        end})
 
     -- левая верхняя клавиша управления
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
         title = "Sound",
-        ontouch = function() self:check("sound") end })
+        ontouch = function() 
+            if self.is_run then
+                self:check("sound") 
+            end
+        end})
 
     -- правая верхняя клавиша управления
     table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight,
         title = "Position",
-        ontouch = function() self:check("pos") end })
+        ontouch = function() 
+            if self.is_run then
+                self:check("pos") 
+            end
+        end})
 
     y = y + buttonHeight + buttonHeight * 0.1
 
@@ -476,13 +493,21 @@ function nback:initButtons()
     table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
         h = buttonHeight, 
         title = "Form",
-        ontouch = function() self:check("form") end })
+        ontouch = function() 
+            if self.is_run then
+                self:check("form") 
+            end
+        end})
 
     -- правая нижняя клавиша управления
     table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight, 
         title = "Color",
-        ontouch = function() self:check("color") end  })
+        ontouch = function() 
+            if self.is_run then
+                self:check("color") 
+            end
+        end})
 
     self:setupButtonsTextPositions()
 end
@@ -564,6 +589,16 @@ function nback:draw()
     --self:fill_linesbuf()
 end
 
+function nback:checkButtonsTouch(x, y)
+    if self.buttons then
+        for k, v in pairs(self.buttons) do
+            if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+                v.ontouch()
+            end
+        end
+    end
+end
+
 function nback:update(dt)
     self.timer:update(dt)
 
@@ -575,17 +610,13 @@ function nback:update(dt)
         return 
     end
 
-    if self.is_run then
-        local touches = love.touch.getTouches()
-        for i, id in pairs(touches) do
-            local x, y = love.touch.getPosition(id)
-            for k, v in pairs(self.buttons) do
-                if pointInRect(x, y, v.x, v.y, v.w, v.h) then
-                    v.ontouch()
-                end
-            end
-        end
+    local touches = love.touch.getTouches()
+    for i, id in pairs(touches) do
+        local x, y = love.touch.getPosition(id)
+        self:checkButtonsTouch(x, y)
+    end
 
+    if self.is_run then
         if self.current_sig < #self.pos_signals then
             self:processSignal()
         else
@@ -743,7 +774,7 @@ end
 
 -- use scancode, Luke!
 function nback:keypressed(key, scancode)
-    if onAndroid then return end
+    if not useKeyboard then return end
 
     if scancode == "escape" then
         if self.is_run then
