@@ -1,7 +1,7 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
 onAndroid = true
-netLogging = true
---netLogging = false
+--netLogging = true
+netLogging = false
 
 require("common")
 
@@ -21,10 +21,10 @@ local kons = require "kons"
 ]]--
 --local ntwk
 if netLogging then
-    ntwk = require "ntwk".new("visualdoj.ru", 10081, true)
+    --ntwk = require "ntwk".new("visualdoj.ru", 10081, true)
     --ntwk = require "ntwk".new("127.0.0.1", 10081)
 else
-    --ntwk = require "ntwk".dummy()
+    ntwk = require "ntwk".dummy()
 end
 
 help = require "help".new()

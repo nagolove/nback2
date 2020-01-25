@@ -351,7 +351,8 @@ function nback:createSetupMenu()
                 nbackLevel == maxLevel
         end})
     
-    --  выбор разрешения поля клеток для сигнала "позиция". Рабочее значение : от 4 до 8-10-20?
+    --  выбор разрешения поля клеток для сигнала "позиция". 
+    --  Рабочее значение : от 4 до 8-10-20?
     self.setupmenu:addItem({
         oninit = function() return {pallete.signal, "Dim level: ",
             parameterColor, tostring(dim)}, 
@@ -435,16 +436,14 @@ end
 -- Как проверять нажатия? Зафиксировать за каждой клавишей действие.
 -- ]]
 function nback:initButtons()
-    -- зазор в пикселях между левой границе кнопки и экрана. Также между правой
-    -- границей кнопки и игровым полем.
-    local xgap, ygap = 2, 2
-
     local w, h = g.getDimensions()
     local buttonHeight = h / 4
     local buttonWidth = self.x0 * 0.8
-    local x, y = (self.x0 - buttonWidth) / 2, (h - buttonHeight * 2) / 2
     local lowerButtonHeight = buttonHeight * 0.3
+    local x, y = (self.x0 - buttonWidth) / 2, (h - buttonHeight * 2) / 2
 
+    print("self.font:getHeight()", self.font:getHeight())
+    print("lowerButtonHeight", lowerButtonHeight)
     self.buttons = {}
     -- клавиша выхода слева
     table.insert(self.buttons, { x = x, y = 2, w = buttonWidth,
@@ -469,7 +468,7 @@ function nback:initButtons()
     table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
         w = buttonWidth, h = buttonHeight,
         title = "Position",
-        ontouch = function() self:check("position") end })
+        ontouch = function() self:check("pos") end })
 
     y = y + buttonHeight + buttonHeight * 0.1
 
@@ -484,6 +483,15 @@ function nback:initButtons()
         w = buttonWidth, h = buttonHeight, 
         title = "Color",
         ontouch = function() self:check("color") end  })
+
+    self:setupButtonsTextPositions()
+end
+
+function nback:setupButtonsTextPositions()
+    for k, v in pairs(self.buttons) do
+        v.textx = v.x
+        v.texty = v.y + v.h / 2 - self.font:getHeight()
+    end
 end
 
 local buttonColor = {0.29, 0.29, 0.2}
@@ -501,6 +509,10 @@ function nback:drawButtons()
         g.setColor{0, 0, 0}
         g.setLineWidth(2)
         g.rectangle("line", v.x, v.y, v.w, v.h, 6, 6)
+
+        g.setColor{0, 0, 0}
+        g.setFont(self.font)
+        g.printf(v.title, v.textx, v.texty, v.w, "center")
     end
     g.setLineWidth(oldwidth)
 end
