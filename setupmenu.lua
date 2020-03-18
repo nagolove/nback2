@@ -36,8 +36,7 @@ end
 local function checkTableMember(t, name)
     if t[name] then
         print("checking type")
-        assert(type(t[name]) == "function", 
-            string.format("Field t['%s'] should be function", name))
+        assert(type(t[name]) == "function", string.format("Field t['%s'] should be function", name))
     end
 end
 
