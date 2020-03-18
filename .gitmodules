@@ -1,0 +1,3 @@
+[submodule "gooi"]
+	path = gooi
+	url = git@github.com:nagolove/gooi.git

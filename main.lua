@@ -1,15 +1,6 @@
-﻿--[[
-   [function premount()
-   [    local succ = love.filesystem.mount("nback_data.zip", "/")
-   [    print("mounting nback_data.zip", succ)
-   [end
-   ]]
-
-onAndroid = love.system.getOS() == "Android" or false
+﻿onAndroid = love.system.getOS() == "Android" or false
 useKeyboard = true
 onAndroid = true
---netLogging = true
-netLogging = false
 
 require("common")
 
@@ -22,36 +13,11 @@ local pallete = require "pallete"
 local splash = require "splash"
 local kons = require "kons"
 
---[[
-  Диапазон портов:
-  10081 - cmdclient
-  10082 - logclient
-]]--
---local ntwk
-if netLogging then
-    --ntwk = require "ntwk".new("visualdoj.ru", 10081, true)
-    --ntwk = require "ntwk".new("127.0.0.1", 10081)
-else
-    ntwk = require "ntwk".dummy()
-end
-
+cam = require "camera".new()
 help = require "help".new()
 menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
-
-function print2log()
-    ntwk:print("getSaveDirectory() = " .. 
-        love.filesystem.getSaveDirectory() .. "\n")
-
-    --local w, h = love.graphics.getDimensions()
-    --ntwk:print(string.format("screen resolution %d x %d\n", w, h))
-
-    --ntwk:print(string.format("cpu count %d\n", 
-        --love.system.getProcessorCount()))
-
-    --ntwk:print(string.format("os %s\n", love.system.getOS()))
-end
 
 function love.quit()
 end
@@ -83,13 +49,11 @@ function love.load()
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true})
-        --love.window.setMode(0, 0, {fullscreen = true, 
-            --fullscreentype = "exclusive"})
+        --love.window.setMode(0, 0, {fullscreen = true, fullscreentype = "exclusive"})
+        cam = require "camera".new()
         screenMode = "fs"
         dispatchWindowResize(love.graphics.getDimensions())
     end
-
-    print2log()
 end
 
 function love.update(dt)
@@ -156,7 +120,9 @@ function love.mousepressed(x, y, button, istouch)
 end
 
 function love.draw()
+    cam:attach()
     menu:draw()
+    cam:detach()
     love.timer.sleep(0.01)
 end
 
