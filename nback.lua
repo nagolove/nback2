@@ -16,6 +16,7 @@ local setupmenu = require "setupmenu"
 local signal = require "signal"
 local string = require "string"
 local table = require "table"
+require "layout"
 local w, h = g.getDimensions()
 
 local colorConstants = require "colorconstants"
@@ -81,6 +82,15 @@ function create_false_array(len)
     return ret
 end
 
+function nback:buildLayout()
+    local screen = makeScreenTable()
+    screen.left, screen.center, screen.right = splitv(screen, 0.3, 0.4, 0.3)
+    screen.leftUp, screen.leftMiddle, screen.leftDown = splith(screen.left, 0.2, 0.4, 0.4)
+    screen.rightUp, screen.rightMiddle, screen.rightDown = splith(screen.right, 0.2, 0.4, 0.4)
+    self.layout = screen
+    print("self.layout", inspect(self.layout))
+end
+
 function nback:start()
     self.written = false
     local q = pallete.field
@@ -120,7 +130,8 @@ function nback:start()
     self.start_pause = true
     self.timer:every(1, function() 
         self.start_pause_rest = self.start_pause_rest - 1 
-    end, self.start_pause_rest, function()
+    end, 
+    self.start_pause_rest, function()
         self.start_pause = false
         -- фиксирую время начала игры
         self.startTime = love.timer.getTime()
@@ -488,6 +499,7 @@ function nback:draw()
     g.setShader()
     g.pop()
 
+    drawHierachy(self.layout)
     --self:fill_linesbuf()
 end
 
@@ -820,6 +832,8 @@ function nback:resize(neww, newh)
         self.signal:setCorner(self.x0, self.y0)
         self.signal:resize(self.cell_width)
     end
+
+    self:buildLayout()
 end
 
 -- return array of boolean values in succesful indices

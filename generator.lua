@@ -26,7 +26,7 @@ local function generate(sig_count, level, gen, cmp)
                 -- вероятность выпадения значения
                 -- помоему здесб написана хрень
                 local prob = math.random(unpack(range))
-                print("prob", prob)
+                --[[print("prob", prob)]]
                 if prob == range[2] then
                     if i + level <= #ret and ret[i] == null and ret[i + level] == null then
                         ret[i] = gen()

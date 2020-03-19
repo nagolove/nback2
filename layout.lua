@@ -1,5 +1,8 @@
 local lg = love.graphics
-local inspect = require "inspect"
+
+local inspect
+local ok, _  = pcall(function() inspect = require "inspect" end)
+if not ok then inspect = function() return "" end end
 
 local Layout = {}
 Layout.__index = Layout
@@ -163,5 +166,4 @@ function layoutExample()
     end)
     return drawList
 end
-
 
