@@ -4,7 +4,7 @@ local Timer = require "libs.Timer"
 local alignedlabels = require "alignedlabels"
 local bhupur = require "bhupur"
 local g = love.graphics
-local generate = require "generator".generate
+local generator = require "generator"
 local inspect = require "libs.inspect"
 local linesbuf = require "kons"(0, 0)
 local lume = require "libs.lume"
@@ -70,8 +70,8 @@ function nback.newStatisticRender(data)
     self.sound_pressed_arr = deepcopy(data.sound_pressed_arr)
 
     self.statisticRender = true
-    self:makeEqArrays()
-    -- self.signals.eq = require "generator".makeEqArrays(self.signals, self.level)
+    --[[self:makeEqArrays()]]
+    self.signals.eq = generator.makeEqArrays(self.signals, self.level)
 
     self:resize(g.getDimensions())
 
@@ -188,7 +188,7 @@ function nback:start()
     self.is_run = true
 
     --[[self:generate_signals()]]
-    self.signals = require "generator".generateAll(self.sig_count, self.level, self.dim, #self.signal.sounds)
+    self.signals = generator.generateAll(self.sig_count, self.level, self.dim, #self.signal.sounds)
     print("self.signals", inspect(self.signals))
     --self.signal
     --self.signals.eq
@@ -420,7 +420,6 @@ function nback:processSignal()
             self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
         end)
 
-        --[[self.signal:play(self.sound_signals[self.current_sig])]]
         self.signal:play(self.signals.sound[self.current_sig])
 
         self.pos_pressed = false
