@@ -84,22 +84,6 @@ function create_false_array(len)
     return ret
 end
 
-function nback:makeEqArrays()
-    self.pos_eq = self:make_hit_arr(self.pos_signals, 
-        function(a, b) return a[1] == b[1] and a[2] == b[2] end)
-    self.sound_eq = self:make_hit_arr(self.sound_signals, 
-        function(a, b) return a == b end)
-    self.color_eq = self:make_hit_arr(self.color_signals, 
-        function(a, b) return a == b end)
-    self.form_eq = self:make_hit_arr(self.form_signals, 
-        function(a, b) return a == b end)
-
-    print("pos_eq", inspect(self.pos_eq))
-    print("sound_eq", inspect(self.sound_eq))
-    print("form_eq", inspect(self.pos_eq))
-    print("color_eq", inspect(self.color_eq))
-end
-
 function nback:start()
     self.written = false
     local q = pallete.field
@@ -607,18 +591,6 @@ function nback:save_to_history()
     os.setlocale("C")
     local date = os.date("*t")
     print("date", inspect(date))
-    --[[table.insert(history, { date = date, ]]
-                            --[[pos_signals = self.pos_signals,]]
-                            --[[form_signals = self.form_signals,]]
-                            --[[sound_signals = self.sound_signals,]]
-                            --[[color_signals = self.color_signals,]]
-                            --[[pos_pressed_arr = self.pos_pressed_arr,]]
-                            --[[form_pressed_arr = self.form_pressed_arr,]]
-                            --[[sound_pressed_arr = self.sound_pressed_arr,]]
-                            --[[color_pressed_arr = self.color_pressed_arr,]]
-                            --[[level = self.level,]]
-                            --[[pause_time = self.pause_time,]]
-                            --[[percent = self.percent})]]
     table.insert(history, { date = date, 
                             signals = self.signals,
                             pos_pressed_arr = self.pos_pressed_arr,
@@ -645,16 +617,16 @@ function nback:stop()
     --print(inspect(self.form_pressed_arr))
     --print(inspect(self.pos_pressed_arr))
 
-    local p =  calc_percent(self.sound_eq, self.sound_pressed_arr)
+    local p =  calc_percent(self.signals.eq.sound, self.sound_pressed_arr)
     self.sound_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(self.color_eq, self.color_pressed_arr)
+    p = calc_percent(self.signals.eq.color, self.color_pressed_arr)
     self.color_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(self.form_eq, self.form_pressed_arr)
+    p = calc_percent(self.signals.eq.form, self.form_pressed_arr)
     self.form_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(self.pos_eq, self.pos_pressed_arr)
+    p = calc_percent(self.signals.pos.eq, self.pos_pressed_arr)
     self.pos_percent = p > 0.0 and p or 0.0
 
     self.percent = (self.sound_percent + self.color_percent + 
@@ -985,13 +957,13 @@ function nback:draw_statistic()
     -- массивы вида self.**_eq содержат значения истина на тех индексах, где
     -- должны быть нажаты обработчики сигналов
     local draw_hit_rects = require "drawstat".draw_hit_rects
-    x, y = draw_hit_rects(x, y, self.sound_pressed_arr, self.sound_eq, 
+    x, y = draw_hit_rects(x, y, self.sound_pressed_arr, self.signals.eq.sound, 
         rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.color_pressed_arr, self.color_eq, 
+    x, y = draw_hit_rects(x, y, self.color_pressed_arr, self.signals.eq.color, 
         rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.form_pressed_arr, self.form_eq, 
+    x, y = draw_hit_rects(x, y, self.form_pressed_arr, self.signals.eq.form, 
         rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pos_pressed_arr, self.pos_eq, 
+    x, y = draw_hit_rects(x, y, self.pos_pressed_arr, self.signals.eq.pos, 
         rect_size, border, self.level)
 
     -- drawing left column with letters
