@@ -58,10 +58,7 @@ function nback.newStatisticRender(data)
 
     print("self.signals", inspect(self.signals))
 
-    self.color_pressed_arr = deepcopy(data.color_pressed_arr)
-    self.form_pressed_arr = deepcopy(data.form_pressed_arr)
-    self.pos_pressed_arr = deepcopy(data.pos_pressed_arr)
-    self.sound_pressed_arr = deepcopy(data.sound_pressed_arr)
+    seld.pressed = deepcopy(data.pressed)
 
     self.statisticRender = true
     self.signals.eq = generator.makeEqArrays(self.signals, self.level)
@@ -106,14 +103,14 @@ function nback:start()
     self.show_statistic = false
 
     -- массивы хранящие булевские значения - нажат сигнал вот время обработки или нет?
-    self.pos_pressed_arr = create_false_array(#self.signals.pos)
-    self.color_pressed_arr = create_false_array(#self.signals.color)
-    self.form_pressed_arr = create_false_array(#self.signals.form)
-    self.sound_pressed_arr = create_false_array(#self.signals.sound)
-    print(inspect(self.pos_pressed_arr))
-    print(inspect(self.color_pressed_arr))
-    print(inspect(self.form_pressed_arr))
-    print(inspect(self.sound_pressed_arr))
+    local signalsCount = #self.signals.pos
+    self.pressed = {
+        pos = create_false_array(signalsCount),
+        color = create_false_array(signalsCount),
+        form = create_false_array(signalsCount),
+        sound = create_false_array(signalsCount),
+    }
+    print("self.pressed", inspect(self.pressed))
 
     -- сигнал, на котором остановилась партия. Используется для рисовки
     -- вертикальной временной черты на графике нажатий
@@ -593,10 +590,7 @@ function nback:save_to_history()
     print("date", inspect(date))
     table.insert(history, { date = date, 
                             signals = self.signals,
-                            pos_pressed_arr = self.pos_pressed_arr,
-                            form_pressed_arr = self.form_pressed_arr,
-                            sound_pressed_arr = self.sound_pressed_arr,
-                            color_pressed_arr = self.color_pressed_arr,
+                            pressed = self.pressed,
                             level = self.level,
                             pause_time = self.pause_time,
                             percent = self.percent})
@@ -612,21 +606,19 @@ function nback:stop()
     self.show_statistic = true
 
     print("stop")
-    --print(inspect(self.sound_pressed_arr))
-    --print(inspect(self.color_pressed_arr))
-    --print(inspect(self.form_pressed_arr))
-    --print(inspect(self.pos_pressed_arr))
 
-    local p =  calc_percent(self.signals.eq.sound, self.sound_pressed_arr)
+    local p
+
+    p =  calc_percent(self.signals.eq.sound, self.pressed.sound)
     self.sound_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(self.signals.eq.color, self.color_pressed_arr)
+    p = calc_percent(self.signals.eq.color, self.pressed.color)
     self.color_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(self.signals.eq.form, self.form_pressed_arr)
+    p = calc_percent(self.signals.eq.form, self.pressed.form)
     self.form_percent = p > 0.0 and p or 0.0
 
-    p = calc_percent(self.signals.pos.eq, self.pos_pressed_arr)
+    p = calc_percent(self.signals.pos.eq, self.pressed.pos)
     self.pos_percent = p > 0.0 and p or 0.0
 
     self.percent = (self.sound_percent + self.color_percent + 
@@ -958,13 +950,13 @@ function nback:draw_statistic()
     -- массивы вида self.**_eq содержат значения истина на тех индексах, где
     -- должны быть нажаты обработчики сигналов
     local draw_hit_rects = require "drawstat".draw_hit_rects
-    x, y = draw_hit_rects(x, y, self.sound_pressed_arr, self.signals.eq.sound, 
+    x, y = draw_hit_rects(x, y, self.pressed.sound, self.signals.eq.sound, 
         rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.color_pressed_arr, self.signals.eq.color, 
+    x, y = draw_hit_rects(x, y, self.pressed.color, self.signals.eq.color, 
         rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.form_pressed_arr, self.signals.eq.form, 
+    x, y = draw_hit_rects(x, y, self.pressed.form, self.signals.eq.form, 
         rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pos_pressed_arr, self.signals.eq.pos, 
+    x, y = draw_hit_rects(x, y, self.pressed.pos, self.signals.eq.pos, 
         rect_size, border, self.level)
 
     -- drawing left column with letters
