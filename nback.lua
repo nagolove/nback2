@@ -1,5 +1,8 @@
 ﻿-- vim: set foldmethod=indent
+
 require "common"
+require "layout"
+
 local Timer = require "libs.Timer"
 local alignedlabels = require "alignedlabels"
 local bhupur = require "bhupur"
@@ -16,7 +19,6 @@ local setupmenu = require "setupmenu"
 local signal = require "signal"
 local string = require "string"
 local table = require "table"
-require "layout"
 local w, h = g.getDimensions()
 
 local colorConstants = require "colorconstants"
@@ -92,22 +94,15 @@ function nback:buildLayout()
 end
 
 function nback:start()
-    self.written = false
+    print("nback:start()")
     local q = pallete.field
     -- запуск анимации цвета игрового поля
     self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
-
-    print("start")
-
+    self.written = false
     self.pause = false
     self.is_run = true
-
-    --[[self:generate_signals()]]
     self.signals = generator.generateAll(self.sig_count, self.level, self.dim, #self.signal.sounds)
     print("self.signals", inspect(self.signals))
-    --self.signal
-    --self.signals.eq
-
     self.current_sig = 1
     self.timestamp = love.timer.getTime() - self.pause_time
     self.show_statistic = false
@@ -125,7 +120,6 @@ function nback:start()
     -- сигнал, на котором остановилась партия. Используется для рисовки
     -- вертикальной временной черты на графике нажатий
     self.stopppedSignal = 0 
-
     self.start_pause_rest = 3 -- время паузы перед раундом
     self.start_pause = true
     self.timer:every(1, function() 
@@ -137,7 +131,6 @@ function nback:start()
         self.startTime = love.timer.getTime()
     end)
     self:initButtons()
-    print("end of start")
 end
 
 function nback:enter()
@@ -148,7 +141,6 @@ end
 function nback:leave()
     self.show_statistic = false
 end
-
 
 -- time изменяется в пределах 0..1
 local fragmentCode = [[
@@ -299,14 +291,8 @@ function nback:init(save_name)
     self:readSettings()
     self:createSetupMenu()
     self:resize(g.getDimensions())
+
     self:initShaders()
-
-    if ntwk then
-        ntwk:print("nback:init()")
-    else
-        print("No ntwk variable(")
-    end
-
     self.shaderTimer = 0
     self.shaderTimeEnabled = true -- непутевое название переменной
     self.timer:during(2, function(dt, time, delay) 
@@ -340,20 +326,7 @@ function nback:processSignal()
     end
 end
 
--- [[
--- Нужно как-то упорядочить визуальные клавиши: их координаты упрятать в
--- таблицу, с помощью которой проверять нажатия. Использовать мультитач.
--- Как проверять нажатия? Зафиксировать за каждой клавишей действие.
--- ]]
 function nback:initButtons()
-    local w, h = g.getDimensions()
-    local buttonHeight = h / 4
-    local buttonWidth = self.x0 * 0.8
-    local lowerButtonHeight = buttonHeight * 0.3
-    local x, y = (self.x0 - buttonWidth) / 2, (h - buttonHeight * 2) / 2
-
-    print("self.font:getHeight()", self.font:getHeight())
-    print("lowerButtonHeight", lowerButtonHeight)
     self.buttons = {}
     -- клавиша выхода слева
     table.insert(self.buttons, { 
@@ -402,8 +375,6 @@ function nback:initButtons()
                 self:check("pos") 
             end
         end})
-
-    y = y + buttonHeight + buttonHeight * 0.1
 
     -- левая нижняя клавиша управления
     table.insert(self.buttons, { 
@@ -880,19 +851,13 @@ function nback:draw_active_signal()
 end
 
 function nback:draw_field()
-    local delta = 1
-    --bhupur.color = self.field_color
-    --bhupur.draw(self.x0 - delta, self.y0 - delta, self.bhupur_h + delta * 2)
-
-    local field_h = self.dim * self.cell_width
+    local delta, field_h = 1, self.dim * self.cell_width
     g.setColor(self.field_color)
     for i = 0, self.dim do
         -- horizontal
-        g.line(self.x0, self.y0 + i * self.cell_width, 
-            self.x0 + field_h, self.y0 + i * self.cell_width)
+        g.line(self.x0, self.y0 + i * self.cell_width, self.x0 + field_h, self.y0 + i * self.cell_width)
         -- vertical
-        g.line(self.x0 + i * self.cell_width, self.y0, 
-            self.x0 + i * self.cell_width, self.y0 + field_h)
+        g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
     end
 end
 
