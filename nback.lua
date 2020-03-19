@@ -583,10 +583,10 @@ end
 function nback:save_to_history()
     if self.written then
         return
-    end
-    if not self.written then
+    else
         self.written = true
     end
+
     local history = {}
     local data, size = love.filesystem.read(self.save_name)
     if data ~= nil then
@@ -674,7 +674,7 @@ function nback:stop()
     end
 
     -- Раунд полностью закончен? - записываю историю
-    if self.signals and self.current_sig == #self.signas.pos then 
+    if self.signals and self.current_sig == #self.signals.pos then 
         self:save_to_history() 
     end
 end
