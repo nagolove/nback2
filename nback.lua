@@ -20,8 +20,20 @@ local signal = require "signal"
 local string = require "string"
 local table = require "table"
 local w, h = g.getDimensions()
-
 local colorConstants = require "colorconstants"
+
+local coros = {}
+
+function processCoroutines()
+    local alive = {}
+    for k, v in pairs(coros) do
+        local r = coroutine.resume()
+        if r then
+            table.insert(alive, v)
+        end
+    end
+    coros = alive
+end
 
 local function safesend(shader, name, ...)
   if shader:hasUniform(name) then
@@ -63,7 +75,7 @@ function nback.newStatisticRender(data)
 
     seld.pressed = deepcopy(data.pressed)
 
-    self.statisticRender = true
+    --[[self.statisticRender = true]]
     self.signals.eq = generator.makeEqArrays(self.signals, self.level)
 
     self:resize(g.getDimensions())
@@ -73,6 +85,8 @@ end
 
 function nback.new()
     local self = deepcopy(nbackSelf)
+    self.statisticRender = require "drawstat".new()
+    print("self.statisticRender", inspect(self.statisticRender))
     return setmetatable(self, nback)
 end
 
@@ -90,7 +104,7 @@ function nback:buildLayout()
     screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
     screen.rightTop, screen.rightMiddle, screen.rightBottom = splith(screen.right, 0.2, 0.4, 0.4)
     self.layout = screen
-    print("self.layout", inspect(self.layout))
+    --[[print("self.layout", inspect(self.layout))]]
 end
 
 function nback:start()
@@ -309,14 +323,14 @@ end
 function nback:processSignal()
     local time = love.timer.getTime()
     if (time - self.timestamp >= self.pause_time) then
-        self.timestamp = love.timer.getTime()
+        self.timestamp = time
 
         self.current_sig = self.current_sig + 1
         self.can_press = true
 
         -- setup timer for figure alpha channel animation
         self.figure_alpha = 1
-        local tween_time = 0.5
+        local tween_time = self.pause_time / 2
         print("time delta = " .. self.pause_time - tween_time)
         self.timer:after(self.pause_time - tween_time - 0.1, function()
             self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
@@ -408,7 +422,7 @@ end
 function nback:setupButtonsTextPositions()
     for k, v in pairs(self.buttons) do
         v.textx = v.x
-        v.texty = v.y + v.h / 2 - self.font:getHeight()
+        v.texty = v.y + (v.h / 2 - self.font:getHeight() / 2)
     end
 end
 
@@ -464,7 +478,9 @@ function nback:draw()
         end
     else
         if self.show_statistic then 
-            self:draw_statistic()
+            --[[self:draw_statistic()]]
+            --[[require "drawstat".draw_statistic()]]
+            self.statisticRender:draw()
         else
             self.setupmenu:draw()
         end
@@ -491,6 +507,7 @@ end
 
 function nback:update(dt)
     self.timer:update(dt)
+    processCoroutines()
 
     if self.pause or self.start_pause then 
         self.timestamp = love.timer.getTime() - self.pause_time
@@ -642,7 +659,7 @@ function nback:quit()
     menu:goBack()
 end
 
-function nback:keyreleased(key, scancode)
+function nback:keyreleased(_, scancode)
     --print(string.format("nback:keyreleased(%s)", scancode))
     if not self.is_run and not self.show_statistic then
         if scancode == "left" or scancode == "h" then
@@ -654,7 +671,7 @@ function nback:keyreleased(key, scancode)
 end
 
 -- use scancode, Luke!
-function nback:keypressed(key, scancode)
+function nback:keypressed(_, scancode)
     if not useKeyboard then return end
 
     if scancode == "escape" then
@@ -722,7 +739,6 @@ end
 
 -- signal type may be "pos", "sound", "color", "form"
 function nback:check(signalType)
-
     -- эта проверка должна выполняться в другом месте, снаружи данной функции.
     if not self.is_run then
         return
@@ -735,7 +751,7 @@ function nback:check(signalType)
             return a[1] == b[1] and a[2] == b[2]
         end
     end
-    --[[self[signalType .. "_pressed_arr"][self.current_sig] = true]]
+
     self.pressed[signalType][self.current_sig] = true
     if self.current_sig - self.level > 1 then
         if cmp(signals[self.current_sig], signals[self.current_sig - self.level]) then
@@ -766,6 +782,7 @@ function nback:resize(neww, newh)
     end
 
     self:buildLayout()
+    self.statisticRender:buildLayout()
 end
 
 -- return array of boolean values in succesful indices
@@ -816,9 +833,9 @@ function nback:draw_percents(x, y, rect_size, pixel_gap, border, starty)
         g.print(string.format(formatStr, self.pos_percent), sx, y)
         y = starty + 4 * (rect_size + 20)
     end
-    if not self.statisticRender then
-        g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")
-    end
+    --[[if not self.statisticRender then]]
+        --[[g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")]]
+    --[[end]]
     return x, y
 end
 
@@ -890,14 +907,10 @@ function nback:draw_statistic()
     -- массивы вида self.**_eq содержат значения истина на тех индексах, где
     -- должны быть нажаты обработчики сигналов
     local draw_hit_rects = require "drawstat".draw_hit_rects
-    x, y = draw_hit_rects(x, y, self.pressed.sound, self.signals.eq.sound, 
-        rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pressed.color, self.signals.eq.color, 
-        rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pressed.form, self.signals.eq.form, 
-        rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pressed.pos, self.signals.eq.pos, 
-        rect_size, border, self.level)
+    x, y = draw_hit_rects(x, y, self.pressed.sound, self.signals.eq.sound, rect_size, border, self.level)
+    x, y = draw_hit_rects(x, y, self.pressed.color, self.signals.eq.color, rect_size, border, self.level)
+    x, y = draw_hit_rects(x, y, self.pressed.form, self.signals.eq.form, rect_size, border, self.level)
+    x, y = draw_hit_rects(x, y, self.pressed.pos, self.signals.eq.pos, rect_size, border, self.level)
 
     -- drawing left column with letters
     g.setColor({200 / 255, 0, 200 / 255})
@@ -916,10 +929,10 @@ function nback:draw_statistic()
         local y = self.y0 + self.font:getHeight()
         --g.printf(string.format("Set results:"), 0, y, w, "center")
         y = y + self.font:getHeight()
-        g.printf(string.format("Level %d", self.level), 0, y, w, "center")
-        y = y + self.font:getHeight()
-        g.printf(string.format("Exposition time %.1f sec", self.pause_time), 
-        0, y, w, "center")
+        g.printf(string.format("Level %d Exposition %1.f sec", self.level, self.pause_time), 0, y, w, "center")
+        --[[y = y + self.font:getHeight()]]
+        --[[g.printf(string.format("Exposition time %.1f sec", self.pause_time), ]]
+        --[[0, y, w, "center")]]
         y = y + self.font:getHeight()
         if self.durationMin and self.durationSec then
             g.printf(string.format("Duration %d min %d sec.", self.durationMin, self.durationSec), 0, y, w, "center")
