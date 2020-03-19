@@ -84,9 +84,9 @@ end
 
 function nback:buildLayout()
     local screen = makeScreenTable()
-    screen.left, screen.center, screen.right = splitv(screen, 0.3, 0.4, 0.3)
-    screen.leftUp, screen.leftMiddle, screen.leftDown = splith(screen.left, 0.2, 0.4, 0.4)
-    screen.rightUp, screen.rightMiddle, screen.rightDown = splith(screen.right, 0.2, 0.4, 0.4)
+    screen.left, screen.center, screen.right = splitv(screen, 0.2, 0.6, 0.2)
+    screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
+    screen.rightTop, screen.rightMiddle, screen.rightBottom = splith(screen.right, 0.2, 0.4, 0.4)
     self.layout = screen
     print("self.layout", inspect(self.layout))
 end
@@ -337,11 +337,6 @@ function nback:processSignal()
         end)
 
         self.signal:play(self.signals.sound[self.current_sig])
-
-        self.pos_pressed = false
-        self.sound_pressed = false
-        self.form_pressed = false
-        self.color_pressed = false
     end
 end
 
@@ -362,10 +357,10 @@ function nback:initButtons()
     self.buttons = {}
     -- клавиша выхода слева
     table.insert(self.buttons, { 
-        x = x, 
-        y = 2, 
-        w = buttonWidth,
-        h = lowerButtonHeight,
+        x = self.layout.leftTop.x, 
+        y = self.layout.leftTop.y, 
+        w = self.layout.leftTop.w,
+        h = self.layout.leftTop.h,
         title = "Quit",
         ontouch = function() 
             love.event.quit() 
@@ -373,18 +368,21 @@ function nback:initButtons()
 
     -- клавиша дополнительных настроек справа
     table.insert(self.buttons, { 
-        x = w - x - buttonWidth, 
-        y = 2, 
-        w = buttonWidth, 
-        h = lowerButtonHeight,
+        x = self.layout.rightTop.x, 
+        y = self.layout.rightTop.y, 
+        w = self.layout.rightTop.w, 
+        h = self.layout.rightTop.h,
         title = "Settings",
         ontouch = function() 
             love.event.quit() 
         end})
 
     -- левая верхняя клавиша управления
-    table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
-        h = buttonHeight, 
+    table.insert(self.buttons, { 
+        x = self.layout.leftMiddle.x, 
+        y = self.layout.leftMiddle.y, 
+        w = self.layout.leftMiddle.w, 
+        h = self.layout.leftMiddle.h, 
         title = "Sound",
         ontouch = function() 
             if self.is_run then
@@ -393,8 +391,11 @@ function nback:initButtons()
         end})
 
     -- правая верхняя клавиша управления
-    table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
-        w = buttonWidth, h = buttonHeight,
+    table.insert(self.buttons, { 
+        x = self.layout.rightMiddle.x, 
+        y = self.layout.rightMiddle.y, 
+        w = self.layout.rightMiddle.w, 
+        h = self.layout.rightMiddle.h,
         title = "Position",
         ontouch = function() 
             if self.is_run then
@@ -405,8 +406,11 @@ function nback:initButtons()
     y = y + buttonHeight + buttonHeight * 0.1
 
     -- левая нижняя клавиша управления
-    table.insert(self.buttons, { x = x, y = y, w = buttonWidth, 
-        h = buttonHeight, 
+    table.insert(self.buttons, { 
+        x = self.layout.leftBottom.x, 
+        y = self.layout.leftBottom.y, 
+        w = self.layout.leftBottom.w, 
+        h = self.layout.leftBottom.h, 
         title = "Form",
         ontouch = function() 
             if self.is_run then
@@ -415,8 +419,11 @@ function nback:initButtons()
         end})
 
     -- правая нижняя клавиша управления
-    table.insert(self.buttons, { x = w - x - buttonWidth, y = y, 
-        w = buttonWidth, h = buttonHeight, 
+    table.insert(self.buttons, { 
+        x = self.layout.rightBottom.x, 
+        y = self.layout.rightBottom.y, 
+        w = self.layout.rightBottom.w, 
+        h = self.layout.rightBottom.h, 
         title = "Color",
         ontouch = function() 
             if self.is_run then
@@ -746,44 +753,6 @@ function nback:raiseVolume()
 end
 
 -- signal type may be "pos", "sound", "color", "form"
-function nback:check2(signalType)
-
-    -- эта проверка должна выполняться в другом месте, снаружи данной функции.
-    if not self.is_run then
-        return
-    end
-
-    --[[local signals = self[signalType .. "_signals"]]
-    local signals = self.signals[signalType]
-    print("signals", inspect(signals))
-
-    local cmp
-    if signalType == "pos" then
-        cmp = function(a, b)
-            return a[1] == b[1] and a[2] == b[2]
-        end
-    else
-        cmp = function(a, b) return a == b end
-    end
-
-    -- ненадолго включаю подсветку введеной клавиши на игровом поле
-    self[signalType .. "_pressed"] = true
-    self.timer:after(0.2, function() 
-        nback[signalType .. "_pressed"] = false 
-    end)
-    self[signalType .. "_pressed_arr"][self.current_sig] = true
-    if self.current_sig - self.level > 1 then
-        if cmp(signals[self.current_sig], signals[self.current_sig - self.level]) then
-            --print(inspect(nback))
-            if self.can_press then
-                print(signalType .. " hit!")
-                self.can_press = false
-            end
-        end
-    end
-end
-
--- signal type may be "pos", "sound", "color", "form"
 function nback:check(signalType)
 
     -- эта проверка должна выполняться в другом месте, снаружи данной функции.
@@ -792,19 +761,14 @@ function nback:check(signalType)
     end
 
     local signals = self.signals[signalType]
-
     local cmp = function(a, b) return a == b end
     if signalType == "pos" then
         cmp = function(a, b)
             return a[1] == b[1] and a[2] == b[2]
         end
     end
-    -- ненадолго включаю подсветку введеной клавиши на игровом поле
-    self[signalType .. "_pressed"] = true
-    self.timer:after(0.2, function() 
-        nback[signalType .. "_pressed"] = false 
-    end)
-    self[signalType .. "_pressed_arr"][self.current_sig] = true
+    --[[self[signalType .. "_pressed_arr"][self.current_sig] = true]]
+    self.pressed[signalType][self.current_sig] = true
     if self.current_sig - self.level > 1 then
         if cmp(signals[self.current_sig], signals[self.current_sig - self.level]) then
             --print(inspect(nback))
