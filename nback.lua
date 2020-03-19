@@ -188,7 +188,8 @@ function nback:start()
     self.is_run = true
 
     --[[self:generate_signals()]]
-    self.signals = require "generator".generateAll()
+    self.signals = require "generator".generateAll(self.sig_count, self.level, self.dim, #self.signal.sounds)
+    print("self.signals", inspect(self.signals))
     --self.signal
     --self.signals.eq
 
@@ -197,10 +198,10 @@ function nback:start()
     self.show_statistic = false
 
     -- массивы хранящие булевские значения - нажат сигнал вот время обработки или нет?
-    self.pos_pressed_arr = create_false_array(#self.pos_signals)
-    self.color_pressed_arr = create_false_array(#self.color_signals)
-    self.form_pressed_arr = create_false_array(#self.form_signals)
-    self.sound_pressed_arr = create_false_array(#self.sound_signals)
+    self.pos_pressed_arr = create_false_array(#self.signals.pos)
+    self.color_pressed_arr = create_false_array(#self.signals.color)
+    self.form_pressed_arr = create_false_array(#self.signals.form)
+    self.sound_pressed_arr = create_false_array(#self.signals.sound)
     print(inspect(self.pos_pressed_arr))
     print(inspect(self.color_pressed_arr))
     print(inspect(self.form_pressed_arr))
@@ -419,7 +420,8 @@ function nback:processSignal()
             self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
         end)
 
-        self.signal:play(self.sound_signals[self.current_sig])
+        --[[self.signal:play(self.sound_signals[self.current_sig])]]
+        self.signal:play(self.signals.sound[self.current_sig])
 
         self.pos_pressed = false
         self.sound_pressed = false
@@ -615,7 +617,7 @@ function nback:update(dt)
     end
 
     if self.is_run then
-        if self.current_sig < #self.pos_signals then
+        if self.current_sig < #self.signals.pos then
             self:processSignal()
         else
             self:stop()

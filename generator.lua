@@ -1,7 +1,7 @@
 local clone = require "libs.lume".clone
 local inspect = require "libs.inspect"
 
-local function generate(sig_count, gen, cmp, level)
+local function generate(sig_count, level, gen, cmp)
     print("generate", "sig_count", sig_count, "gen", inspect(gen), "cmp", inspect(cmp), "level", level)
     --[[print(string.format("generating signal array for %d signals of %d level.", sig_count, level))]]
 
@@ -89,8 +89,7 @@ end
    [end
    ]]
 local function generateAll(sig_count, level, dim, soundsNum)
-    --[[local color_arr = makeColorArr()]]
-    --[[local colorArr = require "colorconstants".new():makeNamesArray()]]
+    print("generateAll", sig_count, level, dim, soundsNum)
     local colorArr = require "colorconstants":makeNamesArray()
 
     function genArrays(sig_count, level, dim, soundsNum)
@@ -123,6 +122,7 @@ local function generateAll(sig_count, level, dim, soundsNum)
         print("color", inspect(signals.color))
 
         signals.eq = makeEqArrays(signals, level)
+        return signals
     end
 
     -- попытка балансировки массивов от множественного совпадения(более двух сигналов на фрейм)
