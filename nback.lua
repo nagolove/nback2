@@ -518,8 +518,7 @@ function nback:setupButtonsTextPositions()
     end
 end
 
-local buttonColor = {0.29, 0.29, 0.2}
-local buttonColor2 = {1, 0.42, 0.5}
+local buttonColor = {1, 0.42, 0.5}
 
 function nback:drawButtons()
     -- эта строчка необходима так как initButtons() вызывается не в саммом
@@ -528,7 +527,7 @@ function nback:drawButtons()
 
     local oldwidth = g.getLineWidth()
     for k, v in pairs(self.buttons) do
-        g.setColor(buttonColor2)
+        g.setColor(buttonColor)
         g.rectangle("fill", v.x, v.y, v.w, v.h, 6, 6)
         g.setColor{0, 0, 0}
         g.setLineWidth(2)
