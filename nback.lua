@@ -446,8 +446,6 @@ end
 function nback:draw()
     love.graphics.clear(pallete.background)
 
-    local x0, y0 = self.x0, self.y0
-
     g.push("all")
 
     g.setShader(self.shader)
@@ -538,8 +536,7 @@ function calc_percent(eq, pressed_arr)
             mistake = mistake + 1
         end
     end
-    print(string.format("calc_percent() count = %d, succ = %d, mistake = %d", 
-        count, succ, mistake))
+    print(string.format("calc_percent() count = %d, succ = %d, mistake = %d", count, succ, mistake))
     return succ / count - mistake / count
 end
 
@@ -932,8 +929,7 @@ end
 
 -- draw central_text - Press Space key
 function nback:print_start_pause()
-    local central_text = string.format("Wait for %d second.", 
-        self.start_pause_rest)
+    local central_text = string.format("Wait for %d second.", self.start_pause_rest)
     g.setFont(self.central_font)
     g.setColor(pallete.signal)
     local x = (w - self.central_font:getWidth(central_text)) / 2
