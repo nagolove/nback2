@@ -787,7 +787,8 @@ function nback:check(signalType)
         return
     end
 
-    local signals = self[signalType .. "_signals"]
+    local signals = self.signals[signalType]
+
     local cmp = function(a, b) return a == b end
     if signalType == "pos" then
         cmp = function(a, b)
