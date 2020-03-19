@@ -365,8 +365,8 @@ function signal:trupdown(x, y, w, h)
 
     local points = self:calculateIntersections(tri_up, tri_down)
 
-    print("#points", #points)
-    print("points", inspect(points))
+    --[[print("#points", #points)]]
+    --[[print("points", inspect(points))]]
 
     local borderVertices = {
         tri_up[1], tri_up[2],

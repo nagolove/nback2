@@ -53,16 +53,10 @@ function nback.newStatisticRender(data)
     local self = deepcopy(nbackSelf)
     setmetatable(self, nback)
    
-    self.color_signals = deepcopy(data.color_signals)
-    self.form_signals = deepcopy(data.form_signals)
-    self.pos_signals = deepcopy(data.pos_signals)
-    self.sound_signals = deepcopy(data.sound_signals)
+    self.signals = deepcopy(data.signals)
     self.percent = data.percent
 
-    print("self.color_signals", inspect(self.color_signals))
-    print("self.form_signals", inspect(self.form_signals))
-    print("self.pos_signals", inspect(self.pos_signals))
-    print("self.sound_signals", inspect(self.sound_signals))
+    print("self.signals", inspect(self.signals))
 
     self.color_pressed_arr = deepcopy(data.color_pressed_arr)
     self.form_pressed_arr = deepcopy(data.form_pressed_arr)
@@ -70,7 +64,6 @@ function nback.newStatisticRender(data)
     self.sound_pressed_arr = deepcopy(data.sound_pressed_arr)
 
     self.statisticRender = true
-    --[[self:makeEqArrays()]]
     self.signals.eq = generator.makeEqArrays(self.signals, self.level)
 
     self:resize(g.getDimensions())
@@ -614,11 +607,20 @@ function nback:save_to_history()
     os.setlocale("C")
     local date = os.date("*t")
     print("date", inspect(date))
+    --[[table.insert(history, { date = date, ]]
+                            --[[pos_signals = self.pos_signals,]]
+                            --[[form_signals = self.form_signals,]]
+                            --[[sound_signals = self.sound_signals,]]
+                            --[[color_signals = self.color_signals,]]
+                            --[[pos_pressed_arr = self.pos_pressed_arr,]]
+                            --[[form_pressed_arr = self.form_pressed_arr,]]
+                            --[[sound_pressed_arr = self.sound_pressed_arr,]]
+                            --[[color_pressed_arr = self.color_pressed_arr,]]
+                            --[[level = self.level,]]
+                            --[[pause_time = self.pause_time,]]
+                            --[[percent = self.percent})]]
     table.insert(history, { date = date, 
-                            pos_signals = self.pos_signals,
-                            form_signals = self.form_signals,
-                            sound_signals = self.sound_signals,
-                            color_signals = self.color_signals,
+                            signals = self.signals,
                             pos_pressed_arr = self.pos_pressed_arr,
                             form_pressed_arr = self.form_pressed_arr,
                             sound_pressed_arr = self.sound_pressed_arr,
@@ -659,7 +661,7 @@ function nback:stop()
         self.form_percent + self.pos_percent) / 4
 
     -- зачем нужна эта проверка? Расчет на то, что раунд был начат?
-    if self.pos_signals then
+    if self.signals.pos then
         self.stopppedSignal = self.current_sig 
     end
 
@@ -672,7 +674,7 @@ function nback:stop()
     end
 
     -- Раунд полностью закончен? - записываю историю
-    if self.pos_signals and self.current_sig == #self.pos_signals then 
+    if self.signals and self.current_sig == #self.signas.pos then 
         self:save_to_history() 
     end
 end
@@ -768,6 +770,44 @@ function nback:raiseVolume()
 end
 
 -- signal type may be "pos", "sound", "color", "form"
+function nback:check2(signalType)
+
+    -- эта проверка должна выполняться в другом месте, снаружи данной функции.
+    if not self.is_run then
+        return
+    end
+
+    --[[local signals = self[signalType .. "_signals"]]
+    local signals = self.signals[signalType]
+    print("signals", inspect(signals))
+
+    local cmp
+    if signalType == "pos" then
+        cmp = function(a, b)
+            return a[1] == b[1] and a[2] == b[2]
+        end
+    else
+        cmp = function(a, b) return a == b end
+    end
+
+    -- ненадолго включаю подсветку введеной клавиши на игровом поле
+    self[signalType .. "_pressed"] = true
+    self.timer:after(0.2, function() 
+        nback[signalType .. "_pressed"] = false 
+    end)
+    self[signalType .. "_pressed_arr"][self.current_sig] = true
+    if self.current_sig - self.level > 1 then
+        if cmp(signals[self.current_sig], signals[self.current_sig - self.level]) then
+            --print(inspect(nback))
+            if self.can_press then
+                print(signalType .. " hit!")
+                self.can_press = false
+            end
+        end
+    end
+end
+
+-- signal type may be "pos", "sound", "color", "form"
 function nback:check(signalType)
 
     -- эта проверка должна выполняться в другом месте, снаружи данной функции.
@@ -841,7 +881,7 @@ function nback:print_signal_type(x, y, rect_size, str, pixel_gap, delta)
 end
 
 function nback:draw_percents(x, y, rect_size, pixel_gap, border, starty)
-    local sx = x + rect_size * (#self.pos_signals - 1) + border + rect_size 
+    local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size 
     - border * 2 + pixel_gap
     local formatStr = "%.3f"
 
@@ -873,7 +913,7 @@ end
 
 function nback:fill_linesbuf()
     linesbuf:pushi("fps " .. love.timer.getFPS())
-    linesbuf:pushi("pos " .. inspect(self.pos_signals))
+    linesbuf:pushi("pos " .. inspect(self.signals.pos))
     linesbuf:pushi("sound " .. inspect(self.sound_signals))
     linesbuf:pushi("form " .. inspect(self.form_signals))
     linesbuf:pushi("color " .. inspect(self.color_signals))
@@ -887,12 +927,12 @@ end
 
 -- draw active signal quad
 function nback:draw_active_signal()
-    local x, y = unpack(self.pos_signals[self.current_sig])
-    local sig_color = colorConstants[self.color_signals[self.current_sig]]
+    local x, y = unpack(self.signals.pos[self.current_sig])
+    local sig_color = colorConstants[self.signals.color[self.current_sig]]
     if self.figure_alpha then
         sig_color[4] = self.figure_alpha
     end
-    local type = self.form_signals[self.current_sig]
+    local type = self.signals.form[self.current_sig]
     self.signal:draw(x, y, type, sig_color)
 end
 
@@ -917,7 +957,7 @@ end
 function nback:draw_statistic()
     -- условие нужно что-бы не падала программа при создании рендера истории.
     -- но из-за этого пункта может быть неправильное отображение графики?
-    if not self.pos_signals then
+    if not self.signals then
         return
     end
 
@@ -926,7 +966,7 @@ function nback:draw_statistic()
 
     local width_k = 3 / 4
     -- XXX depend on screen resolution
-    local rect_size = math.floor(w * width_k / #self.pos_signals)
+    local rect_size = math.floor(w * width_k / #self.signals.pos)
 
     --print("rect_size", rect_size)
     --print("self.statisticRender", self.statisticRender)
@@ -977,8 +1017,7 @@ function nback:draw_statistic()
         0, y, w, "center")
         y = y + self.font:getHeight()
         if self.durationMin and self.durationSec then
-            g.printf(string.format("Duration %d min %d sec.", self.durationMin,
-            self.durationSec), 0, y, w, "center")
+            g.printf(string.format("Duration %d min %d sec.", self.durationMin, self.durationSec), 0, y, w, "center")
         end
     end
 end
