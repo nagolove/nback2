@@ -18,14 +18,7 @@ local string = require "string"
 local table = require "table"
 local w, h = g.getDimensions()
 
-local colorConstants = {
-        ["brown"] = {136 / 255, 55 / 255, 41 / 255},
-        ["green"] = {72 / 255, 180 / 255, 66 / 255},
-        ["blue"] = {27 / 255, 30 / 255, 249 / 255},
-        ["red"] = {241 / 255, 30 / 255, 27 / 255},
-        ["yellow"] = {231 / 255, 227 / 255, 11 / 255},
-        ["purple"] = {128 / 255, 7 / 255, 128 / 255},
-}
+local colorConstants = require "colorconstants"
 
 local function safesend(shader, name, ...)
   if shader:hasUniform(name) then
@@ -78,6 +71,8 @@ function nback.newStatisticRender(data)
 
     self.statisticRender = true
     self:makeEqArrays()
+    -- self.signals.eq = require "generator".makeEqArrays(self.signals, self.level)
+
     self:resize(g.getDimensions())
 
     return self
@@ -192,7 +187,10 @@ function nback:start()
     self.pause = false
     self.is_run = true
 
-    self:generate_signals()
+    --[[self:generate_signals()]]
+    self.signals = require "generator".generateAll()
+    --self.signal
+    --self.signals.eq
 
     self.current_sig = 1
     self.timestamp = love.timer.getTime() - self.pause_time
@@ -902,48 +900,6 @@ function nback:make_hit_arr(signals, comparator)
     return ret
 end
 
--- x, y - координаты левого верхнего угла отрисовываемой картинки.
--- arr - массив со значениями чего?
--- eq - массив-наложение на arr, для успешных попаданий?
--- rect_size - размер отображаемого в сетке прямоугольника
--- border - зазор между прямоугольниками.
--- что за пару x, y возвращает функция?
-function nback:draw_hit_rects(x, y, pressed_arr, eq_arr, 
-    rect_size, border)
-    local hit_color = {200 / 255, 10 / 255, 10 / 255}
-    for k, v in pairs(pressed_arr) do
-        g.setColor(pallete.field)
-        g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
-        g.setColor(pallete.inactive)
-        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, 
-            rect_size - border * 2, rect_size - border * 2)
-
-        -- отмеченная игроком позиция
-        if v then
-            g.setColor(hit_color)
-            g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, 
-                rect_size - border * 2, rect_size - border * 2)
-        end
-
-        -- правильная позиция нажатия
-        if eq_arr[k] then
-            local radius = 4
-            g.setColor{0, 0, 0}
-            g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, 
-                y + rect_size / 2, radius)
-            -- кружок на место предудущего сигнала
-            g.setColor{1, 1, 1, 0.5}
-            g.circle("line", x + rect_size * ((k -self.level) - 1) + rect_size / 2, 
-                y + rect_size / 2, radius)
-        end
-    end
-
-    -- этот код должен быть в вызывающей функции
-    y = y + rect_size + 6
-    return x, y
-    -- этот код должен быть в вызывающей функции
-end
-
 local draw_iteration = 0 -- debug variable
 
 -- draw one big letter in left side of hit rects output
@@ -1078,14 +1034,15 @@ function nback:draw_statistic()
 
     -- массивы вида self.**_eq содержат значения истина на тех индексах, где
     -- должны быть нажаты обработчики сигналов
-    x, y = self:draw_hit_rects(x, y, self.sound_pressed_arr, self.sound_eq, 
-        rect_size, border)
-    x, y = self:draw_hit_rects(x, y, self.color_pressed_arr, self.color_eq, 
-        rect_size, border)
-    x, y = self:draw_hit_rects(x, y, self.form_pressed_arr, self.form_eq, 
-        rect_size, border)
-    x, y = self:draw_hit_rects(x, y, self.pos_pressed_arr, self.pos_eq, 
-        rect_size, border)
+    local draw_hit_rects = require "drawstat".draw_hit_rects
+    x, y = draw_hit_rects(x, y, self.sound_pressed_arr, self.sound_eq, 
+        rect_size, border, self.level)
+    x, y = draw_hit_rects(x, y, self.color_pressed_arr, self.color_eq, 
+        rect_size, border, self.level)
+    x, y = draw_hit_rects(x, y, self.form_pressed_arr, self.form_eq, 
+        rect_size, border, self.level)
+    x, y = draw_hit_rects(x, y, self.pos_pressed_arr, self.pos_eq, 
+        rect_size, border, self.level)
 
     -- drawing left column with letters
     g.setColor({200 / 255, 0, 200 / 255})
