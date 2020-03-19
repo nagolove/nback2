@@ -575,7 +575,6 @@ function nback:draw()
         if self.show_statistic then 
             self:draw_statistic()
         else
-            --self:draw_level_welcome()
             self.setupmenu:draw()
         end
     end
@@ -954,26 +953,6 @@ function nback:fill_linesbuf()
     linesbuf:pushi("Mem: %.3f MB", collectgarbage("count") / 1024)
     linesbuf:pushi("signal.width %d", self.signal.width)
     linesbuf:draw()
-end
-
-function nback:draw_level_welcome()
-    g.setFont(self.font)
-    --FIXME Dissonance with color and variable name
-    g.setColor(pallete.tip_text) 
-
-    local y = (h - g.getFont():getHeight() * 4) / 2.5
-    g.printf(string.format("nback level is %d", self.level), 0, y, w, "center")
-
-    y = y + self.font:getHeight()
-    g.printf("Use ←→ arrows to setup", 0, y, w, "center")
-
-    y = y + self.font:getHeight() * 2
-    -- почему здесь используется два разных слова? Переименовать переменную или
-    -- переписать строку вывода
-    g.printf(string.format("delay time is %.1f sec", self.pause_time), 0, y, w, "center")
-
-    y = y + self.font:getHeight()
-    g.printf("Use ↑↓ arrows to setup", 0, y, w, "center")
 end
 
 -- draw active signal quad
