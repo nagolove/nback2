@@ -29,6 +29,7 @@ local pallete = {
 
     debug_line = {100 / 255, 200 / 255, 50 / 255, 1},
     debug_font = {140 / 255, 140 / 255, 140 / 255, 1},
+    hit_color = {200 / 255, 10 / 255, 10 / 255},
 }
 
 return pallete

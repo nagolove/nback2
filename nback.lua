@@ -85,7 +85,6 @@ end
 
 function nback.new()
     local self = deepcopy(nbackSelf)
-    self.statisticRender = require "drawstat".new()
     print("self.statisticRender", inspect(self.statisticRender))
     return setmetatable(self, nback)
 end
@@ -480,6 +479,7 @@ function nback:draw()
         if self.show_statistic then 
             --[[self:draw_statistic()]]
             --[[require "drawstat".draw_statistic()]]
+            
             self.statisticRender:draw()
         else
             self.setupmenu:draw()
@@ -536,27 +536,6 @@ function nback:update(dt)
     end
 end
 
--- подсчет процентов успешности за раунд для данного массива.
--- eq - массив с правильными нажатиями
--- pressed_arr - массив с нажатиями игрока
-function calc_percent(eq, pressed_arr)
-    if not eq then return 0 end --0% если не было нажатий
-    local succ, mistake, count = 0, 0, 0
-    for k, v in pairs(eq) do
-        if v then
-            count = count + 1
-        end
-        if v and pressed_arr[k] then
-            succ = succ + 1
-        end
-        if not v and pressed_arr[k] then
-            mistake = mistake + 1
-        end
-    end
-    print(string.format("calc_percent() count = %d, succ = %d, mistake = %d", count, succ, mistake))
-    return succ / count - mistake / count
-end
-
 -- считывает и устанавливает набор состояний сигналов и нажатий клавиша на 
 -- сигналы. Функция необходима для установки состояния из внешнего источника 
 -- при необходимости последующей отрисовки экрана статистики, загруженного из
@@ -602,6 +581,8 @@ function nback:save_to_history()
 end
 
 function nback:stop()
+    self.statisticRender = require "drawstat".new(self.statistic_font, self.signals, self.pressed, self.level)
+
     local q = pallete.field
     -- амимация альфа-канала игрового поля
     self.timer:tween(2, self.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
@@ -613,20 +594,20 @@ function nback:stop()
 
     local p
 
-    p =  calc_percent(self.signals.eq.sound, self.pressed.sound)
-    self.sound_percent = p > 0.0 and p or 0.0
+    --[[p =  calc_percent(self.signals.eq.sound, self.pressed.sound)]]
+    --[[self.sound_percent = p > 0.0 and p or 0.0]]
 
-    p = calc_percent(self.signals.eq.color, self.pressed.color)
-    self.color_percent = p > 0.0 and p or 0.0
+    --[[p = calc_percent(self.signals.eq.color, self.pressed.color)]]
+    --[[self.color_percent = p > 0.0 and p or 0.0]]
 
-    p = calc_percent(self.signals.eq.form, self.pressed.form)
-    self.form_percent = p > 0.0 and p or 0.0
+    --[[p = calc_percent(self.signals.eq.form, self.pressed.form)]]
+    --[[self.form_percent = p > 0.0 and p or 0.0]]
 
-    p = calc_percent(self.signals.pos.eq, self.pressed.pos)
-    self.pos_percent = p > 0.0 and p or 0.0
+    --[[p = calc_percent(self.signals.pos.eq, self.pressed.pos)]]
+    --[[self.pos_percent = p > 0.0 and p or 0.0]]
 
-    self.percent = (self.sound_percent + self.color_percent + 
-        self.form_percent + self.pos_percent) / 4
+    --[[self.percent = (self.sound_percent + self.color_percent + ]]
+        --[[self.form_percent + self.pos_percent) / 4]]
 
     -- зачем нужна эта проверка? Расчет на то, что раунд был начат?
     if self.signals.pos then
@@ -637,8 +618,7 @@ function nback:stop()
         local time = love.timer.getTime() - self.startTime
         self.durationMin = math.floor(time / 60)
         self.durationSec = time - self.durationMin * 60
-        print(string.format("durationMin %f, durationSec %f", self.durationMin,
-            self.durationSec))
+        print(string.format("durationMin %f, durationSec %f", self.durationMin, self.durationSec))
     end
 
     -- Раунд полностью закончен? - записываю историю
@@ -782,7 +762,10 @@ function nback:resize(neww, newh)
     end
 
     self:buildLayout()
-    self.statisticRender:buildLayout()
+
+    if self.statisticRender then
+        self.statisticRender:buildLayout()
+    end
 end
 
 -- return array of boolean values in succesful indices

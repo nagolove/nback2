@@ -1,7 +1,30 @@
 ﻿local pallete = require "pallete"
+local g = love.graphics
 
 local statisticRender = {}
 statisticRender.__index = statisticRender
+
+-- подсчет процентов успешности за раунд для данного массива.
+-- eq - массив с правильными нажатиями
+-- pressed_arr - массив с нажатиями игрока
+function calc_percent(eq, pressed_arr)
+    if not eq then return 0 end --0% если не было нажатий
+    local succ, mistake, count = 0, 0, 0
+    for k, v in pairs(eq) do
+        if v then
+            count = count + 1
+        end
+        if v and pressed_arr[k] then
+            succ = succ + 1
+        end
+        if not v and pressed_arr[k] then
+            mistake = mistake + 1
+        end
+    end
+    print(string.format("calc_percent() count = %d, succ = %d, mistake = %d", count, succ, mistake))
+    return succ / count - mistake / count
+end
+
 
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
 -- arr - массив со значениями чего?
@@ -9,10 +32,7 @@ statisticRender.__index = statisticRender
 -- rect_size - размер отображаемого в сетке прямоугольника
 -- border - зазор между прямоугольниками.
 -- что за пару x, y возвращает функция?
-local function draw_hit_rects(x, y, pressed_arr, eq_arr, 
-    rect_size, border, level)
-    local g = love.graphics
-    local hit_color = {200 / 255, 10 / 255, 10 / 255}
+local function statisticRender:draw_hit_rects(x, y, pressed_arr, eq_arr, rect_size, border, level)
     for k, v in pairs(pressed_arr) do
         g.setColor(pallete.field)
         g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
@@ -22,7 +42,7 @@ local function draw_hit_rects(x, y, pressed_arr, eq_arr,
 
         -- отмеченная игроком позиция
         if v then
-            g.setColor(hit_color)
+            g.setColor(pallete.hit_color)
             g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, 
                 rect_size - border * 2, rect_size - border * 2)
         end
@@ -53,8 +73,39 @@ function print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     return x, y
 end
 
+function statisticRender:draw_percents(x, y, rect_size, pixel_gap, border, starty)
+    local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size 
+    - border * 2 + pixel_gap
+    local formatStr = "%.3f"
+
+    g.setColor({200 / 255, 0, 200 / 255})
+    g.setFont(self.font)
+
+    -- эти условия нужно как-то убрать или заменить на что-то
+    if self.sound_percent then
+        g.print(string.format(formatStr, self.sound_percent), sx, y)
+        y = y + rect_size + 6
+    end
+    if self.color_percent then
+        g.print(string.format(formatStr, self.color_percent), sx, y)
+        y = y + rect_size + 6
+    end
+    if self.form_percent then
+        g.print(string.format(formatStr, self.form_percent), sx, y)
+        y = y + rect_size + 6
+    end
+    if self.pos_percent then
+        g.print(string.format(formatStr, self.pos_percent), sx, y)
+        y = starty + 4 * (rect_size + 20)
+    end
+    --[[if not self.statisticRender then]]
+        --[[g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")]]
+    --[[end]]
+    return x, y
+end
+
 -- рисовать статистику после конца сета
-function draw_statistic(font, signals, pressed, level)
+function statisticRender:draw()
     local w, h = g.getDimensions()
 
     g.setFont(font)
@@ -66,20 +117,20 @@ function draw_statistic(font, signals, pressed, level)
 
     --print("rect_size", rect_size)
     --print("self.statisticRender", self.statisticRender)
+    --[[local x = self.statisticRender and 0 or (w - w * width_k) / 2]]
+    --[[local x = self.statisticRender and 0 or (w - w * width_k) / 2]]
+    --
+    local x = (w - w * width_k) / 2 
 
-    local x = self.statisticRender and 0 or (w - w * width_k) / 2
-
-    --local x = (w - w * width_k) / 2 
-
-    local starty = self.statisticRender and 0 or 200
+    --[[local starty = self.statisticRender and 0 or 200]]
     local y = starty + g.getFont():getHeight() * 1.5
     local border = 2
     local freezedY = y
 
-    x, y = draw_hit_rects(x, y, pressed.sound, signals.eq.sound, rect_size, border, level)
-    x, y = draw_hit_rects(x, y, pressed.color, signals.eq.color, rect_size, border, level)
-    x, y = draw_hit_rects(x, y, pressed.form, signals.eq.form, rect_size, border, level)
-    x, y = draw_hit_rects(x, y, pressed.pos, signals.eq.pos, rect_size, border, level)
+    x, y = self:draw_hit_rects(x, y, self.pressed.sound, self.signals.eq.sound, rect_size, border, self.level)
+    x, y = self:draw_hit_rects(x, y, self.pressed.color, self.signals.eq.color, rect_size, border, self.level)
+    x, y = self:draw_hit_rects(x, y, self.pressed.form, self.signals.eq.form, rect_size, border, self.level)
+    x, y = self:draw_hit_rects(x, y, self.pressed.pos, self.signals.eq.pos, rect_size, border, self.level)
 
     -- drawing left column with letters
     g.setColor({200 / 255, 0, 200 / 255})
@@ -91,7 +142,7 @@ function draw_statistic(font, signals, pressed, level)
     x, y = print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
     x, y = print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
 
-    if not self.statisticRender then
+    --[[if not self.statisticRender then]]
         x, y = self:draw_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
         starty)
 
@@ -106,21 +157,47 @@ function draw_statistic(font, signals, pressed, level)
         if self.durationMin and self.durationSec then
             g.printf(string.format("Duration %d min %d sec.", self.durationMin, self.durationSec), 0, y, w, "center")
         end
-    end
+    --[[end]]
 
     drawHierachy(self.layout)
 end
 
 function statisticRender:buildLayout()
-    require "layout"
+    --[[require "layout"]]
     local screen = makeScreenTable()
     screen.top, screen.middle, screen.bottom = splith(screen, 0.2, 0.7, 0.1)
     self.layout = screen
 end
 
-function statisticRender.new()
-    local self = setmetatable({}, statisticRender)
+function statisticRender:percentage()
+    local p
+
+    p =  calc_percent(self.signals.eq.sound, self.pressed.sound)
+    self.sound_percent = p > 0.0 and p or 0.0
+
+    p = calc_percent(self.signals.eq.color, self.pressed.color)
+    self.color_percent = p > 0.0 and p or 0.0
+
+    p = calc_percent(self.signals.eq.form, self.pressed.form)
+    self.form_percent = p > 0.0 and p or 0.0
+
+    p = calc_percent(self.signals.pos.eq, self.pressed.pos)
+    self.pos_percent = p > 0.0 and p or 0.0
+
+    self.percent = (self.sound_percent + self.color_percent + 
+    self.form_percent + self.pos_percent) / 4
+end
+
+function statisticRender.new(font, signals, pressed, level)
+    local self = setmetatable({
+        font = font,
+        signals = signals,
+        pressed = pressed,
+        level = level
+    }, statisticRender)
+    self:percentage()
     self:buildLayout()
+    return self
 end
 
 return statisticRender
