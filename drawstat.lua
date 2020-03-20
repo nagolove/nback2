@@ -156,11 +156,10 @@ function statisticRender:draw()
         end
     --[[end]]
 
-    drawHierachy(self.layout)
+    drawHierachy(self.layout, {})
 end
 
 function statisticRender:buildLayout()
-    --[[require "layout"]]
     local screen = makeScreenTable()
     screen.top, screen.middle, screen.bottom = splith(screen, 0.2, 0.7, 0.1)
     self.layout = screen

@@ -113,8 +113,21 @@ function areaGrowByPixel(tbl, delta)
         w = tbl.w - delta * 2, h = tbl.h - delta * 2}
 end
 
+-- рисовать переданные таблички. Последним аргументов может идти специальная
+-- табличка с цветом.
 function drawHelper(...)
-    for i = 1, select("#", ...) do
+    local hasColor = 0
+    local lastArg = select("#", ...)
+    local color = {1, 0, 1}
+    if type(lastArg) == "table" and type(lastArg[1]) == "number" and 
+       type(lastArg[2]) == "number" and type(lastArg[3]) == "number" then
+        hasColor = 1
+        color = {lastArg[1], lastArg[2], lastArg[3]}
+        if type(lastArg[4]) == "number" then
+            color[4] = lastArg[4]
+        end
+    end
+    for i = 1, select("#", ...) - hasColor do
         local tbl = select(i, ...)
         assertHelper(tbl)
         if checkHelper(tbl) then
@@ -132,7 +145,7 @@ function drawHelper(...)
     end
 end
 
-function drawHierachy(rootTbl)
+function drawHierachy(rootTbl, color)
     if checkHelper(rootTbl) then
         drawHelper(rootTbl)
     end
