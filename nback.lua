@@ -22,19 +22,6 @@ local table = require "table"
 local w, h = g.getDimensions()
 local colorConstants = require "colorconstants"
 
-local coros = {}
-
-function processCoroutines()
-    local alive = {}
-    for k, v in pairs(coros) do
-        local r = coroutine.resume()
-        if r then
-            table.insert(alive, v)
-        end
-    end
-    coros = alive
-end
-
 local function safesend(shader, name, ...)
   if shader:hasUniform(name) then
     shader:send(name, ...)
@@ -60,6 +47,7 @@ local nbackSelf = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+    coros = {}
 }
 
 -- создать объект и загрузить в него статистику из таблицы, загруженной из
@@ -87,6 +75,17 @@ function nback.new()
     local self = deepcopy(nbackSelf)
     print("self.statisticRender", inspect(self.statisticRender))
     return setmetatable(self, nback)
+end
+
+function nback:processCoroutines()
+    local alive = {}
+    for k, v in pairs(self.coros) do
+        local r = coroutine.resume()
+        if r then
+            table.insert(alive, v)
+        end
+    end
+    self.coros = alive
 end
 
 function create_false_array(len)
@@ -425,16 +424,26 @@ function nback:setupButtonsTextPositions()
     end
 end
 
-local buttonColor = {1, 0.42, 0.5}
-
 function nback:drawButtons()
     -- эта строчка необходима так как initButtons() вызывается не в саммом
     -- подходящем месте. Найдешь место лучше, эта строчка не будет нужна.
     if not self.buttons then return end
 
+    --[[table.insert(self.coros, coroutine.create(function()]]
+        --[[g.setColor(pallete.buttonColor)]]
+        --[[g.rectangle("fill", v.x, v.y, v.w, v.h, 6, 6)]]
+        --[[g.setColor{0, 0, 0}]]
+        --[[g.setLineWidth(2)]]
+        --[[g.rectangle("line", v.x, v.y, v.w, v.h, 6, 6)]]
+
+        --[[g.setColor{0, 0, 0}]]
+        --[[g.setFont(self.font)]]
+        --[[g.printf(v.title, v.textx, v.texty, v.w, "center")]]
+    --[[end))]]
+
     local oldwidth = g.getLineWidth()
     for k, v in pairs(self.buttons) do
-        g.setColor(buttonColor)
+        g.setColor(pallete.buttonColor)
         g.rectangle("fill", v.x, v.y, v.w, v.h, 6, 6)
         g.setColor{0, 0, 0}
         g.setLineWidth(2)
@@ -495,7 +504,7 @@ function nback:draw()
     --self:fill_linesbuf()
 end
 
-function nback:checkButtonsTouch(x, y)
+function nback:checkTouchButtons(x, y)
     if self.buttons then
         for k, v in pairs(self.buttons) do
             if pointInRect(x, y, v.x, v.y, v.w, v.h) then
@@ -505,9 +514,17 @@ function nback:checkButtonsTouch(x, y)
     end
 end
 
+function nback:processTouches()
+    local touches = love.touch.getTouches()
+    for i, id in pairs(touches) do
+        local x, y = love.touch.getPosition(id)
+        self:checkTouchButtons(x, y)
+    end
+end
+
 function nback:update(dt)
     self.timer:update(dt)
-    processCoroutines()
+    self:processCoroutines()
 
     if self.pause or self.start_pause then 
         self.timestamp = love.timer.getTime() - self.pause_time
@@ -517,11 +534,7 @@ function nback:update(dt)
         return 
     end
 
-    local touches = love.touch.getTouches()
-    for i, id in pairs(touches) do
-        local x, y = love.touch.getPosition(id)
-        self:checkButtonsTouch(x, y)
-    end
+    self:processTouches()
 
     if self.is_run then
         if self.current_sig < #self.signals.pos then
@@ -581,7 +594,7 @@ function nback:save_to_history()
 end
 
 function nback:stop()
-    self.statisticRender = require "drawstat".new(self.statistic_font, self.signals, self.pressed, self.level)
+    self.statisticRender = require "drawstat".new(self)
 
     local q = pallete.field
     -- амимация альфа-канала игрового поля
@@ -764,7 +777,7 @@ function nback:resize(neww, newh)
     self:buildLayout()
 
     if self.statisticRender then
-        self.statisticRender:buildLayout()
+        self.statisticRender:buildLayout(x0, y0)
     end
 end
 

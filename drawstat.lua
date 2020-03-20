@@ -32,31 +32,26 @@ end
 -- rect_size - размер отображаемого в сетке прямоугольника
 -- border - зазор между прямоугольниками.
 -- что за пару x, y возвращает функция?
-local function statisticRender:draw_hit_rects(x, y, pressed_arr, eq_arr, rect_size, border, level)
+function statisticRender:draw_hit_rects(x, y, pressed_arr, eq_arr, rect_size, border, level)
     for k, v in pairs(pressed_arr) do
         g.setColor(pallete.field)
-        g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size)
-        g.setColor(pallete.inactive)
-        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, 
-            rect_size - border * 2, rect_size - border * 2)
+        g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size) g.setColor(pallete.inactive)
+        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
 
         -- отмеченная игроком позиция
         if v then
             g.setColor(pallete.hit_color)
-            g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, 
-                rect_size - border * 2, rect_size - border * 2)
+            g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
         end
 
         -- правильная позиция нажатия
         if eq_arr[k] then
             local radius = 4
             g.setColor{0, 0, 0}
-            g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, 
-                y + rect_size / 2, radius)
+            g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
             -- кружок на место предудущего сигнала
             g.setColor{1, 1, 1, 0.5}
-            g.circle("line", x + rect_size * ((k - level) - 1) + rect_size / 2, 
-                y + rect_size / 2, radius)
+            g.circle("line", x + rect_size * ((k - level) - 1) + rect_size / 2, y + rect_size / 2, radius)
         end
     end
 
@@ -108,12 +103,13 @@ end
 function statisticRender:draw()
     local w, h = g.getDimensions()
 
-    g.setFont(font)
+    g.setFont(self.font)
     g.setColor(pallete.statistic)
 
     local width_k = 3 / 4
     -- XXX depend on screen resolution
-    local rect_size = math.floor(w * width_k / #signals.pos)
+    local signalsCount = #self.signals.pos
+    local rect_size = math.floor(w * width_k / signalsCount)
 
     --print("rect_size", rect_size)
     --print("self.statisticRender", self.statisticRender)
@@ -123,6 +119,7 @@ function statisticRender:draw()
     local x = (w - w * width_k) / 2 
 
     --[[local starty = self.statisticRender and 0 or 200]]
+    local starty = 200
     local y = starty + g.getFont():getHeight() * 1.5
     local border = 2
     local freezedY = y
@@ -188,12 +185,16 @@ function statisticRender:percentage()
     self.form_percent + self.pos_percent) / 4
 end
 
-function statisticRender.new(font, signals, pressed, level)
+--[[function statisticRender.new(font, signals, pressed, level, pause_time)]]
+function statisticRender.new(nback)
     local self = setmetatable({
-        font = font,
-        signals = signals,
-        pressed = pressed,
-        level = level
+        font = nback.font,
+        signals = nback.signals,
+        pressed = nback.pressed,
+        level = nback.level,
+        pause_time = nback.pause_time,
+        x0 = nback.x0,
+        y0 = nback.y0,
     }, statisticRender)
     self:percentage()
     self:buildLayout()
