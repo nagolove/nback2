@@ -102,7 +102,7 @@ function nback:buildLayout()
     screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
     screen.rightTop, screen.rightMiddle, screen.rightBottom = splith(screen.right, 0.2, 0.4, 0.4)
     self.layout = screen
-    --[[print("self.layout", inspect(self.layout))]]
+    print("self.layout", inspect(self.layout))
 end
 
 function nback:start()
@@ -414,10 +414,10 @@ function nback:initButtons()
             end
         end})
 
-    self:setupButtonsTextPositions()
+    self:setupButtonsTextPosition()
 end
 
-function nback:setupButtonsTextPositions()
+function nback:setupButtonsTextPosition()
     for k, v in pairs(self.buttons) do
         v.textx = v.x
         v.texty = v.y + (v.h / 2 - self.font:getHeight() / 2)
@@ -440,6 +440,10 @@ function nback:drawButtons()
         --[[g.setFont(self.font)]]
         --[[g.printf(v.title, v.textx, v.texty, v.w, "center")]]
     --[[end))]]
+    
+    --[[pushCoro(buttonCoroElim(self.buttons["leftup"]))]]
+    --[[pushCoro(buttonCoroGlow(self.buttons["leftup"]))]]
+    --[[pushCoro(buttonCoroHide(self.buttons["leftup"]))]]
 
     local oldwidth = g.getLineWidth()
     for k, v in pairs(self.buttons) do
@@ -500,7 +504,9 @@ function nback:draw()
     g.setShader()
     g.pop()
 
-    drawHierachy(self.layout)
+    --[[print("self.layout", inspect(self.layout))]]
+    g.setColor{0, 0, 0}
+    --[[drawHierachy(self.layout)]]
     --self:fill_linesbuf()
 end
 
@@ -777,7 +783,7 @@ function nback:resize(neww, newh)
     self:buildLayout()
 
     if self.statisticRender then
-        self.statisticRender:buildLayout(x0, y0)
+        self.statisticRender:buildLayout()
     end
 end
 

@@ -156,7 +156,8 @@ function statisticRender:draw()
         end
     --[[end]]
 
-    drawHierachy(self.layout, {})
+    g.setColor{0.5, 0.5, 0.5}
+    drawHierachy(self.layout)
 end
 
 function statisticRender:buildLayout()

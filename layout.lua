@@ -1,8 +1,8 @@
 local lg = love.graphics
 
-local inspect
-local ok, _  = pcall(function() inspect = require "inspect" end)
-if not ok then inspect = function() return "" end end
+local inspect = require "libs.inspect"
+--[[local ok, _  = pcall(function() inspect = require "inspect" end)]]
+--[[if not ok then inspect = function() return "" end end]]
 
 local Layout = {}
 Layout.__index = Layout
@@ -116,24 +116,36 @@ end
 -- рисовать переданные таблички. Последним аргументов может идти специальная
 -- табличка с цветом.
 function drawHelper(...)
-    local hasColor = 0
-    local lastArg = select("#", ...)
-    local color = {1, 0, 1}
-    if type(lastArg) == "table" and type(lastArg[1]) == "number" and 
-       type(lastArg[2]) == "number" and type(lastArg[3]) == "number" then
-        hasColor = 1
-        color = {lastArg[1], lastArg[2], lastArg[3]}
-        if type(lastArg[4]) == "number" then
-            color[4] = lastArg[4]
-        end
-    end
-    for i = 1, select("#", ...) - hasColor do
+    --[[local hasColor = 0]]
+    --[[local lastArg = select(select("#", ...), ...)]]
+    --[[local color = {1, 0, 1}]]
+    --[[if type(lastArg) == "table" and type(lastArg[1]) == "number" and ]]
+       --[[type(lastArg[2]) == "number" and type(lastArg[3]) == "number" then]]
+        --[[hasColor = 1]]
+        --[[color = {lastArg[1], lastArg[2], lastArg[3]}]]
+        --[[if type(lastArg[4]) == "number" then]]
+            --[[color[4] = lastArg[4]]
+        --[[end]]
+    --[[end]]
+
+    --[[if not __ONCE__ then]]
+        --[[print("hasColor", hasColor)]]
+        --[[print("color", inspect(color))]]
+        --[[print("lastArg", inspect(lastArg))]]
+        --[[print("drawHelper", inspect(...))]]
+        --[[__ONCE__ = true]]
+    --[[end]]
+
+    --[[for i = 1, select("#", ...) - hasColor do]]
+    for i = 1, select("#", ...) do
         local tbl = select(i, ...)
+        --[[print("i", i)]]
+        --[[print("tbl", inspect(tbl))]]
         assertHelper(tbl)
         if checkHelper(tbl) then
-            lg.setColor{1, 0, 1}
+            --[[lg.setColor{1, 0, 1}]]
             lg.rectangle("line", tbl.x, tbl.y, tbl.w, tbl.h)
-            lg.setColor{1, 0, 1, 0.5}
+            --[[lg.setColor{1, 0, 1, 0.5}]]
             lg.rectangle("line", tbl.x + 1, tbl.y + 1, tbl.w - 1, tbl.h - 1)
         elseif type(tbl) == "table" then
             for k, v in pairs(tbl) do
@@ -145,7 +157,8 @@ function drawHelper(...)
     end
 end
 
-function drawHierachy(rootTbl, color)
+function drawHierachy(rootTbl)
+    print("drawHierachy", inspect(rootTbl), inspect(color))
     if checkHelper(rootTbl) then
         drawHelper(rootTbl)
     end
