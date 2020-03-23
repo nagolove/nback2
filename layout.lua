@@ -165,7 +165,7 @@ function drawHelper(...)
 end
 
 function drawHierachy(rootTbl)
-    print("drawHierachy", inspect(rootTbl), inspect(color))
+    --print("drawHierachy", inspect(rootTbl), inspect(color))
     if checkHelper(rootTbl) then
         drawHelper(rootTbl)
     end
