@@ -25,17 +25,19 @@ function calc_percent(eq, pressed_arr)
     return succ / count - mistake / count
 end
 
+function statisticRender:getHitQuadLineHeight()
+    return self.rect_size + 6
+end
 
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
--- arr - массив со значениями чего?
--- eq - массив-наложение на arr, для успешных попаданий?
--- rect_size - размер отображаемого в сетке прямоугольника
--- border - зазор между прямоугольниками.
--- что за пару x, y возвращает функция?
-function statisticRender:draw_hit_rects(x, y, pressed_arr, eq_arr, rect_size, border, level)
-    for k, v in pairs(pressed_arr) do
+-- type - строка "pos", "sound", etc.
+function statisticRender:draw_hit_rects(x, y, type, border)
+    local rect_size = self.rect_size
+    local eq_arr = self.signals.eq[type]
+    for k, v in pairs(self.pressed[type]) do
         g.setColor(pallete.field)
-        g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size) g.setColor(pallete.inactive)
+        g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size) 
+        g.setColor(pallete.inactive)
         g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
 
         -- отмеченная игроком позиция
@@ -51,24 +53,26 @@ function statisticRender:draw_hit_rects(x, y, pressed_arr, eq_arr, rect_size, bo
             g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
             -- кружок на место предудущего сигнала
             g.setColor{1, 1, 1, 0.5}
-            g.circle("line", x + rect_size * ((k - level) - 1) + rect_size / 2, y + rect_size / 2, radius)
+            g.circle("line", x + rect_size * ((k - self.level) - 1) + rect_size / 2, y + rect_size / 2, radius)
         end
     end
 
     -- этот код должен быть в вызывающей функции
-    y = y + rect_size + 6
+    y = y + self:getHitQuadLineHeight()
     return x, y
 end
 
 -- draw one big letter in left side of hit rects output
-function print_signal_type(x, y, rect_size, str, pixel_gap, delta)
+function statisticRender:print_signal_type(x, y, str, pixel_gap, delta)
+    local rect_size = self.rect_size
     local delta = (rect_size - g.getFont():getHeight()) / 2
     g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
     y = y + rect_size + 6
     return x, y
 end
 
-function statisticRender:draw_percents(x, y, rect_size, pixel_gap, border, starty)
+function statisticRender:draw_percents(x, y, pixel_gap, border, starty)
+    local rect_size = self.rect_size
     local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size 
     - border * 2 + pixel_gap
     local formatStr = "%.3f"
@@ -108,57 +112,57 @@ function statisticRender:draw()
     g.setLineWidth(1)
 
     local width_k = 3 / 4
-    -- XXX depend on screen resolution
     local signalsCount = #self.signals.pos
-    local rect_size = math.floor(w * width_k / signalsCount)
 
-    --print("rect_size", rect_size)
-    --print("self.statisticRender", self.statisticRender)
-    --[[local x = self.statisticRender and 0 or (w - w * width_k) / 2]]
-    --[[local x = self.statisticRender and 0 or (w - w * width_k) / 2]]
-    --
+    self.rect_size = math.floor(w * width_k / signalsCount)
+
     local x = (w - w * width_k) / 2 
 
     --[[local starty = self.statisticRender and 0 or 200]]
-    local starty = 200
+    local starty = self.layout.middle.y + (self.layout.middle.h - self:getHitQuadLineHeight() * 4) / 2
     local y = starty + g.getFont():getHeight() * 1.5
     local border = 2
     local freezedY = y
 
-    x, y = self:draw_hit_rects(x, y, self.pressed.sound, self.signals.eq.sound, rect_size, border, self.level)
-    x, y = self:draw_hit_rects(x, y, self.pressed.color, self.signals.eq.color, rect_size, border, self.level)
-    x, y = self:draw_hit_rects(x, y, self.pressed.form, self.signals.eq.form, rect_size, border, self.level)
-    x, y = self:draw_hit_rects(x, y, self.pressed.pos, self.signals.eq.pos, rect_size, border, self.level)
+    self:draw_hit_rects(x, y, "sound", border)
+    y = y + self:getHitQuadLineHeight()
+    self:draw_hit_rects(x, y, "color", border)
+    y = y + self:getHitQuadLineHeight()
+    self:draw_hit_rects(x, y, "form", border)
+    y = y + self:getHitQuadLineHeight()
+    self:draw_hit_rects(x, y, "pos", border)
+    y = y + self:getHitQuadLineHeight()
 
     -- drawing left column with letters
     g.setColor({200 / 255, 0, 200 / 255})
 
     local y = freezedY
     local pixel_gap = 10
-    x, y = print_signal_type(x, y, rect_size, "S", pixel_gap, delta) 
-    x, y = print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
-    x, y = print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
-    x, y = print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
+    x, y = self:print_signal_type(x, y, "S", pixel_gap, delta) 
+    x, y = self:print_signal_type(x, y, "C", pixel_gap, delta) 
+    x, y = self:print_signal_type(x, y, "F", pixel_gap, delta) 
+    x, y = self:print_signal_type(x, y, "P", pixel_gap, delta)
 
-    --[[if not self.statisticRender then]]
-        x, y = self:draw_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
-        starty)
+    x, y = self:draw_percents(x, freezedY + 0, pixel_gap, border, starty)
 
-        local y = self.y0 + self.font:getHeight()
-        --g.printf(string.format("Set results:"), 0, y, w, "center")
-        y = y + self.font:getHeight()
-        g.printf(string.format("Level %d Exposition %1.f sec", self.level, self.pause_time), 0, y, w, "center")
-        --[[y = y + self.font:getHeight()]]
-        --[[g.printf(string.format("Exposition time %.1f sec", self.pause_time), ]]
-        --[[0, y, w, "center")]]
-        y = y + self.font:getHeight()
-        if self.durationMin and self.durationSec then
-            g.printf(string.format("Duration %d min %d sec.", self.durationMin, self.durationSec), 0, y, w, "center")
-        end
-    --[[end]]
+    self:printInfo()
 
     g.setColor{0.5, 0.5, 0.5}
     drawHierachy(self.layout)
+end
+
+function statisticRender:printInfo()
+    local str1, str2 = string.format("Level %d Exposition %1.f sec", self.level, self.pause_time),
+        string.format("Duration %d min %d sec.", self.durationMin, self.durationSec)
+    local width1, width2 = g.getFont():getWidth(str1), g.getFont():getWidth(str2)
+    local textsHeight = g.getFont():getHeight() * 2
+    local x1, x2 = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
+    local y = (self.layout.top.h - textsHeight) / 2
+    --g.printf(str1, , y, w, "center")
+    g.print(str1, x1, y)
+    y = y + g.getFont():getHeight()
+    g.print(str2, x2, y)
+    --g.printf(str2, 0, y, w, "center")
 end
 
 function statisticRender:buildLayout()
@@ -196,7 +200,11 @@ function statisticRender.new(nback)
         pause_time = nback.pause_time,
         x0 = nback.x0,
         y0 = nback.y0,
+        durationMin = nback.durationMin,
+        durationSec = nback.durationSec,
     }, statisticRender)
+    print("nback.durationMin", nback.durationMin)
+    print("nback.durationSec", nback.durationSec)
     self:percentage()
     self:buildLayout()
     return self
