@@ -532,12 +532,12 @@ function nback:draw()
         self.shader:send("time", self.shaderTimer)
     end
 
-    self:drawField()
-
     if self.is_run then
         if self.start_pause then
+            self:drawField()
             self:print_start_pause()
         else
+            self:drawField()
             self:draw_active_signal()
             self:drawButtons()
         end
@@ -653,8 +653,7 @@ function nback:save_to_history()
 end
 
 function nback:stop()
-    self.statisticRender = require "drawstat".new(self)
-
+    print("stop")
     local q = pallete.field
     -- амимация альфа-канала игрового поля
     self.timer:tween(2, self.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
@@ -662,41 +661,22 @@ function nback:stop()
     self.is_run = false
     self.show_statistic = true
 
-    print("stop")
-
-    local p
-
-    --[[p =  calc_percent(self.signals.eq.sound, self.pressed.sound)]]
-    --[[self.sound_percent = p > 0.0 and p or 0.0]]
-
-    --[[p = calc_percent(self.signals.eq.color, self.pressed.color)]]
-    --[[self.color_percent = p > 0.0 and p or 0.0]]
-
-    --[[p = calc_percent(self.signals.eq.form, self.pressed.form)]]
-    --[[self.form_percent = p > 0.0 and p or 0.0]]
-
-    --[[p = calc_percent(self.signals.pos.eq, self.pressed.pos)]]
-    --[[self.pos_percent = p > 0.0 and p or 0.0]]
-
-    --[[self.percent = (self.sound_percent + self.color_percent + ]]
-        --[[self.form_percent + self.pos_percent) / 4]]
-
     -- зачем нужна эта проверка? Расчет на то, что раунд был начат?
     if self.signals.pos then
         self.stopppedSignal = self.current_sig 
     end
 
-    if self.startTime then
-        local time = love.timer.getTime() - self.startTime
-        self.durationMin = math.floor(time / 60)
-        self.durationSec = time - self.durationMin * 60
-        print(string.format("durationMin %f, durationSec %f", self.durationMin, self.durationSec))
-    end
+    local duration = love.timer.getTime() - self.startTime
+    self.durationMin = math.floor(duration / 60)
+    self.durationSec = duration - self.durationMin * 60
+    print(string.format("durationMin %f, durationSec %f", self.durationMin, self.durationSec))
 
     -- Раунд полностью закончен? - записываю историю
     if self.signals and self.current_sig == #self.signals.pos then 
         self:save_to_history() 
     end
+
+    self.statisticRender = require "drawstat".new(self)
 end
 
 function nback:quit()
