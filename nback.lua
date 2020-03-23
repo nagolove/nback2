@@ -91,7 +91,7 @@ function nback:processCoroutines()
     self.coros = alive
 end
 
-function create_false_array(len)
+function makeFalseArray(len)
     local ret = {}
     for i = 1, len do
         ret[#ret + 1] = false
@@ -148,10 +148,10 @@ function nback:start()
     -- массивы хранящие булевские значения - нажат сигнал вот время обработки или нет?
     local signalsCount = #self.signals.pos
     self.pressed = {
-        pos = create_false_array(signalsCount),
-        color = create_false_array(signalsCount),
-        form = create_false_array(signalsCount),
-        sound = create_false_array(signalsCount),
+        pos = makeFalseArray(signalsCount),
+        color = makeFalseArray(signalsCount),
+        form = makeFalseArray(signalsCount),
+        sound = makeFalseArray(signalsCount),
     }
     print("self.pressed", inspect(self.pressed))
 
