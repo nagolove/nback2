@@ -28,6 +28,9 @@ local function safesend(shader, name, ...)
   end
 end
 
+local function width() return love.graphics.getWidth() end
+local function height() return love.graphics.getHeight() end
+
 local nback = {}
 nback.__index = nback
 
@@ -445,6 +448,33 @@ function nback:drawButtons()
     --[[pushCoro(buttonCoroGlow(self.buttons["leftup"]))]]
     --[[pushCoro(buttonCoroHide(self.buttons["leftup"]))]]
 
+    function btnCoroPress()
+        local getTime = love.timer.getTime
+        local time = getTime()
+
+        repeat
+            g.setColor{0, 0, 0}
+            g.rectangle("fill", x, y, w, h)
+            coroutine.yield()
+        until getTime() - time < 1
+
+        local animTime = 1
+        repeat
+            g.setColor{0, diff / animTime, 0}
+            g.rectangle("fill", x, y, w, h)
+            coroutine.yield()
+            local diff = getTime() - time
+        until diff < animTime
+
+        -- что дальше?
+        -- должна цепляться какая-то другая сопрограмма. Типа стека сопрограмм.
+        -- Если кнопка не нажата - она переливается оттенком цвета. При нажатии
+        -- идет анимация от текущего цвета к нажатому. Потом снова переливания,
+        -- но другим цветом.
+        -- Поскольку анимации связаны линейно временем[[хотя некоторые можно
+        -- прервать]], то можно добавлять в стек - следующий вид рисовки.
+    end
+
     local oldwidth = g.getLineWidth()
     for k, v in pairs(self.buttons) do
         g.setColor(pallete.buttonColor)
@@ -479,7 +509,7 @@ function nback:draw()
         self.shader:send("time", self.shaderTimer)
     end
 
-    self:draw_field()
+    self:drawField()
 
     if self.is_run then
         if self.start_pause then
@@ -765,22 +795,23 @@ end
 
 function nback:resize(neww, newh)
     print(string.format("resized to %d * %d", neww, newh))
+    self:buildLayout()
 
     w, h = neww, newh
 
     local pixels_border = 130 -- size of border around main game field
-    self.cell_width = (newh - pixels_border) / self.dim
+    self.cell_width = self.layout.center.h / self.dim
+    --self.cell_width = (newh - pixels_border) / self.dim
     self.bhupur_h = self.cell_width * self.dim 
 
-    self.x0 = (w - self.dim * self.cell_width) / 2
-    self.y0 = (h - self.dim * self.cell_width) / 2
+    --self.x0 = (w - self.dim * self.cell_width) / 2
+    --self.y0 = (h - self.dim * self.cell_width) / 2
+    self.x0, self.y0 = self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2, self.layout.center.y
 
     if self.signal then
         self.signal:setCorner(self.x0, self.y0)
         self.signal:resize(self.cell_width)
     end
-
-    self:buildLayout()
 
     if self.statisticRender then
         self.statisticRender:buildLayout()
@@ -866,8 +897,18 @@ function nback:draw_active_signal()
     self.signal:draw(x, y, type, sig_color)
 end
 
-function nback:draw_field()
-    local delta, field_h = 1, self.dim * self.cell_width
+function nback:drawField()
+    --local delta, field_h = 1, self.dim * self.cell_width
+    --g.setColor(self.field_color)
+    --for i = 0, self.dim do
+        ---- horizontal
+        --g.line(self.x0, self.y0 + i * self.cell_width, self.x0 + field_h, self.y0 + i * self.cell_width)
+        ---- vertical
+        --g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
+    --end
+    local oldx0, oldy0 = self.x0, self.y0
+    
+    local field_h = self.dim * self.cell_width
     g.setColor(self.field_color)
     for i = 0, self.dim do
         -- horizontal
@@ -875,6 +916,8 @@ function nback:draw_field()
         -- vertical
         g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
     end
+
+    --self.x0, self.y0 = oldx0, oldy0
 end
 
 -- рисовать статистику после конца сета
