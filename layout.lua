@@ -108,7 +108,7 @@ end
 
 function shrink(tbl, value)
     assertHelper(tbl)
-    assert(type(delta) == "number", string.format("number expected, but %s is", type(value)))
+    assert(type(value) == "number", string.format("number expected, but %s is", type(value)))
     return { x = tbl.x + value, y = tbl.y + value, 
         w = tbl.w - value * 2, h = tbl.h - value * 2}
 end
