@@ -99,11 +99,34 @@ function create_false_array(len)
     return ret
 end
 
+-- как называется в функциональном программировании такая штука, которая
+-- принимает первым параметром список результатов возвращаемый одной функцией, 
+-- а остальные агрументы применяет к каждому элементу списка.
+-- function inc(x)
+--   return x + 1
+-- end
+-- function func2(...)
+--   local res = {}
+--   for i = 1, select("#", ...) do
+--     table.insert(res, select(i, ...))
+--   end
+-- end
+-- function func2(...)
+--   return {...}
+-- end
+-- v1, v2, v3 = func(func2(1, 2, 3), inc, inc, inc)
+-- print(v1, v2, v3) -- 2, 3, 4
+
 function nback:buildLayout()
     local screen = makeScreenTable()
     screen.left, screen.center, screen.right = splitv(screen, 0.2, 0.6, 0.2)
     screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
     screen.rightTop, screen.rightMiddle, screen.rightBottom = splith(screen.right, 0.2, 0.4, 0.4)
+
+    local border = 3
+    screen.leftTop, screen.leftMiddle, screen.leftBottom = shrink(screen.leftTop, border), shrink(screen.leftMiddle, border), shrink(screen.leftBottom, border)
+    screen.rightTop, screen.rightMiddle, screen.rightBottom = shrink(screen.rightTop, border), shrink(screen.rightMiddle, border), shrink(screen.rightBottom, border)
+
     self.layout = screen
     print("self.layout", inspect(self.layout))
 end
@@ -910,12 +933,15 @@ function nback:drawField()
     
     local field_h = self.dim * self.cell_width
     g.setColor(self.field_color)
+    local oldwidth = g.getLineWidth()
+    g.setLineWidth(2)
     for i = 0, self.dim do
         -- horizontal
         g.line(self.x0, self.y0 + i * self.cell_width, self.x0 + field_h, self.y0 + i * self.cell_width)
         -- vertical
         g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
     end
+    --g.setLineWidth(oldwidth)
 
     --self.x0, self.y0 = oldx0, oldy0
 end

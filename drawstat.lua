@@ -105,6 +105,7 @@ function statisticRender:draw()
 
     g.setFont(self.font)
     g.setColor(pallete.statistic)
+    g.setLineWidth(1)
 
     local width_k = 3 / 4
     -- XXX depend on screen resolution
