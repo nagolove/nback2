@@ -28,7 +28,17 @@ end
 
 local save_name = "nback-v0.3.lua"
 
-function love.load()
+function setLocale(arg)
+    print("arg", inspect(arg))
+    local locale = "en"
+    if arg[1] then
+        locale = string.match(arg[1], "locale=(%S+)")
+    end
+    print("setLocale", locale)
+    i18n.setLocale(locale)
+end
+
+function love.load(arg)
     math.randomseed(os.time())
     lovebird.update()
     lovebird.maxlines = 2000
@@ -41,15 +51,17 @@ function love.load()
     menu:init()
     help:init()
 
+    setLocale(arg)
+
     -- проблема в том, что два раза определяю список состояний для одного меню.
     -- Нужно как-то обойтись одним списком.
     -- Задача - как выйти из текущего объекта состояния? Скажеи из pviewer'а?
     -- Для этого нужно позвонить в объект меню, если он хранит весь список
     -- состояний через метод, к примеру - menu:goBack()
-    menu:addItem("play", nback)
-    menu:addItem("view progress", pviewer)
-    menu:addItem("help", help)
-    menu:addItem("quit", function() love.event.quit() end)
+    menu:addItem(i18n("mainMenu.play"), nback)
+    menu:addItem(i18n("mainMenu.viewProgress"), pviewer)
+    menu:addItem(i18n("mainMenu.help"), help)
+    menu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true})

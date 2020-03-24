@@ -234,7 +234,7 @@ function nback:createSetupMenu()
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
-        oninit = function() return {"Start"} end,
+        oninit = function() return {i18n("setupMenu.start")} end,
         onselect = function() --  точка входа в игру
             self.level = nbackLevel
             self.dim = dim
@@ -246,8 +246,8 @@ function nback:createSetupMenu()
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
         oninit = function() return 
-            {pallete.signal, "Exposition time ", parameterColor, 
-            expositionList[activeExpositionItem], pallete.signal, " sec."},
+            {pallete.signal, i18n("setupMenu.expTime"), parameterColor, 
+            expositionList[activeExpositionItem], pallete.signal, i18n("setupMenu.expTime_sec")},
             activeExpositionItem == 1,
             activeExpositionItem == #expositionList
         end,
@@ -256,8 +256,8 @@ function nback:createSetupMenu()
             if activeExpositionItem - 1 >= 1 then
                 activeExpositionItem = activeExpositionItem - 1
             end
-            return {pallete.signal, "Exposition time ", parameterColor,
-                expositionList[activeExpositionItem], pallete.signal, " sec."}, 
+            return {pallete.signal, i18n("setupMenu.expTime"), parameterColor,
+                expositionList[activeExpositionItem], pallete.signal, i18n("setupMenu.expTime_sec")}, 
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end,
@@ -266,15 +266,15 @@ function nback:createSetupMenu()
             if activeExpositionItem + 1 <= #expositionList then
                 activeExpositionItem = activeExpositionItem + 1
             end
-            return {pallete.signal, "Exposition time ", parameterColor,
-                expositionList[activeExpositionItem], pallete.signal, " sec."},
+            return {pallete.signal, i18n("setupMenu.expTime"), parameterColor,
+                expositionList[activeExpositionItem], pallete.signal, i18n("setupMenu.expTime_sec")},
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end})
 
     -- выбор уровня эн-назад
     self.setupmenu:addItem({
-        oninit = function() return {pallete.signal, "Difficulty level: ",
+        oninit = function() return {pallete.signal, i18n("setupMenu.diffLevel"),
             parameterColor, tostring(nbackLevel)}, 
             nbackLevel == 1,
             nbackLevel == maxLevel
@@ -282,7 +282,7 @@ function nback:createSetupMenu()
 
         onleft = function()
             if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
-            return {pallete.signal, "Difficulty level: ", parameterColor,
+            return {pallete.signal, i18n("setupMenu.diffLevel"), parameterColor,
                 tostring(nbackLevel)},
                 nbackLevel == 1,
                 nbackLevel == maxLevel
@@ -290,7 +290,7 @@ function nback:createSetupMenu()
 
         onright = function()
             if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
-            return {signal.color, "Difficulty level: ", parameterColor,
+            return {signal.color, i18n("setupMenu.diffLevel"), parameterColor,
                 tostring(nbackLevel)},
                 nbackLevel == 1,
                 nbackLevel == maxLevel
@@ -299,7 +299,7 @@ function nback:createSetupMenu()
     --  выбор разрешения поля клеток для сигнала "позиция". 
     --  Рабочее значение : от 4 до 8-10-20?
     self.setupmenu:addItem({
-        oninit = function() return {pallete.signal, "Dim level: ",
+        oninit = function() return {pallete.signal, i18n("setupMenu.dimLevel"),
             parameterColor, tostring(dim)}, 
             dim == 1,
             dim == maxDim
@@ -307,7 +307,7 @@ function nback:createSetupMenu()
 
         onleft = function()
             if dim - 1 >= minDim then dim = dim - 1 end
-            return {pallete.signal, "Dim level: ", parameterColor,
+            return {pallete.signal, i18n("setupLevel.dimLevel"), parameterColor,
                 tostring(dim)},
                 dim == 1,
                 dim == maxLevel
@@ -315,7 +315,7 @@ function nback:createSetupMenu()
 
         onright = function()
             if dim + 1 <= maxDim then dim = dim + 1 end
-            return {signal.color, "Dim level: ", parameterColor,
+            return {signal.color, i18n("setupLevel.dimLevel"), parameterColor,
                 tostring(dim)},
                 dim == 1,
                 dim == maxLevel
@@ -372,7 +372,7 @@ function nback:initButtons()
         y = self.layout.leftTop.y, 
         w = self.layout.leftTop.w,
         h = self.layout.leftTop.h,
-        title = "Quit",
+        title = i18n("quitBtn"),
         ontouch = function() 
             love.event.quit() 
         end})
@@ -383,7 +383,7 @@ function nback:initButtons()
         y = self.layout.rightTop.y, 
         w = self.layout.rightTop.w, 
         h = self.layout.rightTop.h,
-        title = "Settings",
+        title = i18n("settingsBtn"),
         ontouch = function() 
             love.event.quit() 
         end})
@@ -394,7 +394,7 @@ function nback:initButtons()
         y = self.layout.leftMiddle.y, 
         w = self.layout.leftMiddle.w, 
         h = self.layout.leftMiddle.h, 
-        title = "Sound",
+        title = i18n("sound"),
         ontouch = function() 
             if self.is_run then
                 self:check("sound") 
@@ -407,7 +407,7 @@ function nback:initButtons()
         y = self.layout.rightMiddle.y, 
         w = self.layout.rightMiddle.w, 
         h = self.layout.rightMiddle.h,
-        title = "Position",
+        title = i18n("pos"),
         ontouch = function() 
             if self.is_run then
                 self:check("pos") 
@@ -420,7 +420,7 @@ function nback:initButtons()
         y = self.layout.leftBottom.y, 
         w = self.layout.leftBottom.w, 
         h = self.layout.leftBottom.h, 
-        title = "Form",
+        title = i18n("form"),
         ontouch = function() 
             if self.is_run then
                 self:check("form") 
@@ -433,12 +433,20 @@ function nback:initButtons()
         y = self.layout.rightBottom.y, 
         w = self.layout.rightBottom.w, 
         h = self.layout.rightBottom.h, 
-        title = "Color",
+        title = i18n("color"),
         ontouch = function() 
             if self.is_run then
                 self:check("color") 
             end
         end})
+
+    --[[
+       [print("----")
+       [for k, v in pairs(self.buttons) do
+       [    print(inspect(v))
+       [end
+       [print("----")
+       ]]
 
     self:setupButtonsTextPosition()
 end

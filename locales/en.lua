@@ -1,5 +1,5 @@
 ﻿return {
-    ru = {
+    en = {
         pos = "Position", -- пространство(??)
         sound = "Sound",
         form = "Form",
@@ -14,13 +14,16 @@
         },
         setupMenu = {
             start = "Start",
-            expTime = "Expostion time %d sec.",
+            expTime = "Expostion time ",
+            expTime_sec = " sec.",
             diffLevel = "Difficulty level: ",
             dimLevel = "Dim level: ", -- разница между размерностью и размером поля.
         },
         waitFor = "Wait for %d second",
         levelInfo1 = "Level %d Exposition %d seconds",
         levelInfo2 = "Duration %d min %d seconds",
+        settingsBtn = "Settings",
+        quitBtn = "Quit", -- лучше назвать - "в главное меню?"
     },
 }
 

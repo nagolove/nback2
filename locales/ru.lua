@@ -14,8 +14,9 @@
         },
         setupMenu = {
             start = "Начать",
-            expTime = "Время экспозиции %d секунд",
-            diffLevel = "Уровень сложности",
+            expTime = "Время экспозиции ",
+            expTime_sec = " секунд",
+            diffLevel = "Уровень сложности: ",
             dimLevel = "Размер поля:",
         },
         waitFor = "Ждите %d секунд",

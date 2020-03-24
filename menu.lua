@@ -69,6 +69,7 @@ end
 -- object - таблица с методами update, draw, keypressed и другими.
 -- Или object может быть функцией(пока не реализовано).
 function menu:addItem(name, object)
+    print("menu:addItem()", inspect(name), inspect(object))
     assert(type(name) == "string")
     self.items[#self.items + 1] = { name = name, obj= object }
     self:searchWidestText()
