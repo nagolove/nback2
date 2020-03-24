@@ -120,7 +120,7 @@ function statisticRender:draw()
 
     --[[local starty = self.statisticRender and 0 or 200]]
     local starty = self.layout.middle.y + (self.layout.middle.h - self:getHitQuadLineHeight() * 4) / 2
-    local y = starty + g.getFont():getHeight() * 1.5
+    local y = starty
     local border = 2
     local freezedY = y
 

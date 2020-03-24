@@ -13,6 +13,10 @@ local pallete = require "pallete"
 local splash = require "splash"
 local kons = require "kons"
 
+i18n = require "i18n"
+i18n.loadFile("locales/ru.lua")
+i18n.loadFile("locales/en.lua")
+
 cam = require "camera".new()
 help = require "help".new()
 menu = require "menu".new()
