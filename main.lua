@@ -27,18 +27,23 @@ function love.quit()
 end
 
 local save_name = "nback-v0.3.lua"
+locale = "en"
 
-function setLocale(arg)
-    print("arg", inspect(arg))
-    local locale = "en"
-    if arg[1] then
-        locale = string.match(arg[1], "locale=(%S+)")
-    end
-    print("setLocale", locale)
+function setupLocale()
+    print("setupLocale", locale)
     i18n.setLocale(locale)
 end
 
 function love.load(arg)
+    print("arg", inspect(arg))
+    if arg[1] then
+        locale = string.match(arg[1], "locale=(%S+)")
+        if not locale then
+            locale = "en"
+        end
+        setupLocale()
+    end
+
     math.randomseed(os.time())
     lovebird.update()
     lovebird.maxlines = 2000
@@ -50,8 +55,6 @@ function love.load(arg)
     pviewer:init(save_name)
     menu:init()
     help:init()
-
-    setLocale(arg)
 
     -- проблема в том, что два раза определяю список состояний для одного меню.
     -- Нужно как-то обойтись одним списком.

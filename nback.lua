@@ -988,20 +988,22 @@ function nback:draw_statistic()
         local y = self.y0 + self.font:getHeight()
         --g.printf(string.format("Set results:"), 0, y, w, "center")
         y = y + self.font:getHeight()
-        g.printf(string.format("Level %d Exposition %1.f sec", self.level, self.pause_time), 0, y, w, "center")
+        --g.printf(string.format("Level %d Exposition %1.f sec", self.level, self.pause_time), 0, y, w, "center")
+        --g.printf(string.format(i18n("levelInfo1"), self.level, self.pause_time), 0, y, w, "center")
+        g.printf(i18n("levelInfo1", self.level, self.pause_time), 0, y, w, "center")
         --[[y = y + self.font:getHeight()]]
         --[[g.printf(string.format("Exposition time %.1f sec", self.pause_time), ]]
         --[[0, y, w, "center")]]
         y = y + self.font:getHeight()
         if self.durationMin and self.durationSec then
-            g.printf(string.format("Duration %d min %d sec.", self.durationMin, self.durationSec), 0, y, w, "center")
+            g.printf(i18n("levelInfo2", self.durationMin, self.durationSec), 0, y, w, "center")
         end
     end
 end
 
 -- draw central_text - Press Space key
 function nback:print_start_pause()
-    local central_text = string.format("Wait for %d second.", self.start_pause_rest)
+    local central_text = i18n("waitFor", { self.start_pause_rest })
     g.setFont(self.central_font)
     g.setColor(pallete.signal)
     local x = (w - self.central_font:getWidth(central_text)) / 2
