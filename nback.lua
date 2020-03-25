@@ -100,24 +100,6 @@ function makeFalseArray(len)
     return ret
 end
 
--- как называется в функциональном программировании такая штука, которая
--- принимает первым параметром список результатов возвращаемый одной функцией, 
--- а остальные агрументы применяет к каждому элементу списка.
--- function inc(x)
---   return x + 1
--- end
--- function func2(...)
---   local res = {}
---   for i = 1, select("#", ...) do
---     table.insert(res, select(i, ...))
---   end
--- end
--- function func2(...)
---   return {...}
--- end
--- v1, v2, v3 = func(func2(1, 2, 3), inc, inc, inc)
--- print(v1, v2, v3) -- 2, 3, 4
-
 function nback:buildLayout()
     local screen = makeScreenTable()
     screen.left, screen.center, screen.right = splitv(screen, 0.2, 0.6, 0.2)

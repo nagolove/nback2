@@ -26,7 +26,7 @@ function calc_percent(eq, pressed_arr)
 end
 
 function statisticRender:getHitQuadLineHeight()
-    return self.rect_size + 6
+    return self.rect_size + 12
 end
 
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
@@ -77,7 +77,7 @@ function statisticRender:draw_percents(x, y, pixel_gap, border, starty)
     - border * 2 + pixel_gap
     local formatStr = "%.3f"
 
-    g.setColor({200 / 255, 0, 200 / 255})
+    g.setColor(pallete.percentFont)
     g.setFont(self.font)
 
     -- эти условия нужно как-то убрать или заменить на что-то
@@ -111,7 +111,7 @@ function statisticRender:draw()
     g.setColor(pallete.statistic)
     g.setLineWidth(1)
 
-    local width_k = 3 / 4
+    local width_k = 3.9 / 4
     local signalsCount = #self.signals.pos
 
     self.rect_size = math.floor(w * width_k / signalsCount)
@@ -203,15 +203,9 @@ function statisticRender.new(nback)
         durationMin = nback.durationMin,
         durationSec = nback.durationSec,
     }, statisticRender)
-    print("nback.durationMin", nback.durationMin)
-    print("nback.durationSec", nback.durationSec)
     self:percentage()
     self:buildLayout()
     return self
 end
 
 return statisticRender
---[[return { ]]
-    --[[draw_hit_rects = draw_hit_rects,]]
-    --[[draw_statistic = draw_statistic,]]
---[[}]]

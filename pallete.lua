@@ -23,6 +23,7 @@ local pallete = {
     sound_text_enabled = {0 / 255, 240 / 255, 0 / 255, 1},
 
     statistic = {0 / 255, 240 / 255, 0 / 255, 1},
+    percentFont = {200 / 255, 0, 200 / 255},
 
     tip_text_alt = {255 / 255, 255 / 255, 0 / 255, 1},
     tip_text = {0 / 255, 240 / 255, 0 / 255, 1},
