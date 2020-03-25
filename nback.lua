@@ -50,6 +50,7 @@ local nbackSelf = {
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+    border = 3,
     coros = {}
 }
 
@@ -64,7 +65,7 @@ function nback.newStatisticRender(data)
 
     print("self.signals", inspect(self.signals))
 
-    seld.pressed = deepcopy(data.pressed)
+    self.pressed = deepcopy(data.pressed)
 
     --[[self.statisticRender = true]]
     self.signals.eq = generator.makeEqArrays(self.signals, self.level)
@@ -123,9 +124,9 @@ function nback:buildLayout()
     screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
     screen.rightTop, screen.rightMiddle, screen.rightBottom = splith(screen.right, 0.2, 0.4, 0.4)
 
-    local border = 3
-    screen.leftTop, screen.leftMiddle, screen.leftBottom = shrink(screen.leftTop, border), shrink(screen.leftMiddle, border), shrink(screen.leftBottom, border)
-    screen.rightTop, screen.rightMiddle, screen.rightBottom = shrink(screen.rightTop, border), shrink(screen.rightMiddle, border), shrink(screen.rightBottom, border)
+    screen.leftTop, screen.leftMiddle, screen.leftBottom = shrink(screen.leftTop, self.border), shrink(screen.leftMiddle, self.border), shrink(screen.leftBottom, self.border)
+    screen.rightTop, screen.rightMiddle, screen.rightBottom = shrink(screen.rightTop, self.border), shrink(screen.rightMiddle, self.border), shrink(screen.rightBottom, self.border)
+    screen.center = shrink(screen.center, self.border)
 
     self.layout = screen
     print("self.layout", inspect(self.layout))
@@ -810,13 +811,8 @@ function nback:resize(neww, newh)
 
     w, h = neww, newh
 
-    local pixels_border = 130 -- size of border around main game field
     self.cell_width = self.layout.center.h / self.dim
-    --self.cell_width = (newh - pixels_border) / self.dim
     self.bhupur_h = self.cell_width * self.dim 
-
-    --self.x0 = (w - self.dim * self.cell_width) / 2
-    --self.y0 = (h - self.dim * self.cell_width) / 2
     self.x0, self.y0 = self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2, self.layout.center.y
 
     if self.signal then
@@ -909,16 +905,6 @@ function nback:draw_active_signal()
 end
 
 function nback:drawField()
-    --local delta, field_h = 1, self.dim * self.cell_width
-    --g.setColor(self.field_color)
-    --for i = 0, self.dim do
-        ---- horizontal
-        --g.line(self.x0, self.y0 + i * self.cell_width, self.x0 + field_h, self.y0 + i * self.cell_width)
-        ---- vertical
-        --g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
-    --end
-    local oldx0, oldy0 = self.x0, self.y0
-    
     local field_h = self.dim * self.cell_width
     g.setColor(self.field_color)
     local oldwidth = g.getLineWidth()
@@ -930,8 +916,6 @@ function nback:drawField()
         g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
     end
     --g.setLineWidth(oldwidth)
-
-    --self.x0, self.y0 = oldx0, oldy0
 end
 
 -- рисовать статистику после конца сета
