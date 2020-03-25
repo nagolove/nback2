@@ -13,10 +13,21 @@ local pallete = require "pallete"
 local splash = require "splash"
 local kons = require "kons"
 
-i18n = require "i18n"
-i18n.loadFile("locales/ru.lua")
-i18n.loadFile("locales/en.lua")
+function loadLocales()
+    local files = love.filesystem.getDirectoryItems("locales")
+    print("locale files", inspect(files))
+    for _, v in pairs(files) do 
+        i18n.loadFile("locales/" .. v, function(path)
+            local chunk, errmsg = love.filesystem.load(path)
+            if not chunk then
+                error(errmsg)
+            end
+            return chunk
+        end) 
+    end
+end
 
+i18n = require "i18n"
 cam = require "camera".new()
 help = require "help".new()
 menu = require "menu".new()
@@ -27,22 +38,20 @@ function love.quit()
 end
 
 local save_name = "nback-v0.3.lua"
-locale = "en"
 
-function setupLocale()
+function setupLocale(locale)
     print("setupLocale", locale)
     i18n.setLocale(locale)
 end
 
 function love.load(arg)
     print("arg", inspect(arg))
+    loadLocales()
+    local locale = "en"
     if arg[1] then
-        locale = string.match(arg[1], "locale=(%S+)")
-        if not locale then
-            locale = "en"
-        end
-        setupLocale()
+        locale = string.match(arg[1], "locale=(%S+)") or "en"
     end
+    setupLocale(locale)
 
     math.randomseed(os.time())
     lovebird.update()
