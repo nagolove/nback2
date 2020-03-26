@@ -527,9 +527,6 @@ function nback:draw()
         end
     else
         if self.show_statistic then 
-            --[[self:draw_statistic()]]
-            --[[require "drawstat".draw_statistic()]]
-            
             self.statisticRender:draw()
         else
             self.setupmenu:draw()
@@ -891,73 +888,6 @@ function nback:drawField()
         g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
     end
     --g.setLineWidth(oldwidth)
-end
-
--- рисовать статистику после конца сета
-function nback:draw_statistic()
-    -- условие нужно что-бы не падала программа при создании рендера истории.
-    -- но из-за этого пункта может быть неправильное отображение графики?
-    if not self.signals then
-        return
-    end
-
-    g.setFont(self.font)
-    g.setColor(pallete.statistic)
-
-    local width_k = 3 / 4
-    -- XXX depend on screen resolution
-    local rect_size = math.floor(w * width_k / #self.signals.pos)
-
-    --print("rect_size", rect_size)
-    --print("self.statisticRender", self.statisticRender)
-
-    local x = self.statisticRender and 0 or (w - w * width_k) / 2
-    --local x = (w - w * width_k) / 2 
-
-    local starty = self.statisticRender and 0 or 200
-    local y = starty
-    local border = 2
-
-    y = y + g.getFont():getHeight() * 1.5
-
-    local freezedY = y
-
-    -- массивы вида self.**_eq содержат значения истина на тех индексах, где
-    -- должны быть нажаты обработчики сигналов
-    local draw_hit_rects = require "drawstat".draw_hit_rects
-    x, y = draw_hit_rects(x, y, self.pressed.sound, self.signals.eq.sound, rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pressed.color, self.signals.eq.color, rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pressed.form, self.signals.eq.form, rect_size, border, self.level)
-    x, y = draw_hit_rects(x, y, self.pressed.pos, self.signals.eq.pos, rect_size, border, self.level)
-
-    -- drawing left column with letters
-    g.setColor({200 / 255, 0, 200 / 255})
-
-    local y = freezedY
-    local pixel_gap = 10
-    x, y = self:print_signal_type(x, y, rect_size, "S", pixel_gap, delta) 
-    x, y = self:print_signal_type(x, y, rect_size, "C", pixel_gap, delta) 
-    x, y = self:print_signal_type(x, y, rect_size, "F", pixel_gap, delta) 
-    x, y = self:print_signal_type(x, y, rect_size, "P", pixel_gap, delta)
-
-    if not self.statisticRender then
-        x, y = self:draw_percents(x, freezedY + 0, rect_size, pixel_gap, border, 
-        starty)
-
-        local y = self.y0 + self.font:getHeight()
-        --g.printf(string.format("Set results:"), 0, y, w, "center")
-        y = y + self.font:getHeight()
-        --g.printf(string.format("Level %d Exposition %1.f sec", self.level, self.pause_time), 0, y, w, "center")
-        --g.printf(string.format(i18n("levelInfo1"), self.level, self.pause_time), 0, y, w, "center")
-        g.printf(i18n("levelInfo1", self.level, self.pause_time), 0, y, w, "center")
-        --[[y = y + self.font:getHeight()]]
-        --[[g.printf(string.format("Exposition time %.1f sec", self.pause_time), ]]
-        --[[0, y, w, "center")]]
-        y = y + self.font:getHeight()
-        if self.durationMin and self.durationSec then
-            g.printf(i18n("levelInfo2", self.durationMin, self.durationSec), 0, y, w, "center")
-        end
-    end
 end
 
 -- draw central_text - Press Space key
