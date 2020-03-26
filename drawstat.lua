@@ -81,8 +81,7 @@ end
 
 function statisticRender:drawPercents(x, y, pixel_gap, border, starty)
     local rect_size = self.rect_size
-    local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size 
-    - border * 2 + pixel_gap
+    local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size - border * 2 + pixel_gap
     local formatStr = "%.3f"
 
     g.setColor(pallete.percentFont)
@@ -113,31 +112,16 @@ end
 
 -- рисовать статистику после конца сета
 function statisticRender:draw()
-    local w, h = g.getDimensions()
+    local w = g.getWidth()
 
     g.setFont(self.font)
     g.setColor(pallete.statistic)
     g.setLineWidth(1)
 
-    local width_k = 3.9 / 4
-    local signalsCount = #self.signals.pos
-
-    self.rect_size = math.floor(w * width_k / signalsCount)
-
-    local x = (w - w * width_k) / 2 
-
-    --[[local starty = self.statisticRender and 0 or 200]]
+    local x = (w - w * self.width_k) / 2 
     local fontHeight = g.getFont():getHeight()
-    local starty = self.layout.middle.y + (self.layout.middle.h - (fontHeight + self:getHitQuadLineHeight()) * 4) / 2
-    local y = starty
+    local y = self.layout.middle.y + (self.layout.middle.h - (fontHeight + self:getHitQuadLineHeight()) * 4) / 2
     local border = 2
-    local freezedY = y
-    local pixel_gap = 10
-
-    if not __ONCE__ then
-        __ONCE__ = true
-        print("getColor()", inspect({g.getColor()}))
-    end
 
     self:printSignalType(x, y, "sound") 
     y = y + fontHeight
@@ -157,22 +141,11 @@ function statisticRender:draw()
     self:printSignalType(x, y, "position") 
     y = y + fontHeight
     self:drawHitQuads(x, y, "pos", border)
-    y = y + self:getHitQuadLineHeight()
-
-    -- drawing left column with letters
-    g.setColor({200 / 255, 0, 200 / 255})
-
-    local y = freezedY
-    --x, y = self:print_signal_type(x, y, "C", pixel_gap, delta) 
-    --x, y = self:print_signal_type(x, y, "F", pixel_gap, delta) 
-    --x, y = self:print_signal_type(x, y, "P", pixel_gap, delta)
-
-    x, y = self:drawPercents(x, freezedY + 0, pixel_gap, border, starty)
 
     self:printInfo()
 
     g.setColor{0.5, 0.5, 0.5}
-    drawHierachy(self.layout)
+    --drawHierachy(self.layout)
 end
 
 function statisticRender:printInfo()
@@ -182,11 +155,9 @@ function statisticRender:printInfo()
     local textsHeight = g.getFont():getHeight() * 2
     local x1, x2 = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
     local y = (self.layout.top.h - textsHeight) / 2
-    --g.printf(str1, , y, w, "center")
     g.print(str1, x1, y)
     y = y + g.getFont():getHeight()
     g.print(str2, x2, y)
-    --g.printf(str2, 0, y, w, "center")
 end
 
 function statisticRender:buildLayout()
@@ -223,6 +194,8 @@ function statisticRender.new(nback)
         durationMin = nback.durationMin,
         durationSec = nback.durationSec,
     }, statisticRender)
+    self.width_k = 3.9 / 4,
+    self.rect_size = math.floor(w * self.width_k / #self.signals.pos),
     self:percentage()
     self:buildLayout()
     return self
