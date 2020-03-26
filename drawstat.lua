@@ -1,4 +1,6 @@
-﻿local pallete = require "pallete"
+﻿local inspect = require "libs.inspect"
+
+local pallete = require "pallete"
 local g = love.graphics
 
 local statisticRender = {}
@@ -63,15 +65,18 @@ function statisticRender:draw_hit_rects(x, y, type, border)
 end
 
 -- draw one big letter in left side of hit rects output
-function statisticRender:print_signal_type(x, y, str, pixel_gap, delta)
+function statisticRender:printSignalType(x, y, str)
+    --print("printSignal", delta)
     local rect_size = self.rect_size
     local delta = (rect_size - g.getFont():getHeight()) / 2
-    g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
-    y = y + rect_size + 6
-    return x, y
+    ----g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
+    --g.print(str, x, y + delta)
+    g.print(str, x, y)
+    --y = y + rect_size + 6
+    --return x, y
 end
 
-function statisticRender:draw_percents(x, y, pixel_gap, border, starty)
+function statisticRender:drawPercents(x, y, pixel_gap, border, starty)
     local rect_size = self.rect_size
     local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size 
     - border * 2 + pixel_gap
@@ -119,17 +124,35 @@ function statisticRender:draw()
     local x = (w - w * width_k) / 2 
 
     --[[local starty = self.statisticRender and 0 or 200]]
-    local starty = self.layout.middle.y + (self.layout.middle.h - self:getHitQuadLineHeight() * 4) / 2
+    local fontHeight = g.getFont():getHeight()
+    local starty = self.layout.middle.y + (self.layout.middle.h - (fontHeight + self:getHitQuadLineHeight()) * 4) / 2
     local y = starty
     local border = 2
     local freezedY = y
+    local pixel_gap = 10
 
+    if not __ONCE__ then
+        __ONCE__ = true
+        print("getColor()", inspect({g.getColor()}))
+    end
+
+    self:printSignalType(x, y, "Sound") 
+    y = y + fontHeight
     self:draw_hit_rects(x, y, "sound", border)
     y = y + self:getHitQuadLineHeight()
+
+    self:printSignalType(x, y, "Color") 
+    y = y + fontHeight
     self:draw_hit_rects(x, y, "color", border)
     y = y + self:getHitQuadLineHeight()
+
+    self:printSignalType(x, y, "Form") 
+    y = y + fontHeight
     self:draw_hit_rects(x, y, "form", border)
     y = y + self:getHitQuadLineHeight()
+
+    self:printSignalType(x, y, "Position") 
+    y = y + fontHeight
     self:draw_hit_rects(x, y, "pos", border)
     y = y + self:getHitQuadLineHeight()
 
@@ -137,13 +160,11 @@ function statisticRender:draw()
     g.setColor({200 / 255, 0, 200 / 255})
 
     local y = freezedY
-    local pixel_gap = 10
-    x, y = self:print_signal_type(x, y, "S", pixel_gap, delta) 
-    x, y = self:print_signal_type(x, y, "C", pixel_gap, delta) 
-    x, y = self:print_signal_type(x, y, "F", pixel_gap, delta) 
-    x, y = self:print_signal_type(x, y, "P", pixel_gap, delta)
+    --x, y = self:print_signal_type(x, y, "C", pixel_gap, delta) 
+    --x, y = self:print_signal_type(x, y, "F", pixel_gap, delta) 
+    --x, y = self:print_signal_type(x, y, "P", pixel_gap, delta)
 
-    x, y = self:draw_percents(x, freezedY + 0, pixel_gap, border, starty)
+    x, y = self:drawPercents(x, freezedY + 0, pixel_gap, border, starty)
 
     self:printInfo()
 
