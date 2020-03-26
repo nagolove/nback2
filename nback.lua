@@ -59,19 +59,12 @@ local nbackSelf = {
 function nback.newStatisticRender(data)
     local self = deepcopy(nbackSelf)
     setmetatable(self, nback)
-   
     self.signals = deepcopy(data.signals)
-    self.percent = data.percent
-
     print("self.signals", inspect(self.signals))
-
+    self.percent = data.percent
     self.pressed = deepcopy(data.pressed)
-
-    --[[self.statisticRender = true]]
     self.signals.eq = generator.makeEqArrays(self.signals, self.level)
-
     self:resize(g.getDimensions())
-
     return self
 end
 

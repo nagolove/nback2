@@ -32,6 +32,7 @@ local pallete = {
     debug_font = {140 / 255, 140 / 255, 140 / 255, 1},
     hit_color = {200 / 255, 10 / 255, 10 / 255},
     buttonColor = {1, 0.42, 0.5},
+    statisticSignalType = {0, 0.941, 0, 1}
 }
 
 return pallete

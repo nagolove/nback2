@@ -1,6 +1,7 @@
 ﻿return {
     en = {
         pos = "Position", -- пространство(??)
+        position = "Position", 
         sound = "Sound",
         form = "Form",
         color = "Color",

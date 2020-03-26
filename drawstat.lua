@@ -33,7 +33,7 @@ end
 
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
 -- type - строка "pos", "sound", etc.
-function statisticRender:draw_hit_rects(x, y, type, border)
+function statisticRender:drawHitQuads(x, y, type, border)
     local rect_size = self.rect_size
     local eq_arr = self.signals.eq[type]
     for k, v in pairs(self.pressed[type]) do
@@ -65,15 +65,18 @@ function statisticRender:draw_hit_rects(x, y, type, border)
 end
 
 -- draw one big letter in left side of hit rects output
-function statisticRender:printSignalType(x, y, str)
-    --print("printSignal", delta)
-    local rect_size = self.rect_size
-    local delta = (rect_size - g.getFont():getHeight()) / 2
-    ----g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
-    --g.print(str, x, y + delta)
+function statisticRender:printSignalType(x, y, signalType)
+    print("signalType", inspect(signalType))
+    local loc = i18n(signalType) 
+    loc = loc or ""
+    local str =  loc .. "  " 
+    local strWidth = g.getFont():getWidth(str)
+    g.setColor(pallete.statisticSignalType)
     g.print(str, x, y)
-    --y = y + rect_size + 6
-    --return x, y
+    g.setColor(pallete.percentFont)
+    local formatStr = "%.3f"
+    print("self.percent", inspect(self.percent))
+    g.print(string.format(formatStr, self.percent[signalType]), x + strWidth, y)
 end
 
 function statisticRender:drawPercents(x, y, pixel_gap, border, starty)
@@ -136,24 +139,24 @@ function statisticRender:draw()
         print("getColor()", inspect({g.getColor()}))
     end
 
-    self:printSignalType(x, y, "Sound") 
+    self:printSignalType(x, y, "sound") 
     y = y + fontHeight
-    self:draw_hit_rects(x, y, "sound", border)
+    self:drawHitQuads(x, y, "sound", border)
     y = y + self:getHitQuadLineHeight()
 
-    self:printSignalType(x, y, "Color") 
+    self:printSignalType(x, y, "color") 
     y = y + fontHeight
-    self:draw_hit_rects(x, y, "color", border)
+    self:drawHitQuads(x, y, "color", border)
     y = y + self:getHitQuadLineHeight()
 
-    self:printSignalType(x, y, "Form") 
+    self:printSignalType(x, y, "form") 
     y = y + fontHeight
-    self:draw_hit_rects(x, y, "form", border)
+    self:drawHitQuads(x, y, "form", border)
     y = y + self:getHitQuadLineHeight()
 
-    self:printSignalType(x, y, "Position") 
+    self:printSignalType(x, y, "position") 
     y = y + fontHeight
-    self:draw_hit_rects(x, y, "pos", border)
+    self:drawHitQuads(x, y, "pos", border)
     y = y + self:getHitQuadLineHeight()
 
     -- drawing left column with letters
@@ -194,21 +197,17 @@ end
 
 function statisticRender:percentage()
     local p
-
+    self.percent = {}
     p =  calc_percent(self.signals.eq.sound, self.pressed.sound)
-    self.sound_percent = p > 0.0 and p or 0.0
-
+    self.percent.sound = p > 0.0 and p or 0.0
     p = calc_percent(self.signals.eq.color, self.pressed.color)
-    self.color_percent = p > 0.0 and p or 0.0
-
+    self.percent.color = p > 0.0 and p or 0.0
     p = calc_percent(self.signals.eq.form, self.pressed.form)
-    self.form_percent = p > 0.0 and p or 0.0
-
+    self.percent.form = p > 0.0 and p or 0.0
     p = calc_percent(self.signals.pos.eq, self.pressed.pos)
-    self.pos_percent = p > 0.0 and p or 0.0
-
-    self.percent = (self.sound_percent + self.color_percent + 
-    self.form_percent + self.pos_percent) / 4
+    self.percent.position = p > 0.0 and p or 0.0
+    self.percent.common = (self.percent.sound + self.percent.color + 
+        self.percent.form + self.percent.form) / 4
 end
 
 --[[function statisticRender.new(font, signals, pressed, level, pause_time)]]
