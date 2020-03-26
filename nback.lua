@@ -283,7 +283,7 @@ function nback:createSetupMenu()
 
         onleft = function()
             if dim - 1 >= minDim then dim = dim - 1 end
-            return {pallete.signal, i18n("setupLevel.dimLevel"), parameterColor,
+            return {pallete.signal, i18n("setupMenu.dimLevel"), parameterColor,
                 tostring(dim)},
                 dim == 1,
                 dim == maxLevel
@@ -291,7 +291,7 @@ function nback:createSetupMenu()
 
         onright = function()
             if dim + 1 <= maxDim then dim = dim + 1 end
-            return {signal.color, i18n("setupLevel.dimLevel"), parameterColor,
+            return {signal.color, i18n("setupMenu.dimLevel"), parameterColor,
                 tostring(dim)},
                 dim == 1,
                 dim == maxLevel
@@ -416,14 +416,6 @@ function nback:initButtons()
             end
         end})
 
-    --[[
-       [print("----")
-       [for k, v in pairs(self.buttons) do
-       [    print(inspect(v))
-       [end
-       [print("----")
-       ]]
-
     self:setupButtonsTextPosition()
 end
 
@@ -438,22 +430,6 @@ function nback:drawButtons()
     -- эта строчка необходима так как initButtons() вызывается не в саммом
     -- подходящем месте. Найдешь место лучше, эта строчка не будет нужна.
     if not self.buttons then return end
-
-    --[[table.insert(self.coros, coroutine.create(function()]]
-        --[[g.setColor(pallete.buttonColor)]]
-        --[[g.rectangle("fill", v.x, v.y, v.w, v.h, 6, 6)]]
-        --[[g.setColor{0, 0, 0}]]
-        --[[g.setLineWidth(2)]]
-        --[[g.rectangle("line", v.x, v.y, v.w, v.h, 6, 6)]]
-
-        --[[g.setColor{0, 0, 0}]]
-        --[[g.setFont(self.font)]]
-        --[[g.printf(v.title, v.textx, v.texty, v.w, "center")]]
-    --[[end))]]
-    
-    --[[pushCoro(buttonCoroElim(self.buttons["leftup"]))]]
-    --[[pushCoro(buttonCoroGlow(self.buttons["leftup"]))]]
-    --[[pushCoro(buttonCoroHide(self.buttons["leftup"]))]]
 
     function btnCoroPress()
         local getTime = love.timer.getTime
@@ -538,8 +514,7 @@ function nback:draw()
     g.setShader()
     g.pop()
 
-    --[[print("self.layout", inspect(self.layout))]]
-    g.setColor{0, 0, 0}
+    --g.setColor{0, 0, 0}
     --[[drawHierachy(self.layout)]]
     --self:fill_linesbuf()
 end
