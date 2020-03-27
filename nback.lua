@@ -9,7 +9,7 @@ local bhupur = require "bhupur"
 local g = love.graphics
 local generator = require "generator"
 local inspect = require "libs.inspect"
-local linesbuf = require "kons"(0, 0)
+--local linesbuf = require "kons"(0, 0)
 local lume = require "libs.lume"
 local math = require "math"
 local os = require "os"
@@ -204,9 +204,7 @@ function nback:createSetupMenu()
 
     local parameterColor = {0, 0.9, 0}
 
-    self.setupmenu = setupmenu(
-        love.graphics.newFont("gfx/DejaVuSansMono.ttf", 30), pallete.signal, 
-        linesbuf)
+    self.setupmenu = setupmenu(love.graphics.newFont("gfx/DejaVuSansMono.ttf", 30), pallete.signal)
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
@@ -516,7 +514,7 @@ function nback:draw()
 
     --g.setColor{0, 0, 0}
     --[[drawHierachy(self.layout)]]
-    --self:fill_linesbuf()
+    self:fill_linesbuf()
 end
 
 function nback:checkTouchButtons(x, y)
@@ -827,11 +825,19 @@ function nback:draw_percents(x, y, rect_size, pixel_gap, border, starty)
 end
 
 function nback:fill_linesbuf()
-    linesbuf:pushi("fps " .. love.timer.getFPS())
-    linesbuf:pushi("pos " .. inspect(self.signals.pos))
-    linesbuf:pushi("sound " .. inspect(self.sound_signals))
-    linesbuf:pushi("form " .. inspect(self.form_signals))
-    linesbuf:pushi("color " .. inspect(self.color_signals))
+    --linesbuf:pushi("fps " .. love.timer.getFPS())
+    if self.signals then
+        linesbuf:pushi("pos " .. inspect(self.signals.pos))
+    end
+    if self.signals then
+        linesbuf:pushi("sound " .. inspect(self.signals.sound))
+    end
+    if self.signals then
+        linesbuf:pushi("form " .. inspect(self.signals.form))
+    end
+    if self.signals then
+        linesbuf:pushi("color " .. inspect(self.signals.color))
+    end
     linesbuf:pushi("current_sig = " .. self.current_sig)
     linesbuf:pushi("nback.can_press = " .. tostring(self.can_press))
     linesbuf:pushi("volume %.3f", self.volume)

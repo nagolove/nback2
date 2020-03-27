@@ -1,5 +1,4 @@
 ﻿local inspect = require "libs.inspect"
-local linesbuf = require "kons".new()
 local pviewer = require "pviewer"
 local nback = require "nback"
 local help = require "help"
@@ -207,8 +206,6 @@ function menu:draw()
         self:drawCursor()
         g.pop()
     end
-    linesbuf:pushi(string.format("FPS %d", love.timer.getFPS()))
-    linesbuf:draw()
 end
 
 return {

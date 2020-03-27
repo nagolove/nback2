@@ -2,8 +2,9 @@
 useKeyboard = true
 onAndroid = true
 
-require("common")
+require "common"
 
+local profi = require "ProFi"
 local lg = love.graphics
 local Timer = require "libs/Timer"
 local inspect = require "libs/inspect"
@@ -11,7 +12,6 @@ local lovebird = require "libs/lovebird"
 local lume = require "libs/lume"
 local pallete = require "pallete"
 local splash = require "splash"
-local kons = require "kons"
 
 function loadLocales()
     local files = love.filesystem.getDirectoryItems("locales")
@@ -28,6 +28,7 @@ function loadLocales()
 end
 
 i18n = require "i18n"
+linesbuf = require "kons".new()
 cam = require "camera".new()
 help = require "help".new()
 menu = require "menu".new()
@@ -82,6 +83,8 @@ function love.load(arg)
         screenMode = "fs"
         dispatchWindowResize(love.graphics.getDimensions())
     end
+
+    profiReportFont = lg.newFont("gfx/DroidSansMono.ttf", 20)
 end
 
 function love.update(dt)
@@ -107,8 +110,45 @@ function dispatchWindowResize(w, h)
     end
 end
 
+-------------------------------------------------------------
+function stopProfiling()
+  profi:stop()
+  local fname = "profile_report.txt"
+  profi:writeReport(fname)
+  profiReportText = nil
+  profiReportText = lg.newText(profiReportFont)
+  profiReportHeight = 0
+  local maxIndex = 0
+  local x, y = 0, 0 -- FIXME а если захочется отобразить в других координатах?
+  for line in io.lines(fname) do
+    maxIndex = profiReportText:add(line, x, y)
+    y = y + profiReportFont:getHeight()
+    profiReportHeight = profiReportHeight + profiReportFont:getHeight()
+  end
+  -- выбираю максимальную ширину строки и сохраняю ее в переменной
+  profiReportWidth = 0
+  for i = 1, maxIndex do
+    local w = profiReportText:getWidth(i)
+    profiReportWidth = w > profiReportWidth and w or profiReportWidth
+  end
+end
+
+function drawProfilingReport()
+  lg.setColor{0.1, 0.1, 0.1}
+  lg.rectangle("fill", 0, 0, profiReportWidth, profiReportHeight)
+  lg.setColor{1, 1, 1}
+  lg.draw(profiReportText)
+end
+-------------------------------------------------------------
+
 function love.keypressed(key, scancode)
-    if onAndroid then return end
+    --if onAndroid then return end
+
+    if scancode == "9" then
+        profi:start("once")
+    elseif scancode == "0" then
+        stopProfiling()
+    end
 
     -- ctrl-d hotkey to start debugger
     if love.keyboard.isScancodeDown("lctrl") and scancode == "d" then
@@ -119,17 +159,15 @@ function love.keypressed(key, scancode)
         nback:save_to_history()
     end
 
-    print(string.format("key %s, scancode %s", key, scancode))
+    --print(string.format("key %s, scancode %s", key, scancode))
 
     if love.keyboard.isDown("ralt", "lalt") and key == "return" then
         -- код дерьмовый, но работает
         if screenMode == "fs" then
-            love.window.setMode(800, 600, {fullscreen = false})
-            screenMode = "win"
+            love.window.setMode(800, 600, {fullscreen = false}) screenMode = "win"
             dispatchWindowResize(love.graphics.getDimensions())
         else
-            love.window.setMode(0, 0, {fullscreen = true,
-            fullscreentype = "exclusive"})
+            love.window.setMode(0, 0, {fullscreen = true, fullscreentype = "exclusive"})
             screenMode = "fs"
             dispatchWindowResize(love.graphics.getDimensions())
         end
@@ -151,6 +189,9 @@ function love.draw()
     cam:attach()
     menu:draw()
     cam:detach()
+    if profiReportText then
+        drawProfilingReport()
+    end
     love.timer.sleep(0.01)
 end
 

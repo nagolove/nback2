@@ -194,8 +194,8 @@ function statisticRender.new(nback)
         durationMin = nback.durationMin,
         durationSec = nback.durationSec,
     }, statisticRender)
-    self.width_k = 3.9 / 4,
-    self.rect_size = math.floor(w * self.width_k / #self.signals.pos),
+    self.width_k = 3.9 / 4
+    self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
     self:percentage()
     self:buildLayout()
     return self

@@ -13,11 +13,9 @@ local g = love.graphics
 local menu = {}
 menu.__index = menu
 
-local linesbuf
-
 -- парамертрами могут быть - шрифт и его размер, цвет текста, стиль рамки
 -- выделения пункта
-function menu.new(font, color, lb)
+function menu.new(font, color)
     local self = {
         font = font,
         color = color,
@@ -29,7 +27,6 @@ function menu.new(font, color, lb)
         activeMarkerColor = {0, 0.8, 0},
         inactiveMarkerColor = {0.5, 0.5, 0.5},
     }
-    linesbuf = lb
     return setmetatable(self, menu)
 end
 
@@ -86,8 +83,7 @@ function menu:update(dt)
     --linesbuf:pushi("item.leftPressedKey = %s", tostring(item.leftPressedKey))
     --linesbuf:pushi("item.rightPressedKey = %s", tostring(item.rightPressedKey))
     if item then
-        linesbuf:pushi("item.isfirst = %s, item.islast = %s", item.isfirst, 
-            item.islast)
+        linesbuf:pushi("item.isfirst = %s, item.islast = %s", item.isfirst, item.islast)
     end
 end
 

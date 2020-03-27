@@ -112,12 +112,6 @@ function pviewer:resize(neww, newh)
     end
 end
 
-function pviewer:print_dbg_info()
-    linesbuffer:pushi("fps " .. love.timer.getFPS())
-    linesbuffer:pushi("self.verticalBufLen %d", self.verticalBufLen)
-    linesbuffer:draw()
-end
-
 function pviewer:draw()
     g.push("all")
 
@@ -160,7 +154,7 @@ function pviewer:draw()
     g.draw(self.rt, x + maxWidth, 0)
 
     g.setFont(oldFont)
-    self:print_dbg_info()
+    linesbuf:pushi("self.verticalBufLen %d", self.verticalBufLen)
 
     g.pop()
 end
