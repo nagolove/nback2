@@ -30,6 +30,7 @@ end
 i18n = require "i18n"
 linesbuf = require "kons".new()
 cam = require "camera".new()
+profiCam = require "camera".new()
 help = require "help".new()
 menu = require "menu".new()
 nback = require "nback".new()
@@ -112,42 +113,61 @@ end
 
 -------------------------------------------------------------
 function stopProfiling()
-  profi:stop()
-  local fname = "profile_report.txt"
-  profi:writeReport(fname)
-  profiReportText = nil
-  profiReportText = lg.newText(profiReportFont)
-  profiReportHeight = 0
-  local maxIndex = 0
-  local x, y = 0, 0 -- FIXME а если захочется отобразить в других координатах?
-  for line in io.lines(fname) do
-    maxIndex = profiReportText:add(line, x, y)
-    y = y + profiReportFont:getHeight()
-    profiReportHeight = profiReportHeight + profiReportFont:getHeight()
-  end
-  -- выбираю максимальную ширину строки и сохраняю ее в переменной
-  profiReportWidth = 0
-  for i = 1, maxIndex do
-    local w = profiReportText:getWidth(i)
-    profiReportWidth = w > profiReportWidth and w or profiReportWidth
-  end
+    local res = love.timer.getTime() - profiStartTime
+
+    profi:stop()
+    local fname = "profile_report.txt"
+    profi:writeReport(fname)
+    profiReportText = nil
+    profiReportText = lg.newText(profiReportFont)
+    profiReportHeight = 0
+    local maxIndex = 0
+    local x, y = 0, 0 -- FIXME а если захочется отобразить в других координатах?
+    local i = 5
+    for line in io.lines(fname) do
+        if i < 0 then
+            maxIndex = profiReportText:add(line, x, y)
+            y = y + profiReportFont:getHeight()
+            profiReportHeight = profiReportHeight + profiReportFont:getHeight()
+        else
+            i = i - 1
+        end
+    end
+    -- выбираю максимальную ширину строки и сохраняю ее в переменной
+    profiReportWidth = 0
+    for i = 1, maxIndex do
+        local w = profiReportText:getWidth(i)
+        profiReportWidth = w > profiReportWidth and w or profiReportWidth
+    end
+
+    return res
 end
 
 function drawProfilingReport()
-  lg.setColor{0.1, 0.1, 0.1}
-  lg.rectangle("fill", 0, 0, profiReportWidth, profiReportHeight)
-  lg.setColor{1, 1, 1}
-  lg.draw(profiReportText)
+    if profiReportText then
+        profiCam:attach()
+        lg.setColor{0.1, 0.1, 0.1}
+        lg.rectangle("fill", 0, 0, profiReportWidth, profiReportHeight)
+        lg.setColor{1, 1, 1}
+        lg.draw(profiReportText)
+        profiCam:detach()
+    end
 end
 -------------------------------------------------------------
+function startProfiling()
+    profi:start("once")
+    profiStartTime = love.timer.getTime()
+end
 
 function love.keypressed(key, scancode)
     --if onAndroid then return end
 
     if scancode == "9" then
-        profi:start("once")
+        startProfiling()
+        linesbuf:push(1, "profiler started.")
     elseif scancode == "0" then
-        stopProfiling()
+        local time = stopProfiling()
+        linesbuf:push(1, "profiler stoped. gathered for %d seconds.", time)
     end
 
     -- ctrl-d hotkey to start debugger
@@ -182,20 +202,26 @@ function love.keyreleased(key, scancode)
     menu:keyreleased(key, scancode)
 end
 
-function love.mousepressed(x, y, button, istouch)
-end
-
 function love.draw()
     cam:attach()
     menu:draw()
     cam:detach()
-    if profiReportText then
-        drawProfilingReport()
-    end
+    drawProfilingReport()
     love.timer.sleep(0.01)
 end
 
+function love.wheelmoved(_, y)
+    if y == 1 then
+        profiCam:zoom(0.98)
+    elseif y == -1 then
+        profiCam:zoom(1.02)
+    end
+end
+
 function love.mousemoved(x, y, dx, dy, istouch)
+    if love.keyboard.isDown("lshift") and love.mouse.isDown("1") then
+        profiCam:move(-dx, -dy)
+    end
     menu:mousemoved(x, y, dx, dy, istouch)
 end
 
