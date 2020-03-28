@@ -9,7 +9,6 @@ local bhupur = require "bhupur"
 local g = love.graphics
 local generator = require "generator"
 local inspect = require "libs.inspect"
---local linesbuf = require "kons"(0, 0)
 local lume = require "libs.lume"
 local math = require "math"
 local os = require "os"
@@ -296,7 +295,7 @@ function nback:createSetupMenu()
         end})
 end
 
-function nback:init(save_name)
+function nback:init()
     self.save_name = save_name
     self.timer = Timer()
     self.signal = signal.new(self.cell_width, "alphabet")
@@ -824,26 +823,38 @@ function nback:draw_percents(x, y, rect_size, pixel_gap, border, starty)
     return x, y
 end
 
+function nback:inspectSignals()
+    if self.signals then
+        self.signalsInspected = {}
+        self.signalsInspected.pos = inspect(self.signals.pos)
+        self.signalsInspected.form = inspect(self.signals.pos)
+        self.signalsInspected.sound = inspect(self.signals.sound)
+        self.signalsInspected.color = inspect(self.signals.color)
+        local strings = {}
+        table.insert(strings, "pos " .. self.signalsInspected.pos)
+        table.insert(strings, "sound " .. self.signalsInspected.sound)
+        table.insert(strings, "form " .. self.signalsInspected.form)
+        table.insert(strings, "color " .. self.signalsInspected.color)
+        self.signalsInspected.strings = strings
+    end
+end
+
 function nback:fill_linesbuf()
-    --linesbuf:pushi("fps " .. love.timer.getFPS())
-    if self.signals then
-        linesbuf:pushi("pos " .. inspect(self.signals.pos))
+    if not self.signalsInspected then
+        self:inspectSignals()
     end
     if self.signals then
-        linesbuf:pushi("sound " .. inspect(self.signals.sound))
+        local strings = self.signalsInspected.strings
+        for i = 1, 4 do
+            linesbuf:pushi(strings[i])
+        end
     end
-    if self.signals then
-        linesbuf:pushi("form " .. inspect(self.signals.form))
-    end
-    if self.signals then
-        linesbuf:pushi("color " .. inspect(self.signals.color))
-    end
+
     linesbuf:pushi("current_sig = " .. self.current_sig)
     linesbuf:pushi("nback.can_press = " .. tostring(self.can_press))
     linesbuf:pushi("volume %.3f", self.volume)
     linesbuf:pushi("Mem: %.3f MB", collectgarbage("count") / 1024)
     linesbuf:pushi("signal.width %d", self.signal.width)
-    linesbuf:draw()
 end
 
 -- draw active signal quad

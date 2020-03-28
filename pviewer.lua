@@ -13,7 +13,7 @@
 -- Как хранить список данных?
 -- ]]
 
-require("common")
+require "common"
 local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local timer = require "libs.Timer"
@@ -21,7 +21,6 @@ local newStatisticRender = require "nback".newStatisticRender
 
 local pallete = require "pallete"
 local g = love.graphics
-local Kons = require "kons"
 
 local pviewer = {}
 pviewer.__index = pviewer
@@ -36,8 +35,6 @@ function pviewer.new()
     self.w, self.h = g.getDimensions()
     return setmetatable(self, pviewer)
 end
-
-local linesbuffer = Kons(x, y)
 
 function pviewer:init(save_name)
     self.save_name = save_name

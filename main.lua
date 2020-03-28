@@ -6,12 +6,24 @@ require "common"
 
 local profi = require "ProFi"
 local lg = love.graphics
-local Timer = require "libs/Timer"
 local inspect = require "libs/inspect"
-local lovebird = require "libs/lovebird"
-local lume = require "libs/lume"
 local pallete = require "pallete"
 local splash = require "splash"
+local timer = require "libs/Timer"()
+
+keyconfig = require "keyconfig"
+i18n = require "i18n"
+linesbuf = require "kons".new()
+cam = require "camera".new()
+profiCam = require "camera".new()
+help = require "help".new()
+menu = require "menu".new()
+nback = require "nback".new()
+pviewer = require "pviewer".new()
+save_name = "nback-v0.4.lua"
+
+function love.quit()
+end
 
 function loadLocales()
     local files = love.filesystem.getDirectoryItems("locales")
@@ -27,20 +39,6 @@ function loadLocales()
     end
 end
 
-i18n = require "i18n"
-linesbuf = require "kons".new()
-cam = require "camera".new()
-profiCam = require "camera".new()
-help = require "help".new()
-menu = require "menu".new()
-nback = require "nback".new()
-pviewer = require "pviewer".new()
-
-function love.quit()
-end
-
-local save_name = "nback-v0.3.lua"
-
 function setupLocale(locale)
     print("setupLocale", locale)
     i18n.setLocale(locale)
@@ -54,16 +52,15 @@ function love.load(arg)
         locale = string.match(arg[1], "locale=(%S+)") or "en"
     end
     setupLocale(locale)
+    bindKeys()
 
     math.randomseed(os.time())
-    lovebird.update()
-    lovebird.maxlines = 2000
     love.window.setTitle("nback")
     --require "splash".init()
 
     -- Ручная инициализация модулей
-    nback:init(save_name)
-    pviewer:init(save_name)
+    nback:init()
+    pviewer:init()
     menu:init()
     help:init()
 
@@ -90,16 +87,8 @@ end
 
 function love.update(dt)
     menu:update(dt)
-end
-
-function make_screenshot()
-    local i = 0
-    local fname
-    repeat
-        i = i + 1
-        fname = love.filesystem.getInfo("screenshot" .. i .. ".png")
-    until not fname
-    love.graphics.captureScreenshot("screenshot" .. i .. ".png")
+    timer:update(dt)
+    linesbuf:update(dt)
 end
 
 local screenMode = "win" -- or "fs"
@@ -111,36 +100,37 @@ function dispatchWindowResize(w, h)
     end
 end
 
--------------------------------------------------------------
 function stopProfiling()
-    local res = love.timer.getTime() - profiStartTime
+    if profiStartTime then
+        local res = love.timer.getTime() - profiStartTime
 
-    profi:stop()
-    local fname = "profile_report.txt"
-    profi:writeReport(fname)
-    profiReportText = nil
-    profiReportText = lg.newText(profiReportFont)
-    profiReportHeight = 0
-    local maxIndex = 0
-    local x, y = 0, 0 -- FIXME а если захочется отобразить в других координатах?
-    local i = 5
-    for line in io.lines(fname) do
-        if i < 0 then
-            maxIndex = profiReportText:add(line, x, y)
-            y = y + profiReportFont:getHeight()
-            profiReportHeight = profiReportHeight + profiReportFont:getHeight()
-        else
-            i = i - 1
+        profi:stop()
+        local fname = "profile_report.txt"
+        profi:writeReport(fname)
+        profiReportText = nil
+        profiReportText = lg.newText(profiReportFont)
+        profiReportHeight = 0
+        local maxIndex = 0
+        local x, y = 0, 0 -- FIXME а если захочется отобразить в других координатах?
+        local i = 5
+        for line in io.lines(fname) do
+            if i < 0 then
+                maxIndex = profiReportText:add(line, x, y)
+                y = y + profiReportFont:getHeight()
+                profiReportHeight = profiReportHeight + profiReportFont:getHeight()
+            else
+                i = i - 1
+            end
+        end
+        -- выбираю максимальную ширину строки и сохраняю ее в переменной
+        profiReportWidth = 0
+        for i = 1, maxIndex do
+            local w = profiReportText:getWidth(i)
+            profiReportWidth = w > profiReportWidth and w or profiReportWidth
         end
     end
-    -- выбираю максимальную ширину строки и сохраняю ее в переменной
-    profiReportWidth = 0
-    for i = 1, maxIndex do
-        local w = profiReportText:getWidth(i)
-        profiReportWidth = w > profiReportWidth and w or profiReportWidth
-    end
 
-    return res
+    return res or 0
 end
 
 function drawProfilingReport()
@@ -153,35 +143,29 @@ function drawProfilingReport()
         profiCam:detach()
     end
 end
--------------------------------------------------------------
+
 function startProfiling()
     profi:start("once")
     profiStartTime = love.timer.getTime()
 end
 
-function love.keypressed(key, scancode)
-    --if onAndroid then return end
-
-    if scancode == "9" then
+function bindKeys()
+    local kc = keyconfig
+    kc.bindKeyPressed("startprofi", {"9"}, function()
         startProfiling()
         linesbuf:push(1, "profiler started.")
-    elseif scancode == "0" then
+    end, "start program profiling.")
+    kc.bindKeyPressed("stopprofi", {"0"}, function()
         local time = stopProfiling()
         linesbuf:push(1, "profiler stoped. gathered for %d seconds.", time)
-    end
-
-    -- ctrl-d hotkey to start debugger
-    if love.keyboard.isScancodeDown("lctrl") and scancode == "d" then
+    end, "stop program profiling.")
+    kc.bindKeyPressed("dbg", {"d", "lctrl"}, function()
         debug.debug()
-    end
-    -- ctrl-s hotkey for save gamedata to file
-    if love.keyboard.isScancodeDown("lctrl") and scancode == "s" then
+    end, "Start debugger.")
+    kc.bindKeyPressed("savehistory", {"s", "lctrl"}, function()
         nback:save_to_history()
-    end
-
-    --print(string.format("key %s, scancode %s", key, scancode))
-
-    if love.keyboard.isDown("ralt", "lalt") and key == "return" then
+    end, "save statistic file in history file.")
+    kc.bindKeyPressed("changescreenmode", {"return", "lalt"}, function()
         -- код дерьмовый, но работает
         if screenMode == "fs" then
             love.window.setMode(800, 600, {fullscreen = false}) screenMode = "win"
@@ -191,15 +175,27 @@ function love.keypressed(key, scancode)
             screenMode = "fs"
             dispatchWindowResize(love.graphics.getDimensions())
         end
-    end
-    if key == "f12" then make_screenshot()
-    else
-        menu:keypressed(key, scancode)
-    end
+    end, "Turn to fullscreen or windowed mode.")
+    kc.bindKeyPressed("screenshot", {"f12"}, function()
+        make_screenshot()
+    end, "Save screenshot in data folder.")
+end
+
+function love.keypressed(_, scancode)
+    --if onAndroid then return end
+    keyconfig.checkPressedKeys(scancode)
+    menu:keypressed(_, scancode)
 end
 
 function love.keyreleased(key, scancode)
-    menu:keyreleased(key, scancode)
+    menu:keyreleased(_, scancode)
+end
+
+fpsCounter = 0
+
+function countAverageFPS()
+    fpsSum = love.timer.getFPS()
+    fpsCounter = fpsCounter + 1
 end
 
 function love.draw()
@@ -207,6 +203,10 @@ function love.draw()
     menu:draw()
     cam:detach()
     drawProfilingReport()
+    linesbuf:pushi("FPS %d", love.timer.getFPS())
+    --linesbuf:pushi("average FPS for 30 seconds")
+    linesbuf:draw()
+    countAverageFPS()
     love.timer.sleep(0.01)
 end
 

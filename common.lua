@@ -41,3 +41,15 @@ function deepcopy(orig)
     end
     return copy
 end
+
+function make_screenshot()
+    local i = 0
+    local fname
+    repeat
+        i = i + 1
+        fname = love.filesystem.getInfo("screenshot" .. i .. ".png")
+    until not fname
+    love.graphics.captureScreenshot("screenshot" .. i .. ".png")
+end
+
+

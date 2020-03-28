@@ -64,11 +64,26 @@ function statisticRender:drawHitQuads(x, y, type, border)
     return x, y
 end
 
+function statisticRender:preparePrintingSignalsType(signalType)
+    function prepare(signalType)
+        local loc = i18n(signalType) or ""
+        local str =  loc .. "  " 
+        local strWidth = g.getFont():getWidth(str)
+        local formatStr = "%.3f"
+        print("self.percent", inspect(self.percent))
+        return string.format(formatStr, self.percent[signalType]), x + strWidth, y
+    end
+    local tbl = {}
+    table.insert(tbl, prepare("pos"))
+    table.insert(tbl, prepare("sound"))
+    table.insert(tbl, prepare("color"))
+    table.insert(tbl, prepare("form"))
+    self.printingSignalsPrepared = tbl
+end
+
 -- draw one big letter in left side of hit rects output
 function statisticRender:printSignalType(x, y, signalType)
-    print("signalType", inspect(signalType))
-    local loc = i18n(signalType) 
-    loc = loc or ""
+    local loc = i18n(signalType) or ""
     local str =  loc .. "  " 
     local strWidth = g.getFont():getWidth(str)
     g.setColor(pallete.statisticSignalType)
