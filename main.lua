@@ -83,6 +83,7 @@ function love.load(arg)
     end
 
     profiReportFont = lg.newFont("gfx/DroidSansMono.ttf", 20)
+    linesbuf.show = false
 end
 
 function love.update(dt)

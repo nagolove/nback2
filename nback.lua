@@ -144,7 +144,7 @@ function nback:start()
         self.startTime = love.timer.getTime()
     end)
 
-    if not useKeyboard then
+    if onAndroid or useKeyboard then
         self:initButtons()
     end
 end
@@ -335,12 +335,20 @@ function nback:processSignal()
         -- setup timer for figure alpha channel animation
         self.figure_alpha = 1
         local tween_time = self.pause_time / 2
+        print("tween_time", tween_time)
         print("time delta = " .. self.pause_time - tween_time)
-        self.timer:after(self.pause_time - tween_time - 0.1, function()
-            print("figure_alpha before", self.figure_alpha)
-            self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
-            print("figure_alpha after", self.figure_alpha)
-        end)
+        --local after = self.pause_time - tween_time - 0.1
+        local after = 0.1
+        print("after", after)
+
+        --[[
+           [self.timer:after(after, function()
+           [    print("figure_alpha before", self.figure_alpha)
+           [    print("tween_time", tween_time)
+           [    self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
+           [    print("figure_alpha after", self.figure_alpha)
+           [end)
+           ]]
 
         self.signal:play(self.signals.sound[self.current_sig])
     end
@@ -356,7 +364,7 @@ function nback:initButtons()
         h = self.layout.leftTop.h,
         title = i18n("quitBtn"),
         ontouch = function() 
-            love.event.quit() 
+            menu:goBack()
         end})
 
     -- клавиша дополнительных настроек справа
@@ -367,6 +375,7 @@ function nback:initButtons()
         h = self.layout.rightTop.h,
         title = i18n("settingsBtn"),
         ontouch = function() 
+            -- какие тут могут быть настройки?
             love.event.quit() 
         end})
 
@@ -808,7 +817,10 @@ function nback:drawActiveSignal()
     local sig_color = colorConstants[self.signals.color[self.current_sig]]
     if self.figure_alpha then
         sig_color[4] = self.figure_alpha
+    else
+        print("no self.figure_alpha")
     end
+    print("sig_color[4]", sig_color[4])
     local type = self.signals.form[self.current_sig]
     self.signal:draw(x, y, type, sig_color)
 end
