@@ -492,10 +492,10 @@ function nback:draw()
     if self.is_run then
         if self.start_pause then
             self:drawField()
-            self:print_start_pause()
+            self:printStartPause()
         else
             self:drawField()
-            self:draw_active_signal()
+            self:drawActiveSignal()
             self:drawButtons()
         end
     else
@@ -792,37 +792,6 @@ function nback:print_signal_type(x, y, rect_size, str, pixel_gap, delta)
     return x, y
 end
 
-function nback:draw_percents(x, y, rect_size, pixel_gap, border, starty)
-    local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size 
-    - border * 2 + pixel_gap
-    local formatStr = "%.3f"
-
-    g.setColor({200 / 255, 0, 200 / 255})
-    g.setFont(self.font)
-
-    -- эти условия нужно как-то убрать или заменить на что-то
-    if self.sound_percent then
-        g.print(string.format(formatStr, self.sound_percent), sx, y)
-        y = y + rect_size + 6
-    end
-    if self.color_percent then
-        g.print(string.format(formatStr, self.color_percent), sx, y)
-        y = y + rect_size + 6
-    end
-    if self.form_percent then
-        g.print(string.format(formatStr, self.form_percent), sx, y)
-        y = y + rect_size + 6
-    end
-    if self.pos_percent then
-        g.print(string.format(formatStr, self.pos_percent), sx, y)
-        y = starty + 4 * (rect_size + 20)
-    end
-    --[[if not self.statisticRender then]]
-        --[[g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")]]
-    --[[end]]
-    return x, y
-end
-
 function nback:inspectSignals()
     if self.signals then
         self.signalsInspected = {}
@@ -858,7 +827,7 @@ function nback:fill_linesbuf()
 end
 
 -- draw active signal quad
-function nback:draw_active_signal()
+function nback:drawActiveSignal()
     local x, y = unpack(self.signals.pos[self.current_sig])
     local sig_color = colorConstants[self.signals.color[self.current_sig]]
     if self.figure_alpha then
@@ -883,7 +852,7 @@ function nback:drawField()
 end
 
 -- draw central_text - Press Space key
-function nback:print_start_pause()
+function nback:printStartPause()
     local central_text = i18n("waitFor", { self.start_pause_rest })
     g.setFont(self.central_font)
     g.setColor(pallete.signal)
@@ -899,9 +868,17 @@ function nback:mousemoved(x, y, dx, dy, istouch)
     end
 end
 
+function nback:mousereleased(x, y, btn)
+    if self.statisticRender then
+        self.statisticRender:mousereleased(x, y, btn)
+    end
+end
+
 function nback:mousepressed(x, y, btn, istouch)
     if not self.is_run and not self.show_statistic then
         self.setupmenu:mousepressed(x, y, btn, istouch)
+    elseif self.statisticRender then
+        self.statisticRender:mousepressed(x, y, btn, istouch)
     end
 end
 
