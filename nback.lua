@@ -143,7 +143,10 @@ function nback:start()
         -- фиксирую время начала игры
         self.startTime = love.timer.getTime()
     end)
-    self:initButtons()
+
+    if not useKeyboard then
+        self:initButtons()
+    end
 end
 
 function nback:enter()
@@ -304,10 +307,14 @@ function nback:init()
     self:resize(g.getDimensions())
 
     self:initShaders()
+    self:initShadersTimer()
+end
+
+function nback:initShadersTimer()
     self.shaderTimer = 0
     self.shaderTimeEnabled = true -- непутевое название переменной
     self.timer:during(2, function(dt, time, delay) 
-        print(time, delay, self.shaderTimer)
+        print("time, delay, shaderTimer", time, delay, self.shaderTimer)
         local delta = 0.4 * dt
         if self.shaderTimer + delta <= 1 then
             self.shaderTimer = self.shaderTimer + delta
@@ -330,7 +337,9 @@ function nback:processSignal()
         local tween_time = self.pause_time / 2
         print("time delta = " .. self.pause_time - tween_time)
         self.timer:after(self.pause_time - tween_time - 0.1, function()
+            print("figure_alpha before", self.figure_alpha)
             self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
+            print("figure_alpha after", self.figure_alpha)
         end)
 
         self.signal:play(self.signals.sound[self.current_sig])
@@ -513,7 +522,6 @@ function nback:draw()
 
     --g.setColor{0, 0, 0}
     --[[drawHierachy(self.layout)]]
-    self:fill_linesbuf()
 end
 
 function nback:checkTouchButtons(x, y)
@@ -535,6 +543,7 @@ function nback:processTouches()
 end
 
 function nback:update(dt)
+    self:fillLinesbuf()
     self.timer:update(dt)
     self:processCoroutines()
 
@@ -770,27 +779,21 @@ function nback:resize(neww, newh)
 end
 
 -- return array of boolean values in succesful indices
-function nback:make_hit_arr(signals, comparator)
-    local ret = {}
-    if signals then
-        print("make_hit_arr")
-        for k, v in pairs(signals) do
-            ret[#ret + 1] = k > self.level and comparator(v, 
-                signals[k - self.level])
-        end
-    end
-    return ret
-end
+--[[
+   [function nback:make_hit_arr(signals, comparator)
+   [    local ret = {}
+   [    if signals then
+   [        print("make_hit_arr")
+   [        for k, v in pairs(signals) do
+   [            ret[#ret + 1] = k > self.level and comparator(v, 
+   [                signals[k - self.level])
+   [        end
+   [    end
+   [    return ret
+   [end
+   ]]
 
 local draw_iteration = 0 -- debug variable
-
--- draw one big letter in left side of hit rects output
-function nback:print_signal_type(x, y, rect_size, str, pixel_gap, delta)
-    local delta = (rect_size - g.getFont():getHeight()) / 2
-    g.print(str, x - g.getFont():getWidth(str) - pixel_gap, y + delta)
-    y = y + rect_size + 6
-    return x, y
-end
 
 function nback:inspectSignals()
     if self.signals then
@@ -808,7 +811,7 @@ function nback:inspectSignals()
     end
 end
 
-function nback:fill_linesbuf()
+function nback:fillLinesbuf()
     if not self.signalsInspected then
         self:inspectSignals()
     end
