@@ -157,6 +157,13 @@ function menu:mousemoved(x, y, dx, dy, istouch)
     end
 end
 
+function menu:mousereleased(x, y, btn, istouch)
+    if self.active then
+        local obj = self.items[self.active_item].obj
+        if obj.mousereleased then obj:mousereleased(x, y, btn, istouch) end
+    end
+end
+
 function menu:mousepressed(x, y, button, istouch)
     if self.active then
         local obj = self.items[self.active_item].obj
