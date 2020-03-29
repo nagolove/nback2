@@ -99,7 +99,7 @@ end
 
 function statisticRender:update(dt)
     processTouches()
-    gooi:update(dt)
+    gooi.update(dt)
 end
 
 -- draw one big letter in left side of hit rects output
@@ -111,7 +111,7 @@ function statisticRender:printSignalType(x, y, signalType)
     g.print(str, x, y)
     g.setColor(pallete.percentFont)
     local formatStr = "%.3f"
-    print("self.percent", inspect(self.percent))
+    --print("self.percent", inspect(self.percent))
     g.print(string.format(formatStr, self.percent[signalType]), x + strWidth, y)
 end
 
@@ -149,8 +149,8 @@ function statisticRender:draw()
 
     self:printInfo()
 
-    --g.setColor{0.5, 0.5, 0.5}
-    --drawHierachy(self.layout)
+    g.setColor{0.5, 0.5, 0.5}
+    drawHierachy(self.layout)
 
     gooi.draw()
 end
@@ -189,11 +189,11 @@ function statisticRender:percentage()
 end
 
 function statisticRender:keypressed(_, key, isrepeat)
-    gooi:keypressed(_, key, isrepeat)
+    gooi.keypressed(_, key, isrepeat)
 end
 
 function statisticRender:keyreleased(_, key)
-    gooi:keyreleased(_, key)
+    gooi.keyreleased(_, key)
 end
 
 function statisticRender:mousepressed(x, y, button)
@@ -201,7 +201,7 @@ function statisticRender:mousepressed(x, y, button)
 end
 
 function statisticRender:mousereleased(x, y, button)
-    googi.released()
+    gooi.released()
 end
 
 function statisticRender.new(nback)
@@ -223,10 +223,20 @@ function statisticRender.new(nback)
     self:percentage()
     self:buildLayout()
 
-    self.toMainMenuBtn = gooi.newButton({ text = "Return to menu",
-        self.layout.bottom.x, self.layout.bottom.y, self.layout.bottom.w, self.layout.h})
+    print("self.layout.bottom", inspect(self.layout.bottom))
+
+    gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
+        showBorder = true,
+        bgColor = {0.208, 0.220, 0.222},
+    })
+
+    local mainMenuBtnLayout = shrink(self.layout.bottom, nback.border)
+    self.mainMenuBtn = gooi.newButton({ text = "Return to menu",
+        x = mainMenuBtnLayout, y = mainMenuBtnLayout, 
+        w = mainMenuBtnLayout, h = mainMenuBtnLayout})
         :onRelease(function()
-            linesbuf.push(1, "return to main!")
+            linesbuf:push(1, "return to main!")
+            menu:goBack()
         end)
 
     return self
