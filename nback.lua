@@ -437,33 +437,6 @@ function nback:drawButtons()
     -- подходящем месте. Найдешь место лучше, эта строчка не будет нужна.
     if not self.buttons then return end
 
-    function btnCoroPress()
-        local getTime = love.timer.getTime
-        local time = getTime()
-
-        repeat
-            g.setColor{0, 0, 0}
-            g.rectangle("fill", x, y, w, h)
-            coroutine.yield()
-        until getTime() - time < 1
-
-        local animTime = 1
-        repeat
-            g.setColor{0, diff / animTime, 0}
-            g.rectangle("fill", x, y, w, h)
-            coroutine.yield()
-            local diff = getTime() - time
-        until diff < animTime
-
-        -- что дальше?
-        -- должна цепляться какая-то другая сопрограмма. Типа стека сопрограмм.
-        -- Если кнопка не нажата - она переливается оттенком цвета. При нажатии
-        -- идет анимация от текущего цвета к нажатому. Потом снова переливания,
-        -- но другим цветом.
-        -- Поскольку анимации связаны линейно временем[[хотя некоторые можно
-        -- прервать]], то можно добавлять в стек - следующий вид рисовки.
-    end
-
     local oldwidth = g.getLineWidth()
     for k, v in pairs(self.buttons) do
         g.setColor(pallete.buttonColor)
