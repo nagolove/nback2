@@ -1,5 +1,7 @@
 ﻿local inspect = require "libs.inspect"
 
+require "gooi.gooi"
+
 local pallete = require "pallete"
 local g = love.graphics
 
@@ -81,6 +83,25 @@ function statisticRender:preparePrintingSignalsType(signalType)
     self.printingSignalsPrepared = tbl
 end
 
+function processTouches()
+    local i = 0
+    local tbl = {}
+    for k, v in pairs(touches) do
+        if i < 2 then
+            table.insert(tbl, v)
+            i = i + 1
+        end
+    end
+    if #tbl == 2 then
+        cam:move(-tbl[1].dx, -tbl[1].dy)
+    end
+end
+
+function statisticRender:update(dt)
+    processTouches()
+    gooi:update(dt)
+end
+
 -- draw one big letter in left side of hit rects output
 function statisticRender:printSignalType(x, y, signalType)
     local loc = i18n(signalType) or ""
@@ -92,37 +113,6 @@ function statisticRender:printSignalType(x, y, signalType)
     local formatStr = "%.3f"
     print("self.percent", inspect(self.percent))
     g.print(string.format(formatStr, self.percent[signalType]), x + strWidth, y)
-end
-
-function statisticRender:drawPercents(x, y, pixel_gap, border, starty)
-    local rect_size = self.rect_size
-    local sx = x + rect_size * (#self.signals.pos - 1) + border + rect_size - border * 2 + pixel_gap
-    local formatStr = "%.3f"
-
-    g.setColor(pallete.percentFont)
-    g.setFont(self.font)
-
-    -- эти условия нужно как-то убрать или заменить на что-то
-    if self.sound_percent then
-        g.print(string.format(formatStr, self.sound_percent), sx, y)
-        y = y + rect_size + 6
-    end
-    if self.color_percent then
-        g.print(string.format(formatStr, self.color_percent), sx, y)
-        y = y + rect_size + 6
-    end
-    if self.form_percent then
-        g.print(string.format(formatStr, self.form_percent), sx, y)
-        y = y + rect_size + 6
-    end
-    if self.pos_percent then
-        g.print(string.format(formatStr, self.pos_percent), sx, y)
-        y = starty + 4 * (rect_size + 20)
-    end
-    --[[if not self.statisticRender then]]
-        --[[g.printf(string.format("rating " .. formatStr, self.percent), 0, y, w, "center")]]
-    --[[end]]
-    return x, y
 end
 
 -- рисовать статистику после конца сета
@@ -159,8 +149,10 @@ function statisticRender:draw()
 
     self:printInfo()
 
-    g.setColor{0.5, 0.5, 0.5}
+    --g.setColor{0.5, 0.5, 0.5}
     --drawHierachy(self.layout)
+
+    gooi.draw()
 end
 
 function statisticRender:printInfo()
@@ -196,7 +188,22 @@ function statisticRender:percentage()
         self.percent.form + self.percent.form) / 4
 end
 
---[[function statisticRender.new(font, signals, pressed, level, pause_time)]]
+function statisticRender:keypressed(_, key, isrepeat)
+    gooi:keypressed(_, key, isrepeat)
+end
+
+function statisticRender:keyreleased(_, key)
+    gooi:keyreleased(_, key)
+end
+
+function statisticRender:mousepressed(x, y, button)
+    gooi.pressed()
+end
+
+function statisticRender:mousereleased(x, y, button)
+    googi.released()
+end
+
 function statisticRender.new(nback)
     local self = setmetatable({
         font = nback.font,
@@ -209,10 +216,19 @@ function statisticRender.new(nback)
         durationMin = nback.durationMin,
         durationSec = nback.durationSec,
     }, statisticRender)
+    -- должен быть минимальный размер, не слишком мелкий если не все 
+    --квадраты умещаются в ширину экрана
     self.width_k = 3.9 / 4
     self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
     self:percentage()
     self:buildLayout()
+
+    self.toMainMenuBtn = gooi.newButton({ text = "Return to menu",
+        self.layout.bottom.x, self.layout.bottom.y, self.layout.bottom.w, self.layout.h})
+        :onRelease(function()
+            linesbuf.push(1, "return to main!")
+        end)
+
     return self
 end
 
