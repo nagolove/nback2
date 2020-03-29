@@ -110,9 +110,8 @@ function statisticRender:printSignalType(x, y, signalType)
     g.setColor(pallete.statisticSignalType)
     g.print(str, x, y)
     g.setColor(pallete.percentFont)
-    local formatStr = "%.3f"
     --print("self.percent", inspect(self.percent))
-    g.print(string.format(formatStr, self.percent[signalType]), x + strWidth, y)
+    g.print(string.format("%.3f", self.percent[signalType]), x + strWidth, y)
 end
 
 -- рисовать статистику после конца сета
@@ -170,6 +169,7 @@ end
 function statisticRender:buildLayout()
     local screen = makeScreenTable()
     screen.top, screen.middle, screen.bottom = splith(screen, 0.2, 0.7, 0.1)
+    screen.bottom.left, screen.bottom.right = splitv(screen.bottom, 0.5, 0.5)
     self.layout = screen
 end
 
@@ -230,10 +230,10 @@ function statisticRender.new(nback)
         bgColor = {0.208, 0.220, 0.222},
     })
 
-    local mainMenuBtnLayout = shrink(self.layout.bottom, nback.border)
+    local mainMenuBtnLayout = shrink(self.layout.bottom.right, nback.border)
     self.mainMenuBtn = gooi.newButton({ text = "Return to menu",
-        x = mainMenuBtnLayout, y = mainMenuBtnLayout, 
-        w = mainMenuBtnLayout, h = mainMenuBtnLayout})
+        x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
+        w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h})
         :onRelease(function()
             linesbuf:push(1, "return to main!")
             menu:goBack()
