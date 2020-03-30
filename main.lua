@@ -72,7 +72,9 @@ function love.load(arg)
     menu:addItem(i18n("mainMenu.play"), nback)
     menu:addItem(i18n("mainMenu.viewProgress"), pviewer)
     menu:addItem(i18n("mainMenu.help"), help)
-    menu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
+    if not onAndroid then
+        menu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
+    end
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true})
