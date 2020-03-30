@@ -152,10 +152,16 @@ end
 function nback:enter()
     -- установка альфа канала цвета сетки игрового поля
     self.field_color[4] = 0.2
+
+    print("nback:enter()")
+    -- setup Gooi
+    restoreGooi(self.gooiState)
 end
 
 function nback:leave()
+    print("nback:leave()")
     self.show_statistic = false
+    self.gooiState = storeGooi()
 end
 
 -- time изменяется в пределах 0..1
@@ -298,6 +304,7 @@ function nback:createSetupMenu()
         end})
 end
 
+-- зачем нужен nback:init() если есть :new()?
 function nback:init()
     self.save_name = save_name
     self.timer = Timer()
@@ -305,9 +312,9 @@ function nback:init()
     self:readSettings()
     self:createSetupMenu()
     self:resize(g.getDimensions())
-
     self:initShaders()
     self:initShadersTimer()
+    self.gooiState = storeGooi()
 end
 
 function nback:initShadersTimer()
@@ -756,7 +763,7 @@ function nback:resize(neww, newh)
     end
 
     if self.statisticRender then
-        self.statisticRender:buildLayout()
+        self.statisticRender:buildLayout(self.border)
     end
 end
 
