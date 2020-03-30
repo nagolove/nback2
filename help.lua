@@ -1,5 +1,6 @@
 ﻿local inspect = require "libs.inspect"
 local pallete = require "pallete"
+require "common"
 require "gooi.gooi"
 
 local help = {}
@@ -20,12 +21,14 @@ function help:init()
     print("gooi", inspect(gooi))
     print("gooi.setStyle", inspect(gooi.setStyle))
 
+    self.gooi = storeGooi()
     gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
         showBorder = true,
         bgColor = {0.208, 0.220, 0.222},
     })
 
     self:buildButtons()
+    gooi.components = {}
 end
 
 function help:buildButtons()
@@ -48,17 +51,28 @@ function help:resize(neww, newh)
     self:buildLayout()
 end
 
-function help:draw()
+function help:enter()
+    print("help:enter()")
+end
+
+function help:leave()
+    print("help:leave()")
+
+end
+
+function help:drawDescription()
     local w, h = g.getDimensions()
-    local y = 20
-    g.push("all")
+    local x, y = self.layout.bottom.x, self.layout.bottom.y
     g.setColor{1, 1, 1, 1}
     g.clear(pallete.background)
     g.setFont(self.font)
-    g.printf("This is a bla-bla", 0, y, w, "center")
+    g.printf("This is a bla-bla", x, y, w, "center")
     y = y + self.font:getHeight()
-    g.printf("Put description here!", 0, y, w, "center")
-    g.pop()
+    g.printf("Put description here!", y, y, w, "center")
+end
+
+function help:draw()
+    self:drawDescription()
 
     g.setColor{0.3, 0.3, 0.34}
     gooi.draw()
@@ -81,6 +95,7 @@ end
 
 function help:keypressed(key)
     if key == "escape" then
+        restoreGooi(self.gooi)
         menu:goBack()
     end
 end
