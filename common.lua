@@ -1,3 +1,5 @@
+require "gooi.gooi"
+local inspect = require "libs.inspect"
 
 function pack(...)
     return {...}
@@ -50,6 +52,25 @@ function make_screenshot()
         fname = love.filesystem.getInfo("screenshot" .. i .. ".png")
     until not fname
     love.graphics.captureScreenshot("screenshot" .. i .. ".png")
+end
+
+require "deepcopy"
+
+function storeGooi()
+    --local g = { components = deepcopy(gooi.components) }
+    print("gooi.components", inspect(gooi.components))
+    --local g = { components = table.deepcopy(gooi.components) }
+    local g = { components = gooi.components }
+    gooi.components = {}
+    return g
+end
+
+function restoreGooi(g)
+    if g == nil then
+        error("g == nil")
+    end
+    --assert(g)
+    gooi.components = g.components
 end
 
 
