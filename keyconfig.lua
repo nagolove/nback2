@@ -5,6 +5,8 @@ local shortcutsPressed = {}
 
 local shortcutsList = nil
 
+local lk = love.keyboard
+
 local function combo2str(comboTbl)
     local res = "["
     for k, v in pairs(comboTbl) do
