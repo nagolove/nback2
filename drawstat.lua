@@ -166,10 +166,12 @@ function statisticRender:printInfo()
     g.print(str2, x2, y)
 end
 
-function statisticRender:buildLayout()
+function statisticRender:buildLayout(border)
+    border = border or self.border
     local screen = makeScreenTable()
     screen.top, screen.middle, screen.bottom = splith(screen, 0.2, 0.7, 0.1)
     screen.bottom.left, screen.bottom.right = splitv(screen.bottom, 0.5, 0.5)
+    screen.mainMenuBtn = shrink(screen.bottom.right, border)
     self.layout = screen
 end
 
@@ -221,19 +223,19 @@ function statisticRender.new(nback)
     self.width_k = 3.9 / 4
     self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
     self:percentage()
-    self:buildLayout()
+    self:buildLayout(nback.border)
 
-    print("self.layout.bottom", inspect(self.layout.bottom))
+    --print("self.layout.bottom", inspect(self.layout.bottom))
 
     gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
         showBorder = true,
         bgColor = {0.208, 0.220, 0.222},
     })
 
-    local mainMenuBtnLayout = shrink(self.layout.bottom.right, nback.border)
+    --local mainMenuBtnLayout = shrink(self.layout.bottom.right, nback.border)
     self.mainMenuBtn = gooi.newButton({ text = "Return to menu",
-        x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
-        w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h})
+        x = self.layout.mainMenuBtn.x, y = self.layout.mainMenuBtn.y, 
+        w = self.layout.mainMenuBtn.w, h = self.layout.mainMenuBtn.h})
         :onRelease(function()
             linesbuf:push(1, "return to main!")
             menu:goBack()
