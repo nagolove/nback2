@@ -17,7 +17,6 @@ require "common"
 local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local timer = require "libs.Timer"
-local newStatisticRender = require "nback".newStatisticRender
 
 local pallete = require "pallete"
 local g = love.graphics
@@ -45,10 +44,34 @@ end
 
 -- создает новый экземпляр просмотрщика статистики для текущего положения
 -- индекса pviewer.activeIndex
-function pviewer:updateNbackRender()
+function pviewer:updateRender()
     if self.data and self.activeIndex >= 1 then
-        self.nb = newStatisticRender(self.data[self.activeIndex])
+        --self.statisticRender = require "drawstat".new(self.data[self.activeIndex])
+        local data = self.data[self.activeIndex]
+        self.statisticRender = require "drawstat".new({
+            signals = data.signals,
+            pressed = data.pressed,
+            level = data.level,
+            pause_time = data.pause_time,
+
+            x0 = 0,
+            y0 = 0,
+            font = nback.font,
+            border = nback.border,
+            durationMin = 0,
+            durationSec = 0,
+        })
     end
+end
+
+function removeDataWithoutDateField(data)
+    local cleanedData = {}
+    for k, v in pairs(data) do
+        if v.date then
+            cleanedData[#cleanedData + 1] = v
+        end
+    end
+    return cleanedData
 end
 
 function pviewer:enter()
@@ -66,19 +89,15 @@ function pviewer:enter()
         self.data = {}
     end
 
-    -- очищаю от данных которые не содержат поля даты
-    -- можно сделать в цикле for со счетчиком от конца к началу и удалением
-    -- элемента через table.remove()
-    local cleanedData = {}
-    for k, v in pairs(self.data) do
-        if v.date then
-            cleanedData[#cleanedData + 1] = v
-        end
+    print("---------------------------")
+    for i, v in ipairs(self.data) do
+        print(i)
     end
-    self.data = cleanedData
-    self.activeIndex = #self.data >= 1 and 1 or 0
+    print("---------------------------")
 
-    self:updateNbackRender()
+    self.data = removeDataWithoutDateField(self.data)
+    self.activeIndex = #self.data >= 1 and 1 or 0
+    self:updateRender()
 
     print("*** begining of pviewer.data ***")
     local str = inspect(self.data)
@@ -144,7 +163,9 @@ function pviewer:draw()
     g.setColor{1, 1, 1}
     g.setCanvas(self.rt)
     g.clear(pallete.background)
-    self.nb:draw_statistic()
+
+    self.statisticRender:draw()
+
     g.setCanvas()
 
     g.setColor{1, 1, 1}
@@ -168,7 +189,7 @@ end
 function pviewer:scrollUp()
     if self.activeIndex - 1 >= 1 then
         self.activeIndex = self.activeIndex - 1
-        self:updateNbackRender()
+        self:updateRender()
     end
 end
 
@@ -176,7 +197,7 @@ end
 function pviewer:scrollDown()
     if self.activeIndex + 1 <= #self.data then
         self.activeIndex = self.activeIndex + 1
-        self:updateNbackRender()
+        self:updateRender()
     end
 end
 
