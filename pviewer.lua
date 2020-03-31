@@ -46,7 +46,6 @@ end
 -- индекса pviewer.activeIndex
 function pviewer:updateRender()
     if self.data and self.activeIndex >= 1 then
-        --self.statisticRender = require "drawstat".new(self.data[self.activeIndex])
         local data = self.data[self.activeIndex]
         self.statisticRender = require "drawstat".new({
             signals = data.signals,
@@ -89,21 +88,24 @@ function pviewer:enter()
         self.data = {}
     end
 
-    print("---------------------------")
-    for i, v in ipairs(self.data) do
-        print(i)
+    self.list = require "list":new(self.layout.left.x, self.layout.left.y,
+        self.layout.left.w, self.layout.left.h)
+    for k, v in pairs(self.data) do
+        local item = self.list:add("", "")
+        item.color = pallete.levelColors[v.level]
+        item.ondraw = function(self, item, rx, ry, rw, rh)
+            --print("item", inspect(item))
+            if item.color then
+                g.setColor(item.color)
+            end
+            g.rectangle("fill", rx, ry, rw, rh)
+        end
     end
-    print("---------------------------")
+    self.list:done()
 
     self.data = removeDataWithoutDateField(self.data)
     self.activeIndex = #self.data >= 1 and 1 or 0
     self:updateRender()
-
-    print("*** begining of pviewer.data ***")
-    local str = inspect(self.data)
-    print("Length of pviewer.data =", #self.data)
-    love.filesystem.write("pviewer_data_extracting.lua", str, str:len())
-    print("*** end of pviewer.data ***")
 end
 
 function pviewer:leave()
@@ -111,24 +113,72 @@ function pviewer:leave()
     self.data = nil
 end
 
-function pviewer:get_max_lines_printed()
-    return div(h - 100, self.font:getHeight())
-end
-
 function pviewer:resize(neww, newh)
     print(string.format("pviewer.resize(%d, %d)", neww, newh))
-    w = neww
-    h = newh
-    self.verticalBufLen = self:get_max_lines_printed()
+    w, h = neww, newh
+    self:buildLayout()
     -- обрати внимание на размер создаваемого полотна. Взят от балды.
-    self.rt = g.newCanvas(w, h, {format = "normal", 
-        msaa = 4})
+    self.rt = g.newCanvas(w, h, {format = "normal", msaa = 4})
     if not self.rt then
         error("Sorry, canvases are not supported!")
     end
 end
 
+function pviewer:buildLayout()
+    local screen = {}
+    screen.left, screen.right = splitv(makeScreenTable(), 0.2, 0.8)
+    screen.top, screen.bottom = splith(screen.right, 0.1, 0.9)
+    self.layout = screen
+end
+
 function pviewer:draw()
+    g.push("all")
+
+    g.clear(pallete.background)
+    local oldFont = g.getFont()
+    g.setFont(self.font)
+
+    local x = 30
+    local y = self.border
+    local fontHeight = g.getFont():getHeight()
+    local maxWidth = 0
+
+--[[
+   [    for k, v in pairs(self.data) do
+   [        local str = string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d",
+   [        v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
+   [        v.date.sec)
+   [        --print(v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
+   [        --v.date.sec)
+   [        local textWidth = self.font:getWidth(str)
+   [        maxWidth = textWidth >= maxWidth and textWidth or maxWidth
+   [        if self.activeIndex ~= 0 and k == self.activeIndex then
+   [            local oldcolor = {g.getColor()}
+   [            g.setColor{0.5, 0.5, 0.5, 0.5}
+   [            g.rectangle("fill", x, y, textWidth, fontHeight)
+   [            g.setColor(oldcolor)
+   [        end
+   [        --g.printf(str, x, y, 600, "left")
+   [        g.print(str, x, y)
+   [
+   [        y = y + fontHeight
+   [    end
+   ]]
+    self.list:draw()
+
+    g.setColor{1, 1, 1}
+    g.setCanvas(self.rt)
+    g.clear(pallete.background)
+    self.statisticRender:draw()
+    g.setCanvas()
+    g.setColor{1, 1, 1}
+    g.draw(self.rt, x + maxWidth, 0)
+
+    g.setFont(oldFont)
+    g.pop()
+end
+
+function pviewer:draw2()
     g.push("all")
 
     g.clear(pallete.background)
@@ -203,7 +253,7 @@ end
 
 -- добавить клавиши управления для постраничной прокрутки списка результатов.
 function pviewer:keypressed(_, key)
-    if key == "escape" then
+    if key == "escape" or key == "acback" then
         menu:goBack()
     elseif key == "return" or key == "space" then
         -- TODO по нажатию клавиши показать конечную таблицу игры
