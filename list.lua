@@ -36,33 +36,29 @@ function List:new(x, y, w, h)
     return o
 end
 
-function List:add(title, id, tooltip)
+function List:add(title, id)
 	local item = {}
 	item.title = title
 	item.id = id
-	if type(tooltip) == "string" then
-		item.tooltip = tooltip
-	else
-		item.tooltip = ""
-	end
+	--if type(tooltip) == "string" then
+		--item.tooltip = tooltip
+	--else
+		--item.tooltip = ""
+	--end
     table.insert(self.items, item)
+    return item
 end
 
 function List:done()
-
     self.items.n = #self.items
-
     -- Recalc bar size.
     self.bar.pos = 0
-
     local num_items = (self.height/self.item_height)
     local ratio = num_items/self.items.n
     self.bar.size = self.height * ratio
     self.bar.maxpos = self.height - self.bar.size - 3
-
     -- Calculate height of everything.
     self.sum_item_height = (self.item_height+1) * self.items.n + 2
-
 end
 
 function List:hasBar()
@@ -103,9 +99,8 @@ function List:mousepressed(x, y, b, it)
 		end
 	end
 
-	if type(self.onclick) ~= "function" then return end
-
-	if inside(x, y, self.x + 2, self.y + 1, self.width - 3, self.height - 3) then
+	if type(self.onclick) == "function" and 
+    inside(x, y, self.x + 2, self.y + 1, self.width - 3, self.height - 3) then
 		local tx, ty = x - self.x, y + self:getOffset() - self.y
 		local index = math.floor((ty / self.sum_item_height) * self.items.n)
 		local item = self.items[index + 1]
@@ -175,7 +170,7 @@ function List:draw()
 	-- Items
 	local rx, ry, rw, rh
 	local colorset
-	for i = start_i,end_i do
+	for i = start_i, end_i do
 		if i == self.hoveritem then
 			colorset = self.colors.hover
 		else
@@ -183,12 +178,16 @@ function List:draw()
 		end
 
 		rx, ry, rw, rh = self:getItemRect(i)
-		love.graphics.setColor(colorset.bg)
-		love.graphics.rectangle("fill", rx, ry, rw, rh)
+        local item = self.items[i]
+        if type(item.ondraw) == "function" then 
+            item.ondraw(item.self, item, rx, ry, rw, rh)
+        else
+            love.graphics.setColor(colorset.bg)
+            love.graphics.rectangle("fill", rx, ry, rw, rh)
 
-		love.graphics.setColor(colorset.fg)
-		love.graphics.print(self.items[i].title, rx + 10, ry + 5) 
-
+            love.graphics.setColor(colorset.fg)
+            love.graphics.print(self.items[i].title, rx + 10, ry + 5) 
+        end
 	end
 
 	love.graphics.setScissor()
