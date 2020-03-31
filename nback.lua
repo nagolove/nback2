@@ -53,23 +53,23 @@ local nbackSelf = {
     coros = {}
 }
 
--- создать объект и загрузить в него статистику из таблицы, загруженной из
--- файла истории. Теперь можно рисовать статистику результатов.
-function nback.newStatisticRender(data)
-    local self = deepcopy(nbackSelf)
-    setmetatable(self, nback)
-    self.signals = deepcopy(data.signals)
-    print("self.signals", inspect(self.signals))
-    self.percent = data.percent
-    self.pressed = deepcopy(data.pressed)
-    self.signals.eq = generator.makeEqArrays(self.signals, self.level)
-    self:resize(g.getDimensions())
-    return self
-end
+--[[
+   [function nback.newStatisticRender(data)
+   [    local self = deepcopy(nbackSelf)
+   [    setmetatable(self, nback)
+   [    self.signals = deepcopy(data.signals)
+   [    self.pressed = deepcopy(data.pressed)
+   [    self.signals.eq = generator.makeEqArrays(self.signals, self.level)
+   [    self.percent = data.percent
+   [    print("self.signals", inspect(self.signals))
+   [    self:resize(g.getDimensions())
+   [    return self
+   [end
+   ]]
 
 function nback.new()
     local self = deepcopy(nbackSelf)
-    print("self.statisticRender", inspect(self.statisticRender))
+    --print("self.statisticRender", inspect(self.statisticRender))
     return setmetatable(self, nback)
 end
 
@@ -348,6 +348,7 @@ function nback:processSignal()
         local after = 0.1
         print("after", after)
 
+        self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
         --[[
            [self.timer:after(after, function()
            [    print("figure_alpha before", self.figure_alpha)
@@ -627,7 +628,19 @@ function nback:stop()
         self:save_to_history() 
     end
 
-    self.statisticRender = require "drawstat".new(self)
+    self.statisticRender = require "drawstat".new({
+        signals = self.signals,
+        pressed = self.pressed,
+        level = self.level,
+        pause_time = self.pause_time,
+
+        x0 = self.x0,
+        y0 = self.y0,
+        font = self.font,
+        durationMin = self.durationMin,
+        durationSec = self.durationSec,
+        buttons = true,
+    })
 end
 
 function nback:quit()
@@ -879,5 +892,4 @@ end
 
 return {
     new = nback.new,
-    newStatisticRender = nback.newStatisticRender,
 }
