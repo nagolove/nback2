@@ -32,7 +32,7 @@ end
 
 local function checkTableMember(t, name)
     if t[name] then
-        print("checking type")
+        --print("checking type")
         assert(type(t[name]) == "function", string.format("Field t['%s'] should be function", name))
     end
 end
@@ -44,7 +44,7 @@ end
 -- t["onright"]
 -- t["onselect"]
 function menu:addItem(t)
-    print("addItem", inspect(t))
+    --print("addItem", inspect(t))
 
     assert(t)
     assert(t.oninit ~= nil) -- обязательное поле
