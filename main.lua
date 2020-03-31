@@ -20,7 +20,7 @@ help = require "help".new()
 menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
-save_name = "nback-v0.4.lua"
+local save_name = "nback-v0.4.lua"
 
 function love.quit()
 end
@@ -59,8 +59,8 @@ function love.load(arg)
     --require "splash".init()
 
     -- Ручная инициализация модулей
-    nback:init()
-    pviewer:init()
+    nback:init(save_name)
+    pviewer:init(save_name)
     menu:init()
     help:init()
 

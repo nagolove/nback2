@@ -103,7 +103,7 @@ function nback:buildLayout()
     screen.center = shrink(screen.center, self.border)
 
     self.layout = screen
-    print("self.layout", inspect(self.layout))
+    --print("self.layout", inspect(self.layout))
 end
 
 function nback:start()
@@ -305,7 +305,7 @@ function nback:createSetupMenu()
 end
 
 -- зачем нужен nback:init() если есть :new()?
-function nback:init()
+function nback:init(save_name)
     self.save_name = save_name
     self.timer = Timer()
     self.signal = signal.new(self.cell_width, "alphabet")

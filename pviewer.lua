@@ -37,6 +37,7 @@ function pviewer.new()
 end
 
 function pviewer:init(save_name)
+    print("save_name", save_name)
     self.save_name = save_name
     self:resize(g.getDimensions())
     self.timer = timer()
@@ -55,6 +56,7 @@ function pviewer:enter()
     local tmp, size = love.filesystem.read(self.save_name)
     if tmp ~= nil then
         ok, self.data = serpent.load(tmp)
+        print("pviewer.data", inspect(self.data))
         if not ok then 
             -- эту строчку с падением при ошибке заменить на показ пустой
             -- статистики.
@@ -63,8 +65,6 @@ function pviewer:enter()
     else
         self.data = {}
     end
-
-    self.data = self.data or nil
 
     -- очищаю от данных которые не содержат поля даты
     -- можно сделать в цикле for со счетчиком от конца к началу и удалением

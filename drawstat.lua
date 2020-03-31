@@ -149,7 +149,7 @@ function statisticRender:draw()
     self:printInfo()
 
     g.setColor{0.5, 0.5, 0.5}
-    drawHierachy(self.layout)
+    --drawHierachy(self.layout)
 
     gooi.draw()
 end
