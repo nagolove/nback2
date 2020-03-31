@@ -113,7 +113,6 @@ function nback:start()
     self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
     self.written = false
     self.pause = false
-    self.is_run = true
     self.signals = generator.generateAll(self.sig_count, self.level, self.dim, #self.signal.sounds)
     print("self.signals", inspect(self.signals))
     self.current_sig = 1
@@ -140,6 +139,7 @@ function nback:start()
     end, 
     self.start_pause_rest, function()
         self.start_pause = false
+        self.is_run = true
         -- фиксирую время начала игры
         self.startTime = love.timer.getTime()
     end)
@@ -604,7 +604,7 @@ function nback:save_to_history()
     love.filesystem.write(self.save_name, serpent.dump(history))
 end
 
-function nback:stop()
+function nback:stop(byescape)
     print("stop")
     local q = pallete.field
     -- амимация альфа-канала игрового поля
@@ -614,38 +614,41 @@ function nback:stop()
     self.show_statistic = true
 
     -- зачем нужна эта проверка? Расчет на то, что раунд был начат?
-    if self.signals.pos then
+    if self.signals and self.signals.pos then
         self.stopppedSignal = self.current_sig 
     end
 
-    local duration = love.timer.getTime() - self.startTime
-    self.durationMin = math.floor(duration / 60)
-    self.durationSec = duration - self.durationMin * 60
-    print(string.format("durationMin %f, durationSec %f", self.durationMin, self.durationSec))
+    print("byescape", byescape)
+    if not byescape then
+        local duration = love.timer.getTime() - self.startTime
+        self.durationMin = math.floor(duration / 60)
+        self.durationSec = duration - self.durationMin * 60
+        print(string.format("durationMin %f, durationSec %f", self.durationMin, self.durationSec))
 
-    -- Раунд полностью закончен? - записываю историю
-    if self.signals and self.current_sig == #self.signals.pos then 
-        self:save_to_history() 
+        -- Раунд полностью закончен? - записываю историю
+        if self.signals and self.current_sig == #self.signals.pos then 
+            self:save_to_history() 
+        end
+
+        self.statisticRender = require "drawstat".new({
+            signals = self.signals,
+            pressed = self.pressed,
+            level = self.level,
+            pause_time = self.pause_time,
+
+            x0 = self.x0,
+            y0 = self.y0,
+            font = self.font,
+            durationMin = self.durationMin,
+            durationSec = self.durationSec,
+            buttons = true,
+        })
     end
-
-    self.statisticRender = require "drawstat".new({
-        signals = self.signals,
-        pressed = self.pressed,
-        level = self.level,
-        pause_time = self.pause_time,
-
-        x0 = self.x0,
-        y0 = self.y0,
-        font = self.font,
-        durationMin = self.durationMin,
-        durationSec = self.durationSec,
-        buttons = true,
-    })
 end
 
-function nback:quit()
+function nback:quit(byescape)
     self.timer:destroy()
-    self:stop()
+    self:stop(byescape)
     local settings_str = lume.serialize { 
         ["volume"] = love.audio.getVolume(), 
         ["level"] = self.level, 
@@ -675,7 +678,7 @@ function nback:keypressed(_, scancode)
             print("stop by escape")
             self:stop()
         else
-            self:quit()
+            self:quit(true)
         end
     end
 
