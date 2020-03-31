@@ -8,27 +8,6 @@ local g = love.graphics
 local statisticRender = {}
 statisticRender.__index = statisticRender
 
--- подсчет процентов успешности за раунд для данного массива.
--- eq - массив с правильными нажатиями
--- pressed_arr - массив с нажатиями игрока
-function calc_percent(eq, pressed_arr)
-    if not eq then return 0 end --0% если не было нажатий
-    local succ, mistake, count = 0, 0, 0
-    for k, v in pairs(eq) do
-        if v then
-            count = count + 1
-        end
-        if v and pressed_arr[k] then
-            succ = succ + 1
-        end
-        if not v and pressed_arr[k] then
-            mistake = mistake + 1
-        end
-    end
-    print(string.format("calc_percent() count = %d, succ = %d, mistake = %d", count, succ, mistake))
-    return succ / count - mistake / count
-end
-
 function statisticRender:getHitQuadLineHeight()
     return self.rect_size + 12
 end
@@ -142,7 +121,7 @@ function statisticRender:draw()
     self:drawHitQuads(x, y, "form", border)
     y = y + self:getHitQuadLineHeight()
 
-    self:printSignalType(x, y, "position") 
+    self:printSignalType(x, y, "pos") 
     y = y + fontHeight
     self:drawHitQuads(x, y, "pos", border)
 
@@ -151,7 +130,9 @@ function statisticRender:draw()
     g.setColor{0.5, 0.5, 0.5}
     --drawHierachy(self.layout)
 
-    gooi.draw()
+    if self.buttons then
+        gooi.draw()
+    end
 end
 
 function statisticRender:printInfo()
@@ -175,21 +156,6 @@ function statisticRender:buildLayout(border)
     self.layout = screen
 end
 
-function statisticRender:percentage()
-    local p
-    self.percent = {}
-    p =  calc_percent(self.signals.eq.sound, self.pressed.sound)
-    self.percent.sound = p > 0.0 and p or 0.0
-    p = calc_percent(self.signals.eq.color, self.pressed.color)
-    self.percent.color = p > 0.0 and p or 0.0
-    p = calc_percent(self.signals.eq.form, self.pressed.form)
-    self.percent.form = p > 0.0 and p or 0.0
-    p = calc_percent(self.signals.pos.eq, self.pressed.pos)
-    self.percent.position = p > 0.0 and p or 0.0
-    self.percent.common = (self.percent.sound + self.percent.color + 
-        self.percent.form + self.percent.form) / 4
-end
-
 function statisticRender:keypressed(_, key, isrepeat)
     gooi.keypressed(_, key, isrepeat)
 end
@@ -206,40 +172,43 @@ function statisticRender:mousereleased(x, y, button)
     gooi.released()
 end
 
-function statisticRender.new(nback)
+function statisticRender.new(data)
     local self = setmetatable({
-        font = nback.font,
-        signals = nback.signals,
-        pressed = nback.pressed,
-        level = nback.level,
-        pause_time = nback.pause_time,
-        x0 = nback.x0,
-        y0 = nback.y0,
-        durationMin = nback.durationMin,
-        durationSec = nback.durationSec,
+        signals = data.signals,
+        pressed = data.pressed,
+        level = data.level,
+        pause_time = data.pause_time,
+        font = data.font,
+        x0 = data.x0,
+        y0 = data.y0,
+        durationMin = data.durationMin,
+        durationSec = data.durationSec,
+        buttons = data.buttons,
     }, statisticRender)
     -- должен быть минимальный размер, не слишком мелкий если не все 
     --квадраты умещаются в ширину экрана
     self.width_k = 3.9 / 4
+    self.signals.eq = require "generator".makeEqArrays(self.signals, self.level)
     self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
-    self:percentage()
-    self:buildLayout(nback.border)
+    self.percent = percentage(self.signals, self.pressed)
+    self:buildLayout(data.border or nback.border)
+    print("data.border", data.border)
+    print("data.buttons", data.buttons)
+    if self.buttons then
+        gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
+            showBorder = true,
+            bgColor = {0.208, 0.220, 0.222},
+        })
 
-    --print("self.layout.bottom", inspect(self.layout.bottom))
-
-    gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
-        showBorder = true,
-        bgColor = {0.208, 0.220, 0.222},
-    })
-
-    --local mainMenuBtnLayout = shrink(self.layout.bottom.right, nback.border)
-    self.mainMenuBtn = gooi.newButton({ text = "Return to menu",
-        x = self.layout.mainMenuBtn.x, y = self.layout.mainMenuBtn.y, 
-        w = self.layout.mainMenuBtn.w, h = self.layout.mainMenuBtn.h})
-        :onRelease(function()
+        self.mainMenuBtn = gooi.newButton({ 
+            text = "Return to menu",
+            x = self.layout.mainMenuBtn.x, y = self.layout.mainMenuBtn.y, 
+            w = self.layout.mainMenuBtn.w, h = self.layout.mainMenuBtn.h
+        }):onRelease(function()
             linesbuf:push(1, "return to main!")
             menu:goBack()
         end)
+    end
 
     return self
 end
