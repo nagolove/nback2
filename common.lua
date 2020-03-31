@@ -54,7 +54,42 @@ function make_screenshot()
     love.graphics.captureScreenshot("screenshot" .. i .. ".png")
 end
 
-require "deepcopy"
+-- подсчет процентов успешности за раунд для данного массива.
+-- eq - массив с правильными нажатиями
+-- pressed_arr - массив с нажатиями игрока
+function calcPercent(eq, pressed_arr)
+    if not eq then return 0 end --0% если не было нажатий
+    local succ, mistake, count = 0, 0, 0
+    for k, v in pairs(eq) do
+        if v then
+            count = count + 1
+        end
+        if v and pressed_arr[k] then
+            succ = succ + 1
+        end
+        if not v and pressed_arr[k] then
+            mistake = mistake + 1
+        end
+    end
+    print(string.format("calcPercent() count = %d, succ = %d, mistake = %d", count, succ, mistake))
+    return succ / count - mistake / count
+end
+
+function percentage(signals, pressed)
+    local p1, p2, p3, p4 = calcPercent(signals.eq.sound, pressed.sound),
+        calcPercent(signals.eq.color, pressed.color),
+        calcPercent(signals.eq.form, pressed.form),
+        calcPercent(signals.pos.eq, pressed.pos)
+    local percent = {
+        sound = p1 > 0.0 and p1 or 0.0,
+        color = p2 > 0.0 and p2 or 0.0,
+        form = p3 > 0.0 and p3 or 0.0,
+        pos = p4 > 0.0 and p4 or 0.0,
+    }
+    percent.common = (percent.sound + percent.color + percent.form + percent.form) / 4
+    return percent
+end
+--require "deepcopy"
 
 function storeGooi()
     --local g = { components = deepcopy(gooi.components) }
