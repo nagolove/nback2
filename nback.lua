@@ -638,6 +638,9 @@ function nback:quit(byescape)
     self.timer:destroy()
     self:stop(byescape)
     settings.volume = self.volume
+    settings.level = self.level
+    settings.pause_time = self.pause_time
+    settings.dim = self.dim
     writeSettings()
     menu:goBack()
 end
