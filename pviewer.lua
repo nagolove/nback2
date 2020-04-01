@@ -98,6 +98,15 @@ function pviewer:makeList()
     self.list:done()
 end
 
+function pviewer:sortByDate()
+    table.sort(self.data, function(a, b)
+        print("a, b", inspect(a), inspect(b))
+        a, b = a.date, b.date
+        return a.year * 365 * 24 + a.yday * 24 + a.hour >
+            b.year * 365 * 24 + b.yday * 24 + b.hour
+    end)
+end
+
 function pviewer:enter()
     print("pviewer:enter()")
     local tmp, size = love.filesystem.read(self.save_name)
@@ -112,7 +121,7 @@ function pviewer:enter()
     else
         self.data = {}
     end
-
+    self:sortByDate()
     self:makeList()
     self.data = removeDataWithoutDateField(self.data)
     self.activeIndex = #self.data >= 1 and 1 or 0
