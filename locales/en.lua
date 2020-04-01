@@ -1,4 +1,5 @@
 ﻿return {
+    language = "English", 
     en = {
         pos = "Position", -- пространство(??)
         position = "Position", 
