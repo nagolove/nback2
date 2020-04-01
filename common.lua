@@ -1,6 +1,7 @@
 require "gooi.gooi"
 
 local inspect = require "libs.inspect"
+local serpent = require "serpent"
 
 function pack(...)
     return {...}
@@ -111,15 +112,15 @@ end
 
 function compareDates(now, date)
     local ranges = {
-        {0, 6, "today"},
-        {7, 24, "yesterday"},
-        {25, 48, "two days ago"},
-        {49, 72, "three days ago"},
-        {73, 96, "four days ago"},
-        {97, 24 * 7, "last week"},
-        {24 * 7 + 1, 24 * 14, "last two week"},
-        {24 * 14 + 1, 24 * 30, "last month"},
-        {24 * 30 + 1, 24 * 365, "last year"},
+        {0, 6, i18n("today")},
+        {7, 24, i18n("yesterday")},
+        {25, 48, i18n("twoDays")},
+        {49, 72, i18n("threeDays")},
+        {73, 96, i18n("fourDays")},
+        {97, 24 * 7, i18n("lastWeek")},
+        {24 * 7 + 1, 24 * 14, i18n("lastTwoWeek")},
+        {24 * 14 + 1, 24 * 30, i18n("lastMonth")},
+        {24 * 30 + 1, 24 * 365, i18n("lastYear")},
     }
     local result = "more year ago"
     --print("now", inspect(os.date("*t")))
@@ -140,3 +141,48 @@ function compareDates(now, date)
     --print(result)
     return result
 end
+
+function getDefaultSettings()
+    return {
+        volume = 0.2
+    }
+end
+
+function readSettings()
+    local data, _ = love.filesystem.read(SETTINGS_FILENAME)
+
+    if data then
+        ok, data = serpent.load(data)
+        if not ok then
+            data = getDefaultSettings()
+        end
+    else
+        data = getDefaultSettings()
+    end
+
+--[[
+   [    if data then
+   [        local settings = lume.deserialize(data, "all")
+   [        print("settings loaded", inspect(settings))
+   [        self.level = settings.level
+   [        self.pause_time = settings.pause_time
+   [        self.volume = settings.volume
+   [    else
+   [        data = {}
+   [        data.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
+   [    end
+   [
+   ]]
+
+    settings = data
+end
+
+function writeSettings()
+    local settings_str = lume.serialize { 
+        ["volume"] = love.audio.getVolume(), 
+        ["level"] = self.level, 
+        ["pause_time"] = self.pause_time }
+    ok, msg = love.filesystem.write("settings.lua", settings_str, 
+        settings_str:len())
+end
+
