@@ -11,6 +11,8 @@ local pallete = require "pallete"
 local splash = require "splash"
 local timer = require "libs/Timer"()
 
+SETTINGS_FILENAME = "settings.lua"
+local SAVE_NAME = "nback-v0.4.lua"
 keyconfig = require "keyconfig"
 i18n = require "i18n"
 linesbuf = require "kons".new()
@@ -20,8 +22,6 @@ help = require "help".new()
 menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
-local save_name = "nback-v0.4.lua"
-SETTINGS_FILENAME = "settings.lua"
 
 function love.quit()
     writeSettings()
@@ -47,13 +47,14 @@ function setupLocale(locale)
 end
 
 function love.load(arg)
-    print("arg", inspect(arg))
+    readSettings()
     loadLocales()
+
+    print("arg", inspect(arg))
     local locale = "en"
     if arg[1] then
         locale = string.match(arg[1], "locale=(%S+)") or "en"
     end
-    readSettings()
 
     if settings.firstRun then
         languageSelector = require "languageselector.lua".new()
@@ -61,14 +62,13 @@ function love.load(arg)
 
     setupLocale(locale)
     bindKeys()
-
     math.randomseed(os.time())
     love.window.setTitle("nback")
     --require "splash".init()
 
     -- Ручная инициализация модулей
-    nback:init(save_name)
-    pviewer:init(save_name)
+    nback:init(SAVE_NAME)
+    pviewer:init(SAVE_NAME)
     menu:init()
     help:init()
 

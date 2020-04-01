@@ -122,7 +122,7 @@ function compareDates(now, date)
         {24 * 14 + 1, 24 * 30, i18n("lastMonth")},
         {24 * 30 + 1, 24 * 365, i18n("lastYear")},
     }
-    local result = "more year ago"
+    local result = i18n("moreTime")
     --print("now", inspect(os.date("*t")))
     --print("date", inspect(date))
     local t1, t2, diff = now.yday * 24 + now.hour, date.yday * 24 + date.hour, 0
@@ -145,6 +145,7 @@ end
 function getDefaultSettings()
     return {
         volume = 0.2
+        firstRun = true,
     }
 end
 
@@ -160,29 +161,11 @@ function readSettings()
         data = getDefaultSettings()
     end
 
---[[
-   [    if data then
-   [        local settings = lume.deserialize(data, "all")
-   [        print("settings loaded", inspect(settings))
-   [        self.level = settings.level
-   [        self.pause_time = settings.pause_time
-   [        self.volume = settings.volume
-   [    else
-   [        data = {}
-   [        data.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
-   [    end
-   [
-   ]]
-
     settings = data
 end
 
 function writeSettings()
     local serialized = serpent.dump(settings)
-    --local settings_str = lume.serialize { 
-        --["volume"] = love.audio.getVolume(), 
-        --["level"] = self.level, 
-        --["pause_time"] = self.pause_time }
     ok, msg = love.filesystem.write(SETTINGS_FILENAME, serialized)
     if not ok then
         print("Could write settings to ", SETTINGS_FILENAME, " file", msg)

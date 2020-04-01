@@ -36,6 +36,7 @@
         lastTwoWeek  = "last two week",
         lastMonth  = "last month",
         lastYear  = "last year",
+        moreTime = "more year ago",
     },
 }
 
