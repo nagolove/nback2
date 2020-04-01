@@ -43,6 +43,9 @@ local pallete = {
     pviewerUnknown = {0.5, 0.5, 0.5},
     pviewerScrollLine = {0, 0, 0},
     pviewerCircle = {1, 0, 0},
+    pviewer = {
+        scrollTriangle = {0.8, 0.1, 0.2},
+    }
 }
 
 return pallete
