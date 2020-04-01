@@ -92,13 +92,18 @@ function pviewer:enter()
         self.layout.left.w, self.layout.left.h)
     for k, v in pairs(self.data) do
         local item = self.list:add("", "")
+        item.data = v
         item.color = pallete.levelColors[v.level]
         item.ondraw = function(self, item, rx, ry, rw, rh)
             --print("item", inspect(item))
             if item.color then
                 g.setColor(item.color)
+            else
+                g.setColor(pallete.pviewerUnknown)
             end
             g.rectangle("fill", rx, ry, rw, rh)
+            g.setColor(pallete.pviewerItemText)
+            g.print(compareDates(os.date("*t"), item.data.date), rx, ry)
         end
     end
     self.list:done()
@@ -127,6 +132,8 @@ end
 function pviewer:buildLayout()
     local screen = {}
     screen.left, screen.right = splitv(makeScreenTable(), 0.2, 0.8)
+    screen.right.x = screen.right.x + 3
+    screen.right.w = screen.right.w - 3
     screen.top, screen.bottom = splith(screen.right, 0.1, 0.9)
     self.layout = screen
 end
@@ -138,92 +145,17 @@ function pviewer:draw()
     local oldFont = g.getFont()
     g.setFont(self.font)
 
-    local x = 30
-    local y = self.border
-    local fontHeight = g.getFont():getHeight()
-    local maxWidth = 0
-
---[[
-   [    for k, v in pairs(self.data) do
-   [        local str = string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d",
-   [        v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
-   [        v.date.sec)
-   [        --print(v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
-   [        --v.date.sec)
-   [        local textWidth = self.font:getWidth(str)
-   [        maxWidth = textWidth >= maxWidth and textWidth or maxWidth
-   [        if self.activeIndex ~= 0 and k == self.activeIndex then
-   [            local oldcolor = {g.getColor()}
-   [            g.setColor{0.5, 0.5, 0.5, 0.5}
-   [            g.rectangle("fill", x, y, textWidth, fontHeight)
-   [            g.setColor(oldcolor)
-   [        end
-   [        --g.printf(str, x, y, 600, "left")
-   [        g.print(str, x, y)
-   [
-   [        y = y + fontHeight
-   [    end
-   ]]
     self.list:draw()
-
     g.setColor{1, 1, 1}
     g.setCanvas(self.rt)
     g.clear(pallete.background)
-    self.statisticRender:draw()
+    self.statisticRender:beforeDraw()
+    self.statisticRender:drawHits(self.layout.bottom.x, self.layout.bottom.y)
     g.setCanvas()
     g.setColor{1, 1, 1}
-    g.draw(self.rt, x + maxWidth, 0)
+    g.draw(self.rt)
 
     g.setFont(oldFont)
-    g.pop()
-end
-
-function pviewer:draw2()
-    g.push("all")
-
-    g.clear(pallete.background)
-    local oldFont = g.getFont()
-    g.setFont(self.font)
-
-    local x = 30
-    local y = self.border
-    local fontHeight = g.getFont():getHeight()
-    local maxWidth = 0
-
-    for k, v in pairs(self.data) do
-        local str = string.format("%.2d.%.2d.%d %.2d:%.2d:%.2d",
-        v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
-        v.date.sec)
-        --print(v.date.day, v.date.month, v.date.year, v.date.hour, v.date.min,
-        --v.date.sec)
-        local textWidth = self.font:getWidth(str)
-        maxWidth = textWidth >= maxWidth and textWidth or maxWidth
-        if self.activeIndex ~= 0 and k == self.activeIndex then
-            local oldcolor = {g.getColor()}
-            g.setColor{0.5, 0.5, 0.5, 0.5}
-            g.rectangle("fill", x, y, textWidth, fontHeight)
-            g.setColor(oldcolor)
-        end
-        --g.printf(str, x, y, 600, "left")
-        g.print(str, x, y)
-
-        y = y + fontHeight
-    end
-
-    g.setColor{1, 1, 1}
-    g.setCanvas(self.rt)
-    g.clear(pallete.background)
-
-    self.statisticRender:draw()
-
-    g.setCanvas()
-
-    g.setColor{1, 1, 1}
-    g.draw(self.rt, x + maxWidth, 0)
-
-    g.setFont(oldFont)
-    linesbuf:pushi("self.verticalBufLen %d", self.verticalBufLen)
-
     g.pop()
 end
 
