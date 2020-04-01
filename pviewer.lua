@@ -75,26 +75,25 @@ local function removeDataWithoutDateField(data)
 end
 
 function pviewer:makeList()
-    self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y,
-    self.layout.left.w, self.layout.left.h)
+    self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y, self.layout.left.w, self.layout.left.h)
     self.list.onclick = function(item, idx)
         self:updateRender(idx)
     end
     for k, v in pairs(self.data) do
-        local item = self.list:add("", "")
+        local item = self.list:add("hui", "xo")
         item.data = v
         item.color = pallete.levelColors[v.level]
-        item.ondraw = function(self, item, rx, ry, rw, rh)
-            --print("item", inspect(item))
-            if item.color then
-                g.setColor(item.color)
-            else
-                g.setColor(pallete.pviewerUnknown)
-            end
-            g.rectangle("fill", rx, ry, rw, rh)
-            g.setColor(pallete.pviewerItemText)
-            g.print(compareDates(os.date("*t"), item.data.date), rx, ry)
-        end
+        --item.ondraw = function(self, item, rx, ry, rw, rh)
+            ----print("item", inspect(item))
+            --if item.color then
+                --g.setColor(item.color)
+            --else
+                --g.setColor(pallete.pviewerUnknown)
+            --end
+            --g.rectangle("fill", rx, ry, rw, rh)
+            --g.setColor(pallete.pviewerItemText)
+            --g.print(compareDates(os.date("*t"), item.data.date), rx, ry)
+        --end
     end
     self.list:done()
 end

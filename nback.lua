@@ -144,7 +144,7 @@ function nback:start()
         self.startTime = love.timer.getTime()
     end)
 
-    if onAndroid or useKeyboard then
+    if onAndroid or not useKeyboard then
         self:initButtons()
     end
 end

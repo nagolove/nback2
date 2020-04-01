@@ -243,26 +243,11 @@ function List:prepareDrawing()
         love.graphics.setCanvas()
     end
 
-	love.graphics.setScissor()
-
-	-- Bar
-	if self:hasBar() then
-		if self.hoveritem == -1 or self.bar.lock then
-			colorset = self.colors.hover
-		else
-			colorset = self.colors.normal
-		end
-		
-		rx, ry, rw, rh = self:getBarRect()
-		love.graphics.setColor(colorset.bg)
-		love.graphics.rectangle("fill", rx, ry, rw, rh)
-	end
-
-	-- Border
-	love.graphics.setColor(self.bordercolor)
-	--love.graphics.rectangle("line", self.x + self.width, self.y, self.bar.width, self.height)
-	--love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
-
+    for i in ipairs(self.items) do
+        local imageData = self.items[i].canvas:newImageData()
+        local file = imageData:encode("png", string.format("item_%d.png", i))
+        print(file)
+    end
 end
 
 return List
