@@ -25,6 +25,16 @@
         levelInfo2 = "Duration %d min %d seconds",
         settingsBtn = "Settings",
         quitBtn = "Quit", -- лучше назвать - "в главное меню?"
+
+        today = "today",
+        yesterday = "yesterday",
+        twoDays  = "two days ago",
+        threeDays  = "three days ago",
+        fourDays  = "four days ago",
+        lastWeek  = "last week",
+        lastTwoWeek  = "last two week",
+        lastMonth  = "last month",
+        lastYear  = "last year",
     },
 }
 

@@ -25,5 +25,15 @@
         levelInfo2 = "Продолжительность %d минут %d секунд",
         settingsBtn = "Настройки",
         quitBtn = "Закончить",
+
+        today = "сегодня",
+        yesterday = "вчера",
+        twoDays  = "два дня назад",
+        threeDays  = "три дня назад",
+        fourDays  = "четыре дня назад",
+        lastWeek  = "на прошлой неделе",
+        lastTwoWeek  = "две недели назад",
+        lastMonth  = "в прошлом месяце",
+        lastYear  = "в прошлом году",
     },
 }
