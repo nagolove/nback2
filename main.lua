@@ -24,6 +24,7 @@ local save_name = "nback-v0.4.lua"
 SETTINGS_FILENAME = "settings.lua"
 
 function love.quit()
+    writeSettings()
 end
 
 function loadLocales()
@@ -52,6 +53,12 @@ function love.load(arg)
     if arg[1] then
         locale = string.match(arg[1], "locale=(%S+)") or "en"
     end
+    readSettings()
+
+    if settings.firstRun then
+        languageSelector = require "languageselector.lua".new()
+    end
+
     setupLocale(locale)
     bindKeys()
 
@@ -90,9 +97,13 @@ function love.load(arg)
 end
 
 function love.update(dt)
-    menu:update(dt)
-    timer:update(dt)
-    linesbuf:update(dt)
+    if languageSelector then
+        languageSelector:update(dt)
+    else
+        menu:update(dt)
+        timer:update(dt)
+        linesbuf:update(dt)
+    end
 end
 
 local screenMode = "win" -- or "fs"
