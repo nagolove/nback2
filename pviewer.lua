@@ -44,9 +44,9 @@ end
 
 -- создает новый экземпляр просмотрщика статистики для текущего положения
 -- индекса pviewer.activeIndex
-function pviewer:updateRender()
-    if self.data and self.activeIndex >= 1 then
-        local data = self.data[self.activeIndex]
+function pviewer:updateRender(index)
+    if self.data and index >= 1 and index <= #self.data then
+        local data = self.data[index]
         self.statisticRender = require "drawstat".new({
             signals = data.signals,
             pressed = data.pressed,
@@ -60,6 +60,8 @@ function pviewer:updateRender()
             durationMin = 0,
             durationSec = 0,
         })
+    else
+        self.statisticRender = nil
     end
 end
 
@@ -90,6 +92,9 @@ function pviewer:enter()
 
     self.list = require "list":new(self.layout.left.x, self.layout.left.y,
         self.layout.left.w, self.layout.left.h)
+    self.list.onclick = function(item, idx)
+        self:updateRender(idx)
+    end
     for k, v in pairs(self.data) do
         local item = self.list:add("", "")
         item.data = v
@@ -110,7 +115,7 @@ function pviewer:enter()
 
     self.data = removeDataWithoutDateField(self.data)
     self.activeIndex = #self.data >= 1 and 1 or 0
-    self:updateRender()
+    self:updateRender(1)
 end
 
 function pviewer:leave()
@@ -149,8 +154,10 @@ function pviewer:draw()
     g.setColor{1, 1, 1}
     g.setCanvas(self.rt)
     g.clear(pallete.background)
-    self.statisticRender:beforeDraw()
-    self.statisticRender:drawHits(self.layout.bottom.x, self.layout.bottom.y)
+    if self.statisticRender then
+        self.statisticRender:beforeDraw()
+        self.statisticRender:drawHits(self.layout.bottom.x, self.layout.bottom.y)
+    end
     g.setCanvas()
     g.setColor{1, 1, 1}
     g.draw(self.rt)
@@ -171,7 +178,7 @@ end
 function pviewer:scrollUp()
     if self.activeIndex - 1 >= 1 then
         self.activeIndex = self.activeIndex - 1
-        self:updateRender()
+        self:updateRender(self.activeIndex)
     end
 end
 
@@ -179,7 +186,7 @@ end
 function pviewer:scrollDown()
     if self.activeIndex + 1 <= #self.data then
         self.activeIndex = self.activeIndex + 1
-        self:updateRender()
+        self:updateRender(self.activeIndex)
     end
 end
 
@@ -199,6 +206,30 @@ function pviewer:keypressed(_, key)
         self:pageUp()
     elseif key == "pagedown" then
         self:pageDown()
+    end
+end
+
+function pviewer:wheelmoved(x, y)
+    if self.list then
+        self.list:wheelmoved(x, y)
+    end
+end
+
+function pviewer:mousepressed(x, y, btn, istouch)
+    if self.list then
+        self.list:mousepressed(x, y, btn, istouch)
+    end
+end
+
+function pviewer:mousereleased(x, y, btn, istouch)
+    if self.list then
+        self.list:mousereleased(x, y, btn, istouch)
+    end
+end
+
+function pviewer:moved(x, y, dx, dy)
+    if self.list then
+        self.list:mousemoved(x, y, dx, dy)
     end
 end
 
