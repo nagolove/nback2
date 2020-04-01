@@ -178,11 +178,14 @@ function readSettings()
 end
 
 function writeSettings()
-    local settings_str = lume.serialize { 
-        ["volume"] = love.audio.getVolume(), 
-        ["level"] = self.level, 
-        ["pause_time"] = self.pause_time }
-    ok, msg = love.filesystem.write("settings.lua", settings_str, 
-        settings_str:len())
+    local serialized = serpent.dump(settings)
+    --local settings_str = lume.serialize { 
+        --["volume"] = love.audio.getVolume(), 
+        --["level"] = self.level, 
+        --["pause_time"] = self.pause_time }
+    ok, msg = love.filesystem.write(SETTINGS_FILENAME, serialized)
+    if not ok then
+        print("Could write settings to ", SETTINGS_FILENAME, " file", msg)
+    end
 end
 

@@ -371,6 +371,7 @@ function nback:initButtons()
         title = i18n("settingsBtn"),
         ontouch = function() 
             -- какие тут могут быть настройки?
+            writeSettings()
             love.event.quit() 
         end})
 
