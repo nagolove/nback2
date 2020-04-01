@@ -26,7 +26,6 @@ pviewer.__index = pviewer
 
 function pviewer.new()
     local self = {
-        border = 40, --y axis border in pixels for drawing chart
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
         activeIndex = 0, -- обработай случаи если таблица истории пустая
     }
@@ -44,6 +43,7 @@ end
 -- создает новый экземпляр просмотрщика статистики для текущего положения
 -- индекса pviewer.activeIndex
 function pviewer:updateRender(index)
+    print("updateRender()", index)
     if self.data and index >= 1 and index <= #self.data then
         local data = self.data[index]
         self.statisticRender = require "drawstat".new({
@@ -80,30 +80,31 @@ function pviewer:makeList()
         self:updateRender(idx)
     end
     for k, v in pairs(self.data) do
-        local item = self.list:add("hui", "xo")
+        local item = self.list:add(string.format("%d level", v.level), "")
         item.data = v
         item.color = pallete.levelColors[v.level]
-        --item.ondraw = function(self, item, rx, ry, rw, rh)
-            ----print("item", inspect(item))
-            --if item.color then
-                --g.setColor(item.color)
-            --else
-                --g.setColor(pallete.pviewerUnknown)
-            --end
-            --g.rectangle("fill", rx, ry, rw, rh)
-            --g.setColor(pallete.pviewerItemText)
-            --g.print(compareDates(os.date("*t"), item.data.date), rx, ry)
-        --end
     end
     self.list:done()
+    self.list.onclick(nil, 1)
 end
+
+--item.ondraw = function(self, item, rx, ry, rw, rh)
+    ----print("item", inspect(item))
+    --if item.color then
+        --g.setColor(item.color)
+    --else
+        --g.setColor(pallete.pviewerUnknown)
+    --end
+    --g.rectangle("fill", rx, ry, rw, rh)
+    --g.setColor(pallete.pviewerItemText)
+    --g.print(compareDates(os.date("*t"), item.data.date), rx, ry)
+--end
 
 function pviewer:sortByDate()
     table.sort(self.data, function(a, b)
-        print("a, b", inspect(a), inspect(b))
+        --print("a, b", inspect(a), inspect(b))
         a, b = a.date, b.date
-        return a.year * 365 * 24 + a.yday * 24 + a.hour >
-            b.year * 365 * 24 + b.yday * 24 + b.hour
+        return a.year * 365 * 24 + a.yday * 24 + a.hour > b.year * 365 * 24 + b.yday * 24 + b.hour
     end)
 end
 
@@ -161,6 +162,7 @@ function pviewer:draw()
     g.setFont(self.font)
 
     self.list:draw()
+
     g.setColor{1, 1, 1}
     g.setCanvas(self.rt)
     g.clear(pallete.background)
@@ -238,9 +240,27 @@ function pviewer:mousereleased(x, y, btn, istouch)
     end
 end
 
-function pviewer:moved(x, y, dx, dy)
+function pviewer:mousemoved(x, y, dx, dy)
     if self.list then
         self.list:mousemoved(x, y, dx, dy)
+    end
+end
+
+function pviewer:touchpressed(id, x, y)
+    if self.list then
+        self.list:touchpressed(id, x, y)
+    end
+end
+
+function pviewer:touchreleased(id, x, y)
+    if self.list then
+        self.list:touchreleased(id, x, y)
+    end
+end
+
+function pviewer:touchmoved(id, x, y, dx, dy)
+    if self.list then
+        self.list:touchmoved(id, x, y, dx, dy)
     end
 end
 
