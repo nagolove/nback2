@@ -215,6 +215,27 @@ function menu:draw()
     end
 end
 
+function menu:touchpressed(id, x, y, dx, dy, pressure)
+    if self.active then
+        local obj = self.items[self.active_item].obj
+        if obj.touchpressed then obj:touchpressed(id, x, y, dx, dy, pressure) end
+    end
+end
+
+function menu:touchreleased(id, x, y, dx, dy, pressure)
+    if self.active then
+        local obj = self.items[self.active_item].obj
+        if obj.touchreleased then obj:touchreleased(id, x, y, dx, dy, pressure) end
+    end
+end
+
+function menu:touchmoved(id, x, y, dx, dy, pressure)
+    if self.active then
+        local obj = self.items[self.active_item].obj
+        if obj.touchmoved then obj:touchmoved(id, x, y, dx, dy, pressure) end
+    end
+end
+
 return {
     new = menu.new
 }

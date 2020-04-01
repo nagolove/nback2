@@ -235,3 +235,15 @@ end
 function love.mousereleased(x, y, button, istouch)
     menu:mousereleased(x, y, button, istouch)
 end
+
+function love.touchpressed(id, x, y, dx, dy, pressure)
+    menu:touchpressed(id, x, y, dx, dy, pressure)
+end
+
+function love.touchreleased(id, x, y, dx, dy, pressure)
+    menu:touchreleased(id, x, y, dx, dy, pressure)
+end
+
+function love.touchmoved(id, x, y, dx, dy, pressure)
+    menu:touchmoved(id, x, y, dx, dy, pressure)
+end
