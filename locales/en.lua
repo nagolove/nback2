@@ -25,6 +25,7 @@
         levelInfo1 = "Level %d Exposition %d seconds",
         levelInfo2 = "Duration %d min %d seconds",
         settingsBtn = "Settings",
+        backToMainMenu = "Back to menu",
         quitBtn = "Quit", -- лучше назвать - "в главное меню?"
 
         today = "today",

@@ -25,6 +25,7 @@
         levelInfo1 = "Уровень %d Экспозиция %d секунд",
         levelInfo2 = "Продолжительность %d минут %d секунд",
         settingsBtn = "Настройки",
+        backToMainMenu = "Вернуться в меню",
         quitBtn = "Закончить",
 
         today = "сегодня",
