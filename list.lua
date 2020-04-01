@@ -20,14 +20,14 @@ function List:new(x, y, w, h)
     o.x = x
     o.y = y
 
-    o.width = w
+    o.bar = { size = 20, pos = 0, maxpos = 0, width = 15, lock = nil}
+
+    o.width = w - o.bar.width
     o.height = h
 
     o.item_height = 23
     o.sum_item_height = 0
 
-    o.bar = { size = 20, pos = 0, maxpos = 0, width = 15, lock = nil}
-	
 	o.colors = {}
 	o.colors.normal = {bg = {0.19, 0.61, 0.88}, fg = {0.77, 0.91, 1}}
 	o.colors.hover  = {bg = {0.28, 0.51, 0.66}, fg = {1, 1, 1}}
@@ -53,8 +53,8 @@ function List:done()
     self.items.n = #self.items
     -- Recalc bar size.
     self.bar.pos = 0
-    local num_items = (self.height/self.item_height)
-    local ratio = num_items/self.items.n
+    local num_items = (self.height / self.item_height)
+    local ratio = num_items / self.items.n
     self.bar.size = self.height * ratio
     self.bar.maxpos = self.height - self.bar.size - 3
     -- Calculate height of everything.
@@ -76,17 +76,16 @@ end
 
 function List:update(dt)
     if self.bar.lock then
-	local dy = math.floor(love.mouse.getY()-self.bar.lock.y+0.5)
-	self.bar.pos = self.bar.pos + dy
+        local dy = math.floor(love.mouse.getY()-self.bar.lock.y+0.5)
+        self.bar.pos = self.bar.pos + dy
 
-	if self.bar.pos < 0 then
-	    self.bar.pos = 0
-	elseif self.bar.pos > self.bar.maxpos then
-	   self.bar.pos = self.bar.maxpos
-	end
+        if self.bar.pos < 0 then
+            self.bar.pos = 0
+        elseif self.bar.pos > self.bar.maxpos then
+            self.bar.pos = self.bar.maxpos
+        end
 
-	self.bar.lock.y = love.mouse.getY()
-
+        self.bar.lock.y = love.mouse.getY()
     end
 end
 
@@ -207,8 +206,8 @@ function List:draw()
 
 	-- Border
 	love.graphics.setColor(self.bordercolor)
-	love.graphics.rectangle("line", self.x + self.width, self.y, self.bar.width, self.height)
-	love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+	--love.graphics.rectangle("line", self.x + self.width, self.y, self.bar.width, self.height)
+	--love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 
 end
 
