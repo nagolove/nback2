@@ -21,6 +21,7 @@ menu = require "menu".new()
 nback = require "nback".new()
 pviewer = require "pviewer".new()
 local save_name = "nback-v0.4.lua"
+SETTINGS_FILENAME = "settings.lua"
 
 function love.quit()
 end
