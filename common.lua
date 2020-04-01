@@ -1,4 +1,5 @@
 require "gooi.gooi"
+
 local inspect = require "libs.inspect"
 
 function pack(...)
@@ -108,4 +109,34 @@ function restoreGooi(g)
     gooi.components = g.components
 end
 
-
+function compareDates(now, date)
+    local ranges = {
+        {0, 6, "today"},
+        {7, 24, "yesterday"},
+        {25, 48, "two days ago"},
+        {49, 72, "three days ago"},
+        {73, 96, "four days ago"},
+        {97, 24 * 7, "last week"},
+        {24 * 7 + 1, 24 * 14, "last two week"},
+        {24 * 14 + 1, 24 * 30, "last month"},
+        {24 * 30 + 1, 24 * 365, "last year"},
+    }
+    local result = "more year ago"
+    --print("now", inspect(os.date("*t")))
+    --print("date", inspect(date))
+    local t1, t2, diff = now.yday * 24 + now.hour, date.yday * 24 + date.hour, 0
+    if date.year == now.year then
+        diff = t1 - t2
+    else
+        diff = (now.year - date.year) * 365 * 24 - (t1 - t2)
+    end
+    for k, v in pairs(ranges) do
+        local v1, v2 = v[1], v[2]
+        if diff >= v1 and diff <= v2 then
+            result = v[3]
+            break
+        end
+    end
+    --print(result)
+    return result
+end
