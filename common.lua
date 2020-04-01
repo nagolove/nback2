@@ -144,7 +144,7 @@ end
 
 function getDefaultSettings()
     return {
-        volume = 0.2
+        volume = 0.2,
         firstRun = true,
     }
 end
