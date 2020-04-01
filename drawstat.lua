@@ -93,43 +93,44 @@ function statisticRender:printSignalType(x, y, signalType)
     g.print(string.format("%.3f", self.percent[signalType]), x + strWidth, y)
 end
 
--- рисовать статистику после конца сета
-function statisticRender:draw()
-    local w = g.getWidth()
-
-    g.setFont(self.font)
-    g.setColor(pallete.statistic)
-    g.setLineWidth(1)
-
-    local x = (w - w * self.width_k) / 2 
-    local fontHeight = g.getFont():getHeight()
-    local y = self.layout.middle.y + (self.layout.middle.h - (fontHeight + self:getHitQuadLineHeight()) * 4) / 2
-    local border = 2
-
+function statisticRender:drawHits(x, y)
     self:printSignalType(x, y, "sound") 
-    y = y + fontHeight
-    self:drawHitQuads(x, y, "sound", border)
+    y = y + self.fontHeight
+    self:drawHitQuads(x, y, "sound", self.border)
     y = y + self:getHitQuadLineHeight()
 
     self:printSignalType(x, y, "color") 
-    y = y + fontHeight
-    self:drawHitQuads(x, y, "color", border)
+    y = y + self.fontHeight
+    self:drawHitQuads(x, y, "color", self.border)
     y = y + self:getHitQuadLineHeight()
 
     self:printSignalType(x, y, "form") 
-    y = y + fontHeight
-    self:drawHitQuads(x, y, "form", border)
+    y = y + self.fontHeight
+    self:drawHitQuads(x, y, "form", self.border)
     y = y + self:getHitQuadLineHeight()
 
     self:printSignalType(x, y, "pos") 
-    y = y + fontHeight
-    self:drawHitQuads(x, y, "pos", border)
+    y = y + self.fontHeight
+    self:drawHitQuads(x, y, "pos", self.border)
+end
 
+function statisticRender:beforeDraw()
+    g.setFont(self.font)
+    g.setColor(pallete.statistic)
+    g.setLineWidth(1)
+    self.fontHeight = g.getFont():getHeight()
+end
+
+-- рисовать статистику после конца сета
+function statisticRender:draw(noInfo)
+    local w = g.getWidth()
+    self:beforeDraw()
+    local x = (w - w * self.width_k) / 2 
+    local y = self.layout.middle.y + (self.layout.middle.h - (self.fontHeight + self:getHitQuadLineHeight()) * 4) / 2
+    self:drawHits(x, y)
     self:printInfo()
-
     g.setColor{0.5, 0.5, 0.5}
     --drawHierachy(self.layout)
-
     if self.buttons then
         gooi.draw()
     end
@@ -188,6 +189,7 @@ function statisticRender.new(data)
     -- должен быть минимальный размер, не слишком мелкий если не все 
     --квадраты умещаются в ширину экрана
     self.width_k = 3.9 / 4
+    self.border = 2
     self.signals.eq = require "generator".makeEqArrays(self.signals, self.level)
     self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
     self.percent = percentage(self.signals, self.pressed)
