@@ -41,6 +41,8 @@ local pallete = {
     pviewerItemText = {0, 0, 0},
     -- если уровень сложности не распознается
     pviewerUnknown = {0.5, 0.5, 0.5},
+    pviewerScrollLine = {0, 0, 0},
+    pviewerCircle = {1, 0, 0},
 }
 
 return pallete
