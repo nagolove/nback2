@@ -104,7 +104,7 @@ function List:mousepressed(x, y, b, it)
 		local index = math.floor((ty / self.sum_item_height) * self.items.n)
 		local item = self.items[index + 1]
 		if item then
-			self.onclick(index + 1, b)
+			self.onclick(item, index + 1, b)
 		end
     end
 end
