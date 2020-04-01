@@ -1,5 +1,6 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
 useKeyboard = true
+preventiveFirstRun = true
 --onAndroid = true
 
 require "common"
@@ -56,8 +57,8 @@ function love.load(arg)
         locale = string.match(arg[1], "locale=(%S+)") or "en"
     end
 
-    if settings.firstRun then
-        languageSelector = require "languageselector.lua".new()
+    if settings.firstRun or preventiveFirstRun then
+        languageSelector = require "languageselector".new()
     end
 
     setupLocale(locale)
@@ -214,14 +215,18 @@ function countAverageFPS()
 end
 
 function love.draw()
-    cam:attach()
-    menu:draw()
-    cam:detach()
-    drawProfilingReport()
-    linesbuf:pushi("FPS %d", love.timer.getFPS())
-    --linesbuf:pushi("average FPS for 30 seconds")
-    linesbuf:draw()
-    countAverageFPS()
+    if languageSelector then
+        languageSelector:draw()
+    else
+        cam:attach()
+        menu:draw()
+        cam:detach()
+        drawProfilingReport()
+        linesbuf:pushi("FPS %d", love.timer.getFPS())
+        --linesbuf:pushi("average FPS for 30 seconds")
+        linesbuf:draw()
+        countAverageFPS()
+    end
     love.timer.sleep(0.01)
 end
 
@@ -237,25 +242,49 @@ function love.mousemoved(x, y, dx, dy, istouch)
     if love.keyboard.isDown("lshift") and love.mouse.isDown("1") then
         profiCam:move(-dx, -dy)
     end
-    menu:mousemoved(x, y, dx, dy, istouch)
+    if languageSelector then
+        languageSelector:mousemoved(x, y, dx, dy, istouch)
+    else
+        menu:mousemoved(x, y, dx, dy, istouch)
+    end
 end
 
 function love.mousepressed(x, y, button, istouch)
-    menu:mousepressed(x, y, button, istouch)
+    if languageSelector then
+        languageSelector:mousepressed(x, y, button, istouch)
+    else
+        menu:mousepressed(x, y, button, istouch)
+    end
 end
 
 function love.mousereleased(x, y, button, istouch)
-    menu:mousereleased(x, y, button, istouch)
+    if languageSelector then
+        languageSelector:mousereleased(x, y, button, istouch)
+    else
+        menu:mousereleased(x, y, button, istouch)
+    end
 end
 
 function love.touchpressed(id, x, y, dx, dy, pressure)
-    menu:touchpressed(id, x, y, dx, dy, pressure)
+    if languageSelector then
+        languageSelector:touchpressed(id, x, y, dx, dy, pressure)
+    else
+        menu:touchpressed(id, x, y, dx, dy, pressure)
+    end
 end
 
 function love.touchreleased(id, x, y, dx, dy, pressure)
-    menu:touchreleased(id, x, y, dx, dy, pressure)
+    if languageSelector then
+        languageSelector:touchreleased(id, x, y, dx, dy, pressure)
+    else
+        menu:touchreleased(id, x, y, dx, dy, pressure)
+    end
 end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)
-    menu:touchmoved(id, x, y, dx, dy, pressure)
+    if languageSelector then
+        languageSelector:touchmoved(id, x, y, dx, dy, pressure)
+    else
+        menu:touchmoved(id, x, y, dx, dy, pressure)
+    end
 end
