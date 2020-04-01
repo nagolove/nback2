@@ -9,7 +9,6 @@ local bhupur = require "bhupur"
 local g = love.graphics
 local generator = require "generator"
 local inspect = require "libs.inspect"
-local lume = require "libs.lume"
 local math = require "math"
 local os = require "os"
 local pallete = require "pallete"
@@ -180,20 +179,6 @@ function nback:initShaders()
     self.shader = g.newShader(fragmentCode)
 end
 
-function nback:readSettings()
-    local data, _ = love.filesystem.read("settings.lua")
-    if data then
-        local settings = lume.deserialize(data, "all")
-        print("settings loaded", inspect(settings))
-        self.level = settings.level
-        self.pause_time = settings.pause_time
-        self.volume = settings.volume
-    else
-        self.volume = 0.2 -- XXX какое значение должно быть по-дефолту?
-    end
-    love.audio.setVolume(self.volume)
-end
-
 -- фигачу кастомную менюшку на лету
 function nback:createSetupMenu()
     -- начальное значение. Можно менять исходя из
@@ -306,10 +291,12 @@ end
 
 -- зачем нужен nback:init() если есть :new()?
 function nback:init(save_name)
+    readSettings()
+    self.volume = settings.volume
+    love.audio.setVolume(settings.volume)
     self.save_name = save_name
     self.timer = Timer()
     self.signal = signal.new(self.cell_width, "alphabet")
-    self:readSettings()
     self:createSetupMenu()
     self:resize(g.getDimensions())
     self:initShaders()
@@ -602,6 +589,7 @@ function nback:save_to_history()
                             pause_time = self.pause_time,
                             percent = self.percent})
     love.filesystem.write(self.save_name, serpent.dump(history))
+    collectgarbage()
 end
 
 function nback:stop(byescape)
@@ -649,12 +637,8 @@ end
 function nback:quit(byescape)
     self.timer:destroy()
     self:stop(byescape)
-    local settings_str = lume.serialize { 
-        ["volume"] = love.audio.getVolume(), 
-        ["level"] = self.level, 
-        ["pause_time"] = self.pause_time }
-    ok, msg = love.filesystem.write("settings.lua", settings_str, 
-        settings_str:len())
+    settings.volume = self.volume
+    writeSettings()
     menu:goBack()
 end
 
