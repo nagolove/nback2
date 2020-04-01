@@ -671,9 +671,7 @@ end
 
 -- use scancode, Luke!
 function nback:keypressed(_, scancode)
-    if not useKeyboard then return end
-
-    if scancode == "escape" then
+    if scancode == "escape" or "achome" then
         if self.is_run then
             print("stop by escape")
             self:stop()
@@ -682,41 +680,42 @@ function nback:keypressed(_, scancode)
         end
     end
 
-    if self.is_run then
-        if scancode == "a" then
-            self:check("sound")
-        elseif scancode == "f" then
-            self:check("color")
-        elseif scancode == "j" then
-            self:check("form")
-        elseif scancode == ";" then
-            self:check("pos")
-        end
-    else
-        -- здесь другое игровое состояние, почему используется условие и булев
-        -- флаг?
-        -- состояние - регулировка в меню перед игрой
-        if not self.show_statistic then
-            if scancode == "space" or scancode == "return" then
-                self.setupmenu:select()
-            elseif scancode == "up" or scancode == "k" then
-                self.setupmenu:scrollUp()
-            elseif scancode == "down" or scancode == "j" then 
-                self.setupmenu:scrollDown()
-            elseif scancode == "left" or scancode == "h" then
-                self.setupmenu:leftPressed()
-            elseif scancode == "right" or scancode == "l" then
-                self.setupmenu:rightPressed()
+    if useKeyboard then 
+        if self.is_run then
+            if scancode == "a" then
+                self:check("sound")
+            elseif scancode == "f" then
+                self:check("color")
+            elseif scancode == "j" then
+                self:check("form")
+            elseif scancode == ";" then
+                self:check("pos")
+            end
+        else
+            -- здесь другое игровое состояние, почему используется условие и булев
+            -- флаг?
+            -- состояние - регулировка в меню перед игрой
+            if not self.show_statistic then
+                if scancode == "space" or scancode == "return" then
+                    self.setupmenu:select()
+                elseif scancode == "up" or scancode == "k" then
+                    self.setupmenu:scrollUp()
+                elseif scancode == "down" or scancode == "j" then 
+                    self.setupmenu:scrollDown()
+                elseif scancode == "left" or scancode == "h" then
+                    self.setupmenu:leftPressed()
+                elseif scancode == "right" or scancode == "l" then
+                    self.setupmenu:rightPressed()
+                end
             end
         end
-    end
-
-    if scancode == "-" then 
-        self:loverVolume()
-    elseif scancode == "=" then
-        self:raiseVolume()
-    elseif scancode == "2" then 
-        linesbuf.show = not linesbuf.show 
+        if scancode == "-" then 
+            self:loverVolume()
+        elseif scancode == "=" then
+            self:raiseVolume()
+        elseif scancode == "2" then 
+            linesbuf.show = not linesbuf.show 
+        end
     end
 end
 

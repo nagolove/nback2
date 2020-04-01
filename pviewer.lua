@@ -28,7 +28,6 @@ function pviewer.new()
     local self = {
         border = 40, --y axis border in pixels for drawing chart
         font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
-        scroolTipFont = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 13),
         activeIndex = 0, -- обработай случаи если таблица истории пустая
     }
     self.w, self.h = g.getDimensions()
@@ -65,7 +64,7 @@ function pviewer:updateRender(index)
     end
 end
 
-function removeDataWithoutDateField(data)
+local function removeDataWithoutDateField(data)
     local cleanedData = {}
     for k, v in pairs(data) do
         if v.date then
@@ -75,23 +74,9 @@ function removeDataWithoutDateField(data)
     return cleanedData
 end
 
-function pviewer:enter()
-    print("pviewer:enter()")
-    local tmp, size = love.filesystem.read(self.save_name)
-    if tmp ~= nil then
-        ok, self.data = serpent.load(tmp)
-        print("pviewer.data", inspect(self.data))
-        if not ok then 
-            -- эту строчку с падением при ошибке заменить на показ пустой
-            -- статистики.
-            error("Something wrong in restoring data " .. self.save_name)
-        end
-    else
-        self.data = {}
-    end
-
-    self.list = require "list":new(self.layout.left.x, self.layout.left.y,
-        self.layout.left.w, self.layout.left.h)
+function pviewer:makeList()
+    self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y,
+    self.layout.left.w, self.layout.left.h)
     self.list.onclick = function(item, idx)
         self:updateRender(idx)
     end
@@ -112,7 +97,24 @@ function pviewer:enter()
         end
     end
     self.list:done()
+end
 
+function pviewer:enter()
+    print("pviewer:enter()")
+    local tmp, size = love.filesystem.read(self.save_name)
+    if tmp ~= nil then
+        ok, self.data = serpent.load(tmp)
+        print("pviewer.data", inspect(self.data))
+        if not ok then 
+            -- эту строчку с падением при ошибке заменить на показ пустой
+            -- статистики.
+            error("Something wrong in restoring data " .. self.save_name)
+        end
+    else
+        self.data = {}
+    end
+
+    self:makeList()
     self.data = removeDataWithoutDateField(self.data)
     self.activeIndex = #self.data >= 1 and 1 or 0
     self:updateRender(1)
@@ -156,7 +158,8 @@ function pviewer:draw()
     g.clear(pallete.background)
     if self.statisticRender then
         self.statisticRender:beforeDraw()
-        self.statisticRender:drawHits(self.layout.bottom.x, self.layout.bottom.y)
+        local y = self.layout.bottom.y + (self.layout.bottom.h - self.statisticRender:getHitsRectHeight()) / 2
+        self.statisticRender:drawHits(self.layout.bottom.x, y)
     end
     g.setCanvas()
     g.setColor{1, 1, 1}

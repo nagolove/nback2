@@ -114,6 +114,10 @@ function statisticRender:drawHits(x, y)
     self:drawHitQuads(x, y, "pos", self.border)
 end
 
+function statisticRender:getHitsRectHeight()
+    return (self.fontHeight + self:getHitQuadLineHeight()) * 4
+end
+
 function statisticRender:beforeDraw()
     g.setFont(self.font)
     g.setColor(pallete.statistic)
@@ -126,7 +130,7 @@ function statisticRender:draw(noInfo)
     local w = g.getWidth()
     self:beforeDraw()
     local x = (w - w * self.width_k) / 2 
-    local y = self.layout.middle.y + (self.layout.middle.h - (self.fontHeight + self:getHitQuadLineHeight()) * 4) / 2
+    local y = self.layout.middle.y + (self.layout.middle.h - self:getHitsRectHeight()) / 2
     self:drawHits(x, y)
     self:printInfo()
     g.setColor{0.5, 0.5, 0.5}

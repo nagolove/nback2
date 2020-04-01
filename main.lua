@@ -1,6 +1,6 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
 useKeyboard = true
-onAndroid = true
+--onAndroid = true
 
 require "common"
 
@@ -171,7 +171,7 @@ function bindKeys()
     kc.bindKeyPressed("changescreenmode", {"return", "lalt"}, function()
         -- код дерьмовый, но работает
         if screenMode == "fs" then
-            love.window.setMode(800, 600, {fullscreen = false}) screenMode = "win"
+            love.window.setMode(1024, 768, {fullscreen = false}) screenMode = "win"
             dispatchWindowResize(love.graphics.getDimensions())
         else
             love.window.setMode(0, 0, {fullscreen = true, fullscreentype = "exclusive"})

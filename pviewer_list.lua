@@ -59,6 +59,7 @@ function List:done()
     self.bar.maxpos = self.height - self.bar.size - 3
     -- Calculate height of everything.
     self.sum_item_height = (self.item_height+1) * self.items.n + 2
+    self:prepareDrawing()
 end
 
 function List:hasBar()
@@ -168,7 +169,7 @@ function List:draw()
 	local end_i = start_i + math.floor(self.height / (self.item_height + 1)) + 1
 	if end_i > self.items.n then end_i = self.items.n end
 
-	love.graphics.setScissor(self.x, self.y, self.width, self.height)
+	--love.graphics.setScissor(self.x, self.y, self.width, self.height)
 
 	-- Items
 	local rx, ry, rw, rh
@@ -182,16 +183,65 @@ function List:draw()
 
 		rx, ry, rw, rh = self:getItemRect(i)
         local item = self.items[i]
-        if type(item.ondraw) == "function" then 
-            item.ondraw(item.self, item, rx, ry, rw, rh)
-        else
-            love.graphics.setColor(colorset.bg)
-            love.graphics.rectangle("fill", rx, ry, rw, rh)
+        love.graphics.setColor{1, 1, 1, 1}
+        love.graphics.draw(item.canvas, rx, ry)
+        --love.graphics.setColor(colorset.bg)
+        --love.graphics.rectangle("fill", rx, ry, rw, rh)
 
-            love.graphics.setColor(colorset.fg)
-            love.graphics.print(self.items[i].title, rx + 10, ry + 5) 
-        end
+        --love.graphics.setColor(colorset.fg)
+        --love.graphics.print(self.items[i].title, rx + 10, ry + 5) 
 	end
+
+	--love.graphics.setScissor()
+
+	-- Bar
+	if self:hasBar() then
+		if self.hoveritem == -1 or self.bar.lock then
+			colorset = self.colors.hover
+		else
+			colorset = self.colors.normal
+		end
+		
+		rx, ry, rw, rh = self:getBarRect()
+		love.graphics.setColor(colorset.bg)
+		love.graphics.rectangle("fill", rx, ry, rw, rh)
+	end
+end
+
+function List:prepareDrawing()
+	love.graphics.setLineWidth(1)
+	love.graphics.setLineStyle("rough")
+	love.graphics.setColor(self.windowcolor)
+
+	-- Get interval to display
+	local start_i = math.floor(self:getOffset() / (self.item_height + 1)) + 1
+	local end_i = start_i + math.floor(self.height / (self.item_height + 1)) + 1
+	if end_i > self.items.n then end_i = self.items.n end
+
+	love.graphics.setScissor(self.x, self.y, self.width, self.height)
+
+    -- Items
+    local rx, ry, rw, rh
+    local colorset
+    for i = 1, self.items.n do
+        if i == self.hoveritem then
+            colorset = self.colors.hover
+        else
+            colorset = self.colors.normal
+        end
+        rx, ry, rw, rh = self:getItemRect(i)
+        local item = self.items[i]
+        item.canvas = love.graphics.newCanvas(rw, rh)
+        love.graphics.setCanvas(item.canvas)
+
+        --love.graphics.setColor(colorset.bg)
+        love.graphics.rectangle("fill", 0, 0, rw, rh)
+
+        love.graphics.setColor(colorset.fg)
+        love.graphics.print(self.items[i].title, 10, 5) 
+
+        love.graphics.setCanvas()
+    end
 
 	love.graphics.setScissor()
 
@@ -214,6 +264,5 @@ function List:draw()
 	--love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 
 end
-
 
 return List
