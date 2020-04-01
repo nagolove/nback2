@@ -51,7 +51,7 @@ function statisticRender:preparePrintingSignalsType(signalType)
         local str =  loc .. "  " 
         local strWidth = g.getFont():getWidth(str)
         local formatStr = "%.3f"
-        print("self.percent", inspect(self.percent))
+        --print("self.percent", inspect(self.percent))
         return string.format(formatStr, self.percent[signalType]), x + strWidth, y
     end
     local tbl = {}
@@ -198,8 +198,8 @@ function statisticRender.new(data)
     self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
     self.percent = percentage(self.signals, self.pressed)
     self:buildLayout(data.border or nback.border)
-    print("data.border", data.border)
-    print("data.buttons", data.buttons)
+    --print("data.border", data.border)
+    --print("data.buttons", data.buttons)
     if self.buttons then
         gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
             showBorder = true,
