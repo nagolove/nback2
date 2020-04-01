@@ -207,7 +207,7 @@ function statisticRender.new(data)
         })
 
         self.mainMenuBtn = gooi.newButton({ 
-            text = "Return to menu",
+            text = i18n("backToMainMenu"),
             x = self.layout.mainMenuBtn.x, y = self.layout.mainMenuBtn.y, 
             w = self.layout.mainMenuBtn.w, h = self.layout.mainMenuBtn.h
         }):onRelease(function()
