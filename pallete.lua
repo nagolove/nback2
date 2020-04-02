@@ -47,7 +47,8 @@ local pallete = {
         scrollLine = {0, 0, 0},
         -- кружок на полоске скроллинга
         circle = {1, 0, 0},
-    }
+    },
+    selectedLanguage = {1, 0.3, 0.2},
 }
 
 return pallete
