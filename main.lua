@@ -19,10 +19,6 @@ i18n = require "i18n"
 linesbuf = require "kons".new()
 cam = require "camera".new()
 profiCam = require "camera".new()
-help = require "help".new()
-menu = require "menu".new()
-nback = require "nback".new()
-pviewer = require "pviewer".new()
 
 function love.quit()
     writeSettings()
@@ -47,6 +43,27 @@ function setupLocale(locale)
     i18n.setLocale(locale)
 end
 
+function subInit()
+    bindKeys()
+
+    help = require "help".new()
+    menu = require "menu".new()
+    nback = require "nback".new()
+    pviewer = require "pviewer".new()
+
+    nback:init(SAVE_NAME)
+    pviewer:init(SAVE_NAME)
+    menu:init()
+    help:init()
+
+    menu:addItem(i18n("mainMenu.play"), nback)
+    menu:addItem(i18n("mainMenu.viewProgress"), pviewer)
+    menu:addItem(i18n("mainMenu.help"), help)
+    if not onAndroid then
+        menu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
+    end
+end
+
 function love.load(arg)
     readSettings()
     loadLocales()
@@ -62,28 +79,11 @@ function love.load(arg)
     end
 
     setupLocale(locale)
-    bindKeys()
     math.randomseed(os.time())
     love.window.setTitle("nback")
     --require "splash".init()
-
-    -- Ручная инициализация модулей
-    nback:init(SAVE_NAME)
-    pviewer:init(SAVE_NAME)
-    menu:init()
-    help:init()
-
-    -- проблема в том, что два раза определяю список состояний для одного меню.
-    -- Нужно как-то обойтись одним списком.
-    -- Задача - как выйти из текущего объекта состояния? Скажеи из pviewer'а?
-    -- Для этого нужно позвонить в объект меню, если он хранит весь список
-    -- состояний через метод, к примеру - menu:goBack()
-    menu:addItem(i18n("mainMenu.play"), nback)
-    menu:addItem(i18n("mainMenu.viewProgress"), pviewer)
-    menu:addItem(i18n("mainMenu.help"), help)
-    if not onAndroid then
-        menu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
-    end
+    
+    subInit()
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true})
@@ -100,9 +100,9 @@ end
 function love.update(dt)
     if languageSelector then
         languageSelector:update(dt)
-        local locale = languageSelector:getLocale()
-        if locale then
-            setupLocale(locale)
+        if languageSelector:getLocale() then
+            setupLocale(languageSelector:getLocale())
+            subInit()
             languageSelector = nil
         end
     else
