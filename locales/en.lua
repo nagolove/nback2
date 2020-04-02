@@ -26,7 +26,7 @@
         levelInfo2 = "Duration %d min %d seconds",
         settingsBtn = "Settings",
         backToMainMenu = "Back to menu",
-        quitBtn = "Quit", -- лучше назвать - "в главное меню?"
+        quitBtn = "Back to main", -- лучше назвать - "в главное меню?"
 
         today = "today",
         yesterday = "yesterday",
