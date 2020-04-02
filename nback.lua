@@ -701,8 +701,6 @@ function nback:keypressed(_, scancode)
             self:loverVolume()
         elseif scancode == "=" then
             self:raiseVolume()
-        elseif scancode == "2" then 
-            linesbuf.show = not linesbuf.show 
         end
     end
 end

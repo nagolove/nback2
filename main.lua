@@ -100,11 +100,16 @@ end
 function love.update(dt)
     if languageSelector then
         languageSelector:update(dt)
+        local locale = languageSelector:getLocale()
+        if locale then
+            setupLocale(locale)
+            languageSelector = nil
+        end
     else
         menu:update(dt)
         timer:update(dt)
-        linesbuf:update(dt)
     end
+    linesbuf:update(dt)
 end
 
 local screenMode = "win" -- or "fs"
@@ -167,20 +172,29 @@ end
 
 function bindKeys()
     local kc = keyconfig
+
+    kc.bindKeyPressed("linesbufftoggle", {"2"}, function()
+        linesbuf.show = not linesbuf.show 
+    end, "show or hide debug output")
+
     kc.bindKeyPressed("startprofi", {"9"}, function()
         startProfiling()
         linesbuf:push(1, "profiler started.")
     end, "start program profiling.")
+
     kc.bindKeyPressed("stopprofi", {"0"}, function()
         local time = stopProfiling()
         linesbuf:push(1, "profiler stoped. gathered for %d seconds.", time)
     end, "stop program profiling.")
+
     kc.bindKeyPressed("dbg", {"d", "lctrl"}, function()
         debug.debug()
     end, "Start debugger.")
+
     kc.bindKeyPressed("savehistory", {"s", "lctrl"}, function()
         nback:save_to_history()
     end, "save statistic file in history file.")
+
     kc.bindKeyPressed("changescreenmode", {"return", "lalt"}, function()
         -- код дерьмовый, но работает
         if screenMode == "fs" then
@@ -192,6 +206,7 @@ function bindKeys()
             dispatchWindowResize(love.graphics.getDimensions())
         end
     end, "Turn to fullscreen or windowed mode.")
+
     kc.bindKeyPressed("screenshot", {"f12"}, function()
         make_screenshot()
     end, "Save screenshot in data folder.")
@@ -222,11 +237,11 @@ function love.draw()
         menu:draw()
         cam:detach()
         drawProfilingReport()
-        linesbuf:pushi("FPS %d", love.timer.getFPS())
         --linesbuf:pushi("average FPS for 30 seconds")
-        linesbuf:draw()
         countAverageFPS()
     end
+    linesbuf:pushi("FPS %d", love.timer.getFPS())
+    linesbuf:draw()
     love.timer.sleep(0.01)
 end
 
