@@ -1,4 +1,5 @@
 ﻿local inspect = require "libs.inspect"
+local pallete = require "pallete"
 local gr = love.graphics
 
 local LanguageSelector = {}
@@ -14,9 +15,11 @@ function LanguageSelector:new()
         print(chunk().language, errmsg)
         if not errmsg and type(chunk) == "function" then
             setfenv(chunk, {})
-            table.insert(self.languages, chunk().language)
+            table.insert(self.languages, { id = chunk().language, file = v})
         end
     end
+    print("languages", inspect(self.languages))
+    self.selected = 1
     self:prepareDraw()
     return self
 end
@@ -30,37 +33,46 @@ function LanguageSelector:prepareDraw()
     local menuItemHeight = self.font:getHeight() + 2
     local menuHeight = #self.languages * menuItemHeight
     local menuWidth = 0
+
     for k, v in pairs(self.languages) do
-        local width = self.font:getWidth(v)
+        local width = self.font:getWidth(v.id)
         if width > menuWidth then
             menuWidth = width
         end
     end
 
+    local x0, y0 = 0, 0
     self.x, self.y = (w - menuWidth) / 2, (h - menuHeight) / 2
-
     self.canvas = gr.newCanvas(menuWidth, menuHeight)
+    gr.setFont(self.font)
     gr.setCanvas(self.canvas)
-    local x, y = 0, 0
-    for k, v in pairs(self.languages) do
-        print("v", v)
-        gr.print(v, x, y)
-        y = y + self.font:getHeight()
-    end
-    gr.setCanvas()
 
     self.items = {}
-    x, y = self.x, self.y
+    local x, y = self.x, self.y
     for k, v in pairs(self.languages) do
-        table.insert(self.items, { x = self.x, y = self.y, w = menuWidth, h = menuItemHeight })
+        print("v", v.id)
+        gr.print(v.id, x0, y0)
+        y0 = y0 + menuItemHeight
+        table.insert(self.items, { x = x, y = y, w = menuWidth, h = menuItemHeight })
         y = y + menuItemHeight
     end
+
+    gr.setCanvas()
 end
 
 function LanguageSelector:draw()
     local x, y = self.x, self.y
+    gr.clear(pallete.background)
     gr.setColor{1, 1, 1, 1}
     gr.draw(self.canvas, x, y)
+
+    local prevLineWidth = gr.getLineWidth()
+    if self.selected then
+        local v = self.items[self.selected]
+        gr.setColor(pallete.selectedLanguage)
+        gr.rectangle("line", v.x, v.y, v.w, v.h)
+    end
+    gr.setLineWidth(prevLineWidth)
 end
 
 function LanguageSelector:update(dt)
@@ -75,7 +87,7 @@ end
 function LanguageSelector:touchmoved(id, x, y, dx, dy)
 end
 
-function LanguageSelector:mousepressed(id, x, y)
+function LanguageSelector:mousepressed(x, y, btn, istouch)
     print("LanguageSelector:mousepressed")
     for k, v in pairs(self.items) do
         print("v", inspect(v))
@@ -86,9 +98,21 @@ function LanguageSelector:mousepressed(id, x, y)
     print("self.locale", self.locale)
 end
 
-function LanguageSelector:mousereleased(id, x, y)
+function LanguageSelector:mousereleased(x, y, btn, istouch)
 end
 
-function LanguageSelector:mousemoved(id, x, y, dx, dy)
+function LanguageSelector:mousemoved(x, y, dx, dy, istouch)
+    for k, v in pairs(self.items) do
+        print("v", inspect(v))
+        if pointInRect(x, y, v.x, v.y, v.w, v.h) then
+            --self.locale = self.languages[k]
+            self.selected = k
+            print(inspect(k))
+            linesbuf:push(1, "LanguageSelector.selected %d", self.selected)
+        end
+    end
+    --print("self.locale", self.locale)
+    print("self.selected", self.selected)
 end
+
 return LanguageSelector
