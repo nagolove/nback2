@@ -573,17 +573,9 @@ function nback:save_to_history()
         end
     end
     print("nback:save_to_history()")
-    --[[
-    -- Здесь добавляется информация к уже загруженной таблице со всеми данными.
-    -- Плохой способ так как непонятно как рассортировать данные.
-    -- И считывать приходится все подряд. Как можно сделать лучше?
-    -- Хранить результаты в отдельных файлах - так себе вариант, может
-    -- накопиться много файлов. serpent записывает компактно.
-    --]]
+    
     os.setlocale("C")
-    local date = os.date("*t")
-    print("date", inspect(date))
-    table.insert(history, { date = date, 
+    table.insert(history, { date = os.date("*t"), 
                             signals = self.signals,
                             pressed = self.pressed,
                             level = self.level,
