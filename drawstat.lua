@@ -141,14 +141,10 @@ function statisticRender:draw(noInfo)
 end
 
 function statisticRender:printInfo()
-    local width1, width2 = g.getFont():getWidth(self.levelInfo), g.getFont():getWidth(self.levelDuration)
-    local textsHeight = g.getFont():getHeight() * 2
-    local x1, x2 = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
-    local y = (self.layout.top.h - textsHeight) / 2
-
-    g.print(self.levelInfo, x1, y)
+    local x1, x2, y = self.info.x1, self.info.x2, self.info.y
+    g.print(self.info.durationStr, x1, y)
     y = y + g.getFont():getHeight()
-    g.print(self.levelDuration, x2, y)
+    g.print(self.info.infoStr, x2, y)
 end
 
 function statisticRender:buildLayout(border)
@@ -176,6 +172,20 @@ function statisticRender:mousereleased(x, y, button)
     gooi.released()
 end
 
+function statisticRender:preparePrintInfo()
+    self.info = {}
+    self.info.durationStr = i18n("levelInfo2_part1", {count = self.level}) .. " " ..
+        i18n("levelInfo2_part2", {count = self.pause_time}) 
+    self.info.infoStr = i18n("levelInfo1_part1", {count = self.durationMin}) .. " " ..
+        i18n("levelInfo1_part2", {count = tonumber( -- hacky hack, lol
+        string.format("%.2f", self.durationSec))})
+
+    local width1, width2 = g.getFont():getWidth(self.info.infoStr), g.getFont():getWidth(self.info.durationStr)
+    local textsHeight = g.getFont():getHeight() * 2
+    self.info.x1, self.info.x2 = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
+    self.info.y = (self.layout.top.h - textsHeight) / 2
+end
+
 function statisticRender.new(data)
     local self = setmetatable({
         signals = data.signals,
@@ -198,31 +208,7 @@ function statisticRender.new(data)
     self.percent = percentage(self.signals, self.pressed)
     self:buildLayout(data.border or nback.border)
 
-    print("self.level", self.level)
-    print("self.pause_time", self.pause_time)
-    print("self.durationSec", self.durationSec)
-    print("math.floor(self.durationSec)", math.floor(self.durationSec))
-
-    print(inspect(i18n("levelInfo1_part1", {count = self.level})))
-    print(inspect(i18n("levelInfo1_part2", {count = self.pause_time})))
-    print(i18n("levelInfo2_part1", {count = self.durationMin}))
-    --print(i18n("levelInfo2_part2", {count = self.durationSec}))
-    print(i18n("levelInfo2_part2", {count = self.durationSec}))
-
-    --self.levelDuration = ""
-    self.levelDuration = i18n("levelInfo2_part1", {count = self.level}) .. " " ..
-        --i18n("levelInfo2_part2", {count = self.pause_time}) 
-        i18n("levelInfo2_part2", {count = self.pause_time}) 
-
-    print("self.levelInfo", self.levelInfo)
-
-    --self.levelInfo = ""
-    self.levelInfo = i18n("levelInfo1_part1", {count = self.durationMin}) .. " " ..
-        --i18n("levelInfo1_part2", {self.durationSec})
-        i18n("levelInfo1_part2", {count = tonumber( -- hacky hack, lol
-            string.format("%.2f", self.durationSec))})
-
-    print("self.levelDuration", inspect(self.levelDuration))
+    self:preparePrintInfo()
 
     --print("data.border", data.border)
     --print("data.buttons", data.buttons)
