@@ -57,8 +57,8 @@ function help:enter()
     print("help:enter()")
     restoreGooi(self.gooi)
 
-    print("gooi.components", inspect(gooi.components))
-    print("self.gooi", inspect(self.gooi))
+    --print("gooi.components", inspect(gooi.components))
+    --print("self.gooi", inspect(self.gooi))
 end
 
 function help:leave()

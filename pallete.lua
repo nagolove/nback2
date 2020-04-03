@@ -48,7 +48,7 @@ local pallete = {
         -- кружок на полоске скроллинга
         circle = {1, 0, 0},
     },
-    selectedLanguageBoreder = {1, 0.3, 0.2},
+    selectedLanguageBorder = {1, 0.3, 0.2},
     languageMenuText = {1, 1, 1},
 }
 
