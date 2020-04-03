@@ -22,6 +22,7 @@ function help:init()
     print("gooi.setStyle", inspect(gooi.setStyle))
 
     self.gooi = storeGooi()
+
     gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
         showBorder = true,
         bgColor = {0.208, 0.220, 0.222},
@@ -33,10 +34,11 @@ end
 
 function help:buildButtons()
     local mainMenuBtnLayout = shrink(self.layout.top, nback.border)
-    self.mainMenuBtn = gooi.newButton({ text = "Back to menu",
-    x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
-    w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h})
-    :onRelease(function()
+    self.mainMenuBtn = gooi.newButton({ 
+        text = "Back to menu",
+        x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
+        w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h
+    }):onRelease(function()
         linesbuf:push(1, "return to main!")
         menu:goBack()
     end)
@@ -53,11 +55,15 @@ end
 
 function help:enter()
     print("help:enter()")
+    restoreGooi(self.gooi)
+
+    print("gooi.components", inspect(gooi.components))
+    print("self.gooi", inspect(self.gooi))
 end
 
 function help:leave()
     print("help:leave()")
-
+    self.gooi = storeGooi()
 end
 
 function help:drawDescription()
@@ -74,8 +80,9 @@ end
 function help:draw()
     self:drawDescription()
 
-    g.setColor{0.3, 0.3, 0.34}
     gooi.draw()
+
+    g.setColor{0.3, 0.3, 0.34}
     drawHierachy(self.layout)
 end
 
@@ -95,7 +102,7 @@ end
 
 function help:keypressed(key)
     if key == "escape" then
-        restoreGooi(self.gooi)
+        --restoreGooi(self.gooi)
         menu:goBack()
     end
 end
