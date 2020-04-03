@@ -13,7 +13,7 @@ local splash = require "splash"
 local timer = require "libs/Timer"()
 
 SETTINGS_FILENAME = "settings.lua"
-local SAVE_NAME = "nback-v0.4.lua"
+SAVE_NAME = "nback-v0.4.lua"
 keyconfig = require "keyconfig"
 i18n = require "i18n"
 linesbuf = require "kons".new()
