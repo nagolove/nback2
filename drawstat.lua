@@ -177,7 +177,7 @@ function statisticRender:preparePrintInfo()
     self.info.durationStr = i18n("levelInfo2_part1", {count = self.level}) .. " " ..
         i18n("levelInfo2_part2", {count = self.pause_time}) 
     self.info.infoStr = i18n("levelInfo1_part1", {count = self.durationMin}) .. " " ..
-        i18n("levelInfo1_part2", {count = tonumber( -- hacky hack, lol
+        i18n("levelInfo1_part2", {count = tonumber( -- hacky hack, lol. for proper printing
         string.format("%.2f", self.durationSec))})
 
     local width1, width2 = g.getFont():getWidth(self.info.infoStr), g.getFont():getWidth(self.info.durationStr)
