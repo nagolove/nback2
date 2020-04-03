@@ -141,15 +141,14 @@ function statisticRender:draw(noInfo)
 end
 
 function statisticRender:printInfo()
-    local str1, str2 = i18n("levelInfo", {self.level, self.pause_time}), 
-        i18n("levelDuration", {self.durationMin, self.durationSec})
-    local width1, width2 = g.getFont():getWidth(str1), g.getFont():getWidth(str2)
+    local width1, width2 = g.getFont():getWidth(self.levelInfo), g.getFont():getWidth(self.levelDuration)
     local textsHeight = g.getFont():getHeight() * 2
     local x1, x2 = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
     local y = (self.layout.top.h - textsHeight) / 2
-    g.print(str1, x1, y)
+
+    g.print(self.levelInfo, x1, y)
     y = y + g.getFont():getHeight()
-    g.print(str2, x2, y)
+    g.print(self.levelDuration, x2, y)
 end
 
 function statisticRender:buildLayout(border)
@@ -198,6 +197,23 @@ function statisticRender.new(data)
     self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
     self.percent = percentage(self.signals, self.pressed)
     self:buildLayout(data.border or nback.border)
+
+    print(inspect(i18n("levelInfo1_part1", {count = self.level})))
+    print(inspect(i18n("levelInfo1_part2", {count = self.pause_time})))
+
+    self.levelInfo = i18n("levelInfo1_part1", {count = self.level}) .. " " ..
+        i18n("levelInfo1_part2", {count = self.pause_time}) 
+
+    print("self.levelInfo", self.levelInfo)
+
+    print(i18n("levelInfo2_part1", {self.durationMin}))
+    print(i18n("levelInfo2_part2", {count = self.durationSec}))
+
+    self.levelDuration = i18n("levelInfo2_part1", {self.durationMin}) .. "" ..
+        i18n("levelInfo2_part2", {count = self.durationSec})
+
+    print("self.levelDuration", inspect(self.levelDuration))
+
     --print("data.border", data.border)
     --print("data.buttons", data.buttons)
     if self.buttons then
