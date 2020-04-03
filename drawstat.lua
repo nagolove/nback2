@@ -141,8 +141,8 @@ function statisticRender:draw(noInfo)
 end
 
 function statisticRender:printInfo()
-    local str1, str2 = string.format("Level %d Exposition %1.f sec", self.level, self.pause_time),
-        string.format("Duration %d min %d sec.", self.durationMin, self.durationSec)
+    local str1, str2 = i18n("levelInfo", {self.level, self.pause_time}), 
+        i18n("levelDuration", {self.durationMin, self.durationSec})
     local width1, width2 = g.getFont():getWidth(str1), g.getFont():getWidth(str2)
     local textsHeight = g.getFont():getHeight() * 2
     local x1, x2 = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
