@@ -73,7 +73,7 @@ function LanguageSelector:draw()
     local prevLineWidth = gr.getLineWidth()
     if self.selected then
         local v = self.items[self.selected]
-        gr.setColor(pallete.selectedLanguageBoreder)
+        gr.setColor(pallete.selectedLanguageBorder)
         gr.rectangle("line", v.x, v.y, v.w, v.h)
     end
     gr.setLineWidth(prevLineWidth)
