@@ -622,7 +622,7 @@ function nback:stop(byescape)
             font = self.font,
             durationMin = self.durationMin,
             durationSec = self.durationSec,
-            buttons = true,
+            buttons = true, -- флажок - показывать ли кнопку "вернуться"
         })
     end
 end
