@@ -84,7 +84,7 @@ end
 -- треугольник вверх, пересечение треугольников, ромб)
 -- color - текущий цвет
 function signal:draw(xd, yd, type, color)
-    local border = 5
+    local border = 1
     local w, h = self.width - border * 2, self.width - border * 2
     local x = self.x0 + xd * self.width + border 
     local y = self.y0 + yd * self.width + border
