@@ -21,7 +21,13 @@
             diffLevel = "Уровень сложности: ",
             dimLevel = "Размер поля:",
         },
-        waitFor = "Ждите %d секунд",
+
+        waitFor = {
+            one = "Ждите %d секунду",
+            few = "Ждите %d секунды",
+            many = "Ждите %d секунд",
+        },
+
         levelInfo1 = "Уровень %d Экспозиция %d секунд",
         levelInfo2 = "Продолжительность %d минут %d секунд",
         settingsBtn = "Настройки",
@@ -40,5 +46,25 @@
         moreTime = "более года назад",
         levelInfo = "Продолжительность %d мин. %d сек.",
         levelDuration = "Уровень %d Экспозиция %d сек.",
+
+        levelInfo1_part1 = {
+            one = "Продолжительность %{count} минута", 
+            few = "Продолжительность %{count} минуты",
+            many = "Продолжительность %{count} минут",
+            other = "Продолжительность %{count} минут",
+        },
+        levelInfo1_part2 = {
+            one = "%{count} секунда",
+            few = "%{count} секунды",
+            many = "%{count} секунд",
+            other = "%{count} секунд",
+        },
+        levelInfo2_part1 = "Уровень %d",
+        levelInfo2_part2 = {
+            one = "Экспозиция %{count} секунда",
+            few = "Экспозиция %{count} секунды",
+            many = "Экспозиция %{count} секунд",
+            other = "Экспозиция %{count} секунд",
+        },
     },
 }
