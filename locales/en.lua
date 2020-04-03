@@ -38,6 +38,8 @@
         lastMonth  = "last month",
         lastYear  = "last year",
         moreTime = "more year ago",
+        levelInfo = "Duration %d min %d sec.",
+        levelDuration = "Level %d Exposition %d sec",
     },
 }
 
