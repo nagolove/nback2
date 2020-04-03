@@ -198,19 +198,29 @@ function statisticRender.new(data)
     self.percent = percentage(self.signals, self.pressed)
     self:buildLayout(data.border or nback.border)
 
+    print("self.level", self.level)
+    print("self.pause_time", self.pause_time)
+    print("self.durationSec", self.durationSec)
+    print("math.floor(self.durationSec)", math.floor(self.durationSec))
+
     print(inspect(i18n("levelInfo1_part1", {count = self.level})))
     print(inspect(i18n("levelInfo1_part2", {count = self.pause_time})))
+    print(i18n("levelInfo2_part1", {count = self.durationMin}))
+    --print(i18n("levelInfo2_part2", {count = self.durationSec}))
+    print(i18n("levelInfo2_part2", {count = self.durationSec}))
 
-    self.levelInfo = i18n("levelInfo1_part1", {count = self.level}) .. " " ..
-        i18n("levelInfo1_part2", {count = self.pause_time}) 
+    --self.levelDuration = ""
+    self.levelDuration = i18n("levelInfo2_part1", {count = self.level}) .. " " ..
+        --i18n("levelInfo2_part2", {count = self.pause_time}) 
+        i18n("levelInfo2_part2", {count = self.pause_time}) 
 
     print("self.levelInfo", self.levelInfo)
 
-    print(i18n("levelInfo2_part1", {self.durationMin}))
-    print(i18n("levelInfo2_part2", {count = self.durationSec}))
-
-    self.levelDuration = i18n("levelInfo2_part1", {self.durationMin}) .. "" ..
-        i18n("levelInfo2_part2", {count = self.durationSec})
+    --self.levelInfo = ""
+    self.levelInfo = i18n("levelInfo1_part1", {count = self.durationMin}) .. " " ..
+        --i18n("levelInfo1_part2", {self.durationSec})
+        i18n("levelInfo1_part2", {count = tonumber( -- hacky hack, lol
+            string.format("%.2f", self.durationSec))})
 
     print("self.levelDuration", inspect(self.levelDuration))
 

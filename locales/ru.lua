@@ -44,8 +44,6 @@
         lastMonth  = "в прошлом месяце",
         lastYear  = "в прошлом году",
         moreTime = "более года назад",
-        levelInfo = "Продолжительность %d мин. %d сек.",
-        levelDuration = "Уровень %d Экспозиция %d сек.",
 
         levelInfo1_part1 = {
             one = "Продолжительность %{count} минута", 
@@ -59,7 +57,7 @@
             many = "%{count} секунд",
             other = "%{count} секунд",
         },
-        levelInfo2_part1 = "Уровень %d",
+        levelInfo2_part1 = "Сложность %{count}",
         levelInfo2_part2 = {
             one = "Экспозиция %{count} секунда",
             few = "Экспозиция %{count} секунды",

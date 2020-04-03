@@ -28,8 +28,6 @@
             many = "Wait for %d seconds",
         },
 
-        levelInfo1 = "Level %d Exposition %d seconds",
-        levelInfo2 = "Duration %d min %d seconds",
         settingsBtn = "Settings",
         backToMainMenu = "Back to menu",
         quitBtn = "Back to main", -- лучше назвать - "в главное меню?"
@@ -45,9 +43,6 @@
         lastYear  = "last year",
         moreTime = "more year ago",
 
-        levelInfo = "Duration %d min %d sec.",
-        levelDuration = "Level %d Exposition %d sec",
-
         levelInfo1_part1 = {
             one = "Duration %{count} minute", 
             few = "Duration %{count} minutes",
@@ -55,18 +50,18 @@
             other = "Duration %{count} minutes",
         },
         levelInfo1_part2 = {
-            one = "${count} second",
-            few = "${count} seconds",
-            many = "${count} seconds",
-            other = "${count} seconds",
+            one = "%{count} second",
+            few = "%{count} seconds",
+            many = "%{count} seconds",
+            other = "%{count} seconds",
         },
 
-        levelInfo2_part1 = "Level %d",
+        levelInfo2_part1 = "Level %{count}",
         levelInfo2_part2 = {
-            one = "Exposition ${count} second",
-            few = "Exposition ${count} seconds",
-            many = "Exposition ${count} seconds",
-            other = "Exposition ${count} seconds",
+            one = "Exposition %{count} second",
+            few = "Exposition %{count} seconds",
+            many = "Exposition %{count} seconds",
+            other = "Exposition %{count} seconds",
         },
     },
 }
