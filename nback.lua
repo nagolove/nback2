@@ -19,6 +19,7 @@ local string = require "string"
 local table = require "table"
 local w, h = g.getDimensions()
 local colorConstants = require "colorconstants"
+local yield = coroutine.yield
 
 local function safesend(shader, name, ...)
   if shader:hasUniform(name) then
@@ -49,38 +50,12 @@ local nbackSelf = {
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
     statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
     border = 3,
-    coros = {}
 }
-
---[[
-   [function nback.newStatisticRender(data)
-   [    local self = deepcopy(nbackSelf)
-   [    setmetatable(self, nback)
-   [    self.signals = deepcopy(data.signals)
-   [    self.pressed = deepcopy(data.pressed)
-   [    self.signals.eq = generator.makeEqArrays(self.signals, self.level)
-   [    self.percent = data.percent
-   [    print("self.signals", inspect(self.signals))
-   [    self:resize(g.getDimensions())
-   [    return self
-   [end
-   ]]
 
 function nback.new()
     local self = deepcopy(nbackSelf)
     --print("self.statisticRender", inspect(self.statisticRender))
     return setmetatable(self, nback)
-end
-
-function nback:processCoroutines()
-    local alive = {}
-    for k, v in pairs(self.coros) do
-        local r = coroutine.resume()
-        if r then
-            table.insert(alive, v)
-        end
-    end
-    self.coros = alive
 end
 
 function makeFalseArray(len)
@@ -358,6 +333,7 @@ function nback:initButtons()
         w = self.layout.leftTop.w,
         h = self.layout.leftTop.h,
         title = i18n("quitBtn"),
+        coroName = "quitBtn",
         ontouch = function() 
             menu:goBack()
         end})
@@ -369,6 +345,7 @@ function nback:initButtons()
         w = self.layout.rightTop.w, 
         h = self.layout.rightTop.h,
         title = i18n("settingsBtn"),
+        coroName = "settingsBtn",
         ontouch = function() 
             -- какие тут могут быть настройки?
             writeSettings()
@@ -382,6 +359,7 @@ function nback:initButtons()
         w = self.layout.leftMiddle.w, 
         h = self.layout.leftMiddle.h, 
         title = i18n("sound"),
+        coroName = "soundBtn",
         ontouch = function() 
             if self.is_run then
                 self:check("sound") 
@@ -395,6 +373,7 @@ function nback:initButtons()
         w = self.layout.rightMiddle.w, 
         h = self.layout.rightMiddle.h,
         title = i18n("pos"),
+        coroName = "posBtn",
         ontouch = function() 
             if self.is_run then
                 self:check("pos") 
@@ -408,6 +387,7 @@ function nback:initButtons()
         w = self.layout.leftBottom.w, 
         h = self.layout.leftBottom.h, 
         title = i18n("form"),
+        coroName = "formBtn",
         ontouch = function() 
             if self.is_run then
                 self:check("form") 
@@ -421,6 +401,7 @@ function nback:initButtons()
         w = self.layout.rightBottom.w, 
         h = self.layout.rightBottom.h, 
         title = i18n("color"),
+        coroName = "colorBtn",
         ontouch = function() 
             if self.is_run then
                 self:check("color") 
@@ -428,6 +409,29 @@ function nback:initButtons()
         end})
 
     self:setupButtonsTextPosition()
+
+    local drawNormal = function(button)
+        yield()
+        local oldwidth = g.getLineWidth()
+        local ret
+        repeat
+            g.setColor(pallete.buttonColor)
+            g.rectangle("fill", button.x, button.y, button.w, button.h, 6, 6)
+            g.setColor{0, 0, 0}
+            g.setLineWidth(2)
+            g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
+
+            g.setColor{0, 0, 0}
+            g.setFont(self.font)
+            g.printf(button.title, button.textx, button.texty, button.w, "center")
+            g.setLineWidth(oldwidth)
+            ret = yield()
+        until ret == "exit"
+    end
+
+    for k, v in pairs(self.buttons) do
+        self.processor:push(v.coroName, drawNormal, v)
+    end
 end
 
 function nback:setupButtonsTextPosition()
@@ -523,7 +527,7 @@ end
 function nback:update(dt)
     self:fillLinesbuf()
     self.timer:update(dt)
-    self:processCoroutines()
+    self.processor:update()
 
     if self.pause or self.start_pause then 
         self.timestamp = love.timer.getTime() - self.pause_time
@@ -546,14 +550,6 @@ function nback:update(dt)
             self.setupmenu:update(dt)
         end
     end
-end
-
--- считывает и устанавливает набор состояний сигналов и нажатий клавиша на 
--- сигналы. Функция необходима для установки состояния из внешнего источника 
--- при необходимости последующей отрисовки экрана статистики, загруженного из
--- файла.
-function nback:loadFromHistory(signals, presses)
-    --вопрос - как из истории загружать?
 end
 
 function nback:save_to_history()
@@ -749,6 +745,7 @@ function nback:resize(neww, newh)
     self.cell_width = self.layout.center.h / self.dim
     self.bhupur_h = self.cell_width * self.dim 
     self.x0, self.y0 = self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2, self.layout.center.y
+    self.processor = require "coroprocessor".new()
 
     if self.signal then
         self.signal:setCorner(self.x0, self.y0)
