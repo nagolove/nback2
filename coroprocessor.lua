@@ -1,5 +1,4 @@
-﻿local inspect = require "inspect"
-local resume = coroutine.resume
+﻿local resume = coroutine.resume
 
 local CoroProcessor = {}
 CoroProcessor.__index = CoroProcessor
@@ -26,6 +25,9 @@ function CoroProcessor:push(queuename, func, ...)
         q = self.coros[queuename]
     end
     table.insert(q, coroutine.create(func))
+    if select("#", ...) ~= 0 then
+        resume(q[#q], ...)
+    end
 end
 
 function CoroProcessor:update()
