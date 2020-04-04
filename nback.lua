@@ -264,7 +264,6 @@ function nback:createSetupMenu()
         end})
 end
 
--- зачем нужен nback:init() если есть :new()?
 function nback:init(save_name)
     readSettings()
     self.volume = settings.volume
@@ -311,14 +310,13 @@ function nback:processSignal()
         print("after", after)
 
         self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
-        --[[
-           [self.timer:after(after, function()
-           [    print("figure_alpha before", self.figure_alpha)
-           [    print("tween_time", tween_time)
-           [    self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
-           [    print("figure_alpha after", self.figure_alpha)
-           [end)
-           ]]
+
+        self.timer:after(after, function()
+            print("figure_alpha before", self.figure_alpha)
+            print("tween_time", tween_time)
+            self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
+            print("figure_alpha after", self.figure_alpha)
+        end)
 
         self.signal:play(self.signals.sound[self.current_sig])
     end
@@ -479,6 +477,7 @@ function nback:initButtons()
 
     for k, v in pairs(self.buttons) do
         self.processor:push(v.coroName, drawButton, v, self)
+        --self.processor:push(v.coroName, drawButtonClicked, v, self)
     end
 end
 
