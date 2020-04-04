@@ -29,8 +29,10 @@
         },
 
         settingsBtn = "Settings",
-        backToMainMenu = "Back to menu",
-        quitBtn = "Back to main", -- лучше назвать - "в главное меню?"
+        --backToMainMenu = "Back to menu",
+        backToMainMenu = "Main menu",
+        --quitBtn = "Back to main", -- лучше назвать - "в главное меню?"
+        quitBtn = "Main menu", -- лучше назвать - "в главное меню?"
 
         today = "today",
         yesterday = "yesterday",
