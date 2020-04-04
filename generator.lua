@@ -2,7 +2,7 @@ local clone = require "libs.lume".clone
 local inspect = require "libs.inspect"
 
 local function generate(sig_count, level, gen, cmp)
-    print("generate", "sig_count", sig_count, "gen", inspect(gen), "cmp", inspect(cmp), "level", level)
+    --print("generate", "sig_count", sig_count, "gen", inspect(gen), "cmp", inspect(cmp), "level", level)
     --[[print(string.format("generating signal array for %d signals of %d level.", sig_count, level))]]
 
     local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
@@ -59,7 +59,7 @@ end
 local function make_hit_arr(signals, level, comparator)
     local ret = {}
     if signals then
-        print("make_hit_arr")
+        --print("make_hit_arr")
         for k, v in pairs(signals) do
             ret[#ret + 1] = k > level and comparator(v, signals[k - level])
         end
@@ -74,7 +74,7 @@ local function makeEqArrays(signals, level)
         color = make_hit_arr(signals.color, level, function(a, b) return a == b end),
         form = make_hit_arr(signals.form, level, function(a, b) return a == b end),
     }
-    print("makeEqArrays", inspect(ret))
+    --print("makeEqArrays", inspect(ret))
     return ret
 end
 
@@ -89,7 +89,7 @@ end
    [end
    ]]
 local function generateAll(sig_count, level, dim, soundsNum)
-    print("generateAll", sig_count, level, dim, soundsNum)
+    --print("generateAll", sig_count, level, dim, soundsNum)
     local colorArr = require "colorconstants":makeNamesArray()
 
     function genArrays(sig_count, level, dim, soundsNum)
@@ -98,7 +98,7 @@ local function generateAll(sig_count, level, dim, soundsNum)
             function() return {math.random(1, dim - 1), 
                                math.random(1, dim - 1)} end,
             function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
-        print("pos", inspect(signals.pos))
+        --print("pos", inspect(signals.pos))
 
         signals.form = generate(sig_count, level,
             function()
@@ -106,20 +106,20 @@ local function generateAll(sig_count, level, dim, soundsNum)
                 return arr[math.random(1, 6)]
             end,
             function(a, b) return a == b end)
-        print("form", inspect(signals.form))
+        --print("form", inspect(signals.form))
 
         signals.sound = generate(sig_count, level, 
             function() return math.random(1, soundsNum) end,
             function(a, b) return a == b end)
-        print("snd", inspect(signals.sound))
+        --print("snd", inspect(signals.sound))
 
         signals.color = generate(sig_count, level,
             function() return colorArr[math.random(1, 6)] end,
             function(a, b) 
-                print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
+                --print(string.format("color comparator a = %s, b = %s", a, inspect(b)))
                 return a == b 
             end)
-        print("color", inspect(signals.color))
+        --print("color", inspect(signals.color))
 
         signals.eq = makeEqArrays(signals, level)
         return signals
@@ -141,12 +141,12 @@ local function generateAll(sig_count, level, dim, soundsNum)
                 n = n + (signals.eq.color[k] and 1 or 0)
                 if n > 2 then
                     changed = true
-                    print("changed")
+                    --print("changed")
                 end
             end
-            print("changed = " .. tostring(changed))
+            --print("changed = " .. tostring(changed))
         until i >= forIterCount or not changed
-        print("balanced for " .. i .. " iterations")
+        --print("balanced for " .. i .. " iterations")
         return signals
     end
 
