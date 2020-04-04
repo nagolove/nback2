@@ -21,9 +21,6 @@
             diffLevel = "Difficulty level: ",
             dimLevel = "Dim level: ", -- разница между размерностью и размером поля.
         },
-        help = {
-            backButton = "Back to main menu",
-        },
 
         waitFor = {
             one = "Wait for %d second",
@@ -68,6 +65,13 @@
             many = "Exposition %{count} seconds",
             other = "Exposition %{count} seconds",
         },
+
+        help = {
+            backButton = "Back to main menu",
+            desc = [[Single n-back task with visual stimuli.
+The n-back task is a continuous performance task that is commonly used as an assessment in psychology and cognitive neuroscience to measure a part of working memory and working memory capacity.[1] The n-back was introduced by Wayne Kirchner in 1958.[2] Some researchers have argued that n-back training may increase IQ, but evidence is low quality and mixed]],
+        },
+
     },
 }
 
