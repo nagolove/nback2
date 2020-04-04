@@ -487,7 +487,8 @@ function nback:draw()
         else
             self:drawField()
             self:drawActiveSignal()
-            self:drawButtons()
+            self.processor:update()
+            --self:drawButtons()
         end
     else
         if self.show_statistic then 
