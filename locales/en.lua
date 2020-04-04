@@ -21,6 +21,9 @@
             diffLevel = "Difficulty level: ",
             dimLevel = "Dim level: ", -- разница между размерностью и размером поля.
         },
+        help = {
+            backButton = "Back to main menu",
+        },
 
         waitFor = {
             one = "Wait for %d second",
