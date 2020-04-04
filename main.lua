@@ -1,7 +1,7 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
 useKeyboard = true
 preventiveFirstRun = true
---onAndroid = true
+onAndroid = true
 
 require "common"
 
@@ -113,7 +113,7 @@ function love.update(dt)
 end
 
 local screenMode = "win" -- or "fs"
-local to_resize = {nback, menu, pviewer, help}
+local to_resize = {nback, menu, pviewer, help, languageSelector}
 
 function dispatchWindowResize(w, h)
     for k, v in pairs(to_resize) do

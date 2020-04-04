@@ -82,6 +82,11 @@ function LanguageSelector:draw()
     --gr.print("hihihi", 100, 100)
 end
 
+function LanguageSelector:resize(neww, newh)
+    print("LanguageSelector:resize()")
+    self:prepareDraw()
+end
+
 function LanguageSelector:update(dt)
 end
 
@@ -105,10 +110,10 @@ function LanguageSelector:mousepressed(x, y, btn, istouch)
                 local diff = time - self.lastClick.time
                 print("diff", diff)
                 if diff <= self.beetweenClicks then
-                    print("double click")
-                    print(k, inspect(self.languages[k]))
+                    --print("double click")
+                    --print(k, inspect(self.languages[k]))
                     self.locale = self.languages[k].locale
-                    print("self.locale")
+                    --print("self.locale")
                 else
                     self.lastClick = nil
                 end
@@ -117,7 +122,7 @@ function LanguageSelector:mousepressed(x, y, btn, istouch)
             end
         end
     end
-    print("self.locale", self.locale)
+    --print("self.locale", self.locale)
 end
 
 function LanguageSelector:mousereleased(x, y, btn, istouch)
@@ -134,7 +139,7 @@ function LanguageSelector:mousemoved(x, y, dx, dy, istouch)
         end
     end
     --print("self.locale", self.locale)
-    print("self.selected", self.selected)
+    --print("self.selected", self.selected)
 end
 
 return LanguageSelector
