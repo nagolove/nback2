@@ -31,7 +31,7 @@ end
 
 function LanguageSelector:prepareDraw()
     local w, h = gr.getDimensions()
-    local menuItemHeight = self.font:getHeight() + 2
+    local menuItemHeight = self.font:getHeight() + 6
     local menuHeight = #self.languages * menuItemHeight
     local menuWidth = 0
 
@@ -104,25 +104,9 @@ function LanguageSelector:mousepressed(x, y, btn, istouch)
     for k, v in pairs(self.items) do
         print("v", inspect(v))
         if pointInRect(x, y, v.x, v.y, v.w, v.h) then
-            --self.locale = self.languages[k]
-            if self.lastClick and self.lastClick.k == k then
-                local time = love.timer.getTime()
-                local diff = time - self.lastClick.time
-                print("diff", diff)
-                if diff <= self.beetweenClicks then
-                    --print("double click")
-                    --print(k, inspect(self.languages[k]))
-                    self.locale = self.languages[k].locale
-                    --print("self.locale")
-                else
-                    self.lastClick = nil
-                end
-            else
-                self.lastClick = {time = love.timer.getTime(), x = x, y = y, k = k}
-            end
+            self.locale = self.languages[k].locale
         end
     end
-    --print("self.locale", self.locale)
 end
 
 function LanguageSelector:mousereleased(x, y, btn, istouch)
