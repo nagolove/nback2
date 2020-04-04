@@ -324,6 +324,33 @@ function nback:processSignal()
     end
 end
 
+local drawButton = function(button, nback)
+    yield()
+
+    local ok, errmsg = pcall(function()
+
+    local self = nback
+    local ret
+    repeat
+        local oldwidth = g.getLineWidth()
+        g.setColor(pallete.buttonColor)
+        g.rectangle("fill", button.x, button.y, button.w, button.h, 6, 6)
+        g.setColor{0, 0, 0}
+        g.setLineWidth(2)
+        g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
+
+        g.setColor{0, 0, 0}
+        g.setFont(self.font)
+        g.printf(button.title, button.textx, button.texty, button.w, "center")
+        g.setLineWidth(oldwidth)
+        ret = yield()
+    until ret == "exit"
+
+    end)
+    print("ok, errmsg", ok, errmsg)
+
+end
+
 function nback:initButtons()
     self.buttons = {}
     -- клавиша выхода слева
@@ -410,27 +437,8 @@ function nback:initButtons()
 
     self:setupButtonsTextPosition()
 
-    local drawNormal = function(button)
-        yield()
-        local oldwidth = g.getLineWidth()
-        local ret
-        repeat
-            g.setColor(pallete.buttonColor)
-            g.rectangle("fill", button.x, button.y, button.w, button.h, 6, 6)
-            g.setColor{0, 0, 0}
-            g.setLineWidth(2)
-            g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
-
-            g.setColor{0, 0, 0}
-            g.setFont(self.font)
-            g.printf(button.title, button.textx, button.texty, button.w, "center")
-            g.setLineWidth(oldwidth)
-            ret = yield()
-        until ret == "exit"
-    end
-
     for k, v in pairs(self.buttons) do
-        self.processor:push(v.coroName, drawNormal, v)
+        self.processor:push(v.coroName, drawButton, v, self)
     end
 end
 
@@ -818,7 +826,7 @@ function nback:drawActiveSignal()
     else
         print("no self.figure_alpha")
     end
-    print("sig_color[4]", sig_color[4])
+    --print("sig_color[4]", sig_color[4])
     local type = self.signals.form[self.current_sig]
     self.signal:draw(x, y, type, sig_color)
 end
