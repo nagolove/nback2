@@ -21,21 +21,22 @@ function help:init()
     print("gooi", inspect(gooi))
     print("gooi.setStyle", inspect(gooi.setStyle))
 
-    self.gooi = storeGooi()
-
     gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
         showBorder = true,
         bgColor = {0.208, 0.220, 0.222},
     })
 
     self:buildButtons()
-    gooi.components = {}
+    self.gooi = storeGooi()
+
+    --gooi.components = {}
+    self:prepareDrawDescription()
 end
 
 function help:buildButtons()
     local mainMenuBtnLayout = shrink(self.layout.top, nback.border)
     self.mainMenuBtn = gooi.newButton({ 
-        text = "Back to menu",
+        text = i18n("help.backButton"),
         x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
         w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h
     }):onRelease(function()
@@ -55,6 +56,7 @@ end
 
 function help:enter()
     print("help:enter()")
+    print("help self.gooi", inspect(self.gooi))
     restoreGooi(self.gooi)
 
     --print("gooi.components", inspect(gooi.components))
@@ -66,15 +68,35 @@ function help:leave()
     self.gooi = storeGooi()
 end
 
-function help:drawDescription()
+function help:prepareDrawDescription()
+    self.desc = {}
+
     local w, h = g.getDimensions()
-    local x, y = self.layout.bottom.x, self.layout.bottom.y
+    local x, y = math.floor(self.layout.bottom.x), math.floor(self.layout.bottom.y)
+    --if not __ONCE__ then
+        --__ONCE__ = true
+        --print("x, y", x, y)
+    --end
+    local descText = i18n("help.desc")
+    self.desc.x, self.desc.y = x, y
+    self.desc.canvas = g.newCanvas(w, h)
+    g.setCanvas(self.desc.canvas)
+
     g.setColor{1, 1, 1, 1}
     g.clear(pallete.background)
     g.setFont(self.font)
-    g.printf("This is a bla-bla", x, y, w, "center")
-    y = y + self.font:getHeight()
-    g.printf("Put description here!", y, y, w, "center")
+
+    g.printf(descText, x, y, w - 100, "center")
+    --g.printf("This is a bla-bla", x, y, w, "center")
+    --y = y + self.font:getHeight()
+    --g.printf("Put description here!", y, y, w, "center")
+
+    g.setCanvas()
+end
+
+function help:drawDescription()
+    g.setColor{1, 1, 1}
+    g.draw(self.desc.canvas, self.desc.x, self.desc.y)
 end
 
 function help:draw()
