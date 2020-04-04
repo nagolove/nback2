@@ -5,7 +5,6 @@ require "layout"
 
 local Timer = require "libs.Timer"
 local alignedlabels = require "alignedlabels"
-local bhupur = require "bhupur"
 local g = love.graphics
 local generator = require "generator"
 local inspect = require "libs.inspect"
@@ -20,6 +19,7 @@ local table = require "table"
 local w, h = g.getDimensions()
 local colorConstants = require "colorconstants"
 local yield = coroutine.yield
+local getTime = love.timer.getTime
 
 local function safesend(shader, name, ...)
   if shader:hasUniform(name) then
@@ -351,6 +351,46 @@ local drawButton = function(button, nback)
 
 end
 
+local drawButtonClicked = function(button, nback)
+    yield()
+
+    local ok, errmsg = pcall(function()
+
+    local self = nback
+    local btnColor = pallete.buttonColor
+    --btnColor[4] = 1
+    local ret
+    local time = getTime()
+
+    repeat
+        local now = getTime()
+        local diff = now - time
+        if diff > 0.04 then
+            if btnColor[4] > 0.1 then
+                btnColor[4] = btnColor[4] - 0.05
+            end
+        end
+
+        local oldwidth = g.getLineWidth()
+        g.setColor(btnColor)
+        g.rectangle("fill", button.x, button.y, button.w, button.h, 6, 6)
+        g.setColor{0, 0, 0}
+        g.setLineWidth(2)
+        g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
+
+        g.setColor{0, 0, 0}
+        g.setFont(self.font)
+        g.printf(button.title, button.textx, button.texty, button.w, "center")
+        g.setLineWidth(oldwidth)
+
+        ret = yield()
+    until ret == "exit"
+
+    end)
+    print("ok, errmsg", ok, errmsg)
+
+end
+
 function nback:initButtons()
     self.buttons = {}
     -- клавиша выхода слева
@@ -520,6 +560,8 @@ function nback:checkTouchButtons(x, y)
         for k, v in pairs(self.buttons) do
             if pointInRect(x, y, v.x, v.y, v.w, v.h) then
                 v.ontouch()
+                self.processor:sendMessage(v.coroName, "exit")
+                self.processor:push(v.coroName, drawButtonClicked, v, self)
             end
         end
     end

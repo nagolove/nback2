@@ -20,7 +20,7 @@ MINGW*)
 
     rm files.txt
     rm files_.txt
-    rm $packagename
+    #rm $packagename
     ;;
 *)          
     echo "Unknown system"

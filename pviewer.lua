@@ -135,7 +135,7 @@ function pviewer:leave()
 end
 
 function pviewer:resize(neww, newh)
-    print(string.format("pviewer.resize(%d, %d)", neww, newh))
+    --print(string.format("pviewer.resize(%d, %d)", neww, newh))
     w, h = neww, newh
     self:buildLayout()
     -- обрати внимание на размер создаваемого полотна. Взят от балды.

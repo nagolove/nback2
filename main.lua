@@ -20,6 +20,15 @@ linesbuf = require "kons".new()
 cam = require "camera".new()
 profiCam = require "camera".new()
 
+local screenMode = "win" -- or "fs"
+local to_resize = {}
+
+function dispatchWindowResize(neww, newh)
+    for k, v in pairs(to_resize) do
+        if v and v.resize then v:resize(neww, newh) end
+    end
+end
+
 function love.quit()
     writeSettings()
 end
@@ -84,6 +93,12 @@ function love.load(arg)
     --require "splash".init()
     
     subInit()
+    
+    table.insert(to_resize, nback)
+    table.insert(to_resize, menu)
+    table.insert(to_resize, pviewer)
+    table.insert(to_resize, help)
+    table.insert(to_resize, languageSelector)
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true})
@@ -110,15 +125,6 @@ function love.update(dt)
         timer:update(dt)
     end
     linesbuf:update(dt)
-end
-
-local screenMode = "win" -- or "fs"
-local to_resize = {nback, menu, pviewer, help, languageSelector}
-
-function dispatchWindowResize(w, h)
-    for k, v in pairs(to_resize) do
-        if v["resize"] then v:resize(w, h) end
-    end
 end
 
 function stopProfiling()

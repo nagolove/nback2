@@ -80,7 +80,7 @@ function menu:resize(neww, newh)
     self.h = newh
     self:compute_rects()
     self.back:resize(neww, newh)
-    print(string.format("menu:resize() %d*%d -> %d*%d!", w, h, neww, newh))
+    --print(string.format("menu:resize() %d*%d -> %d*%d!", w, h, neww, newh))
 end
 
 function menu:moveDown()

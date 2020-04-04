@@ -35,7 +35,7 @@ function Background.new()
   local files = love.filesystem.getDirectoryItems(blocksPath)
   self.tiles = {}
   for k, v in pairs(files) do
-    print(string.format("tile %s", v))
+    --print(string.format("tile %s", v))
     local ok, errmsg = pcall(function()
         self.tiles[#self.tiles + 1] = love.graphics.newImage(blocksPath .. 
             "/" .. v)
@@ -249,7 +249,7 @@ function Background:fillGrid()
   -- значит в строках лежат колонки
   self.blocks = {}
 
-  print("w / Background.size", w / Background.bsize)
+  --print("w / Background.size", w / Background.bsize)
 
   local xcount, ycount = math.floor(w / Background.bsize) + 1, 
   math.floor(h / Background.bsize) + 1
@@ -341,7 +341,7 @@ end
 -- необязательно их стирать, пусть остаются. Хм, если не стирать, то анимация
 -- сможет происходить на невидимой пользователю части экрана)
 function Background:resize(neww, newh)
-  print("Background:resize()")
+  --print("Background:resize()")
   -- увеличиваем размер плиточного поля
   self:fillGrid()
 end
