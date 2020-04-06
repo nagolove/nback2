@@ -133,7 +133,7 @@ function statisticRender:draw(noInfo)
     local y = self.layout.middle.y + (self.layout.middle.h - self:getHitsRectHeight()) / 2
     self:drawHits(x, y)
     self:printInfo()
-    g.setColor{0.5, 0.5, 0.5}
+    --g.setColor{0.5, 0.5, 0.5, 1}
     --drawHierachy(self.layout)
     if self.buttons then
         gooi.draw()

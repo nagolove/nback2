@@ -31,10 +31,10 @@ function List:new(x, y, w, h)
 
 	o.colors = {}
 	--o.colors.normal = {bg = {0.19, 0.61, 0.88}, fg = {0.77, 0.91, 1}}
-	o.colors.normal = {bg = {0, 0, 0}, fg = {0.77, 0.91, 1}}
-	o.colors.hover  = {bg = {0.28, 0.51, 0.66}, fg = {1, 1, 1}}
-	o.windowcolor = {0.19, 0.61, 0.88}
-	o.bordercolor = {0.28, 0.51, 0.66}
+	o.colors.normal = {bg = {0, 0, 0, 1}, fg = {0.77, 0.91, 1}}
+	o.colors.hover  = {bg = {0.28, 0.51, 0.66, 1}, fg = {1, 1, 1, 1}}
+	o.windowcolor = {0.19, 0.61, 0.88, 1}
+	o.bordercolor = {0.28, 0.51, 0.66, 1}
     o.touches = {}
     o.drawList = {}
 
@@ -281,6 +281,7 @@ function List:prepareDrawing()
         item.canvas = love.graphics.newCanvas(rw, rh)
         love.graphics.setCanvas(item.canvas)
 
+        love.graphics.clear(1, 1, 1, 1)
         love.graphics.setColor(colorset.bg)
         love.graphics.rectangle("fill", 0, 0, rw, rh)
 

@@ -155,7 +155,7 @@ function pviewer:buildLayout()
 end
 
 function pviewer:draw()
-    g.push("all")
+    --g.push("all")
 
     g.clear(pallete.background)
     local oldFont = g.getFont()
@@ -176,7 +176,7 @@ function pviewer:draw()
     g.draw(self.rt)
 
     g.setFont(oldFont)
-    g.pop()
+    --g.pop()
 end
 
 -- перемотка на страницу вверх

@@ -80,6 +80,7 @@ function menu:resize(neww, newh)
     self.h = newh
     self:compute_rects()
     self.back:resize(neww, newh)
+    self.canvas = g.newCanvas(neww, newh, {msaa = 4})
     --print(string.format("menu:resize() %d*%d -> %d*%d!", w, h, neww, newh))
 end
 
@@ -205,7 +206,21 @@ end
 function menu:draw()
     if self.active then
         local obj = self.items[self.active_item].obj
-        if obj.draw then obj:draw() end
+        if obj.draw then 
+
+            g.setCanvas{self.canvas, stencil = true}
+            g.setColor{1, 1, 1, 1}
+            g.clear{1, 1, 1, 1}
+
+            obj:draw() 
+
+            g.setCanvas()
+            --g.setColor{1, 1, 1, 0.2}
+            --g.clear(pallete.background)
+            g.setColor{1, 1, 1, 1}
+            g.draw(self.canvas)
+
+        end
     else
         g.push("all")
         self.back:draw()

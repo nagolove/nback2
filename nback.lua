@@ -520,12 +520,14 @@ end
 function nback:draw()
     love.graphics.clear(pallete.background)
 
-    g.push("all")
+    --g.push("all")
 
-    g.setShader(self.shader)
-    if self.shaderTimeEnabled then
-        self.shader:send("time", self.shaderTimer)
-    end
+    --[[
+       [g.setShader(self.shader)
+       [if self.shaderTimeEnabled then
+       [    self.shader:send("time", self.shaderTimer)
+       [end
+       ]]
 
     if self.is_run then
         if self.start_pause then
@@ -547,8 +549,8 @@ function nback:draw()
 
     drawTouches()
 
-    g.setShader()
-    g.pop()
+    --g.setShader()
+    --g.pop()
 
     --g.setColor{0, 0, 0}
     --[[drawHierachy(self.layout)]]

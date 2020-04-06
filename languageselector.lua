@@ -52,7 +52,7 @@ function LanguageSelector:prepareDraw()
     self.items = {}
     local x, y = self.x, self.y
     for k, v in pairs(self.languages) do
-        print("v", v.id)
+        --print("v", v.id)
         gr.print(v.id, x0, y0)
         y0 = y0 + menuItemHeight
         table.insert(self.items, { x = x, y = y, w = menuWidth, h = menuItemHeight })
@@ -114,11 +114,11 @@ end
 
 function LanguageSelector:mousemoved(x, y, dx, dy, istouch)
     for k, v in pairs(self.items) do
-        print("v", inspect(v))
+        --print("v", inspect(v))
         if pointInRect(x, y, v.x, v.y, v.w, v.h) then
             --self.locale = self.languages[k]
             self.selected = k
-            print(inspect(k))
+            --print(inspect(k))
             linesbuf:push(1, "LanguageSelector.selected %d", self.selected)
         end
     end
