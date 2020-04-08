@@ -162,7 +162,6 @@ function menu:draw()
 
     --self.rects = {}
     for k, v in pairs(self.items) do
-        --v.leftBorder, v.rightBorder = false, false
         local leftMarkerColor = v.leftPressedKey and self.activeMarkerColor 
             or (v.isfirst and inactiveMarkerColor or self.markerColor)
         local rightMarkerColor = v.rightPressedKey and self.activeMarkerColor 
@@ -266,6 +265,11 @@ function menu:mousemoved(x, y, dx, dy, istouch)
         local rightRect = v.rightRect
         v.rightBorder = rightRect and pointInRect(x, y, rightRect.x, 
             rightRect.y, rightRect.w, rightRect.h)
+
+        if v.leftBorder or v.rightBorder then
+            self.activeIndex = k
+        end
+
     end
 end
 
