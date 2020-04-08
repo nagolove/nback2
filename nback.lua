@@ -362,13 +362,14 @@ local drawButtonClicked = function(button, nback)
     --btnColor[4] = 1
     local ret
     local time = getTime()
+    local alphaDelta = 0.05
 
     repeat
         local now = getTime()
         local diff = now - time
         if diff > 0.04 then
             if btnColor[4] > 0.1 then
-                btnColor[4] = btnColor[4] - 0.01
+                btnColor[4] = btnColor[4] - alphaDelta
             else
                 break
             end
@@ -399,7 +400,7 @@ local drawButtonClicked = function(button, nback)
         if diff > 0.04 then
             if btnColor[4] < pallete.buttonColor[4] then
             --if btnColor[4] < 1 then
-                btnColor[4] = btnColor[4] + 0.01
+                btnColor[4] = btnColor[4] + alphaDelta
             else
                 self.processor:push(button.coroName, drawButton, button, nback)
                 break
