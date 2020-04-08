@@ -47,6 +47,9 @@ function CoroProcessor:update()
             end
             if not ret then
                 table.remove(v, 1)
+                if v[1] then
+                    resume(v[1])
+                end
             end
         end
     end
