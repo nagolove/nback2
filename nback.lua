@@ -968,6 +968,15 @@ function nback:mousepressed(x, y, btn, istouch)
     end
 end
 
+function nback:touchpressed(id, x, y, dx, dy, pressure)
+end
+
+function nback:touchreleased(id, x, y, dx, dy, pressure)
+end
+
+function nback:touchmoved(id, x, y, dx, dy, pressure)
+end
+
 return {
     new = nback.new,
 }
