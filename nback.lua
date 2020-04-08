@@ -323,7 +323,7 @@ function nback:processSignal()
 end
 
 local drawButton = function(button, nback)
-    yield()
+    --yield()
 
     local ok, errmsg = pcall(function()
 
@@ -350,12 +350,12 @@ local drawButton = function(button, nback)
 end
 
 local drawButtonClicked = function(button, nback)
-    yield()
+    --yield()
 
     local ok, errmsg = pcall(function()
 
     local self = nback
-    local btnColor = pallete.buttonColor
+    local btnColor = table.copy(pallete.buttonColor)
     --btnColor[4] = 1
     local ret
     local time = getTime()
@@ -365,7 +365,11 @@ local drawButtonClicked = function(button, nback)
         local diff = now - time
         if diff > 0.04 then
             if btnColor[4] > 0.1 then
-                btnColor[4] = btnColor[4] - 0.05
+                btnColor[4] = btnColor[4] - 0.01
+            else
+                -- анимация закончилась
+                self.processor:sendMessage(button.coroName, "exit")
+                self.processor:push(button.coroName, drawButton, button, nback)
             end
         end
 
@@ -391,6 +395,7 @@ end
 
 function nback:initButtons()
     self.buttons = {}
+
     -- клавиша выхода слева
     table.insert(self.buttons, { 
         x = self.layout.leftTop.x, 
@@ -479,6 +484,11 @@ function nback:initButtons()
         self.processor:push(v.coroName, drawButton, v, self)
         --self.processor:push(v.coroName, drawButtonClicked, v, self)
     end
+
+    self.namedButtons = {}
+    for k, v in pairs(self.buttons) do
+        self.namedButtons[v.coroName] = v
+    end
 end
 
 function nback:setupButtonsTextPosition()
@@ -549,6 +559,10 @@ function nback:draw()
 
     drawTouches()
 
+    if useKeyboard then
+        linesbuf:pushi("[a] - sound [f] - color [j] - form [;] - position")
+    end
+
     --g.setShader()
     --g.pop()
 
@@ -589,7 +603,9 @@ function nback:update(dt)
         return 
     end
 
-    self:processTouches()
+    if onAndroid then
+        self:processTouches()
+    end
 
     if self.is_run then
         if self.current_sig < #self.signals.pos then
@@ -699,30 +715,26 @@ end
 
 -- use scancode, Luke!
 function nback:keypressed(_, scancode)
-    if scancode == "escape" or "achome" then
-        if self.is_run then
-            print("stop by escape")
-            self:stop()
-        else
-            self:quit(true)
-        end
-    end
-
     if useKeyboard then 
         if self.is_run then
             if scancode == "a" then
                 self:check("sound")
+                self.processor:push("soundBtn", drawButtonClicked, self.namedButtons["soundBtn"], self)
+                self.processor:sendMessage("soundBtn", "exit")
             elseif scancode == "f" then
                 self:check("color")
+                self.processor:push("colorBtn", drawButtonClicked, self.namedButtons["colorBtn"], self)
+                self.processor:sendMessage("colorBtn", "exit")
             elseif scancode == "j" then
                 self:check("form")
+                self.processor:push("formBtn", drawButtonClicked, self.namedButtons["formBtn"], self)
+                self.processor:sendMessage("formBtn", "exit")
             elseif scancode == ";" then
                 self:check("pos")
+                self.processor:push("posBtn", drawButtonClicked, self.namedButtons["posBtn"], self)
+                self.processor:sendMessage("posBtn", "exit")
             end
         else
-            -- здесь другое игровое состояние, почему используется условие и булев
-            -- флаг?
-            -- состояние - регулировка в меню перед игрой
             if not self.show_statistic then
                 if scancode == "space" or scancode == "return" then
                     self.setupmenu:select()
@@ -741,6 +753,15 @@ function nback:keypressed(_, scancode)
             self:loverVolume()
         elseif scancode == "=" then
             self:raiseVolume()
+        end
+    else
+        if scancode == "escape" or "achome" then
+            if self.is_run then
+                print("stop by escape")
+                self:stop()
+            else
+                self:quit(true)
+            end
         end
     end
 end
@@ -808,21 +829,6 @@ function nback:resize(neww, newh)
         self.statisticRender:buildLayout(self.border)
     end
 end
-
--- return array of boolean values in succesful indices
---[[
-   [function nback:make_hit_arr(signals, comparator)
-   [    local ret = {}
-   [    if signals then
-   [        print("make_hit_arr")
-   [        for k, v in pairs(signals) do
-   [            ret[#ret + 1] = k > self.level and comparator(v, 
-   [                signals[k - self.level])
-   [        end
-   [    end
-   [    return ret
-   [end
-   ]]
 
 local draw_iteration = 0 -- debug variable
 
@@ -916,6 +922,8 @@ function nback:mousepressed(x, y, btn, istouch)
         self.setupmenu:mousepressed(x, y, btn, istouch)
     elseif self.statisticRender then
         self.statisticRender:mousepressed(x, y, btn, istouch)
+    elseif not onAndroid then
+        self:checkTouchButtons(x, y)
     end
 end
 
