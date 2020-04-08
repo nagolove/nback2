@@ -39,7 +39,8 @@ function pviewer:updateRender(index)
 
             x0 = 0,
             y0 = 0,
-            font = nback.font,
+            --font = nback.font,
+            font = self.font,
             border = nback.border,
             durationMin = 0,
             durationSec = 0,

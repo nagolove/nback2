@@ -104,8 +104,8 @@ function help:draw()
 
     gooi.draw()
 
-    g.setColor{0.3, 0.3, 0.34}
-    drawHierachy(self.layout)
+    --g.setColor{0.3, 0.3, 0.34}
+    --drawHierachy(self.layout)
 end
 
 function help:update(dt)

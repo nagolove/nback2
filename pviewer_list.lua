@@ -278,6 +278,7 @@ function List:prepareDrawing()
         colorset = self.colors.normal
         rx, ry, rw, rh = self:getItemRect(i)
         local item = self.items[i]
+
         item.canvas = love.graphics.newCanvas(rw, rh)
         love.graphics.setCanvas(item.canvas)
 
@@ -300,11 +301,17 @@ function List:prepareDrawing()
         love.graphics.setCanvas()
     end
 
+    self:prepareArrows()
+
+    self:saveCanvases()
+end
+
+function List:prepareArrows()
     local _, _, rw, rh = self:getItemRect(1)
     local x, y, w, h = 1, 1, rw - 1, rh - 1
     self.downCanvas = love.graphics.newCanvas(rw, rh)
     love.graphics.setCanvas(self.downCanvas)
-    
+
     love.graphics.setColor(pallete.pviewer.scrollTriangle)
     love.graphics.polygon("fill", w / 2 - w / 3, y, w / 2, h, w / 2 + w / 3, y)
 
@@ -314,8 +321,6 @@ function List:prepareDrawing()
     love.graphics.setColor(pallete.pviewer.scrollTriangle)
     love.graphics.polygon("fill", w / 2 - w / 3, h, w / 2, y, w / 2 + w / 3, h)
     love.graphics.setCanvas()
-
-    self:saveCanvases()
 end
 
 function List:saveCanvases()

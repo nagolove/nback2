@@ -204,6 +204,7 @@ function menu:drawCursor()
 end
 
 function menu:draw()
+    g.clear(0, 0, 0, 0)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.draw then 

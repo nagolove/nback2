@@ -5,8 +5,10 @@ require "layout"
 
 local Timer = require "libs.Timer"
 local alignedlabels = require "alignedlabels"
+local colorConstants = require "colorconstants"
 local g = love.graphics
 local generator = require "generator"
+local getTime = love.timer.getTime
 local inspect = require "libs.inspect"
 local math = require "math"
 local os = require "os"
@@ -17,9 +19,7 @@ local signal = require "signal"
 local string = require "string"
 local table = require "table"
 local w, h = g.getDimensions()
-local colorConstants = require "colorconstants"
 local yield = coroutine.yield
-local getTime = love.timer.getTime
 
 local function safesend(shader, name, ...)
   if shader:hasUniform(name) then
@@ -43,12 +43,12 @@ local nbackSelf = {
     pause_time = 2.0, -- задержка между сигналами, в секундах
     can_press = false, -- XXX FIXME зачем нужна эта переменная?
     show_statistic = false, -- индикатор показа статистики в конце сета
-    sounds = {},
     field_color = table.copy(pallete.field), -- копия таблицы по значению
     -- хорошо-бы закешировать загрузку этих ресурсов
     font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
+    buttonsFont = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
     central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
-    statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+    --statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
     border = 3,
 }
 
@@ -165,7 +165,7 @@ function nback:createSetupMenu()
     local maxLevel = 3   
     
     local dim = 4
-    local minDim, maxDim = 4, 20
+    local minDim, maxDim = 4, 10
         
     local expositionList = { "1", "2", "3", "4", "5", "6", }
     local activeExpositionItem = 2
@@ -333,6 +333,12 @@ function nback:processSignal()
     end
 end
 
+function drawButtonCapture(button, nback)
+    g.setColor{0, 0, 0}
+    g.setFont(nback.buttonsFont)
+    g.printf(button.title, button.textx, button.texty, button.w, "center")
+end
+
 local drawButton = function(button, nback)
     --yield()
 
@@ -348,9 +354,7 @@ local drawButton = function(button, nback)
         g.setLineWidth(2)
         g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
 
-        g.setColor{0, 0, 0}
-        g.setFont(self.font)
-        g.printf(button.title, button.textx, button.texty, button.w, "center")
+        drawButtonCapture(button, nback)
         g.setLineWidth(oldwidth)
         ret = yield()
     until ret == "exit"
@@ -365,7 +369,6 @@ local drawButtonClicked = function(button, nback)
 
     local ok, errmsg = pcall(function()
 
-    local self = nback
     local btnColor = table.copy(pallete.buttonColor)
     --btnColor[4] = 1
     local ret
@@ -390,9 +393,7 @@ local drawButtonClicked = function(button, nback)
         g.setLineWidth(2)
         g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
 
-        g.setColor{0, 0, 0}
-        g.setFont(self.font)
-        g.printf(button.title, button.textx, button.texty, button.w, "center")
+        drawButtonCapture(button, nback)
         g.setLineWidth(oldwidth)
 
         ret = yield()
@@ -410,7 +411,7 @@ local drawButtonClicked = function(button, nback)
             --if btnColor[4] < 1 then
                 btnColor[4] = btnColor[4] + alphaDelta
             else
-                self.processor:push(button.coroName, drawButton, button, nback)
+                nback.processor:push(button.coroName, drawButton, button, nback)
                 break
             end
         end
@@ -422,9 +423,7 @@ local drawButtonClicked = function(button, nback)
         g.setLineWidth(2)
         g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
 
-        g.setColor{0, 0, 0}
-        g.setFont(self.font)
-        g.printf(button.title, button.textx, button.texty, button.w, "center")
+        drawButtonCapture(button, nback)
         g.setLineWidth(oldwidth)
 
         ret = yield()
