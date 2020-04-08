@@ -16,10 +16,17 @@
         },
         setupMenu = {
             start = "Start",
-            expTime = "Expostion time ",
+            expTime = "Exposition time ",
             expTime_sec = " sec.",
             diffLevel = "Difficulty level: ",
             dimLevel = "Dim level: ", -- разница между размерностью и размером поля.
+
+            expTime_plural = {
+                one = "Exposition time %{count} second",
+                few = "Exposition time %{count} seconds",
+                many = "Exposition time %{count} seconds",
+                other = "Exposition time %{count} seconds",
+            },
         },
 
         waitFor = {
