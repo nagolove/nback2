@@ -141,10 +141,10 @@ function statisticRender:draw(noInfo)
 end
 
 function statisticRender:printInfo()
-    local x1, x2, y = self.info.x1, self.info.x2, self.info.y
-    g.print(self.info.durationStr, x1, y)
+    local y = self.info.y
+    g.print(self.info.durationStr, self.info.durationX, y)
     y = y + g.getFont():getHeight()
-    g.print(self.info.infoStr, x2, y)
+    g.print(self.info.infoStr, self.info.infoX, y)
 end
 
 function statisticRender:buildLayout(border)
@@ -181,9 +181,9 @@ function statisticRender:preparePrintInfo()
         string.format("%.2f", self.durationSec))})
 
     local width1, width2 = g.getFont():getWidth(self.info.infoStr), g.getFont():getWidth(self.info.durationStr)
-    local textsHeight = g.getFont():getHeight() * 2
-    self.info.x1, self.info.x2 = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
-    self.info.y = (self.layout.top.h - textsHeight) / 2
+    local textHeight = g.getFont():getHeight() * 2
+    self.info.infoX, self.info.durationX = (self.layout.top.w - width1) / 2, (self.layout.top.w - width2) / 2
+    self.info.y = (self.layout.top.h - textHeight) / 2
 end
 
 function statisticRender.new(data)
