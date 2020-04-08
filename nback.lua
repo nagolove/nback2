@@ -187,11 +187,13 @@ function nback:createSetupMenu()
 
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
-        oninit = function() return 
-            {pallete.signal, i18n("setupMenu.expTime"), parameterColor, 
-            expositionList[activeExpositionItem], pallete.signal, i18n("setupMenu.expTime_sec")},
-            activeExpositionItem == 1,
-            activeExpositionItem == #expositionList
+        oninit = function() 
+            local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
+            local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
+            return {pallete.signal, part1, parameterColor, 
+                expositionList[activeExpositionItem], pallete.signal, part2},
+                activeExpositionItem == 1,
+                activeExpositionItem == #expositionList
         end,
 
         onleft = function()
