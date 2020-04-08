@@ -182,7 +182,9 @@ function nback:createSetupMenu()
             self.dim = dim
             self:resize(g.getDimensions())
             self.pause_time = tonumber(expositionList[activeExpositionItem])
+            self.setupmenu.freeze = true
             self:start()
+            self.setupmenu.freeze = false
         end})
 
     -- выбор продолжительности экспозиции
