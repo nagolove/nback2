@@ -1,19 +1,4 @@
-﻿-- [[
--- Класс должен рисовать список сохраненных игр в левой части экрана.
--- В правой части экрана - вывод результатов через 
--- nback:drawStatistic2Canvas(). Следи за аккуратной обработкой ошибок -
--- могут быть различные версии данных в файле результатов, их нужно корректно
--- не показывать, но не падать.
---
--- Строчки списка сортировать по дате - от последних к первым. Поддержка
--- клавиш выстрой перемотки. Для мобильной версии - наличие визуальных кнопок.
---
--- План работ: загрузка данных, сортировка данных, вывод списка. Клавиши
--- управления. Подсказки клавиш управления.
--- Как хранить список данных?
--- ]]
-
-require "common"
+﻿require "common"
 local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local timer = require "libs.Timer"
@@ -155,7 +140,7 @@ function pviewer:buildLayout()
 end
 
 function pviewer:draw()
-    --g.push("all")
+    g.push("all")
 
     g.clear(pallete.background)
     local oldFont = g.getFont()
@@ -176,7 +161,7 @@ function pviewer:draw()
     g.draw(self.rt)
 
     g.setFont(oldFont)
-    --g.pop()
+    g.pop()
 end
 
 -- перемотка на страницу вверх

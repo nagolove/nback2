@@ -208,17 +208,17 @@ function menu:draw()
         local obj = self.items[self.active_item].obj
         if obj.draw then 
 
-            g.setCanvas{self.canvas, stencil = true}
-            g.setColor{1, 1, 1, 1}
-            g.clear{1, 1, 1, 1}
+            --g.setCanvas{self.canvas, stencil = true}
+            --g.setColor{1, 1, 1, 1}
+            --g.clear{1, 1, 1, 1}
 
             obj:draw() 
 
-            g.setCanvas()
+            --g.setCanvas()
             --g.setColor{1, 1, 1, 0.2}
             --g.clear(pallete.background)
-            g.setColor{1, 1, 1, 1}
-            g.draw(self.canvas)
+            --g.setColor{1, 1, 1, 1}
+            --g.draw(self.canvas)
 
         end
     else
