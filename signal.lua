@@ -409,7 +409,7 @@ function signal:rhombus_border_internal(x, y, w, h)
 end
 
 function signal:rhombus(x, y, w, h)
-    local delta = 0
+    local delta = 6
     g.polygon("fill", {x + delta, y + h / 2, x + w / 2, y + h - delta,
             x + w - delta, y + h / 2,
             x + w / 2, y + delta})
