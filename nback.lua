@@ -198,8 +198,10 @@ function nback:createSetupMenu()
             if activeExpositionItem - 1 >= 1 then
                 activeExpositionItem = activeExpositionItem - 1
             end
-            return {pallete.signal, i18n("setupMenu.expTime"), parameterColor,
-                expositionList[activeExpositionItem], pallete.signal, i18n("setupMenu.expTime_sec")}, 
+            local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
+            local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
+            return {pallete.signal, part1, parameterColor,
+                expositionList[activeExpositionItem], pallete.signal, part2}, 
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end,
@@ -208,8 +210,10 @@ function nback:createSetupMenu()
             if activeExpositionItem + 1 <= #expositionList then
                 activeExpositionItem = activeExpositionItem + 1
             end
-            return {pallete.signal, i18n("setupMenu.expTime"), parameterColor,
-                expositionList[activeExpositionItem], pallete.signal, i18n("setupMenu.expTime_sec")},
+            local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
+            local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
+            return {pallete.signal, part1, parameterColor,
+                expositionList[activeExpositionItem], pallete.signal, part2},
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end})
