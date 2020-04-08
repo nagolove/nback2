@@ -162,7 +162,7 @@ function nback:createSetupMenu()
     -- значение должно поддерживаться генератором, 
     -- больше значение - длиннее последовательность и(или)
     -- меньше целевых сигналов в итоге.
-    local maxLevel = 8   
+    local maxLevel = 3   
     
     local dim = 4
     local minDim, maxDim = 4, 20
@@ -301,15 +301,18 @@ function nback:processSignal()
         self.can_press = true
 
         -- setup timer for figure alpha channel animation
-        self.figure_alpha = 1
+        --self.figure_alpha = 1
+        self.figure_alpha = 0.1
+
         local tween_time = self.pause_time / 2
         print("tween_time", tween_time)
         print("time delta = " .. self.pause_time - tween_time)
-        --local after = self.pause_time - tween_time - 0.1
-        local after = 0.1
+        local after = self.pause_time - tween_time - 0.1
+        --local after = 0.1
         print("after", after)
 
-        self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
+        --self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
+        self.timer:tween(self.pause_time / 3, self, {figure_alpha = 1}, "out-linear")
 
         self.timer:after(after, function()
             print("figure_alpha before", self.figure_alpha)
@@ -345,7 +348,7 @@ local drawButton = function(button, nback)
     until ret == "exit"
 
     end)
-    print("ok, errmsg", ok, errmsg)
+    --print("ok, errmsg", ok, errmsg)
 
 end
 
@@ -367,9 +370,39 @@ local drawButtonClicked = function(button, nback)
             if btnColor[4] > 0.1 then
                 btnColor[4] = btnColor[4] - 0.01
             else
-                -- анимация закончилась
-                self.processor:sendMessage(button.coroName, "exit")
+                break
+            end
+        end
+
+        local oldwidth = g.getLineWidth()
+        g.setColor(btnColor)
+        g.rectangle("fill", button.x, button.y, button.w, button.h, 6, 6)
+        g.setColor{0, 0, 0}
+        g.setLineWidth(2)
+        g.rectangle("line", button.x, button.y, button.w, button.h, 6, 6)
+
+        g.setColor{0, 0, 0}
+        g.setFont(self.font)
+        g.printf(button.title, button.textx, button.texty, button.w, "center")
+        g.setLineWidth(oldwidth)
+
+        ret = yield()
+    until ret == "exit"
+
+    if ret == "exit" then
+        return
+    end
+
+    repeat
+        local now = getTime()
+        local diff = now - time
+        if diff > 0.04 then
+            if btnColor[4] < pallete.buttonColor[4] then
+            --if btnColor[4] < 1 then
+                btnColor[4] = btnColor[4] + 0.01
+            else
                 self.processor:push(button.coroName, drawButton, button, nback)
+                break
             end
         end
 
@@ -389,7 +422,7 @@ local drawButtonClicked = function(button, nback)
     until ret == "exit"
 
     end)
-    print("ok, errmsg", ok, errmsg)
+    --print("ok, errmsg", ok, errmsg)
 
 end
 
