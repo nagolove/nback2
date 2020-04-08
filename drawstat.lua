@@ -178,7 +178,7 @@ function statisticRender:preparePrintInfo()
         i18n("levelInfo2_part2", {count = self.pause_time}) 
     self.info.infoStr = i18n("levelInfo1_part1", {count = self.durationMin}) .. " " ..
         i18n("levelInfo1_part2", {count = tonumber( -- hacky hack, lol. for proper printing
-        string.format("%.2f", self.durationSec))})
+        string.format("%d", math.floor(self.durationSec)))})
 
     local width1, width2 = g.getFont():getWidth(self.info.infoStr), g.getFont():getWidth(self.info.durationStr)
     local textHeight = g.getFont():getHeight() * 2
