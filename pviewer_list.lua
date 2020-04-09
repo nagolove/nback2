@@ -145,11 +145,11 @@ function List:draw()
     if self.canUp then
         rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
         love.graphics.draw(self.upCanvas, rx, ry)
-        --relativeI = relativeI + 1
+        relativeI = relativeI + 1
     end
 
-    if self.canDown then
-        self.end_i = self.start_i + self.visibleNum - 1
+    if self.canDown and self.canUp then
+        self.end_i = self.start_i + self.visibleNum - 2
     else
         self.end_i = self.start_i + self.visibleNum
     end
@@ -201,7 +201,7 @@ function List:scrollUp()
             self.start_i = self.start_i - 1
             --[[self.end_i = self.end_i - 1]]
         else
-            --[[self.canDown = false]]
+            self.canUp = false
         end
     --[[end]]
 end
@@ -215,8 +215,6 @@ function List:scrollDown()
             --[[self.end_i = self.end_i + 1]]
         elseif self.start_i + self.visibleNum <= #self.items then
             self.canDown = false
-        else
-            self.canUp = false
         end
     end
 end
