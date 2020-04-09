@@ -213,7 +213,7 @@ function statisticRender.new(data)
     --print("data.border", data.border)
     --print("data.buttons", data.buttons)
     if self.buttons then
-        gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
+        gooi.setStyle({ font = g.newFont("gfx/DejaVuSansMono.ttf", 13),
             showBorder = true,
             bgColor = {0.208, 0.220, 0.222},
         })

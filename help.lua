@@ -21,7 +21,7 @@ function help:init()
     print("gooi", inspect(gooi))
     print("gooi.setStyle", inspect(gooi.setStyle))
 
-    gooi.setStyle({ font = g.newFont("gfx/DroidSansMono.ttf", 13),
+    gooi.setStyle({ font = g.newFont("gfx/DejaVuSansMono.ttf", 13),
         showBorder = true,
         bgColor = {0.208, 0.220, 0.222},
     })

@@ -108,7 +108,7 @@ function love.load(arg)
         dispatchWindowResize(love.graphics.getDimensions())
     end
 
-    profiReportFont = lg.newFont("gfx/DroidSansMono.ttf", 20)
+    profiReportFont = lg.newFont("gfx/DejaVuSansMono.ttf", 20)
     linesbuf.show = false
 end
 

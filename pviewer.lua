@@ -65,30 +65,19 @@ function pviewer:makeList()
     self.list.onclick = function(item, idx)
         self:updateRender(idx)
     end
+
     for k, v in pairs(self.data) do
         local item = self.list:add(string.format("%d level", v.level), "")
         item.data = v
         item.color = pallete.levelColors[v.level]
     end
+
     self.list:done()
     self.list.onclick(nil, 1)
 end
 
---item.ondraw = function(self, item, rx, ry, rw, rh)
-    ----print("item", inspect(item))
-    --if item.color then
-        --g.setColor(item.color)
-    --else
-        --g.setColor(pallete.pviewerUnknown)
-    --end
-    --g.rectangle("fill", rx, ry, rw, rh)
-    --g.setColor(pallete.pviewerItemText)
-    --g.print(compareDates(os.date("*t"), item.data.date), rx, ry)
---end
-
 function pviewer:sortByDate()
     table.sort(self.data, function(a, b)
-        --print("a, b", inspect(a), inspect(b))
         a, b = a.date, b.date
         return a.year * 365 * 24 + a.yday * 24 + a.hour > b.year * 365 * 24 + b.yday * 24 + b.hour
     end)
@@ -108,6 +97,16 @@ function pviewer:enter()
     else
         self.data = {}
     end
+
+    local tmp = {}
+    for i = 1, 5 do
+        for k, v in pairs(self.data) do
+            table.insert(tmp, v)
+        end
+    end
+    self.data = tmp
+
+
     self:sortByDate()
     self:makeList()
     self.data = removeDataWithoutDateField(self.data)
@@ -165,14 +164,6 @@ function pviewer:draw()
     g.pop()
 end
 
--- перемотка на страницу вверх
-function pviewer:pageUp()
-end
-
--- перемотка на страницу вниз
-function pviewer:pageDown()
-end
-
 -- сместить курсор на строчку вверх
 function pviewer:scrollUp()
     if self.activeIndex - 1 >= 1 then
@@ -201,10 +192,6 @@ function pviewer:keypressed(_, key)
         self:scrollUp()
     elseif key == "down" or key == "j" then
         self:scrollDown()
-    elseif key == "pageup" then
-        self:pageUp()
-    elseif key == "pagedown" then
-        self:pageDown()
     end
 end
 
