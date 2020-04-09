@@ -46,6 +46,7 @@ end
 function List:done()
     self.items.n = #self.items
     self.visibleNum = math.floor(self.height / self.item_height)
+    self.maxVisibleNum = self.visibleNum
     print("self.visibleNum", self.visibleNum)
     --local num_items = (self.height / self.item_height)
     -- Calculate height of everything.
@@ -150,9 +151,12 @@ function List:draw()
 
     if self.canDown and self.canUp then
         self.end_i = self.start_i + self.visibleNum - 2
+    elseif self.canDown or self.canUp then
+        self.end_i = self.start_i + self.visibleNum - 1
     else
         self.end_i = self.start_i + self.visibleNum
     end
+
 	for i = self.start_i, self.end_i do
 		--[[rx, ry, rw, rh = self:getItemRect(i)]]
 		rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
@@ -175,8 +179,9 @@ function List:draw()
     if self.canUp then
         --[[relativeI = relativeI - 1]]
     end
+    
     if self.canDown then
-        rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
+        rx, ry, rw, rh = self.x, self.y + self.item_height * self.maxVisibleNum, self.width, self.item_height
         love.graphics.draw(self.downCanvas, rx, ry)
     end
 
@@ -209,11 +214,15 @@ end
 function List:scrollDown()
     print("List:scrollDown()")
     if self.canDown then
-        if self.start_i + self.visibleNum < #self.items then
+        if self.start_i + self.visibleNum <= #self.items then
+            if not self.canUp then
+                self.start_i = self.start_i + 2
+            else
+                self.start_i = self.start_i + 1
+            end
             self.canUp = true
-            self.start_i = self.start_i + 1
             --[[self.end_i = self.end_i + 1]]
-        elseif self.start_i + self.visibleNum <= #self.items then
+        else
             self.canDown = false
         end
     end
