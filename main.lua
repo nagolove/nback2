@@ -1,6 +1,7 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
 useKeyboard = true
-preventiveFirstRun = true
+--[[preventiveFirstRun = true]]
+preventiveFirstRun = false
 onAndroid = true
 
 require "common"
@@ -30,6 +31,7 @@ function dispatchWindowResize(neww, newh)
 end
 
 function love.quit()
+    settings.firstRun = false
     writeSettings()
 end
 

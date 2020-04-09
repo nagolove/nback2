@@ -147,6 +147,11 @@ function List:draw()
         relativeI = relativeI + 1
     end
 
+    if self.canDown then
+        self.end_i = self.start_i + self.visibleNum - 1
+    else
+        self.end_i = self.start_i + self.visibleNum
+    end
 	for i = self.start_i, self.end_i do
 		--[[rx, ry, rw, rh = self:getItemRect(i)]]
 		rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
@@ -189,24 +194,24 @@ end
 
 function List:scrollUp()
     print("List:scrollUp()")
-    if self.canUp then
-        if self.end_i - self.visibleNum > 0 then
+    --[[if self.canUp then]]
+        if self.start_i - 1 > 0 then
             self.canDown = true
             self.start_i = self.start_i - 1
-            self.end_i = self.end_i - 1
+            --[[self.end_i = self.end_i - 1]]
         else
-            self.canDown = false
+            --[[self.canDown = false]]
         end
-    end
+    --[[end]]
 end
 
 function List:scrollDown()
     print("List:scrollDown()")
     if self.canDown then
-        if self.start_i - 1 + self.visibleNum < #self.items then
+        if self.start_i + self.visibleNum < #self.items then
             self.canUp = true
             self.start_i = self.start_i + 1
-            self.end_i = self.end_i + 1
+            --[[self.end_i = self.end_i + 1]]
         else
             self.canUp = false
         end
