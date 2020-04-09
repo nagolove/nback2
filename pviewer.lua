@@ -99,13 +99,19 @@ function pviewer:enter()
         self.data = {}
     end
 
-    local tmp = {}
-    for i = 1, 5 do
-        for k, v in pairs(self.data) do
-            table.insert(tmp, v)
+    -------------------------------------------
+    --[[__MORE_DATA__ = false]]
+    __MORE_DATA__ = true
+    if __MORE_DATA__ then
+        local tmp = {}
+        for i = 1, 6 do
+            for k, v in pairs(self.data) do
+                table.insert(tmp, v)
+            end
         end
+        self.data = tmp
     end
-    self.data = tmp
+    -------------------------------------------
 
 
     self:sortByDate()
@@ -167,18 +173,20 @@ end
 
 -- сместить курсор на строчку вверх
 function pviewer:scrollUp()
-    if self.activeIndex - 1 >= 1 then
-        self.activeIndex = self.activeIndex - 1
-        self:updateRender(self.activeIndex)
-    end
+    --[[if self.activeIndex - 1 >= 1 then]]
+        --[[self.activeIndex = self.activeIndex - 1]]
+        --[[self:updateRender(self.activeIndex)]]
+    --[[end]]
+    self.list:scrollUp()
 end
 
 -- сместить курсор на строчку вниз
 function pviewer:scrollDown()
-    if self.activeIndex + 1 <= #self.data then
-        self.activeIndex = self.activeIndex + 1
-        self:updateRender(self.activeIndex)
-    end
+    --[[if self.activeIndex + 1 <= #self.data then]]
+        --[[self.activeIndex = self.activeIndex + 1]]
+        --[[self:updateRender(self.activeIndex)]]
+    --[[end]]
+    self.list:scrollDown()
 end
 
 -- добавить клавиши управления для постраничной прокрутки списка результатов.

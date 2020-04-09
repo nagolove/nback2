@@ -45,7 +45,8 @@ end
 
 function List:done()
     self.items.n = #self.items
-    self.visibleNum = self.height / self.item_height
+    self.visibleNum = math.floor(self.height / self.item_height)
+    print("self.visibleNum", self.visibleNum)
     --local num_items = (self.height / self.item_height)
     -- Calculate height of everything.
     --self.sum_item_height = (self.item_height+1) * self.items.n + 2
@@ -138,8 +139,17 @@ function List:draw()
 
 	local rx, ry, rw, rh
 	local colorset
+    local relativeI = 0
+
+    if self.canUp then
+        rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
+        love.graphics.draw(self.upCanvas, rx, ry)
+        relativeI = relativeI + 1
+    end
+
 	for i = self.start_i, self.end_i do
-		rx, ry, rw, rh = self:getItemRect(i)
+		--[[rx, ry, rw, rh = self:getItemRect(i)]]
+		rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
         local item = self.items[i]
         love.graphics.setColor{1, 1, 1, 1}
         love.graphics.draw(item.canvas, rx, ry)
@@ -153,7 +163,16 @@ function List:draw()
 
         --love.graphics.setColor(colorset.fg)
         --love.graphics.print(self.items[i].title, rx + 10, ry + 5) 
+        relativeI = relativeI + 1
 	end
+
+    if self.canUp then
+        --[[relativeI = relativeI - 1]]
+    end
+    if self.canDown then
+        rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
+        love.graphics.draw(self.downCanvas, rx, ry)
+    end
 
     for k, v in pairs(self.drawList) do
         v()
@@ -166,6 +185,32 @@ function List:draw()
     love.graphics.line(self.x + 2, self.y, self.x + 2, self.y + self.height)
     love.graphics.setColor(pallete.pviewer.circle)
     --love.graphics.circle("fill", self.x + 2, self.bar.y, 3)
+end
+
+function List:scrollUp()
+    print("List:scrollUp()")
+    if self.canUp then
+        if self.end_i - self.visibleNum > 0 then
+            self.canDown = true
+            self.start_i = self.start_i - 1
+            self.end_i = self.end_i - 1
+        else
+            self.canDown = false
+        end
+    end
+end
+
+function List:scrollDown()
+    print("List:scrollDown()")
+    if self.canDown then
+        if self.start_i - 1 + self.visibleNum < #self.items then
+            self.canUp = true
+            self.start_i = self.start_i + 1
+            self.end_i = self.end_i + 1
+        else
+            self.canUp = false
+        end
+    end
 end
 
 function List:prepareDrawing()
