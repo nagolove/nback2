@@ -107,8 +107,8 @@ function pviewer:enter()
     end
 
     -------------------------------------------
-    __MORE_DATA__ = false
-    --__MORE_DATA__ = true
+    --__MORE_DATA__ = false
+    __MORE_DATA__ = true
     if __MORE_DATA__ then
         local tmp = {}
         for i = 1, 6 do

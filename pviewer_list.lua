@@ -98,12 +98,12 @@ function List:mousepressed(x, y, b, it)
             local item = self.items[i]
             local r = item.rect
             if inside(x, y, r.x, r.y, r.w, r.h) then
-                if i ~= self.lastOnclickIndex then
+                --if i ~= self.lastOnclickIndex then
                     self.onclick(item, i, b)
                     self.activeIndex = i
-                    self.lastOnclickIndex = i
+                    --self.lastOnclickIndex = i
                     break
-                end
+                --end
             end
         end
     end
@@ -215,22 +215,6 @@ function List:draw()
     --love.graphics.circle("fill", self.x + 2, self.bar.y, 3)
 end
 
-function List:scrollUp()
-    print("List:scrollUp()")
-    if self.canUp and self.start_i - 2 == 0 then
-        self.canUp = false
-        self.start_i = self.start_i - 1
-    else
-        if self.start_i - 1 > 0 then
-            self.canDown = true
-            self.start_i = self.start_i - 1
-        else
-            self.canUp = false
-        end
-    end
-    self:putActiveInVisiblePlace()
-end
-
 function List:putActiveInVisiblePlace()
     if self.activeIndex < self.start_i then
         self.activeIndex = self.start_i
@@ -246,6 +230,23 @@ function List:putActiveInVisiblePlace()
     end
 end
 
+function List:scrollUp()
+    print("List:scrollUp()")
+    if self.canUp and self.start_i - 2 == 0 then
+        self.canUp = false
+        self.start_i = self.start_i - 1
+    else
+        if self.start_i - 1 > 0 then
+            self.canDown = true
+            self.start_i = self.start_i - 1
+        else
+            self.canUp = false
+            self.upRect = nil
+        end
+    end
+    self:putActiveInVisiblePlace()
+end
+
 function List:scrollDown()
     print("List:scrollDown()")
     if self.canDown then
@@ -258,6 +259,7 @@ function List:scrollDown()
             self.canUp = true
         else
             self.canDown = false
+            self.downRect = nil
         end
     end
     self:putActiveInVisiblePlace()
