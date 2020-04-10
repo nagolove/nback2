@@ -48,16 +48,12 @@ function List:done()
     self.visibleNum = math.floor(self.height / self.item_height)
     self.maxVisibleNum = self.visibleNum
     print("self.visibleNum", self.visibleNum)
-    --local num_items = (self.height / self.item_height)
-    -- Calculate height of everything.
-    --self.sum_item_height = (self.item_height+1) * self.items.n + 2
     self.start_i = 1
+    if #self.items > 0 then
+        self.activeIndex = 1
+    end
     if #self.items > self.visibleNum then
-        --self.end_i = self.visibleNum - 1
-        --self.visibleNum = self.visibleNum - 1
         self.canDown = true
-    else
-        self.end_i = #self.items
     end
     self:prepareDrawing()
 end
@@ -88,15 +84,17 @@ function List:update(dt)
 end
 
 function List:mousepressed(x, y, b, it)
-	--if type(self.onclick) == "function" and 
-        --inside(x, y, self.x + 2, self.y + 1, self.width - 3, self.height - 3) then
-            --local tx, ty = x - self.x, y + self:getOffset() - self.y
-            --local index = math.floor((ty / self.sum_item_height) * self.items.n)
-            --local item = self.items[index + 1]
-            --if item then
-                --self.onclick(item, index + 1, b)
-            --end
-    --end
+    if type(self.onclick) == "function" then
+        for i = self.start_i, self.end_i do
+            local item = self.items[i]
+            local r = item.rect
+            if inside(x, y, r.x, r.y, r.w, r.h) then
+                self.onclick(item, i, b)
+                self.activeIndex = i
+                break
+            end
+        end
+    end
 end
 
 function List:mousereleased(x, y, b, it)
@@ -163,6 +161,8 @@ function List:draw()
 		rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
         local item = self.items[i]
 
+        item.rect = {x = rx, y = ry, w = rw, h = rh}
+
         --if not item then
             --print("i", i)
             --print("self.start_i", self.start_i)
@@ -175,21 +175,13 @@ function List:draw()
         love.graphics.draw(item.canvas, rx, ry)
 
         if self.activeIndex == i then
-            love.setColor{0, 0, 0}
-            love.graphics("line", rx, ry, rw, rh)
+            love.graphics.setColor{1, 1, 1}
+            love.graphics.rectangle("line", rx + 1, ry + 1, rw - 1, rh - 1)
         end
-        --love.graphics.setColor(colorset.bg)
-        --love.graphics.rectangle("fill", rx, ry, rw, rh)
 
-        --love.graphics.setColor(colorset.fg)
-        --love.graphics.print(self.items[i].title, rx + 10, ry + 5) 
         relativeI = relativeI + 1
 	end
 
-    if self.canUp then
-        --[[relativeI = relativeI - 1]]
-    end
-    
     if self.canDown then
         rx, ry, rw, rh = self.x, self.y + self.item_height * self.maxVisibleNum, self.width, self.item_height
         love.graphics.setColor{1, 1, 1, 1}
@@ -222,6 +214,15 @@ function List:scrollUp()
             self.canUp = false
         end
     end
+    self:putActiveInVisiblePlace()
+end
+
+function List:putActiveInVisiblePlace()
+    if self.activeIndex < self.start_i then
+        self.activeIndex = self.start_i
+    elseif self.activeIndex > self.end_i then
+        self.activeIndex = self.end_i
+    end
 end
 
 function List:scrollDown()
@@ -238,6 +239,7 @@ function List:scrollDown()
             self.canDown = false
         end
     end
+    self:putActiveInVisiblePlace()
 end
 
 function List:prepareDrawing()
