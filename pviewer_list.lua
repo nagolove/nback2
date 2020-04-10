@@ -155,13 +155,22 @@ function List:draw()
     elseif self.canDown or self.canUp then
         self.end_i = self.start_i + self.visibleNum - 1
     else
-        self.end_i = self.start_i + self.visibleNum
+        self.end_i = self.start_i + #self.items - 1
     end
 
 	for i = self.start_i, self.end_i do
 		--[[rx, ry, rw, rh = self:getItemRect(i)]]
 		rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
         local item = self.items[i]
+
+        --if not item then
+            --print("i", i)
+            --print("self.start_i", self.start_i)
+            --print("self.end_i", self.end_i)
+            --print("#self.items", #self.items)
+            --print("canDown, canUp", self.canDown, self.canUp)
+        --end
+
         love.graphics.setColor{1, 1, 1, 1}
         love.graphics.draw(item.canvas, rx, ry)
 
