@@ -8,7 +8,7 @@ help.__index = help
 
 function help.new()
     local self = {
-        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 15),
+        font = fonts.help.font,
     }
     return setmetatable(self, help)
 end
@@ -21,7 +21,7 @@ function help:init()
     print("gooi", inspect(gooi))
     print("gooi.setStyle", inspect(gooi.setStyle))
 
-    gooi.setStyle({ font = g.newFont("gfx/DejaVuSansMono.ttf", 13),
+    gooi.setStyle({ font = fonts.help.gooi,
         showBorder = true,
         bgColor = {0.208, 0.220, 0.222},
     })

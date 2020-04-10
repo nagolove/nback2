@@ -45,22 +45,22 @@ function statisticRender:drawHitQuads(x, y, type, border)
     return x, y
 end
 
-function statisticRender:preparePrintingSignalsType(signalType)
-    function prepare(signalType)
-        local loc = i18n(signalType) or ""
-        local str =  loc .. "  " 
-        local strWidth = g.getFont():getWidth(str)
-        local formatStr = "%.3f"
-        --print("self.percent", inspect(self.percent))
-        return string.format(formatStr, self.percent[signalType]), x + strWidth, y
-    end
-    local tbl = {}
-    table.insert(tbl, prepare("pos"))
-    table.insert(tbl, prepare("sound"))
-    table.insert(tbl, prepare("color"))
-    table.insert(tbl, prepare("form"))
-    self.printingSignalsPrepared = tbl
-end
+--function statisticRender:preparePrintingSignalsType(signalType)
+    --function prepare(signalType)
+        --local loc = i18n(signalType) or ""
+        --local str =  loc .. "  " 
+        --local strWidth = g.getFont():getWidth(str)
+        --local formatStr = "%.3f"
+        ----print("self.percent", inspect(self.percent))
+        --return string.format(formatStr, self.percent[signalType]), x + strWidth, y
+    --end
+    --local tbl = {}
+    --table.insert(tbl, prepare("pos"))
+    --table.insert(tbl, prepare("sound"))
+    --table.insert(tbl, prepare("color"))
+    --table.insert(tbl, prepare("form"))
+    --self.printingSignalsPrepared = tbl
+--end
 
 function processTouches()
     local i = 0
@@ -94,6 +94,7 @@ function statisticRender:printSignalType(x, y, signalType)
 end
 
 function statisticRender:drawHits(x, y)
+    g.setFont(self.font)
     self:printSignalType(x, y, "sound") 
     y = y + self.fontHeight
     self:drawHitQuads(x, y, "sound", self.border)
@@ -213,7 +214,7 @@ function statisticRender.new(data)
     --print("data.border", data.border)
     --print("data.buttons", data.buttons)
     if self.buttons then
-        gooi.setStyle({ font = g.newFont("gfx/DejaVuSansMono.ttf", 13),
+        gooi.setStyle({ font = fonts.drawstat.gooi,
             showBorder = true,
             bgColor = {0.208, 0.220, 0.222},
         })

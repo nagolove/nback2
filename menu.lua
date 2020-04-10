@@ -14,8 +14,7 @@ function menu.new()
         items = {},
         active_item = 1, -- указывает индекс выбранного пункта
         active = false,  -- указывает, что запущено какое-то состояние из меню
-        --font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 72),
-        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32),
+        font = fonts.menu,
         back = require "background".new()
     }
     return setmetatable(self, menu)

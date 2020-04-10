@@ -45,10 +45,9 @@ local nbackSelf = {
     show_statistic = false, -- индикатор показа статистики в конце сета
     field_color = table.copy(pallete.field), -- копия таблицы по значению
     -- хорошо-бы закешировать загрузку этих ресурсов
-    font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
-    buttonsFont = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
-    central_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
-    --statistic_font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+    font = fonts.nback.font,
+    buttonsFont = fonts.nback.buttons,
+    centralFont = fonts.nback.central,
     border = 3,
 }
 
@@ -172,7 +171,7 @@ function nback:createSetupMenu()
 
     local parameterColor = {0, 0.9, 0}
 
-    self.setupmenu = setupmenu(love.graphics.newFont("gfx/DejaVuSansMono.ttf", 30), pallete.signal)
+    self.setupmenu = setupmenu(fonts.nback.setupmenu, pallete.signal)
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
@@ -938,10 +937,9 @@ end
 -- draw central_text - Press Space key
 function nback:printStartPause()
     local central_text = i18n("waitFor", { self.start_pause_rest })
-    g.setFont(self.central_font)
+    g.setFont(self.centralFont)
     g.setColor(pallete.signal)
-    local x = (w - self.central_font:getWidth(central_text)) / 2
-    --y = h - self.central_font:getHeight() * 2
+    local x = (w - self.centralFont:getWidth(central_text)) / 2
     local y = self.y0 + (self.dim - 1) * self.cell_width
     g.print(central_text, x, y)
 end

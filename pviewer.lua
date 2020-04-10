@@ -11,7 +11,7 @@ pviewer.__index = pviewer
 
 function pviewer.new()
     local self = {
-        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+        font = fonts.pviewer,
         activeIndex = 0, -- обработай случаи если таблица истории пустая
     }
     self.w, self.h = g.getDimensions()
@@ -61,7 +61,8 @@ local function removeDataWithoutDateField(data)
 end
 
 function pviewer:makeList()
-    self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y, self.layout.left.w, self.layout.left.h)
+    self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y, 
+        self.layout.left.w, self.layout.left.h, fonts.pviewer)
     self.list.onclick = function(item, idx)
         self:updateRender(idx)
     end
@@ -106,8 +107,8 @@ function pviewer:enter()
     end
 
     -------------------------------------------
-    --[[__MORE_DATA__ = false]]
-    __MORE_DATA__ = true
+    __MORE_DATA__ = false
+    --__MORE_DATA__ = true
     if __MORE_DATA__ then
         local tmp = {}
         for i = 1, 6 do
@@ -156,8 +157,7 @@ function pviewer:draw()
     g.push("all")
 
     g.clear(pallete.background)
-    local oldFont = g.getFont()
-    g.setFont(self.font)
+    --g.setFont(self.font)
 
     self.list:draw()
 
@@ -173,7 +173,6 @@ function pviewer:draw()
     g.setColor{1, 1, 1}
     g.draw(self.rt)
 
-    g.setFont(oldFont)
     g.pop()
 end
 

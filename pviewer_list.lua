@@ -9,13 +9,14 @@ function inside(mx, my, x, y, w, h)
     return mx >= x and mx <= (x+w) and my >= y and my <= (y+h)
 end
 
-function List:new(x, y, w, h)
+function List:new(x, y, w, h, font)
     o = {}
     setmetatable(o, self)
     self.__index = self
 
     o.items = {}
 	o.onclick = nil
+    o.font = font
 
     o.x, o.y = x, y
     o.width, o.height = w, h
@@ -47,6 +48,9 @@ end
 function List:done()
     self.items.n = #self.items
     self.visibleNum = math.floor(self.height / self.item_height)
+    if onAndroid then
+        self.visibleNum = self.visibleNum - 1
+    end
     self.maxVisibleNum = self.visibleNum
     print("self.visibleNum", self.visibleNum)
     self.start_i = 1
@@ -263,6 +267,8 @@ function List:prepareDrawing()
 	love.graphics.setLineWidth(1)
 	love.graphics.setLineStyle("rough")
 	love.graphics.setColor(self.windowcolor)
+
+    love.graphics.setFont(self.font)
 
     local rx, ry, rw, rh
     local colorset

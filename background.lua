@@ -1,7 +1,6 @@
 local g = love.graphics
 local inspect = require "libs.inspect"
 local pallete = require "pallete"
-local serviceFont = love.graphics.newFont(10)
 
 local Background = {
   bsize = 128, -- размер блока в пикселях
@@ -100,10 +99,7 @@ function Block:draw()
 
   local oldFont = g.getFont()
   g.setColor{0, 0, 0}
-  --g.setFont(serviceFont)
-  --g.print(str, self.x, self.y)
   g.setFont(oldFont)
-  --g.draw(self.img, quad, i, j, math.pi, 0.3, 0.3)
 end
 
 -- начало анимации движения

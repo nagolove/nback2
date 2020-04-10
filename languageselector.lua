@@ -8,7 +8,7 @@ LanguageSelector.__index = LanguageSelector
 function LanguageSelector:new()
     local self = setmetatable({}, LanguageSelector)
     self.languages = {}
-    self.font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25)
+    self.font = fonts.languageSelector
     self.locale = nil
     for _, v in pairs(love.filesystem.getDirectoryItems("locales")) do 
         local chunk, errmsg = love.filesystem.load("locales/" .. v)

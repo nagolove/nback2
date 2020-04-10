@@ -21,6 +21,26 @@ linesbuf = require "kons".new()
 cam = require "camera".new()
 profiCam = require "camera".new()
 
+fonts = {
+    help = {
+        font = lg.newFont("gfx/DejaVuSansMono.ttf", 15),
+        gooi = lg.newFont("gfx/DejaVuSansMono.ttf", 13),
+    },
+    profi = lg.newFont("gfx/DejaVuSansMono.ttf", 13),
+    drawstat = {
+        gooi = lg.newFont("gfx/DejaVuSansMono.ttf", 13),
+    },
+    pviewer = lg.newFont("gfx/DejaVuSansMono.ttf", 15),
+    nback = {
+        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
+        buttons = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
+        central = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
+        setupmenu = lg.newFont("gfx/DejaVuSansMono.ttf", 30),
+    },
+    languageSelector = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
+    menu = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32),
+}
+
 local screenMode = "win" -- or "fs"
 local to_resize = {}
 
@@ -110,7 +130,7 @@ function love.load(arg)
         dispatchWindowResize(love.graphics.getDimensions())
     end
 
-    profiReportFont = lg.newFont("gfx/DejaVuSansMono.ttf", 20)
+    profiReportFont = fonts.profi
     linesbuf.show = false
 end
 
