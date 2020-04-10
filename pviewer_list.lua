@@ -32,6 +32,7 @@ function List:new(x, y, w, h)
     o.touches = {}
     o.drawList = {}
     o.activeIndex = 0 -- никакой пунки не активный
+    o.lastOnclickIndex = 0
 
     return o
 end
@@ -84,21 +85,23 @@ function List:update(dt)
 end
 
 function List:mousepressed(x, y, b, it)
-    if type(self.onclick) == "function" then
-        for i = self.start_i, self.end_i do
-            local item = self.items[i]
-            local r = item.rect
-            if inside(x, y, r.x, r.y, r.w, r.h) then
-                self.onclick(item, i, b)
-                self.activeIndex = i
-                break
-            end
-        end
-    end
     if self.upRect and inside(x, y, self.upRect.x, self.upRect.y, self.upRect.w, self.upRect.h) then
         self:scrollUp()
     elseif self.downRect and inside(x, y, self.downRect.x, self.downRect.y, self.downRect.w, self.downRect.h) then
         self:scrollDown()
+    elseif type(self.onclick) == "function" then
+        for i = self.start_i, self.end_i do
+            local item = self.items[i]
+            local r = item.rect
+            if inside(x, y, r.x, r.y, r.w, r.h) then
+                if i ~= self.lastOnclickIndex then
+                    self.onclick(item, i, b)
+                    self.activeIndex = i
+                    self.lastOnclickIndex = i
+                    break
+                end
+            end
+        end
     end
 end
 
@@ -228,7 +231,14 @@ function List:putActiveInVisiblePlace()
     if self.activeIndex < self.start_i then
         self.activeIndex = self.start_i
     elseif self.activeIndex > self.end_i then
-        self.activeIndex = self.end_i
+        self.activeIndex = self.end_i - 1
+    end
+    if self.activeIndex ~= self.lastOnclickIndex then
+        if type(self.onclick) == "function" then
+            local item = self.items[self.activeIndex]
+            self.onclick(item, i, nil)
+            self.lastOnclickIndex = self.activeIndex
+        end
     end
 end
 
