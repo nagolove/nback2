@@ -69,12 +69,12 @@ function pviewer:makeList()
 
     local str
     for k, v in pairs(self.data) do
-        --[[local str = compareDates(os.date("*t"), v.date)]]
-        if k == 1 then
-            str = "-- " .. tostring(k) .. string.format(" (%d) ..", #self.data)
-        else
-            str = "-- " .. tostring(k) .. " .."
-        end
+        str = compareDates(os.date("*t"), v.date)
+        --if k == 1 then
+            --str = "-- " .. tostring(k) .. string.format(" (%d) ..", #self.data)
+        --else
+            --str = "-- " .. tostring(k) .. " .."
+        --end
         local item = self.list:add(str)
         item.data = v
         item.color = pallete.levelColors[v.level]
@@ -107,8 +107,8 @@ function pviewer:enter()
     end
 
     -------------------------------------------
-    --__MORE_DATA__ = false
-    __MORE_DATA__ = true
+    __MORE_DATA__ = false
+    --__MORE_DATA__ = true
     if __MORE_DATA__ then
         local tmp = {}
         for i = 1, 6 do

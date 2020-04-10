@@ -47,6 +47,8 @@
         twoDays  = "два дня назад",
         threeDays  = "три дня назад",
         fourDays  = "четыре дня назад",
+        fiveDays = "пять дней назад",
+        sixDays = "шесть дней назад",
         lastWeek  = "на прошлой неделе",
         lastTwoWeek  = "две недели назад",
         lastMonth  = "в прошлом месяце",

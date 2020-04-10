@@ -46,6 +46,8 @@
         twoDays  = "two days ago",
         threeDays  = "three days ago",
         fourDays  = "four days ago",
+        fiveDays = "five days ago",
+        sixDays = "six days ago",
         lastWeek  = "last week",
         lastTwoWeek  = "last two week",
         lastMonth  = "last month",

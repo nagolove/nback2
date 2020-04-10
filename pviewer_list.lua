@@ -113,11 +113,6 @@ function List:mousereleased(x, y, b, it)
 end
 
 function List:mousemoved(x, y, dx, dy)
-	--if inside(x, y, self.x + 2, self.y + 1, self.width - 3, self.height - 3) then
-		--local tx, ty = x - self.x, y + self:getOffset() - self.y
-		--local index = math.floor((ty / self.sum_item_height) * self.items.n)
-		--self.hoveritem = index + 1
-	--end
 end
 
 function List:touchpressed(id, x, y)
@@ -144,7 +139,7 @@ end
 
 function List:draw()
 	love.graphics.setLineWidth(1)
-	love.graphics.setLineStyle("rough")
+	--love.graphics.setLineStyle("rough")
 	love.graphics.setColor(self.windowcolor)
 
 	--love.graphics.setScissor(self.x, self.y, self.width, self.height)
