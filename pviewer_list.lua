@@ -95,6 +95,11 @@ function List:mousepressed(x, y, b, it)
             end
         end
     end
+    if self.upRect and inside(x, y, self.upRect.x, self.upRect.y, self.upRect.w, self.upRect.h) then
+        self:scrollUp()
+    elseif self.downRect and inside(x, y, self.downRect.x, self.downRect.y, self.downRect.w, self.downRect.h) then
+        self:scrollDown()
+    end
 end
 
 function List:mousereleased(x, y, b, it)
@@ -143,6 +148,7 @@ function List:draw()
 
     if self.canUp then
         rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
+        self.upRect = {x = rx, y = ry, w = rw, h = rh}
         love.graphics.setColor{1, 1, 1, 1}
         love.graphics.draw(self.upCanvas, rx, ry)
         relativeI = relativeI + 1
@@ -184,6 +190,7 @@ function List:draw()
 
     if self.canDown then
         rx, ry, rw, rh = self.x, self.y + self.item_height * self.maxVisibleNum, self.width, self.item_height
+        self.downRect = {x = rx, y = ry, w = rw, h = rh}
         love.graphics.setColor{1, 1, 1, 1}
         love.graphics.draw(self.downCanvas, rx, ry)
     end
