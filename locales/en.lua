@@ -41,6 +41,7 @@
         --quitBtn = "Back to main", -- лучше назвать - "в главное меню?"
         quitBtn = "Main menu", -- лучше назвать - "в главное меню?"
 
+        nodata = "No fineshed games yet. Try to play.",
         today = "today",
         yesterday = "yesterday",
         twoDays  = "two days ago",

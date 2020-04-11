@@ -1,7 +1,7 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
 useKeyboard = true
-preventiveFirstRun = true
---preventiveFirstRun = false
+--preventiveFirstRun = true
+preventiveFirstRun = false
 onAndroid = true
 
 require "common"

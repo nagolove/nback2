@@ -61,27 +61,29 @@ local function removeDataWithoutDateField(data)
 end
 
 function pviewer:makeList()
-    self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y, 
+    if #self.data ~= 0 then
+        self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y, 
         self.layout.left.w, self.layout.left.h, fonts.pviewer)
-    self.list.onclick = function(item, idx)
-        self:updateRender(idx)
-    end
+        self.list.onclick = function(item, idx)
+            self:updateRender(idx)
+        end
 
-    local str
-    for k, v in pairs(self.data) do
-        str = compareDates(os.date("*t"), v.date)
-        --if k == 1 then
+        local str
+        for k, v in pairs(self.data) do
+            str = compareDates(os.date("*t"), v.date)
+            --if k == 1 then
             --str = "-- " .. tostring(k) .. string.format(" (%d) ..", #self.data)
-        --else
+            --else
             --str = "-- " .. tostring(k) .. " .."
-        --end
-        local item = self.list:add(str)
-        item.data = v
-        item.color = pallete.levelColors[v.level]
-    end
+            --end
+            local item = self.list:add(str)
+            item.data = v
+            item.color = pallete.levelColors[v.level]
+        end
 
-    self.list:done()
-    self.list.onclick(nil, 1)
+        self.list:done()
+        self.list.onclick(nil, 1)
+    end
 end
 
 function pviewer:sortByDate()
@@ -120,7 +122,6 @@ function pviewer:enter()
     end
     -------------------------------------------
 
-
     self:sortByDate()
     self:makeList()
     self.data = removeDataWithoutDateField(self.data)
@@ -150,7 +151,18 @@ function pviewer:buildLayout()
     screen.right.x = screen.right.x + 3
     screen.right.w = screen.right.w - 3
     screen.top, screen.bottom = splith(screen.right, 0.1, 0.9)
+
+    screen.nodata = {}
+    screen.nodata.top, screen.nodata.bottom = splith(makeScreenTable(), 0.2, 0.8)
+
     self.layout = screen
+end
+
+function pviewer:drawNodata()
+    local str = i18n("nodata")
+    g.setFont(self.font)
+    g.setColor{0, 0, 0, 1}
+    g.printf(str, 0, self.layout.nodata.bottom.y, self.layout.nodata.bottom.w, "center")
 end
 
 function pviewer:draw()
@@ -159,19 +171,23 @@ function pviewer:draw()
     g.clear(pallete.background)
     --g.setFont(self.font)
 
-    self.list:draw()
+    if #self.data == 0 then
+        self:drawNodata()
+    else
+        self.list:draw()
 
-    g.setColor{1, 1, 1}
-    g.setCanvas(self.rt)
-    g.clear(pallete.background)
-    if self.statisticRender then
-        self.statisticRender:beforeDraw()
-        local y = self.layout.bottom.y + (self.layout.bottom.h - self.statisticRender:getHitsRectHeight()) / 2
-        self.statisticRender:drawHits(self.layout.bottom.x, y)
+        g.setColor{1, 1, 1}
+        g.setCanvas(self.rt)
+        g.clear(pallete.background)
+        if self.statisticRender then
+            self.statisticRender:beforeDraw()
+            local y = self.layout.bottom.y + (self.layout.bottom.h - self.statisticRender:getHitsRectHeight()) / 2
+            self.statisticRender:drawHits(self.layout.bottom.x, y)
+        end
+        g.setCanvas()
+        g.setColor{1, 1, 1}
+        g.draw(self.rt)
     end
-    g.setCanvas()
-    g.setColor{1, 1, 1}
-    g.draw(self.rt)
 
     g.pop()
 end
