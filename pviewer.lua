@@ -1,4 +1,6 @@
 ﻿require "common"
+require "gooi.gooi"
+
 local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local timer = require "libs.Timer"
@@ -123,6 +125,22 @@ function pviewer:enter()
         self.data = tmp
     end
     -------------------------------------------
+  
+    if #self.data == 0 then
+        gooi.setStyle({ font = self.font,
+            showBorder = true,
+            bgColor = {0.208, 0.220, 0.222},
+        })
+        self.backButton = gooi.newButton({ text = i18n("nodata"),
+            x = self.layout.nodata.top.x,
+            y = self.layout.nodata.top.y,
+            w = self.layout.nodata.top.w,
+            h = self.layout.nodata.top.h
+        }):onRelease(function()
+            menu:goBack()
+        end)
+        print("self.backButton", inspect(self.backButton))
+    end
 
     self:sortByDate()
     self:makeList()
@@ -156,6 +174,7 @@ function pviewer:buildLayout()
 
     screen.nodata = {}
     screen.nodata.top, screen.nodata.bottom = splith(makeScreenTable(), 0.2, 0.8)
+    screen.nodata.top = shrink(screen.nodata.top, 3)
 
     self.layout = screen
 end
@@ -174,7 +193,8 @@ function pviewer:draw()
     --g.setFont(self.font)
 
     if #self.data == 0 then
-        self:drawNodata()
+        --self:drawNodata()
+        gooi.draw()
     else
         self.list:draw()
 
@@ -236,12 +256,16 @@ end
 function pviewer:mousepressed(x, y, btn, istouch)
     if self.list then
         self.list:mousepressed(x, y, btn, istouch)
+    else
+        gooi.pressed()
     end
 end
 
 function pviewer:mousereleased(x, y, btn, istouch)
     if self.list then
         self.list:mousereleased(x, y, btn, istouch)
+    else
+        gooi.released()
     end
 end
 
@@ -280,7 +304,7 @@ function pviewer:update(dt)
     --elseif kb.isDown("pagedown") then
         --self:pageDown()
     --end
-
+    gooi.update(dt)
     self.timer:update(dt)
 end
 
