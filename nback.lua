@@ -163,7 +163,7 @@ function nback:createSetupMenu()
     -- меньше целевых сигналов в итоге.
     local maxLevel = 3   
     
-    local dim = 4
+    local dim = 5
     local minDim, maxDim = 4, 10
         
     local expositionList = { "1", "2", "3", "4", "5", "6", }
@@ -245,30 +245,33 @@ function nback:createSetupMenu()
                 nbackLevel == maxLevel
         end})
     
-    --  выбор разрешения поля клеток для сигнала "позиция". 
-    --  Рабочее значение : от 4 до 8-10-20?
-    self.setupmenu:addItem({
-        oninit = function() return {pallete.signal, i18n("setupMenu.dimLevel"),
-            parameterColor, tostring(dim)}, 
-            dim == 1,
-            dim == maxDim
-        end,
+--[[
+   [    --  выбор разрешения поля клеток для сигнала "позиция". 
+   [    --  Рабочее значение : от 4 до 8-10-20?
+   [    self.setupmenu:addItem({
+   [        oninit = function() return {pallete.signal, i18n("setupMenu.dimLevel"),
+   [            parameterColor, tostring(dim)}, 
+   [            dim == 1,
+   [            dim == maxDim
+   [        end,
+   [
+   [        onleft = function()
+   [            if dim - 1 >= minDim then dim = dim - 1 end
+   [            return {pallete.signal, i18n("setupMenu.dimLevel"), parameterColor,
+   [                tostring(dim)},
+   [                dim == 1,
+   [                dim == maxLevel
+   [        end,
+   [
+   [        onright = function()
+   [            if dim + 1 <= maxDim then dim = dim + 1 end
+   [            return {signal.color, i18n("setupMenu.dimLevel"), parameterColor,
+   [                tostring(dim)},
+   [                dim == 1,
+   [                dim == maxLevel
+   [        end})
+   ]]
 
-        onleft = function()
-            if dim - 1 >= minDim then dim = dim - 1 end
-            return {pallete.signal, i18n("setupMenu.dimLevel"), parameterColor,
-                tostring(dim)},
-                dim == 1,
-                dim == maxLevel
-        end,
-
-        onright = function()
-            if dim + 1 <= maxDim then dim = dim + 1 end
-            return {signal.color, i18n("setupMenu.dimLevel"), parameterColor,
-                tostring(dim)},
-                dim == 1,
-                dim == maxLevel
-        end})
 end
 
 function nback:init(save_name)
@@ -593,6 +596,7 @@ function nback:draw()
         if self.show_statistic then 
             self.statisticRender:draw()
         else
+            tiledback:draw()
             self.setupmenu:draw()
         end
     end
