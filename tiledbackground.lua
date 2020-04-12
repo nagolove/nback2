@@ -33,9 +33,9 @@ function TiledBackround:prepareDrawing()
     --self.canvas:newImageData():encode("png", "tiledback.png")
 end
 
-function TiledBackround:draw()
+function TiledBackround:draw(alpha)
     gr.clear(0, 0, 0, 0)
-    gr.setColor(1, 1, 1, 1)
+    gr.setColor(1, 1, 1, alpha or 1)
     gr.draw(self.canvas, 0, 0)
 end
 

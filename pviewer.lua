@@ -199,6 +199,7 @@ function pviewer:draw()
     g.push("all")
 
     g.clear(pallete.background)
+    tiledback:draw(0.3)
     --g.setFont(self.font)
 
     if #self.data == 0 then

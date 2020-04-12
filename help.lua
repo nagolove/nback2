@@ -101,6 +101,7 @@ end
 
 function help:draw()
     g.clear(pallete.background)
+    tiledback:draw(0.3)
     self:drawDescription()
 
     gooi.draw()

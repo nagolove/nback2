@@ -584,9 +584,11 @@ function nback:draw()
 
     if self.is_run then
         if self.start_pause then
+            tiledback:draw(0.3)
             self:drawField()
             self:printStartPause()
         else
+            tiledback:draw(0.3)
             self:drawField()
             self:drawActiveSignal()
             self.processor:update()
@@ -594,9 +596,10 @@ function nback:draw()
         end
     else
         if self.show_statistic then 
+            tiledback:draw(0.3)
             self.statisticRender:draw()
         else
-            tiledback:draw()
+            tiledback:draw(0.3)
             self.setupmenu:draw()
         end
     end

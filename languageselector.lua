@@ -74,6 +74,7 @@ function LanguageSelector:draw()
     if self.selected then
         local v = self.items[self.selected]
         gr.setColor(pallete.selectedLanguageBorder)
+        gr.setLineWidth(3)
         gr.rectangle("line", v.x, v.y, v.w, v.h)
     end
     gr.setLineWidth(prevLineWidth)
