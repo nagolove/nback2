@@ -66,7 +66,7 @@ end
 
 function LanguageSelector:draw()
     local x, y = self.x, self.y
-    gr.clear(pallete.background)
+    --gr.clear(pallete.background)
     gr.setColor{1, 1, 1, 1}
     gr.draw(self.canvas, x, y)
 

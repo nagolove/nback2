@@ -1,7 +1,7 @@
 ﻿onAndroid = love.system.getOS() == "Android" or false
 useKeyboard = true
---preventiveFirstRun = true
-preventiveFirstRun = false
+preventiveFirstRun = true
+--preventiveFirstRun = false
 onAndroid = true
 
 require "common"
@@ -20,6 +20,7 @@ i18n = require "i18n"
 linesbuf = require "kons".new()
 cam = require "camera".new()
 profiCam = require "camera".new()
+tiledback = require "tiledbackground":new()
 
 fonts = {
     help = {
@@ -121,6 +122,7 @@ function love.load(arg)
     table.insert(to_resize, pviewer)
     table.insert(to_resize, help)
     table.insert(to_resize, languageSelector)
+    table.insert(to_resize, tiledback)
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true})
@@ -259,6 +261,7 @@ end
 
 function love.draw()
     if languageSelector then
+        tiledback:draw()
         languageSelector:draw()
     else
         cam:attach()

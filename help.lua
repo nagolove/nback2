@@ -100,6 +100,7 @@ function help:drawDescription()
 end
 
 function help:draw()
+    g.clear(pallete.background)
     self:drawDescription()
 
     gooi.draw()

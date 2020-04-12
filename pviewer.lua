@@ -126,12 +126,13 @@ function pviewer:enter()
     end
     -------------------------------------------
   
+    gooi.components = {}
+    gooi.setStyle({ font = self.font,
+        showBorder = true,
+        bgColor = {0.208, 0.220, 0.222},
+    })
     if #self.data == 0 then
-        gooi.setStyle({ font = self.font,
-            showBorder = true,
-            bgColor = {0.208, 0.220, 0.222},
-        })
-        self.backButton = gooi.newButton({ text = i18n("nodata"),
+        self.backButton = gooi.newButton({ text = i18n("backToMainMenu"),
             x = self.layout.nodata.top.x,
             y = self.layout.nodata.top.y,
             w = self.layout.nodata.top.w,
@@ -139,7 +140,15 @@ function pviewer:enter()
         }):onRelease(function()
             menu:goBack()
         end)
-        print("self.backButton", inspect(self.backButton))
+    else
+        self.backButton = gooi.newButton({ text = i18n("backToMainMenu"),
+            x = self.layout.top.x,
+            y = self.layout.top.y,
+            w = self.layout.top.w,
+            h = self.layout.top.h
+        }):onRelease(function()
+            menu:goBack()
+        end)
     end
 
     self:sortByDate()
@@ -193,7 +202,7 @@ function pviewer:draw()
     --g.setFont(self.font)
 
     if #self.data == 0 then
-        --self:drawNodata()
+        self:drawNodata()
         gooi.draw()
     else
         self.list:draw()

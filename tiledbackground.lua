@@ -15,14 +15,13 @@ function TiledBackround:prepareDrawing()
     local w, h = gr.getDimensions()
     self.canvas = gr.newCanvas(w, h)
     gr.clear(0, 0, 0, 0)
+    gr.setColor{1, 1, 1}
     gr.setCanvas(self.canvas)
     local cam = require "camera".new()
-    cam:zoom(0.3)
-    print("cam.scale", cam.scale)
-    --local maxi, maxj = math.floor(w / self.img:getHeight() * cam.scale), math.floor(h / self.img:getWidth() * cam.scale)
-    local maxi, maxj = 10, 10
-    print("maxi, maxj", maxi, maxj)
-    cam:move(w / 2, h / 2)
+    cam:zoom(0.12)
+    local maxi, maxj = math.ceil(h / (self.img:getHeight() * cam.scale)), math.ceil(w / (self.img:getWidth() * cam.scale))
+    local k = 1 / cam.scale
+    cam:lookAt((w / 2) * k, (h / 2) * k)
     cam:attach()
     for i = 0, maxi do
         for j = 0, maxj do
@@ -31,17 +30,17 @@ function TiledBackround:prepareDrawing()
     end
     cam:detach()
     gr.setCanvas()
-
-    self.canvas:newImageData():encode("png", "tiledback.png")
+    --self.canvas:newImageData():encode("png", "tiledback.png")
 end
 
 function TiledBackround:draw()
+    gr.clear(0, 0, 0, 0)
     gr.setColor(1, 1, 1, 1)
-    gr.draw(self.canvas)
+    gr.draw(self.canvas, 0, 0)
 end
 
 function TiledBackround:resize(neww, newh)
-    error("Not yet implemented")
+    self:prepareDrawing()
 end
 
 return TiledBackround
