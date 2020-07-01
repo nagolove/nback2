@@ -2,11 +2,13 @@
 
 require "common"
 require "layout"
+require "snippets"
 
 local Timer = require "libs.Timer"
 local alignedlabels = require "alignedlabels"
 local colorConstants = require "colorconstants"
 local g = love.graphics
+local gr = love.graphics
 local generator = require "generator"
 local getTime = love.timer.getTime
 local inspect = require "libs.inspect"
@@ -54,6 +56,8 @@ local nbackSelf = {
 function nback.new()
     local self = deepcopy(nbackSelf)
     --print("self.statisticRender", inspect(self.statisticRender))
+    self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 10, 10,
+        32, {1, 0, 1, 1})
     return setmetatable(self, nback)
 end
 
@@ -589,7 +593,10 @@ function nback:draw()
             self:printStartPause()
         else
             tiledback:draw(0.3)
-            self:drawField()
+            --self:drawField()
+
+            gr.draw(self.hexMesh)
+
             self:drawActiveSignal()
             self.processor:update()
             --self:drawButtons()
