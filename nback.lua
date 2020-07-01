@@ -56,8 +56,10 @@ local nbackSelf = {
 function nback.new()
     local self = deepcopy(nbackSelf)
     --print("self.statisticRender", inspect(self.statisticRender))
+    local w, h = gr.getDimensions()
+    local rad = math.floor(math.min(w, h) / 8)
     self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 10, 10,
-        32, {1, 0, 1, 1})
+        rad, {1, 0, 1, 1})
     return setmetatable(self, nback)
 end
 
