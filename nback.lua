@@ -291,8 +291,10 @@ function nback:init(save_name)
     local testHex = newHexPolygon(0, 0, rad)
     print(getHexPolygonWidth(testHex))
     print(getHexPolygonHeight(testHex))
-    self.startcx = (w - getHexPolygonWidth(testHex) * fieldSize) / 2 + rad
-    self.startcy = (h - getHexPolygonHeight(testHex) * fieldSize) / 2 - rad
+    self.startcx = (w - getHexPolygonWidth(testHex) * fieldSize) / 2 + 
+        getHexPolygonWidth(testHex) / 2
+    self.startcy = (h - getHexPolygonHeight(testHex) * fieldSize) / 2 + 
+        getHexPolygonHeight(testHex)
 
     self.map = {
             {1, 0, 1, 0, 1},
