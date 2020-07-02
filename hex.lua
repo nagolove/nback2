@@ -137,7 +137,13 @@ function addBorder(data, hex)
     addLine(data, hex[11], hex[12], hex[1], hex[2])
 end
 
-function newHexField(startcx, startcy, xcount, ycount, rad, color)
+-- map - 2d array
+function newHexField(startcx, startcy, map,rad, color)
+    print(inspect(map))
+    print(#map)
+    local xcount = #map
+    local ycount = #map[1]
+    assert(xcount == ycount)
 
     local result = {}
     local mesh = gr.newMesh((6 * 3 + 6 * 6) * xcount * ycount, "triangles", "dynamic")
@@ -156,7 +162,11 @@ function newHexField(startcx, startcy, xcount, ycount, rad, color)
             last.j = j
             last.i = i
             --table.insert(result, last)
-            table.insert(horizon, last)
+            local visible = map[i][j] ~= 0 
+
+            if visible then
+                table.insert(horizon, last)
+            end
 
             --[[ 
             [1] left 
@@ -167,29 +177,34 @@ function newHexField(startcx, startcy, xcount, ycount, rad, color)
             [6] lb ]]
             last.refs = {} 
 
-            for i = 1, 6 do
-                last.refs[#last.refs + 1] = false
-            end
-
-            if prevHorizon then
-                last.refs[2] = prevHorizon[i]
-                if i + 1 <= #prevHorizon then
-                    last.refs[2] = prevHorizon[i + 1]
-                end
-            end
-            if i > 1 then
-                last.refs[1] = horizon[i - 1]
-
-                horizon[i - 1].refs[4] = last
-            end
+--[[
+   [            for i = 1, 6 do
+   [                last.refs[#last.refs + 1] = false
+   [            end
+   [
+   [            if prevHorizon then
+   [                last.refs[2] = prevHorizon[i]
+   [                if i + 1 <= #prevHorizon then
+   [                    last.refs[2] = prevHorizon[i + 1]
+   [                end
+   [            end
+   [            if i > 1 then
+   [                last.refs[1] = horizon[i - 1]
+   [
+   [                horizon[i - 1].refs[4] = last
+   [            end
+   ]]
 
             if not hasWH then
                 w, h = getHexPolygonWidth(last), getHexPolygonHeight(last)
             end
 
-            local lastIndex = addHex(meshData, last, color)
-            addBorder(meshData, last)
-            last:setMesh(mesh, lastIndex)
+            local lastIndex
+            if visible then
+                lastIndex = addHex(meshData, last, color)
+                addBorder(meshData, last)
+                last:setMesh(mesh, lastIndex)
+            end
 
             cx = cx + w
         end
