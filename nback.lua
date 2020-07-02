@@ -3,6 +3,7 @@
 require "common"
 require "layout"
 require "snippets"
+require "hex"
 
 local Timer = require "libs.Timer"
 local alignedlabels = require "alignedlabels"
@@ -284,7 +285,13 @@ function nback:init(save_name)
     self.timer = Timer()
 
     local w, h = gr.getDimensions()
-    local rad = math.floor(math.min(w, h) / 8)
+    local fieldSize = 5
+    local rad = math.floor((math.min(w, h) / fieldSize) / 2)
+    --local fieldW = rad * 2 * fieldSize
+    local testHex = newHexPolygon(0, 0, rad)
+    print(getHexPolygonWidth(testHex))
+    print(getHexPolygonHeight(testHex))
+    local fieldW = (w - getHexPolygonWidth(testHex) * fieldSize) / 2 + rad
 
     self.map = {
             {1, 0, 1, 0, 1},
@@ -293,8 +300,9 @@ function nback:init(save_name)
              {0, 1, 1, 0, 0},
             {1, 0, 1, 0, 1},
         }
-    self.startcx, self.startcy = 100, 100
-    self.hexField, self.hexMesh = require "hex".newHexField(self.startcx,
+    self.startcx, self.startcy = fieldW, 100
+    print("self.startcx, self.startcy", self.startcx, self.startcy)
+    self.hexField, self.hexMesh = newHexField(self.startcx,
         self.startcy, self.map, rad, {1, 0, 1, 1})
     --self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 10, 10,
         --rad, {1, 0, 1, 1})
@@ -313,7 +321,7 @@ function nback:initShadersTimer()
     self.shaderTimer = 0
     self.shaderTimeEnabled = true -- непутевое название переменной
     self.timer:during(2, function(dt, time, delay) 
-        print("time, delay, shaderTimer", time, delay, self.shaderTimer)
+        --print("time, delay, shaderTimer", time, delay, self.shaderTimer)
         local delta = 0.4 * dt
         if self.shaderTimer + delta <= 1 then
             self.shaderTimer = self.shaderTimer + delta
@@ -921,13 +929,15 @@ end
 
 function nback:fillLinesbuf()
     if not self.signalsInspected then
-        self:inspectSignals()
+        --self:inspectSignals()
     end
     if self.signals then
-        local strings = self.signalsInspected.strings
-        for i = 1, 4 do
-            linesbuf:pushi(strings[i])
-        end
+        --[[
+           [local strings = self.signalsInspected.strings
+           [for i = 1, 4 do
+           [    linesbuf:pushi(strings[i])
+           [end
+           ]]
     end
 
     linesbuf:pushi("current_sig = " .. self.current_sig)
