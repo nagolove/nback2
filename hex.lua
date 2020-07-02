@@ -162,7 +162,7 @@ function newHexField(startcx, startcy, map,rad, color)
             last.j = j
             last.i = i
             --table.insert(result, last)
-            local visible = map[i][j] ~= 0 
+            local visible = map[j][i] ~= 0 
 
             if visible then
                 table.insert(horizon, last)

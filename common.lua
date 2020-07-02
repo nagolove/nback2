@@ -95,7 +95,7 @@ end
 
 function storeGooi()
     --local g = { components = deepcopy(gooi.components) }
-    print("gooi.components", inspect(gooi.components))
+    --print("gooi.components", inspect(gooi.components))
     --local g = { components = table.deepcopy(gooi.components) }
     local g = { components = gooi.components }
     gooi.components = {}

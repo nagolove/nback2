@@ -99,7 +99,7 @@ function menu:moveUp()
     end
 end
 
-function menu:keyreleased(key, scancode)
+function menu:keyreleased(_, key)
     if self.active then
         --пересылка обработки в активное состояние
         local obj = self.items[self.active_item].obj
@@ -107,7 +107,7 @@ function menu:keyreleased(key, scancode)
     end
 end
 
-function menu:keypressed(key, scancode)
+function menu:keypressed(_, key)
     if self.active then
         --пересылка обработки в активное состояние
         local obj = self.items[self.active_item].obj

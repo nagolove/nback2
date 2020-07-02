@@ -1,8 +1,8 @@
-﻿onAndroid = love.system.getOS() == "Android" or false
+﻿onAndroid = love.system.getOS() == "Android"
 useKeyboard = true
 preventiveFirstRun = true
 --preventiveFirstRun = false
-onAndroid = true
+--onAndroid = true
 
 require "common"
 
@@ -139,8 +139,8 @@ end
 function love.update(dt)
     if languageSelector then
         languageSelector:update(dt)
-        if languageSelector:getLocale() then
-            setupLocale(languageSelector:getLocale())
+        if languageSelector.locale then
+            setupLocale(languageSelector.locale)
             subInit()
             languageSelector = nil
         end
@@ -244,8 +244,12 @@ end
 
 function love.keypressed(_, scancode)
     --if onAndroid then return end
-    keyconfig.checkPressedKeys(scancode)
-    menu:keypressed(_, scancode)
+    if languageSelector and languageSelector.keypressed then
+        languageSelector:keypressed(_, scancode)
+    else
+        keyconfig.checkPressedKeys(scancode)
+        menu:keypressed(_, scancode)
+    end
 end
 
 function love.keyreleased(key, scancode)

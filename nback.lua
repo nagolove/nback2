@@ -56,21 +56,6 @@ local nbackSelf = {
 function nback.new()
     local self = deepcopy(nbackSelf)
     --print("self.statisticRender", inspect(self.statisticRender))
-    local w, h = gr.getDimensions()
-    local rad = math.floor(math.min(w, h) / 8)
-
-    self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 
-        {
-            {1, 0, 1, 0, 1},
-            {0, 1, 1, 1, 0},
-            {0, 1, 0, 1, 0},
-            {0, 1, 1, 1, 0},
-            {1, 0, 1, 0, 1},
-        },
-        rad, {1, 0, 1, 1})
-    --self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 10, 10,
-        --rad, {1, 0, 1, 1})
-
     return setmetatable(self, nback)
 end
 
@@ -297,7 +282,26 @@ function nback:init(save_name)
     love.audio.setVolume(settings.volume)
     self.save_name = save_name
     self.timer = Timer()
-    self.signal = signal.new(self.cell_width, "alphabet")
+
+    local w, h = gr.getDimensions()
+    local rad = math.floor(math.min(w, h) / 8)
+
+    self.map = {
+            {1, 0, 1, 0, 1},
+             {0, 1, 1, 0, 0},
+            {0, 1, 0, 1, 0},
+             {0, 1, 1, 0, 0},
+            {1, 0, 1, 0, 1},
+        }
+    self.startcx, self.startcy = 100, 100
+    self.hexField, self.hexMesh = require "hex".newHexField(self.startcx,
+        self.startcy, self.map, rad, {1, 0, 1, 1})
+    --self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 10, 10,
+        --rad, {1, 0, 1, 1})
+
+    self.signal = signal.new(self.startcx, self.startcy, self.map, 
+        self.cell_width, "alphabet")
+
     self:createSetupMenu()
     self:resize(g.getDimensions())
     self:initShaders()
@@ -611,7 +615,7 @@ function nback:draw()
             gr.draw(self.hexMesh)
 
             self:drawActiveSignal()
-            self.processor:update()
+            --self.processor:update()
             --self:drawButtons()
         end
     else

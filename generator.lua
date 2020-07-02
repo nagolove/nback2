@@ -2,19 +2,11 @@ local clone = require "libs.lume".clone
 local inspect = require "libs.inspect"
 
 local function generate(sig_count, level, gen, cmp)
-    --print("generate", "sig_count", sig_count, "gen", inspect(gen), "cmp", inspect(cmp), "level", level)
-    --[[print(string.format("generating signal array for %d signals of %d level.", sig_count, level))]]
-
     local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
-    --функцией.
-    --Если поставить меньше 3, то может зависать генерация в бесконечном цикле.
     local ratio = 5 
-    -- что делает эта таблица, задает границы цему-то? С какой вероятностью
-    -- должно выпадать событие? 1/3?
     local range = {1, 3} 
     local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
 
-    -- забиваю пустыми значениями весь массив, по всей длине.
     for i = 1, ratio * sig_count do
         table.insert(ret, null)
     end

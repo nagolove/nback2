@@ -15,8 +15,11 @@ signal.__index = signal
 
 -- width - ширина ячейки для фигурки
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
-function signal.new(width, soundPack)
+function signal.new(startcx, startcy, map, width, soundPack)
     local self = {
+        startcx = startcx,
+        startcy = startcy,
+        map = map,
         width = width,
         sounds = {}, 
         canvas = nil,
@@ -109,7 +112,7 @@ end
 -- сигнала диапазон возможных значений номеров сэмпла 1..samplesCount
 function signal:play(index)
     assert(index <= #self.sounds)
-    self.sounds[index]:play()
+    --self.sounds[index]:play()
 end
 
 function signal:quad_internal(x, y, w, h)

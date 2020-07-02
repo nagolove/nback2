@@ -185,9 +185,8 @@ local function checkDownKeys()
         if not pressed then break end -- если хоть одна клавиша в комбинации не нажата, то сбрасываю комбинацию.      
       end
       if pressed and v.action then 
---        print("call action on shortcut", inspect(v.combo))
         v.action() 
-      end -- может какие дополнительные параметры передавать в функцию action()?
+      end
     end
   end
 end

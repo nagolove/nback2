@@ -18,8 +18,8 @@ local g = love.graphics
 function help:init()
     self:buildLayout()
 
-    print("gooi", inspect(gooi))
-    print("gooi.setStyle", inspect(gooi.setStyle))
+    --print("gooi", inspect(gooi))
+    --print("gooi.setStyle", inspect(gooi.setStyle))
 
     gooi.setStyle({ font = fonts.help.gooi,
         showBorder = true,
@@ -56,7 +56,7 @@ end
 
 function help:enter()
     print("help:enter()")
-    print("help self.gooi", inspect(self.gooi))
+    --print("help self.gooi", inspect(self.gooi))
     restoreGooi(self.gooi)
 
     --print("gooi.components", inspect(gooi.components))

@@ -21,10 +21,10 @@ end
 
 if not ... then
     local inspect = require "libs.inspect"
-    print("new()", inspect(new()))
-    print("new():makeIndexArray()", inspect(new():makeNamesArray()))
+    --print("new()", inspect(new()))
+    --print("new():makeIndexArray()", inspect(new():makeNamesArray()))
     local c = new()
-    print(inspect(c["brown"]))
+    --print(inspect(c["brown"]))
     local a = c:makeNamesArray()
     print(inspect(a[1]))
     print(inspect(c[a[1]]))

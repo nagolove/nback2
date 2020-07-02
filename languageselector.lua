@@ -25,10 +25,6 @@ function LanguageSelector:new()
     return self
 end
 
-function LanguageSelector:getLocale()
-    return self.locale
-end
-
 function LanguageSelector:prepareDraw()
     local w, h = gr.getDimensions()
     local menuItemHeight = self.font:getHeight() + 6
@@ -61,7 +57,7 @@ function LanguageSelector:prepareDraw()
 
     gr.setCanvas()
 
-    self.canvas:newImageData():encode("png", "langlist.png")
+    --self.canvas:newImageData():encode("png", "langlist.png")
 end
 
 function LanguageSelector:draw()
@@ -98,6 +94,33 @@ function LanguageSelector:touchreleased(id, x, y)
 end
 
 function LanguageSelector:touchmoved(id, x, y, dx, dy)
+end
+
+function LanguageSelector:up()
+    if self.selected - 1 < 1 then
+        self.selected = #self.items
+    else
+        self.selected = self.selected - 1
+    end
+end
+
+function LanguageSelector:down()
+    if self.selected + 1 > #self.items then
+        self.selected = 1
+    else
+        self.selected = self.selected + 1
+    end
+end
+
+function LanguageSelector:keypressed(_, key)
+    if key == "up" or key == "k" then
+        self:up()
+    elseif key == "down" or key == "j" then
+        self:down()
+    elseif key == "space" or key == "return" then
+        print("select")
+        self.locale = self.languages[self.selected].locale
+    end
 end
 
 function LanguageSelector:mousepressed(x, y, btn, istouch)
