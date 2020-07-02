@@ -89,7 +89,8 @@ function nback:start()
     self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
     self.written = false
     self.pause = false
-    self.signals = generator.generateAll(self.sig_count, self.level, self.dim, #self.signal.sounds)
+    self.signals = generator.generateAll(self.sig_count, self.level, self.dim, 
+        #self.signal.sounds, self.map)
     print("self.signals", inspect(self.signals))
     self.current_sig = 1
     self.timestamp = love.timer.getTime() - self.pause_time
@@ -952,7 +953,9 @@ end
 
 -- draw active signal quad
 function nback:drawActiveSignal()
-    local x, y = unpack(self.signals.pos[self.current_sig])
+    --local x, y = unpack(self.signals.pos[self.current_sig])
+    local pos = self.signals.pos[self.current_sig]
+    local x, y = pos.x, pos.y
     local sig_color = colorConstants[self.signals.color[self.current_sig]]
     if self.figure_alpha then
         sig_color[4] = self.figure_alpha

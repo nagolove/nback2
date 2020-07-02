@@ -70,26 +70,32 @@ local function makeEqArrays(signals, level)
     return ret
 end
 
---[[
-   [function makeColorArr()
-   [    local colorConstants = require "colorconstants"
-   [    local color_arr = {}
-   [    for k, _ in pairs(colorConstants) do
-   [        color_arr[#color_arr + 1] = k
-   [    end
-   [    return color_arr
-   [end
-   ]]
-local function generateAll(sig_count, level, dim, soundsNum)
+local function generateAll(sig_count, level, dim, soundsNum, map)
     --print("generateAll", sig_count, level, dim, soundsNum)
     local colorArr = require "colorconstants":makeNamesArray()
 
     function genArrays(sig_count, level, dim, soundsNum)
         local signals = {}
         signals.pos = generate(sig_count, level,
-            function() return {math.random(1, dim - 1), 
-                               math.random(1, dim - 1)} end,
-            function(a, b) return  a[1] == b[1] and a[2] == b[2] end)
+            function() 
+                local result = {}
+                local x, y = math.random(1, #map), math.random(1, #map[1])
+                local i = 0
+                while map[x][y] ~= 1 do
+                    x, y = math.random(1, #map), math.random(1, #map[1])
+                    i = i + 1
+                    if i > 31 then
+                        error("Something goes wrong, hmm")
+                    end
+                end
+                result.x, result.y = x, y
+                return result
+                --return {math.random(1, dim - 1), 
+                               --math.random(1, dim - 1)} 
+            end,
+            function(a, b)
+                return a.x == b.x and a.y == b.y
+            end)
         --print("pos", inspect(signals.pos))
 
         signals.form = generate(sig_count, level,
@@ -142,7 +148,8 @@ local function generateAll(sig_count, level, dim, soundsNum)
         return signals
     end
 
-    return balance(5)
+    --return balance(5)
+    return balance(1)
 end
 
 return { 
