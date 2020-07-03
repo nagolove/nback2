@@ -15,8 +15,9 @@ signal.__index = signal
 
 -- width - ширина ячейки для фигурки
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
-function signal.new(startcx, startcy, map, width, soundPack)
+function signal.new(hexfield, startcx, startcy, map, width, soundPack)
     local self = {
+        hexfield = hexfield, 
         startcx = startcx,
         startcy = startcy,
         map = map,
@@ -87,6 +88,7 @@ end
 -- треугольник вверх, пересечение треугольников, ромб)
 -- color - текущий цвет
 function signal:draw(xd, yd, type, color)
+    print("hexfield", inspect(self.hexfield))
     local border = 1
     local w, h = self.width - border * 2, self.width - border * 2
     local x = self.x0 + xd * self.width + border 

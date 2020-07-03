@@ -275,6 +275,14 @@ function menu:mousemoved(x, y, dx, dy, istouch)
     end
 end
 
+function menu:keypressed(key)
+    if key == "up" or key == "k" then
+        self:scrollUp()
+    elseif key == "down" or key == "j" then
+        self:scrollDown()
+    end
+end
+
 function menu:mousepressed(x, y, btn, istouch)
     if not self.freeze then
         if btn == 1 then

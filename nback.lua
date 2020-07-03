@@ -311,7 +311,7 @@ function nback:init(save_name)
     --self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 10, 10,
         --rad, {1, 0, 1, 1})
 
-    self.signal = signal.new(self.startcx, self.startcy, self.map, 
+    self.signal = signal.new(self.hexField, self.startcx, self.startcy, self.map, 
         self.cell_width, "alphabet")
 
     self:createSetupMenu()
@@ -797,7 +797,7 @@ function nback:keyreleased(_, scancode)
 end
 
 -- use scancode, Luke!
-function nback:keypressed(_, scancode)
+function nback:keypressed(scancode)
     if useKeyboard then 
         if self.is_run then
             if scancode == "a" then
