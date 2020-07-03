@@ -87,8 +87,14 @@ end
 -- type - тип рисуемой картинки(квадрат, круг, треугольник вниз, 
 -- треугольник вверх, пересечение треугольников, ромб)
 -- color - текущий цвет
-function signal:draw(xd, yd, type, color)
-    print("hexfield", inspect(self.hexfield))
+function signal:draw(xd, yd, type_, color)
+
+    --print("hexfield", inspect(self.hexfield))
+    print("#hexfield", #self.hexfield)
+    print("self.map", inspect(self.map))
+    local currentHex = self.hexfield:get(xd, yd)
+    print("currentHex", inspect(currentHex))
+
     local border = 1
     local w, h = self.width - border * 2, self.width - border * 2
     local x = self.x0 + xd * self.width + border 
@@ -99,7 +105,14 @@ function signal:draw(xd, yd, type, color)
     g.setColor(color)
     local oldWidth = g.getLineWidth()
     g.setLineWidth(self.borderLineWidth)
-    self[type](self, x, y, w, h)
+
+    --self[type_](self, x, y, w, h)
+    if currentHex and type(currentHex) == "table" then
+        g.circle("fill", currentHex.cx, currentHex.cy, currentHex.r)
+    else
+        print("currentHex", inspect(currentHex))
+    end
+
     g.setLineWidth(oldWidth)
 
     --g.setColor{1, 1, 1}

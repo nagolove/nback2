@@ -1,6 +1,7 @@
 ﻿local inspect = require "libs.inspect"
 local vec = require "libs.vector"
 local gr = love.graphics
+require "common"
 --local vec2 = require "vector-light"
 
 function getHexPolygonWidth(hex)
@@ -56,6 +57,7 @@ function newHexPolygon(cx, cy, rad)
         c = c + d
     end
 
+    hex.rad = rad
     hex.selected = false
     hex.cx, hex.cy = cx, cy
 
@@ -145,7 +147,20 @@ function newHexField(startcx, startcy, map,rad, color)
     local ycount = #map[1]
     assert(xcount == ycount)
 
+    local Handler = {
+        map = deepcopy(map),
+    }
+    Handler.__index = Handler
+
+    function Handler:get(x, y)
+        --print(inspect(Handler))
+        print("x, y", x, y, map[x][y] or nil)
+        return map[x][y] or nil
+    end
+
     local result = {}
+    setmetatable(result, Handler)
+
     local mesh = gr.newMesh((6 * 3 + 6 * 6) * xcount * ycount, "triangles", "dynamic")
     local meshData = {}
 
@@ -165,6 +180,7 @@ function newHexField(startcx, startcy, map,rad, color)
             local visible = map[j][i] ~= 0 
 
             if visible then
+                Handler.map[j][i] = last
                 table.insert(horizon, last)
             end
 
