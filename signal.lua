@@ -10,6 +10,7 @@ signal.__index = signal
 
 local fragmentCode = g.newShader([[
 uniform float iTime;
+uniform float iCount;
 
 float drawLine (vec2 p1, vec2 p2, vec2 uv, float a)
 {
@@ -28,17 +29,38 @@ float drawLine (vec2 p1, vec2 p2, vec2 uv, float a)
     return r;
 }
 
-
 vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords ) {
     vec2 uv = screen_coords.xy / love_ScreenSize.xy;
     float lines = 0.;
 
-    lines += drawLine(vec2(0., 0.), vec2(1., 1.), uv, 1.);
+    //lines += drawLine(vec2(0., 0.), vec2(1., 1.), uv, 1.);
 
-    vec4 col = color * iTime;
-    col.r = lines;
-    col.a = 1.;
-    return col;
+    //vec4 col = color * iTime;
+
+    //vec4 col = color;
+    //col.r = lines;
+    //col.a = 1.;
+
+    vec3 col = color.rgb;
+    vec2 gv = fract(uv * iCount) - .5;
+    //float d = length(gv);
+    float m = 0.;
+
+    for (float y = -1.; y <= 1.; y++) {
+        for (float x = -1.; x <= 1.; x++) {
+            vec2 offs = vec2(x, y);
+            float d = length(gv + offs);
+            //float r = 0.1;
+            //m += smoothstep(r, r * 0.9, d);
+            float r = mix(0.3, 0.5, sin(iTime + length(uv) * 39.) * 0.5 + 0.5);
+            m += smoothstep(r, r * 0.9, d);
+        }
+    }
+
+    col.rg = gv;
+    col += m;
+    //col += smoothstep(0.1, 0.11, uv.x);
+    return vec4(col, 1.0);
 }
 ]])
 
@@ -51,6 +73,7 @@ vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords ) {
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
 function signal.new(hexfield, startcx, startcy, map, width, soundPack)
     local self = {
+        iCount = 10,
         hexfield = hexfield, 
         startcx = startcx,
         startcy = startcy,
@@ -146,6 +169,7 @@ function signal:draw(xd, yd, type_, color)
     if currentHex and type(currentHex) == "table" then
         g.setShader(fragmentCode)
         safesend(fragmentCode, "iTime", love.timer.getTime())
+        safesend(fragmentCode, "iCount", self.iCount)
         g.circle("fill", currentHex.cx, currentHex.cy, currentHex.rad)
         g.setShader()
     else
