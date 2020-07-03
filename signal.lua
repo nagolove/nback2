@@ -90,6 +90,7 @@ end
 function signal:draw(xd, yd, type_, color)
 
     --print("hexfield", inspect(self.hexfield))
+    print("xd, yd", xd, yd)
     print("#hexfield", #self.hexfield)
     print("self.map", inspect(self.map))
     local currentHex = self.hexfield:get(xd, yd)
@@ -108,7 +109,7 @@ function signal:draw(xd, yd, type_, color)
 
     --self[type_](self, x, y, w, h)
     if currentHex and type(currentHex) == "table" then
-        g.circle("fill", currentHex.cx, currentHex.cy, currentHex.r)
+        g.circle("fill", currentHex.cx, currentHex.cy, currentHex.rad)
     else
         print("currentHex", inspect(currentHex))
     end

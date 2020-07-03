@@ -96,7 +96,9 @@ local function generateAll(sig_count, level, dim, soundsNum, map)
             function(a, b)
                 return a.x == b.x and a.y == b.y
             end)
-        --print("pos", inspect(signals.pos))
+
+        print("map", inspect(map))
+        print("pos", inspect(signals.pos))
 
         signals.form = generate(sig_count, level,
             function()

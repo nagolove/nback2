@@ -297,13 +297,21 @@ function nback:init(save_name)
     self.startcy = (h - getHexPolygonHeight(testHex) * fieldSize) / 2 + 
         getHexPolygonHeight(testHex)
 
+    --self.map = {
+            --{1, 0, 1, 0, 1},
+             --{0, 1, 1, 0, 0},
+            --{0, 1, 0, 1, 0},
+             --{0, 1, 1, 0, 0},
+            --{1, 0, 1, 0, 1},
+        --}
     self.map = {
-            {1, 0, 1, 0, 1},
-             {0, 1, 1, 0, 0},
-            {0, 1, 0, 1, 0},
-             {0, 1, 1, 0, 0},
-            {1, 0, 1, 0, 1},
+            {1, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1},
+            {1, 1, 0, 1, 1},
+            {1, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1},
         }
+
     --self.startcx, self.startcy = fieldW, 100
     print("self.startcx, self.startcy", self.startcx, self.startcy)
     self.hexField, self.hexMesh = newHexField(self.startcx,

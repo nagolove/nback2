@@ -154,8 +154,8 @@ function newHexField(startcx, startcy, map,rad, color)
 
     function Handler:get(x, y)
         --print(inspect(Handler))
-        print("x, y", x, y, map[x][y] or nil)
-        return map[x][y] or nil
+        print("x, y", x, y, Handler.map[x][y] or nil)
+        return Handler.map[x][y] or nil
     end
 
     local result = {}
@@ -238,6 +238,7 @@ function newHexField(startcx, startcy, map,rad, color)
     --updateNeighbors(result, xcount, ycount)
     mesh:setVertices(meshData)
 
+    print("result", inspect(result))
     return result, mesh
 end
 
