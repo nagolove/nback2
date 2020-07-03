@@ -30,6 +30,12 @@ function pointInRect(px, py, x, y, w, h)
     return px > x and py > y and px < x + w and py < y + h
 end
 
+function safesend(shader, name, ...)
+  if shader:hasUniform(name) then
+    shader:send(name, ...)
+  end
+end
+
 -- source http://lua-users.org/wiki/CopyTable 
 function deepcopy(orig)
     local orig_type = type(orig)

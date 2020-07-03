@@ -24,12 +24,6 @@ local table = require "table"
 local w, h = g.getDimensions()
 local yield = coroutine.yield
 
-local function safesend(shader, name, ...)
-  if shader:hasUniform(name) then
-    shader:send(name, ...)
-  end
-end
-
 local function width() return love.graphics.getWidth() end
 local function height() return love.graphics.getHeight() end
 

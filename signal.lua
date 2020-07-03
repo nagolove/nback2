@@ -8,6 +8,40 @@ local conbuf = require "kons".new(0, 0)
 local signal = {}
 signal.__index = signal
 
+local fragmentCode = g.newShader([[
+uniform float iTime;
+
+float drawLine (vec2 p1, vec2 p2, vec2 uv, float a)
+{
+    float r = 0.;
+    float one_px = 1. / love_ScreenSize.x; //not really one px
+    
+    // get dist between points
+    float d = distance(p1, p2);
+    
+    // get dist between current pixel and p1
+    float duv = distance(p1, uv);
+
+    //if point is on line, according to dist, it should match current uv 
+    r = 1.-floor(1.-(a*one_px)+distance (mix(p1, p2, clamp(duv/d, 0., 1.)),  uv));
+        
+    return r;
+}
+
+
+vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords ) {
+    vec2 uv = screen_coords.xy / love_ScreenSize.xy;
+    float lines = 0.;
+
+    lines += drawLine(vec2(0., 0.), vec2(1., 1.), uv, 1.);
+
+    vec4 col = color * iTime;
+    col.r = lines;
+    col.a = 1.;
+    return col;
+}
+]])
+
 --[[
 -- Типы сигналов и их порядок в канвасах слева на право:
 -- quad, circle, rhombus, trup, trdown, trupdown
@@ -108,8 +142,12 @@ function signal:draw(xd, yd, type_, color)
     g.setLineWidth(self.borderLineWidth)
 
     --self[type_](self, x, y, w, h)
+
     if currentHex and type(currentHex) == "table" then
+        g.setShader(fragmentCode)
+        safesend(fragmentCode, "iTime", love.timer.getTime())
         g.circle("fill", currentHex.cx, currentHex.cy, currentHex.rad)
+        g.setShader()
     else
         print("currentHex", inspect(currentHex))
     end
