@@ -8,61 +8,22 @@ local conbuf = require "kons".new(0, 0)
 local signal = {}
 signal.__index = signal
 
-local fragmentCode = g.newShader([[
-uniform float iTime;
-uniform float iCount;
+local canvas = g.newCanvas(128, 128)
+g.setCanvas(canvas)
+local maxrad = 128 / 2
+for rad = maxrad, 0, -0.1 do
+    local alpha = maxrad - rad / maxrad
+    --g.setColor{0, 0, 0, 0.01}
+    g.setColor{0, 0, 0, 0.01}
+    print(alpha)
+    g.circle("fill", 128 / 2, 128 / 2, rad)
+end
+g.setColor{1, 0, 1}
+--g.rectangle("fill", 10, 10, 128 - 10, 128 - 10)
+g.setCanvas()
+canvas:newImageData():encode("png", "circle.png")
 
-float drawLine (vec2 p1, vec2 p2, vec2 uv, float a)
-{
-    float r = 0.;
-    float one_px = 1. / love_ScreenSize.x; //not really one px
-    
-    // get dist between points
-    float d = distance(p1, p2);
-    
-    // get dist between current pixel and p1
-    float duv = distance(p1, uv);
-
-    //if point is on line, according to dist, it should match current uv 
-    r = 1.-floor(1.-(a*one_px)+distance (mix(p1, p2, clamp(duv/d, 0., 1.)),  uv));
-        
-    return r;
-}
-
-vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords ) {
-    vec2 uv = screen_coords.xy / love_ScreenSize.xy;
-    float lines = 0.;
-
-    //lines += drawLine(vec2(0., 0.), vec2(1., 1.), uv, 1.);
-
-    //vec4 col = color * iTime;
-
-    //vec4 col = color;
-    //col.r = lines;
-    //col.a = 1.;
-
-    vec3 col = color.rgb;
-    vec2 gv = fract(uv * iCount) - .5;
-    //float d = length(gv);
-    float m = 0.;
-
-    for (float y = -1.; y <= 1.; y++) {
-        for (float x = -1.; x <= 1.; x++) {
-            vec2 offs = vec2(x, y);
-            float d = length(gv + offs);
-            //float r = 0.1;
-            //m += smoothstep(r, r * 0.9, d);
-            float r = mix(0.3, 0.5, sin(iTime + length(uv) * 39.) * 0.5 + 0.5);
-            m += smoothstep(r, r * 0.9, d);
-        }
-    }
-
-    col.rg = gv;
-    col += m;
-    //col += smoothstep(0.1, 0.11, uv.x);
-    return vec4(col, 1.0);
-}
-]])
+local fragmentCode = g.newShader("vertex1.glsl")
 
 --[[
 -- Типы сигналов и их порядок в канвасах слева на право:
@@ -72,7 +33,12 @@ vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords ) {
 -- width - ширина ячейки для фигурки
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
 function signal.new(hexfield, startcx, startcy, map, width, soundPack)
+    local circleImage = g.newImage("circle.png")
+    local width = hexfield[1].rad
     local self = {
+        circleImage = circleImage,
+        quad = g.newQuad(0, 0, width, width, 
+            circleImage:getWidth(), circleImage:getHeight()),
         iCount = 10,
         hexfield = hexfield, 
         startcx = startcx,
@@ -167,11 +133,21 @@ function signal:draw(xd, yd, type_, color)
     --self[type_](self, x, y, w, h)
 
     if currentHex and type(currentHex) == "table" then
-        g.setShader(fragmentCode)
-        safesend(fragmentCode, "iTime", love.timer.getTime())
-        safesend(fragmentCode, "iCount", self.iCount)
-        g.circle("fill", currentHex.cx, currentHex.cy, currentHex.rad)
-        g.setShader()
+
+        --for i = 1, 10 do
+        do
+            g.setShader(fragmentCode)
+            safesend(fragmentCode, "iTime", love.timer.getTime())
+            safesend(fragmentCode, "iCount", self.iCount)
+
+            local rad = math.floor(getHexPolygonWidth(self.hexfield[1]) / 2)
+            g.circle("fill", currentHex.cx, currentHex.cy, rad)
+            --self[type_](self, x, y, w, h)
+            g.setShader()
+        end
+
+        --g.draw(self.circleImage, self.quad, currentHex.cx - currentHex.rad, 
+            --currentHex.cy - currentHex.rad)
     else
         print("currentHex", inspect(currentHex))
     end

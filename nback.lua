@@ -280,7 +280,12 @@ function nback:init(save_name)
     self.timer = Timer()
 
     local w, h = gr.getDimensions()
-    local fieldSize = 5
+    self.map = {
+            {1, 1, 1},
+             {1, 1, 0},
+            {1, 1, 1},
+        }
+    local fieldSize = #self.map
     local rad = math.floor((math.min(w, h) / fieldSize) / 2)
     --local fieldW = rad * 2 * fieldSize
     local testHex = newHexPolygon(0, 0, rad)
@@ -298,13 +303,6 @@ function nback:init(save_name)
              --{0, 1, 1, 0, 0},
             --{1, 0, 1, 0, 1},
         --}
-    self.map = {
-            {1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1},
-            {1, 1, 0, 1, 1},
-            {1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1},
-        }
 
     --self.startcx, self.startcy = fieldW, 100
     print("self.startcx, self.startcy", self.startcx, self.startcy)
