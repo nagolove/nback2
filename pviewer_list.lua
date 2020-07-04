@@ -25,7 +25,6 @@ function List:new(x, y, w, h, font)
     o.sum_item_height = 0
 
 	o.colors = {}
-	--o.colors.normal = {bg = {0.19, 0.61, 0.88}, fg = {0.77, 0.91, 1}}
 	o.colors.normal = {bg = {0, 0, 0, 1}, fg = {0.77, 0.91, 1}}
 	o.colors.hover  = {bg = {0.28, 0.51, 0.66, 1}, fg = {1, 1, 1, 1}}
 	o.windowcolor = {0.19, 0.61, 0.88, 1}
@@ -88,12 +87,9 @@ function List:mousepressed(x, y, b, it)
             local item = self.items[i]
             local r = item.rect
             if inside(x, y, r.x, r.y, r.w, r.h) then
-                --if i ~= self.lastOnclickIndex then
-                    self.onclick(item, i, b)
-                    self.activeIndex = i
-                    --self.lastOnclickIndex = i
-                    break
-                --end
+                self.onclick(item, i, b)
+                self.activeIndex = i
+                break
             end
         end
     end
@@ -155,19 +151,10 @@ function List:draw()
     end
 
 	for i = self.start_i, self.end_i do
-		--[[rx, ry, rw, rh = self:getItemRect(i)]]
 		rx, ry, rw, rh = self.x, self.y + self.item_height * relativeI, self.width, self.item_height
         local item = self.items[i]
 
         item.rect = {x = rx, y = ry, w = rw, h = rh}
-
-        --if not item then
-            --print("i", i)
-            --print("self.start_i", self.start_i)
-            --print("self.end_i", self.end_i)
-            --print("#self.items", #self.items)
-            --print("canDown, canUp", self.canDown, self.canUp)
-        --end
 
         love.graphics.setColor{1, 1, 1, 1}
         love.graphics.draw(item.canvas, rx, ry)
@@ -191,13 +178,11 @@ function List:draw()
         v()
     end
 
-	--love.graphics.setScissor()
     love.graphics.setColor(pallete.pviewer.scrollLine)
 	love.graphics.setLineWidth(2)
 	love.graphics.setLineStyle("smooth")
     love.graphics.line(self.x + 2, self.y, self.x + 2, self.y + self.height)
     love.graphics.setColor(pallete.pviewer.circle)
-    --love.graphics.circle("fill", self.x + 2, self.bar.y, 3)
 end
 
 function List:putActiveInVisiblePlace()
@@ -267,7 +252,6 @@ function List:prepareDrawing()
         item.canvas = love.graphics.newCanvas(rw, rh)
         love.graphics.setCanvas(item.canvas)
 
-        --[[love.graphics.clear(1, 1, 1, 1)]]
         love.graphics.clear(0, 0, 0, 0)
         love.graphics.setColor(colorset.bg)
         love.graphics.rectangle("fill", 0, 0, rw, rh)
