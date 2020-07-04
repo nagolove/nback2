@@ -287,29 +287,17 @@ function nback:init(save_name)
         }
     local fieldSize = #self.map
     local rad = math.floor((math.min(w, h) / fieldSize) / 2)
-    --local fieldW = rad * 2 * fieldSize
     local testHex = newHexPolygon(0, 0, rad)
     print(getHexPolygonWidth(testHex))
     print(getHexPolygonHeight(testHex))
-    self.startcx = (w - getHexPolygonWidth(testHex) * fieldSize) / 2 + 
-        getHexPolygonWidth(testHex) / 2
-    self.startcy = (h - getHexPolygonHeight(testHex) * fieldSize) / 2 + 
-        getHexPolygonHeight(testHex)
+    self.startcx = (w - (getHexPolygonWidth(testHex) * fieldSize - rad * 2)) / 2
+        --getHexPolygonWidth(testHex) / 2
+    self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 2)) / 2
+        --getHexPolygonHeight(testHex) / 2
 
-    --self.map = {
-            --{1, 0, 1, 0, 1},
-             --{0, 1, 1, 0, 0},
-            --{0, 1, 0, 1, 0},
-             --{0, 1, 1, 0, 0},
-            --{1, 0, 1, 0, 1},
-        --}
-
-    --self.startcx, self.startcy = fieldW, 100
     print("self.startcx, self.startcy", self.startcx, self.startcy)
     self.hexField, self.hexMesh = newHexField(self.startcx,
         self.startcy, self.map, rad, {1, 0, 1, 1})
-    --self.hexField, self.hexMesh = require "hex".newHexField(100, 100, 10, 10,
-        --rad, {1, 0, 1, 1})
 
     self.signal = signal.new(self.hexField, self.startcx, self.startcy, self.map, 
         self.cell_width, "alphabet")
