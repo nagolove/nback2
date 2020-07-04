@@ -75,16 +75,6 @@ function List:update(dt)
             love.graphics.setColor{0.5, 0.5, 0.5, 0.5}
             love.graphics.circle("fill", first.x, first.y, 15)
         end)
-        --if inside(first.x, first.y, self.x + 2, self.y + 1, self.width - 3, self.height - 3) then
-            --local tx, ty = x - self.x, y + self:getOffset() - self.y
-            --local index = math.floor((ty / self.sum_item_height) * self.items.n)
-            --local item = self.items[index + 1]
-            --if item then
-                --print("onclick", index + 1)
-                --self.onclick(item, index + 1, b)
-            --end
-            --self.active = index + 1
-        --end
     end
 end
 

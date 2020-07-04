@@ -291,9 +291,7 @@ function nback:init(save_name)
     print(getHexPolygonWidth(testHex))
     print(getHexPolygonHeight(testHex))
     self.startcx = (w - (getHexPolygonWidth(testHex) * fieldSize - rad * 2)) / 2
-        --getHexPolygonWidth(testHex) / 2
-    self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 2)) / 2
-        --getHexPolygonHeight(testHex) / 2
+    self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 3)) / 2
 
     print("self.startcx, self.startcy", self.startcx, self.startcy)
     self.hexField, self.hexMesh = newHexField(self.startcx,
@@ -790,20 +788,20 @@ function nback:keypressed(scancode)
         if self.is_run then
             if scancode == "a" then
                 self:check("sound")
-                self.processor:push("soundBtn", drawButtonClicked, self.namedButtons["soundBtn"], self)
-                self.processor:sendMessage("soundBtn", "exit")
+                --self.p3ocessor:push("soundBtn", drawButtonClicked, self.namedButtons["soundBtn"], self)
+                --self.processor:sendMessage("soundBtn", "exit")
             elseif scancode == "f" then
                 self:check("color")
-                self.processor:push("colorBtn", drawButtonClicked, self.namedButtons["colorBtn"], self)
-                self.processor:sendMessage("colorBtn", "exit")
+                --self.processor:push("colorBtn", drawButtonClicked, self.namedButtons["colorBtn"], self)
+                --self.processor:sendMessage("colorBtn", "exit")
             elseif scancode == "j" then
                 self:check("form")
-                self.processor:push("formBtn", drawButtonClicked, self.namedButtons["formBtn"], self)
-                self.processor:sendMessage("formBtn", "exit")
+                --self.processor:push("formBtn", drawButtonClicked, self.namedButtons["formBtn"], self)
+                --self.processor:sendMessage("formBtn", "exit")
             elseif scancode == ";" then
                 self:check("pos")
-                self.processor:push("posBtn", drawButtonClicked, self.namedButtons["posBtn"], self)
-                self.processor:sendMessage("posBtn", "exit")
+                --self.processor:push("posBtn", drawButtonClicked, self.namedButtons["posBtn"], self)
+                --self.processor:sendMessage("posBtn", "exit")
             end
         else
             if not self.show_statistic then
@@ -825,7 +823,6 @@ function nback:keypressed(scancode)
         elseif scancode == "=" then
             self:raiseVolume()
         end
-    else
         if scancode == "escape" or "achome" then
             if self.is_run then
                 print("stop by escape")

@@ -224,26 +224,8 @@ function pviewer:draw()
     g.pop()
 end
 
--- сместить курсор на строчку вверх
-function pviewer:scrollUp()
-    --[[if self.activeIndex - 1 >= 1 then]]
-        --[[self.activeIndex = self.activeIndex - 1]]
-        --[[self:updateRender(self.activeIndex)]]
-    --[[end]]
-    self.list:scrollUp()
-end
-
--- сместить курсор на строчку вниз
-function pviewer:scrollDown()
-    --[[if self.activeIndex + 1 <= #self.data then]]
-        --[[self.activeIndex = self.activeIndex + 1]]
-        --[[self:updateRender(self.activeIndex)]]
-    --[[end]]
-    self.list:scrollDown()
-end
-
 -- добавить клавиши управления для постраничной прокрутки списка результатов.
-function pviewer:keypressed(_, key)
+function pviewer:keypressed(key)
     if key == "escape" or key == "acback" then
         menu:goBack()
     elseif key == "return" or key == "space" then
@@ -251,9 +233,9 @@ function pviewer:keypressed(_, key)
     elseif key == "home" or key == "kp7" then
     elseif key == "end" or key == "kp1" then
     elseif key == "up" or key == "k" then
-        self:scrollUp()
+        self.list:scrollUp()
     elseif key == "down" or key == "j" then
-        self:scrollDown()
+        self.list:scrollDown()
     end
 end
 
@@ -304,16 +286,6 @@ function pviewer:touchmoved(id, x, y, dx, dy)
 end
 
 function pviewer:update(dt)
-    local kb = love.keyboard
-    --if kb.isDown("up", "k") then
-        --self:scrollUp()
-    --elseif kb.isDown("down", "j") then
-        --self:scrollDown()
-    --elseif kb.isDown("pageup") then
-        --self:pageUp()
-    --elseif kb.isDown("pagedown") then
-        --self:pageDown()
-    --end
     gooi.update(dt)
     self.timer:update(dt)
 end

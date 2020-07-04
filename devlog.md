@@ -1,4 +1,6 @@
-﻿    function btnCoroPress()
+﻿Расположить клетки в центре экрана
+
+    function btnCoroPress()
         local getTime = love.timer.getTime
         local time = getTime()
 

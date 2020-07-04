@@ -248,7 +248,7 @@ function love.keypressed(_, scancode)
         languageSelector:keypressed(_, scancode)
     else
         keyconfig.checkPressedKeys(scancode)
-        menu:keypressed(_, scancode)
+        menu:keypressed(scancode, scancode)
     end
 end
 
