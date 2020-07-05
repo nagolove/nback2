@@ -784,52 +784,56 @@ end
 
 -- use scancode, Luke!
 function nback:keypressed(scancode)
-    if useKeyboard then 
+
+    if not useKeyboard then 
+        return
+    end
+
+    if self.is_run then
+        if scancode == "a" then
+            self:check("sound")
+            --self.p3ocessor:push("soundBtn", drawButtonClicked, self.namedButtons["soundBtn"], self)
+            --self.processor:sendMessage("soundBtn", "exit")
+        elseif scancode == "f" then
+            self:check("color")
+            --self.processor:push("colorBtn", drawButtonClicked, self.namedButtons["colorBtn"], self)
+            --self.processor:sendMessage("colorBtn", "exit")
+        elseif scancode == "j" then
+            self:check("form")
+            --self.processor:push("formBtn", drawButtonClicked, self.namedButtons["formBtn"], self)
+            --self.processor:sendMessage("formBtn", "exit")
+        elseif scancode == ";" then
+            self:check("pos")
+            --self.processor:push("posBtn", drawButtonClicked, self.namedButtons["posBtn"], self)
+            --self.processor:sendMessage("posBtn", "exit")
+        end
+    else
+        if not self.show_statistic then
+            if scancode == "space" or scancode == "return" then
+                print("select")
+                self.setupmenu:select()
+            elseif scancode == "up" or scancode == "k" then
+                self.setupmenu:scrollUp()
+            elseif scancode == "down" or scancode == "j" then 
+                self.setupmenu:scrollDown()
+            elseif scancode == "left" or scancode == "h" then
+                self.setupmenu:leftPressed()
+            elseif scancode == "right" or scancode == "l" then
+                self.setupmenu:rightPressed()
+            end
+        end
+    end
+    if scancode == "-" then 
+        self:loverVolume()
+    elseif scancode == "=" then
+        self:raiseVolume()
+    end
+    if scancode == "escape" or scancode == "achome" then
         if self.is_run then
-            if scancode == "a" then
-                self:check("sound")
-                --self.p3ocessor:push("soundBtn", drawButtonClicked, self.namedButtons["soundBtn"], self)
-                --self.processor:sendMessage("soundBtn", "exit")
-            elseif scancode == "f" then
-                self:check("color")
-                --self.processor:push("colorBtn", drawButtonClicked, self.namedButtons["colorBtn"], self)
-                --self.processor:sendMessage("colorBtn", "exit")
-            elseif scancode == "j" then
-                self:check("form")
-                --self.processor:push("formBtn", drawButtonClicked, self.namedButtons["formBtn"], self)
-                --self.processor:sendMessage("formBtn", "exit")
-            elseif scancode == ";" then
-                self:check("pos")
-                --self.processor:push("posBtn", drawButtonClicked, self.namedButtons["posBtn"], self)
-                --self.processor:sendMessage("posBtn", "exit")
-            end
+            print("stop by escape")
+            self:stop()
         else
-            if not self.show_statistic then
-                if scancode == "space" or scancode == "return" then
-                    self.setupmenu:select()
-                elseif scancode == "up" or scancode == "k" then
-                    self.setupmenu:scrollUp()
-                elseif scancode == "down" or scancode == "j" then 
-                    self.setupmenu:scrollDown()
-                elseif scancode == "left" or scancode == "h" then
-                    self.setupmenu:leftPressed()
-                elseif scancode == "right" or scancode == "l" then
-                    self.setupmenu:rightPressed()
-                end
-            end
-        end
-        if scancode == "-" then 
-            self:loverVolume()
-        elseif scancode == "=" then
-            self:raiseVolume()
-        end
-        if scancode == "escape" or "achome" then
-            if self.is_run then
-                print("stop by escape")
-                self:stop()
-            else
-                self:quit(true)
-            end
+            self:quit(true)
         end
     end
 end
