@@ -8,6 +8,9 @@ local conbuf = require "kons".new(0, 0)
 local signal = {}
 signal.__index = signal
 
+--[[
+---------------------------------------
+]]
 local canvas = g.newCanvas(128, 128)
 g.setCanvas(canvas)
 local maxrad = 128 / 2
@@ -22,6 +25,9 @@ g.setColor{1, 0, 1}
 --g.rectangle("fill", 10, 10, 128 - 10, 128 - 10)
 g.setCanvas()
 canvas:newImageData():encode("png", "circle.png")
+--[[
+---------------------------------------
+]]
 
 local fragmentCode = g.newShader("vertex1.glsl")
 
@@ -37,7 +43,7 @@ function signal.new(hexfield, startcx, startcy, map, width, soundPack)
     local width = hexfield[1].rad
     local self = {
         circleImage = circleImage,
-        quad = g.newQuad(0, 0, width, width, 
+        imageQuad = g.newQuad(0, 0, width, width, 
             circleImage:getWidth(), circleImage:getHeight()),
         iCount = 10,
         hexfield = hexfield, 
@@ -142,11 +148,13 @@ function signal:draw(xd, yd, type_, color)
 
             local rad = math.floor(getHexPolygonWidth(self.hexfield[1]) / 2)
             g.circle("fill", currentHex.cx, currentHex.cy, rad)
+            print("type_", type_)
             --self[type_](self, x, y, w, h)
             g.setShader()
+            self[type_](self, currentHex.cx - rad, currentHex.cy - rad, w, h)
         end
 
-        --g.draw(self.circleImage, self.quad, currentHex.cx - currentHex.rad, 
+        --g.draw(self.circleImage, self.imageQuad, currentHex.cx - currentHex.rad, 
             --currentHex.cy - currentHex.rad)
     else
         print("currentHex", inspect(currentHex))
