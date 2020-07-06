@@ -5,7 +5,7 @@ packagename="nback-xx.zip"
 case "$(uname)" in
 Linux*)     
     echo "Linux"
-    find . -name "*.lua" -or -name "*.wav" -or -name "*.png" -or -name "*.ttf" ! -name "correct-filelist.lua" | apack $packagename
+    find . -name "*.lua" -or -name "*.glsl" -or -name "*.wav" -or -name "*.png" -or -name "*.ttf" ! -name "correct-filelist.lua" | apack $packagename
     scp $packagename dekar@visualdoj.ru:/home/dekar/www/packages
     ssh dekar@visualdoj.ru /home/dekar/bin/update_index.lua
     rm $packagename
