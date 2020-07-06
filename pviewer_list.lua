@@ -2,6 +2,7 @@
 -- List object
 ----------------------
 local pallete = require "pallete"
+local inspect = require "libs.inspect"
 
 local List = {}
 
@@ -93,6 +94,7 @@ function List:mousepressed(x, y, b, it)
             end
         end
     end
+    print("mousepressed, self.activeIndex", self.activeIndex)
 end
 
 function List:mousereleased(x, y, b, it)
@@ -191,13 +193,19 @@ function List:putActiveInVisiblePlace()
     elseif self.activeIndex > self.end_i then
         self.activeIndex = self.end_i - 1
     end
-    if self.activeIndex ~= self.lastOnclickIndex then
-        if type(self.onclick) == "function" then
-            local item = self.items[self.activeIndex]
-            self.onclick(item, i, nil)
-            self.lastOnclickIndex = self.activeIndex
-        end
-    end
+    print("self.activeIndex", self.activeIndex)
+    --if self.activeIndex ~= self.lastOnclickIndex then
+    --[[
+       [do
+       [    if type(self.onclick) == "function" then
+       [        local item = self.items[self.activeIndex]
+       [        --print("item", inspect(item))
+       [        --self.onclick(item, self.activeIndex, nil)
+       [        --self.onclick(item, 3, nil)
+       [        self.lastOnclickIndex = self.activeIndex
+       [    end
+       [end
+       ]]
 end
 
 function List:scrollUp()
@@ -215,6 +223,13 @@ function List:scrollUp()
         end
     end
     self:putActiveInVisiblePlace()
+
+    if self.activeIndex - 1 >= 1 then
+        self.activeIndex = self.activeIndex - 1
+        local item = self.items[self.activeIndex]
+        self.onclick(item, self.activeIndex)
+    end
+    --linesbuf:push(2, "scrollUp %d", self.activeIndex)
 end
 
 function List:scrollDown()
@@ -233,6 +248,13 @@ function List:scrollDown()
         end
     end
     self:putActiveInVisiblePlace()
+
+    --XXX self.end_i
+    if self.activeIndex + 1 <= self.start_i + self.visibleNum then
+        self.activeIndex = self.activeIndex + 1
+        local item = self.items[self.activeIndex]
+        self.onclick(item, self.activeIndex)
+    end
 end
 
 function List:prepareDrawing()
