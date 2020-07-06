@@ -249,8 +249,7 @@ function List:scrollDown()
     end
     self:putActiveInVisiblePlace()
 
-    --XXX self.end_i
-    if self.activeIndex + 1 <= self.start_i + self.visibleNum then
+    if self.activeIndex + 1 <= self.end_i then
         self.activeIndex = self.activeIndex + 1
         local item = self.items[self.activeIndex]
         self.onclick(item, self.activeIndex)
