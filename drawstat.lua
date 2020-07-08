@@ -18,10 +18,17 @@ function statisticRender:drawHitQuads(x, y, type, border)
     local rect_size = self.rect_size
     local eq_arr = self.signals.eq[type]
 
-    local linksArr = {}
+    local linksArr = {} -- количество "скобок" под полоской с квадратиками
     for i = 1, #self.pressed[type] do
         table.insert(linksArr, 0)
     end
+
+    local linePointsArr = {} --
+    for i = 1, #self.pressed[type] do
+        table.insert(linePointsArr, 0)
+    end
+
+    local maxLinks = 1
 
     for k, v in pairs(self.pressed[type]) do
         g.setColor(pallete.field)
@@ -55,14 +62,15 @@ function statisticRender:drawHitQuads(x, y, type, border)
                     print(i)
                     print("linksArr", inspect(linksArr))
                     linksArr[i] = linksArr[i] + 1
+                    maxLinks = linksArr[i] > maxLinks and linksArr[i] or maxLinks
                 end
-
+                print("maxLinks", maxLinks)
             end
 
+            local delta = 15 * maxLinks
             g.setColor{0, 0, 1}
             local p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
             local p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
-            local delta = 30
             g.line(p1x, p1y, p1x, p1y + delta)
             g.line(p2x, p2y, p2x, p2y + delta)
             g.line(p1x, p1y + delta, p2x, p2y + delta)
@@ -70,8 +78,9 @@ function statisticRender:drawHitQuads(x, y, type, border)
     end
 
     -- этот код должен быть в вызывающей функции
-    y = y + self:getHitQuadLineHeight()
-    return x, y
+    print("self:getHitQuadLineHeight()", self:getHitQuadLineHeight())
+    --return self:getHitQuadLineHeight() * maxLinks
+    return self:getHitQuadLineHeight() + maxLinks * 10
 end
 
 function processTouches()
@@ -101,26 +110,26 @@ function statisticRender:printSignalType(x, y, signalType)
     g.setColor(pallete.statisticSignalType)
     g.print(str, x, y)
     g.setColor(pallete.percentFont)
-    --print("self.percent", inspect(self.percent))
     g.print(string.format("%.3f", self.percent[signalType]), x + strWidth, y)
 end
 
 function statisticRender:drawHits(x, y)
+    local dy = 0
     g.setFont(self.font)
     self:printSignalType(x, y, "sound") 
     y = y + self.fontHeight
-    self:drawHitQuads(x, y, "sound", self.border)
-    y = y + self:getHitQuadLineHeight()
+    dy = self:drawHitQuads(x, y, "sound", self.border)
+    y = y + dy
 
     self:printSignalType(x, y, "color") 
     y = y + self.fontHeight
-    self:drawHitQuads(x, y, "color", self.border)
-    y = y + self:getHitQuadLineHeight()
+    dy = self:drawHitQuads(x, y, "color", self.border)
+    y = y + dy
 
     self:printSignalType(x, y, "form") 
     y = y + self.fontHeight
-    self:drawHitQuads(x, y, "form", self.border)
-    y = y + self:getHitQuadLineHeight()
+    dy = self:drawHitQuads(x, y, "form", self.border)
+    y = y + dy
 
     self:printSignalType(x, y, "pos") 
     y = y + self.fontHeight

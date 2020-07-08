@@ -158,7 +158,7 @@ function nback:createSetupMenu()
     -- значение должно поддерживаться генератором, 
     -- больше значение - длиннее последовательность и(или)
     -- меньше целевых сигналов в итоге.
-    local maxLevel = 3   
+    local maxLevel = 5   
     
     local dim = 5
     local minDim, maxDim = 4, 10
