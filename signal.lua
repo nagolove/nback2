@@ -152,8 +152,7 @@ function signal:draw(xd, yd, type_, color)
             --self[type_](self, x, y, w, h)
             g.setShader()
 
-            local x, y = currentHex.cx - rad + (2 * rad - w) / 2, 
-                currentHex.cy - rad + (2 * rad - h) / 2
+            local x, y = currentHex.cx - w / 2, currentHex.cy - h / 2
             self[type_](self, x, y, w, h)
         end
 
