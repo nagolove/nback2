@@ -7,6 +7,7 @@ local timer = require "libs.Timer"
 
 local pallete = require "pallete"
 local g = love.graphics
+local cam = require "camera".new()
 
 local pviewer = {}
 pviewer.__index = pviewer
@@ -211,13 +212,17 @@ function pviewer:draw()
         g.setColor{1, 1, 1}
         g.setCanvas(self.rt)
         g.clear(pallete.background)
+        cam:attach()
         if self.statisticRender then
             self.statisticRender:beforeDraw()
             local y = self.layout.bottom.y + (self.layout.bottom.h - self.statisticRender:getHitsRectHeight()) / 2
             self.statisticRender:drawHits(self.layout.bottom.x, y)
         end
+        cam:detach()
         g.setCanvas()
+
         g.setColor{1, 1, 1}
+
         g.draw(self.rt)
     end
 
@@ -262,6 +267,10 @@ function pviewer:mousereleased(x, y, btn, istouch)
 end
 
 function pviewer:mousemoved(x, y, dx, dy)
+    local mouse = love.mouse
+    if mouse.isDown(2) then
+        cam:move(-dx, -dy)
+    end
     if self.list then
         self.list:mousemoved(x, y, dx, dy)
     end
