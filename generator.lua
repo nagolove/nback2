@@ -76,6 +76,8 @@ local function generateAll(sig_count, level, dim, soundsNum, map)
 
     function genArrays(sig_count, level, dim, soundsNum)
         local signals = {}
+
+        print("--pos gen--")
         signals.pos = generate(sig_count, level,
             function() 
                 local result = {}
@@ -94,9 +96,11 @@ local function generateAll(sig_count, level, dim, soundsNum, map)
                                --math.random(1, dim - 1)} 
             end,
             function(a, b)
+                print("--------", inspect(b))
                 print("a.x, a.y, b.x, b.y", a.x, a.y, b.x, b.y, a.x == b.x and a.y == b.y)
                 return a.x == b.x and a.y == b.y
             end)
+        print("--pos gen--")
 
         --print("map", inspect(map))
         --print("pos", inspect(signals.pos))

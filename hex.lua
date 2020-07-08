@@ -176,11 +176,14 @@ function newHexField(startcx, startcy, map,rad, color)
             local last = newHexPolygon(cx, cy, rad)
             last.j = j
             last.i = i
+
             --table.insert(result, last)
+            
             local visible = map[j][i] ~= 0 
 
             if visible then
                 Handler.map[j][i] = last
+                last.mapIndex = {j, i}
                 table.insert(horizon, last)
             end
 
@@ -236,6 +239,7 @@ function newHexField(startcx, startcy, map,rad, color)
     end
     
     --updateNeighbors(result, xcount, ycount)
+    
     mesh:setVertices(meshData)
 
     print("result", inspect(result))

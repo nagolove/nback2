@@ -41,7 +41,6 @@ local nbackSelf = {
     can_press = false, -- XXX FIXME зачем нужна эта переменная?
     show_statistic = false, -- индикатор показа статистики в конце сета
     field_color = table.copy(pallete.field), -- копия таблицы по значению
-    -- хорошо-бы закешировать загрузку этих ресурсов
     font = fonts.nback.font,
     buttonsFont = fonts.nback.buttons,
     centralFont = fonts.nback.central,
@@ -272,6 +271,22 @@ function nback:createSetupMenu()
 
 end
 
+function nback:drawMapIndices()
+    local currentHex = self.hexField:get(1, 1)
+    print(inspect(currentHex))
+    local currentHex = self.hexField:get(2, 1)
+    print(inspect(currentHex))
+
+    g.setColor{1, 0, 0}
+    for k, v in pairs(self.hexField) do
+        local baseIndex = 9
+        local x, y = v[baseIndex], v[baseIndex + 1]
+        local mapx, mapy = unpack(v.mapIndex)
+        local delta = 20
+        g.print(string.format("%dx%d", mapx, mapy), x + 20, y)
+    end
+end
+
 function nback:init(save_name)
     readSettings()
     self.volume = settings.volume
@@ -288,8 +303,6 @@ function nback:init(save_name)
     local fieldSize = #self.map
     local rad = math.floor((math.min(w, h) / fieldSize) / 2)
     local testHex = newHexPolygon(0, 0, rad)
-    print(getHexPolygonWidth(testHex))
-    print(getHexPolygonHeight(testHex))
     self.startcx = (w - (getHexPolygonWidth(testHex) * fieldSize - rad * 2)) / 2
     self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 3)) / 2
 
@@ -611,6 +624,7 @@ function nback:draw()
             --self:drawField()
 
             gr.draw(self.hexMesh)
+            self:drawMapIndices()
 
             self:drawActiveSignal()
             --self.processor:update()
