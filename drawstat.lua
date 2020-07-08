@@ -17,19 +17,29 @@ function statisticRender:drawLinks(x, y, type)
     local eq_arr = self.signals.eq[type]
 
     local linksArr = {} -- количество "скобок" под полоской с квадратиками
+    local linePointsArr = {} -- сколько линий выходит из квадратика(0, 1, 2)
+
     for i = 1, #self.pressed[type] do
         table.insert(linksArr, 0)
-    end
-
-    local linePointsArr = {} --
-    for i = 1, #self.pressed[type] do
         table.insert(linePointsArr, 0)
     end
+
+    for k, v in pairs(self.pressed[type]) do
+        -- сделать предрасчет тута
+        if eq_arr[k] then
+            linePointsArr[k] = linePointsArr[k] + 1
+            if k - self.level >= 1 then -- наверное лишнее условие
+                linePointsArr[k - self.level] = linePointsArr[k - self.level] + 1
+            end
+        end
+    end
+
+    print("linePointsArr", inspect(linePointsArr))
 
     local maxLinks = 1
     -- рисую "скобки" под квадратиками, соединяющие точки сигналов и ответов
     for k, v in pairs(self.pressed[type]) do
-        if eq_arr[k] then
+        if eq_arr[k] then -- индекс правильного нажатия
             local linksNum = 0
             print("k", k)
             local to = k - 1 - self.level
@@ -47,12 +57,26 @@ function statisticRender:drawLinks(x, y, type)
             local delta = 15 * maxLinks
             g.setColor{0, 0, 1}
 
-            if linePointsArr[k - 1] > 0 then
-                -- left and right distribution
+            local p1x, p1y
+            local p2x, p2y
+
+            local linkDelta = 4
+
+            if linePointsArr[k] >= 2 then
+                p1x, p1y = x + rect_size * (k - 1) + rect_size / 2 - linkDelta, y + rect_size / 2
+            else
+                p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
             end
 
-            local p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
-            local p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
+            if linePointsArr[k - self.level] >= 2 then
+                p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2 + linkDelta, y + rect_size / 2
+            else
+                p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
+            end
+
+            --p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
+            --p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
+
             g.line(p1x, p1y, p1x, p1y + delta)
             g.line(p2x, p2y, p2x, p2y + delta)
             g.line(p1x, p1y + delta, p2x, p2y + delta)
