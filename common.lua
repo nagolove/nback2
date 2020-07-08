@@ -178,3 +178,6 @@ function writeSettings()
     end
 end
 
+function isPositionEqual(a, b)
+    return a.x == a.y and b.x == b.y
+end

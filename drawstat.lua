@@ -17,6 +17,12 @@ end
 function statisticRender:drawHitQuads(x, y, type, border)
     local rect_size = self.rect_size
     local eq_arr = self.signals.eq[type]
+
+    local linksArr = {}
+    for i = 1, #self.pressed[type] do
+        table.insert(linksArr, 0)
+    end
+
     for k, v in pairs(self.pressed[type]) do
         g.setColor(pallete.field)
         g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size) 
@@ -38,29 +44,35 @@ function statisticRender:drawHitQuads(x, y, type, border)
             g.setColor{1, 1, 1, 0.5}
             g.circle("line", x + rect_size * ((k - self.level) - 1) + rect_size / 2, y + rect_size / 2, radius)
         end
+
+        if eq_arr[k] then
+            local linksNum = 0
+            print("k", k)
+            local to = k - 1 - self.level
+            print("to", to)
+            if to >= 1 then
+                for i = k - 1, to, -1 do
+                    print(i)
+                    print("linksArr", inspect(linksArr))
+                    linksArr[i] = linksArr[i] + 1
+                end
+
+            end
+
+            g.setColor{0, 0, 1}
+            local p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
+            local p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
+            local delta = 30
+            g.line(p1x, p1y, p1x, p1y + delta)
+            g.line(p2x, p2y, p2x, p2y + delta)
+            g.line(p1x, p1y + delta, p2x, p2y + delta)
+        end
     end
 
     -- этот код должен быть в вызывающей функции
     y = y + self:getHitQuadLineHeight()
     return x, y
 end
-
---function statisticRender:preparePrintingSignalsType(signalType)
-    --function prepare(signalType)
-        --local loc = i18n(signalType) or ""
-        --local str =  loc .. "  " 
-        --local strWidth = g.getFont():getWidth(str)
-        --local formatStr = "%.3f"
-        ----print("self.percent", inspect(self.percent))
-        --return string.format(formatStr, self.percent[signalType]), x + strWidth, y
-    --end
-    --local tbl = {}
-    --table.insert(tbl, prepare("pos"))
-    --table.insert(tbl, prepare("sound"))
-    --table.insert(tbl, prepare("color"))
-    --table.insert(tbl, prepare("form"))
-    --self.printingSignalsPrepared = tbl
---end
 
 function processTouches()
     local i = 0
@@ -139,6 +151,8 @@ function statisticRender:draw(noInfo)
     if self.buttons then
         gooi.draw()
     end
+
+    g.circle("fill", w / 2, 100, 100)
 end
 
 function statisticRender:printInfo()

@@ -1,3 +1,4 @@
+require "common"
 local clone = require "libs.lume".clone
 local inspect = require "libs.inspect"
 
@@ -63,7 +64,7 @@ end
 
 local function makeEqArrays(signals, level)
     local ret = {
-        pos = make_hit_arr(signals.pos, level, function(a, b) return a.x == b.x and a.y == b.y end),
+        pos = make_hit_arr(signals.pos, level, isPositionEqual),
         sound = make_hit_arr(signals.sound, level, function(a, b) return a == b end),
         color = make_hit_arr(signals.color, level, function(a, b) return a == b end),
         form = make_hit_arr(signals.form, level, function(a, b) return a == b end),

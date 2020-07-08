@@ -878,9 +878,7 @@ function nback:check(signalType)
     local signals = self.signals[signalType]
     local cmp = function(a, b) return a == b end
     if signalType == "pos" then
-        cmp = function(a, b)
-            return a[1] == b[1] and a[2] == b[2]
-        end
+        cmp = isPositionEqual
     end
 
     self.pressed[signalType][self.current_sig] = true
