@@ -147,11 +147,14 @@ function signal:draw(xd, yd, type_, color)
             safesend(fragmentCode, "iCount", self.iCount)
 
             local rad = math.floor(getHexPolygonWidth(self.hexfield[1]) / 2)
-            g.circle("fill", currentHex.cx, currentHex.cy, rad)
-            print("type_", type_)
+            --g.circle("fill", currentHex.cx, currentHex.cy, rad)
+            --print("type_", type_)
             --self[type_](self, x, y, w, h)
             g.setShader()
-            self[type_](self, currentHex.cx - rad, currentHex.cy - rad, w, h)
+
+            local x, y = currentHex.cx - rad + (2 * rad - w) / 2, 
+                currentHex.cy - rad + (2 * rad - h) / 2
+            self[type_](self, x, y, w, h)
         end
 
         --g.draw(self.circleImage, self.imageQuad, currentHex.cx - currentHex.rad, 
