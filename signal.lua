@@ -118,25 +118,17 @@ end
 -- color - текущий цвет
 function signal:draw(xd, yd, type_, color)
 
-    --print("hexfield", inspect(self.hexfield))
-    print("xd, yd", xd, yd)
-    print("#hexfield", #self.hexfield)
-    print("self.map", inspect(self.map))
     local currentHex = self.hexfield:get(xd, yd)
-    --print("currentHex", inspect(currentHex))
 
     local border = 1
     local w, h = self.width - border * 2, self.width - border * 2
     local x = self.x0 + xd * self.width + border 
     local y = self.y0 + yd * self.width + border
-    --print("x, y = ", x, y)
 
     self.borderColor[4] = color[4] -- анимирую альфа-канал цвета рамки
     g.setColor(color)
     local oldWidth = g.getLineWidth()
     g.setLineWidth(self.borderLineWidth)
-
-    --self[type_](self, x, y, w, h)
 
     if currentHex and type(currentHex) == "table" then
 
