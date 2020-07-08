@@ -12,9 +12,7 @@ function statisticRender:getHitQuadLineHeight()
     return self.rect_size + 12
 end
 
--- x, y - координаты левого верхнего угла отрисовываемой картинки.
--- type - строка "pos", "sound", etc.
-function statisticRender:drawHitQuads(x, y, type, border)
+function statisticRender:drawLinks(x, y, type)
     local rect_size = self.rect_size
     local eq_arr = self.signals.eq[type]
 
@@ -29,6 +27,48 @@ function statisticRender:drawHitQuads(x, y, type, border)
     end
 
     local maxLinks = 1
+    -- рисую "скобки" под квадратиками, соединяющие точки сигналов и ответов
+    for k, v in pairs(self.pressed[type]) do
+        if eq_arr[k] then
+            local linksNum = 0
+            print("k", k)
+            local to = k - 1 - self.level
+            print("to", to)
+            if to >= 1 then
+                for i = k - 1, to, -1 do
+                    print(i)
+                    print("linksArr", inspect(linksArr))
+                    linksArr[i] = linksArr[i] + 1
+                    maxLinks = linksArr[i] > maxLinks and linksArr[i] or maxLinks
+                end
+                print("maxLinks", maxLinks)
+            end
+
+            local delta = 15 * maxLinks
+            g.setColor{0, 0, 1}
+
+            if linePointsArr[k - 1] > 0 then
+                -- left and right distribution
+            end
+
+            local p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
+            local p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
+            g.line(p1x, p1y, p1x, p1y + delta)
+            g.line(p2x, p2y, p2x, p2y + delta)
+            g.line(p1x, p1y + delta, p2x, p2y + delta)
+
+            linePointsArr[k - 1] = linePointsArr[k - 1] + 1
+        end
+    end
+
+    return maxLinks
+end
+
+-- x, y - координаты левого верхнего угла отрисовываемой картинки.
+-- type - строка "pos", "sound", etc.
+function statisticRender:drawHitQuads(x, y, type, border)
+    local rect_size = self.rect_size
+    local eq_arr = self.signals.eq[type]
 
     for k, v in pairs(self.pressed[type]) do
         g.setColor(pallete.field)
@@ -51,35 +91,9 @@ function statisticRender:drawHitQuads(x, y, type, border)
             g.setColor{1, 1, 1, 0.5}
             g.circle("line", x + rect_size * ((k - self.level) - 1) + rect_size / 2, y + rect_size / 2, radius)
         end
-
-        if eq_arr[k] then
-            local linksNum = 0
-            print("k", k)
-            local to = k - 1 - self.level
-            print("to", to)
-            if to >= 1 then
-                for i = k - 1, to, -1 do
-                    print(i)
-                    print("linksArr", inspect(linksArr))
-                    linksArr[i] = linksArr[i] + 1
-                    maxLinks = linksArr[i] > maxLinks and linksArr[i] or maxLinks
-                end
-                print("maxLinks", maxLinks)
-            end
-
-            local delta = 15 * maxLinks
-            g.setColor{0, 0, 1}
-            local p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
-            local p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
-            g.line(p1x, p1y, p1x, p1y + delta)
-            g.line(p2x, p2y, p2x, p2y + delta)
-            g.line(p1x, p1y + delta, p2x, p2y + delta)
-        end
     end
 
-    -- этот код должен быть в вызывающей функции
-    print("self:getHitQuadLineHeight()", self:getHitQuadLineHeight())
-    --return self:getHitQuadLineHeight() * maxLinks
+    local maxLinks = self:drawLinks(x, y, type)
     return self:getHitQuadLineHeight() + maxLinks * 10
 end
 
