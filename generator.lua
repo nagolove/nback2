@@ -1,6 +1,8 @@
 local clone = require "libs.lume".clone
 local inspect = require "libs.inspect"
 
+local logfile = io.open("log-generator.txt", "w")
+
 local function generate(sig_count, level, gen, cmp)
     local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
     local ratio = 5 
@@ -61,23 +63,23 @@ end
 
 local function makeEqArrays(signals, level)
     local ret = {
-        pos = make_hit_arr(signals.pos, level, function(a, b) return a[1] == b[1] and a[2] == b[2] end),
+        pos = make_hit_arr(signals.pos, level, function(a, b) return a.x == b.x and a.y == b.y end),
         sound = make_hit_arr(signals.sound, level, function(a, b) return a == b end),
         color = make_hit_arr(signals.color, level, function(a, b) return a == b end),
         form = make_hit_arr(signals.form, level, function(a, b) return a == b end),
     }
-    --print("makeEqArrays", inspect(ret))
     return ret
 end
 
-local function generateAll(sig_count, level, dim, soundsNum, map)
-    --print("generateAll", sig_count, level, dim, soundsNum)
+function generateAll(sig_count, level, dim, soundsNum, map)
+
     local colorArr = require "colorconstants":makeNamesArray()
 
     function genArrays(sig_count, level, dim, soundsNum)
         local signals = {}
 
-        print("--pos gen--")
+        logfile:write("--pos gen--\n")
+
         signals.pos = generate(sig_count, level,
             function() 
                 local result = {}
@@ -91,16 +93,17 @@ local function generateAll(sig_count, level, dim, soundsNum, map)
                     end
                 end
                 result.x, result.y = x, y
+                print("result", inspect(result))
                 return result
-                --return {math.random(1, dim - 1), 
-                               --math.random(1, dim - 1)} 
+                --return {math.random(1, dim - 1), math.random(1, dim - 1)} 
             end,
             function(a, b)
                 print("--------", inspect(b))
                 print("a.x, a.y, b.x, b.y", a.x, a.y, b.x, b.y, a.x == b.x and a.y == b.y)
                 return a.x == b.x and a.y == b.y
             end)
-        print("--pos gen--")
+
+        logfile:write("--pos gen--\n")
 
         --print("map", inspect(map))
         --print("pos", inspect(signals.pos))
@@ -155,8 +158,14 @@ local function generateAll(sig_count, level, dim, soundsNum, map)
         return signals
     end
 
-    --return balance(5)
-    return balance(1)
+    local result =  balance(1)
+
+    logfile:write("\n")
+    logfile:write(inspect(result))
+    logfile:write("\n")
+    logfile:close()
+
+    return result
 end
 
 return { 
