@@ -123,7 +123,7 @@ function signal:draw(xd, yd, type_, color)
     print("#hexfield", #self.hexfield)
     print("self.map", inspect(self.map))
     local currentHex = self.hexfield:get(xd, yd)
-    print("currentHex", inspect(currentHex))
+    --print("currentHex", inspect(currentHex))
 
     local border = 1
     local w, h = self.width - border * 2, self.width - border * 2
@@ -140,26 +140,18 @@ function signal:draw(xd, yd, type_, color)
 
     if currentHex and type(currentHex) == "table" then
 
-        --for i = 1, 10 do
-        do
-            g.setShader(fragmentCode)
-            safesend(fragmentCode, "iTime", love.timer.getTime())
-            safesend(fragmentCode, "iCount", self.iCount)
+        g.setShader(fragmentCode)
+        safesend(fragmentCode, "iTime", love.timer.getTime())
+        safesend(fragmentCode, "iCount", self.iCount)
 
-            local rad = math.floor(getHexPolygonWidth(self.hexfield[1]) / 2)
-            --g.circle("fill", currentHex.cx, currentHex.cy, rad)
-            --print("type_", type_)
-            --self[type_](self, x, y, w, h)
-            g.setShader()
+        local rad = math.floor(getHexPolygonWidth(self.hexfield[1]) / 2)
+        --g.circle("fill", currentHex.cx, currentHex.cy, rad)
+        --print("type_", type_)
+        --self[type_](self, x, y, w, h)
+        g.setShader()
 
-            local x, y = currentHex.cx - w / 2, currentHex.cy - h / 2
-            self[type_](self, x, y, w, h)
-        end
-
-        --g.draw(self.circleImage, self.imageQuad, currentHex.cx - currentHex.rad, 
-            --currentHex.cy - currentHex.rad)
-    else
-        print("currentHex", inspect(currentHex))
+        local x, y = currentHex.cx - w / 2, currentHex.cy - h / 2
+        self[type_](self, x, y, w, h)
     end
 
     g.setLineWidth(oldWidth)
