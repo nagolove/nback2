@@ -24,16 +24,13 @@ function statisticRender:drawLink(x, y, point1, point2)
     local rect_size = self.rect_size
     local eq_arr = self.signals.eq[type]
 
-    local p1x, p1y
-    local p2x, p2y
-
     local idx1, idx2 = point1[1], point2[1]
     local mode1, mode2 = point1[2], point1[2]
 
     local delta = 20
 
-    p1x, p1y = x + rect_size * (idx1 - 1) + rect_size / 2, y + rect_size / 2
-    p2x, p2y = x + rect_size * (idx2 - 1) + rect_size / 2, y + rect_size / 2
+    local p1x, p1y = x + rect_size * (idx1 - 1) + rect_size / 2, y + rect_size / 2
+    local p2x, p2y = x + rect_size * (idx2 - 1) + rect_size / 2, y + rect_size / 2
 
     g.line(p1x, p1y, p1x, p1y + delta)
     g.line(p2x, p2y, p2x, p2y + delta)
@@ -46,15 +43,60 @@ function statisticRender:drawLinks(x, y, type)
 
     local maxLinks = 1
     -- рисую "скобки" под квадратиками, соединяющие точки сигналов и ответов
-    for k, v in pairs(self.pressed[type]) do
+    local pressed = self.pressed[type]
+
+    local points = {}
+    for k, v in pairs(pressed) do
+        points[k] = {}
+    end
+
+    for k, v in pairs(pressed) do
         if eq_arr[k] then -- индекс правильного нажатия
             local delta = 15 * maxLinks
             g.setColor{0, 0, 1}
             self:drawLink(x, y, {k - self.level}, {k})
+
+            local rightIndex = k + self.level
+            if rightIndex <= #pressed then
+                if eq_arr[rightIndex] then
+                end
+            end
+
+            --self:drawLink(x, y, {k, "right"}, {})
+            points[k] = { 
+                {k - self.level, "left"},
+                {k, "right"}
+            }
         end
     end
 
+    print("points", inspect(points))
+
     return maxLinks
+end
+
+function statisticRender:drawBox(x, y, k, border)
+    local rect_size = self.rect_size
+    g.setColor(pallete.field)
+    g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size) 
+    g.setColor(pallete.inactive)
+    g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+end
+
+function statisticRender:drawHitBox(x, y, k, border)
+    local rect_size = self.rect_size
+    g.setColor(pallete.hit_color)
+    g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+end
+
+function statisticRender:drawHitCirclesPair(x, y, k)
+    local rect_size = self.rect_size
+    local radius = 4
+    g.setColor{0, 0, 0}
+    g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
+    -- кружок на место предудущего сигнала
+    g.setColor{1, 1, 1, 0.5}
+    g.circle("line", x + rect_size * ((k - self.level) - 1) + rect_size / 2, y + rect_size / 2, radius)
 end
 
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
@@ -64,25 +106,16 @@ function statisticRender:drawHitQuads(x, y, type, border)
     local eq_arr = self.signals.eq[type]
 
     for k, v in pairs(self.pressed[type]) do
-        g.setColor(pallete.field)
-        g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size) 
-        g.setColor(pallete.inactive)
-        g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+        self:drawBox(x, y, k, border)
 
         -- отмеченная игроком позиция
         if v then
-            g.setColor(pallete.hit_color)
-            g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
+            self:drawHitBox(x, y, k, border)
         end
 
         -- правильная позиция нажатия
         if eq_arr[k] then
-            local radius = 4
-            g.setColor{0, 0, 0}
-            g.circle("fill", x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2, radius)
-            -- кружок на место предудущего сигнала
-            g.setColor{1, 1, 1, 0.5}
-            g.circle("line", x + rect_size * ((k - self.level) - 1) + rect_size / 2, y + rect_size / 2, radius)
+            self:drawHitCirclesPair(x, y, k)
         end
     end
 
