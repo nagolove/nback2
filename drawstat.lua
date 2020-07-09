@@ -12,76 +12,45 @@ function statisticRender:getHitQuadLineHeight()
     return self.rect_size + 12
 end
 
-function statisticRender:drawLinks(x, y, type)
+-- drawLinks({ idx, "left" }, { idx, "right" })
+function statisticRender:drawLink(x, y, point1, point2)
+    assert(type(point1 == "table"))
+    assert(type(point2 == "table"))
+    --assert(type(point1[1]) == "number" and type(point1[2]) == "string")
+    --assert(type(point2[1]) == "number" and type(point2[2]) == "string")
+    --assert(point1[2] == "right" or point1[2] == "left")
+    --assert(point2[2] == "right" or point2[2] == "left")
+
     local rect_size = self.rect_size
     local eq_arr = self.signals.eq[type]
 
-    local linksArr = {} -- количество "скобок" под полоской с квадратиками
-    local linePointsArr = {} -- сколько линий выходит из квадратика(0, 1, 2)
+    local p1x, p1y
+    local p2x, p2y
 
-    for i = 1, #self.pressed[type] do
-        table.insert(linksArr, 0)
-        table.insert(linePointsArr, 0)
-    end
+    local idx1, idx2 = point1[1], point2[1]
+    local mode1, mode2 = point1[2], point1[2]
 
-    for k, v in pairs(self.pressed[type]) do
-        -- сделать предрасчет тута
-        if eq_arr[k] then
-            linePointsArr[k] = linePointsArr[k] + 1
-            if k - self.level >= 1 then -- наверное лишнее условие
-                linePointsArr[k - self.level] = linePointsArr[k - self.level] + 1
-            end
-        end
-    end
+    local delta = 20
 
-    print("linePointsArr", inspect(linePointsArr))
+    p1x, p1y = x + rect_size * (idx1 - 1) + rect_size / 2, y + rect_size / 2
+    p2x, p2y = x + rect_size * (idx2 - 1) + rect_size / 2, y + rect_size / 2
+
+    g.line(p1x, p1y, p1x, p1y + delta)
+    g.line(p2x, p2y, p2x, p2y + delta)
+    g.line(p1x, p1y + delta, p2x, p2y + delta)
+end
+
+function statisticRender:drawLinks(x, y, type)
+    local rect_size = self.rect_size
+    local eq_arr = self.signals.eq[type]
 
     local maxLinks = 1
     -- рисую "скобки" под квадратиками, соединяющие точки сигналов и ответов
     for k, v in pairs(self.pressed[type]) do
         if eq_arr[k] then -- индекс правильного нажатия
-            local linksNum = 0
-            print("k", k)
-            local to = k - 1 - self.level
-            print("to", to)
-            if to >= 1 then
-                for i = k - 1, to, -1 do
-                    print(i)
-                    print("linksArr", inspect(linksArr))
-                    linksArr[i] = linksArr[i] + 1
-                    maxLinks = linksArr[i] > maxLinks and linksArr[i] or maxLinks
-                end
-                print("maxLinks", maxLinks)
-            end
-
             local delta = 15 * maxLinks
             g.setColor{0, 0, 1}
-
-            local p1x, p1y
-            local p2x, p2y
-
-            local linkDelta = 4
-
-            if linePointsArr[k] >= 2 then
-                p1x, p1y = x + rect_size * (k - 1) + rect_size / 2 - linkDelta, y + rect_size / 2
-            else
-                p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
-            end
-
-            if linePointsArr[k - self.level] >= 2 then
-                p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2 + linkDelta, y + rect_size / 2
-            else
-                p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
-            end
-
-            --p1x, p1y = x + rect_size * (k - 1) + rect_size / 2, y + rect_size / 2
-            --p2x, p2y = x + rect_size * (k - self.level - 1) + rect_size / 2, y + rect_size / 2
-
-            g.line(p1x, p1y, p1x, p1y + delta)
-            g.line(p2x, p2y, p2x, p2y + delta)
-            g.line(p1x, p1y + delta, p2x, p2y + delta)
-
-            linePointsArr[k - 1] = linePointsArr[k - 1] + 1
+            self:drawLink(x, y, {k - self.level}, {k})
         end
     end
 
