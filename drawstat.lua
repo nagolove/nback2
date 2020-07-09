@@ -13,6 +13,7 @@ function statisticRender:getHitQuadLineHeight()
 end
 
 -- drawLinks({ idx, "left" }, { idx, "right" })
+-- drawLinks({ idx, "center" }, { idx, "right" })
 function statisticRender:drawLink(x, y, point1, point2)
     assert(type(point1 == "table"))
     assert(type(point2 == "table"))
@@ -32,6 +33,7 @@ function statisticRender:drawLink(x, y, point1, point2)
     local p1x, p1y = x + rect_size * (idx1 - 1) + rect_size / 2, y + rect_size / 2
     local p2x, p2y = x + rect_size * (idx2 - 1) + rect_size / 2, y + rect_size / 2
 
+    g.setColor{0, 0, 1}
     g.line(p1x, p1y, p1x, p1y + delta)
     g.line(p2x, p2y, p2x, p2y + delta)
     g.line(p1x, p1y + delta, p2x, p2y + delta)
@@ -52,25 +54,27 @@ function statisticRender:drawLinks(x, y, type)
 
     for k, v in pairs(pressed) do
         if eq_arr[k] then -- индекс правильного нажатия
-            local delta = 15 * maxLinks
-            g.setColor{0, 0, 1}
-            self:drawLink(x, y, {k - self.level}, {k})
-
-            local rightIndex = k + self.level
-            if rightIndex <= #pressed then
-                if eq_arr[rightIndex] then
-                end
-            end
-
-            --self:drawLink(x, y, {k, "right"}, {})
             points[k] = { 
                 {k - self.level, "left"},
                 {k, "right"}
             }
+            local rightIndex = k + self.level
+            if rightIndex <= #pressed and eq_arr[rightIndex] then
+                points[k][2][2] = "left"
+            end
+
+            --self:drawLink(x, y, {k, "right"}, {})
+            --self:drawLink(x, y, {k - self.level}, {k})
         end
     end
 
     print("points", inspect(points))
+
+    for k, v in pairs(points) do
+        if v[1] and v[2] then
+            self:drawLink(x, y, v[1], v[2])
+        end
+    end
 
     return maxLinks
 end
