@@ -29,13 +29,28 @@ function statisticRender:drawLink(x, y, point1, point2)
     local mode1, mode2 = point1[2], point1[2]
 
     local delta = 20
+    local diff = 4
 
     local p1x, p1y = x + rect_size * (idx1 - 1) + rect_size / 2, y + rect_size / 2
     local p2x, p2y = x + rect_size * (idx2 - 1) + rect_size / 2, y + rect_size / 2
 
+    if point1[2] == "left" then
+        p1x = p1x - diff
+    elseif point1[2] == "center" then
+    elseif point1[2] == "right" then
+        p1x = p1x + diff
+    end
+
+    if point2[2] == "left" then
+        p2x = p2x - diff
+    elseif point2[2] == "center" then
+    elseif point2[2] == "right" then
+        p2x = p2x + diff
+    end
+
     g.setColor{0, 0, 1}
-    g.line(p1x, p1y, p1x, p1y + delta)
     g.line(p2x, p2y, p2x, p2y + delta)
+    g.line(p1x, p1y, p1x, p1y + delta)
     g.line(p1x, p1y + delta, p2x, p2y + delta)
 end
 
@@ -54,10 +69,17 @@ function statisticRender:drawLinks(x, y, type)
 
     for k, v in pairs(pressed) do
         if eq_arr[k] then -- индекс правильного нажатия
-            points[k] = { 
-                {k - self.level, "left"},
-                {k, "right"}
-            }
+            if not points[k][1] then
+                points[k] = { {}, {} }
+            end
+            points[k][1][1] = k - self.level
+            points[k][2][1] = k
+
+            local leftIndex = k - self.level
+            if leftIndex >= 1 and eq_arr[leftIndex] then
+                points[k][1][2] = "right"
+            end
+
             local rightIndex = k + self.level
             if rightIndex <= #pressed and eq_arr[rightIndex] then
                 points[k][2][2] = "left"
