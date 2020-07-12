@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-packagename="nback-xx.zip"
+packagename="nback2.zip"
 
 case "$(uname)" in
 Linux*)     
@@ -13,7 +13,7 @@ Linux*)
 MINGW*)     
     echo "MinGW"
     # изображения из gooi/imgs/* все равно попадают в список файлов.
-    find . -name "*.lua" -or -name "*.wav" -or -name "*.ttf" -or -name "*.png" ! -path "gooi/imgs/*" ! -name "correct-filelist.lua" > files.txt
+    find . -name "*.lua" -or -name "*.glsl" -or -name "*.wav" -or -name "*.ttf" -or -name "*.png" ! -path "gooi/imgs/*" ! -name "correct-filelist.lua" > files.txt
     ./correct-filelist.lua files.txt
     /c/Program\ Files/7-Zip/7z.exe a $packagename @files_.txt
     scp $packagename dekar@visualdoj.ru:/home/dekar/www/packages

@@ -2,7 +2,7 @@ require "common"
 local clone = require "libs.lume".clone
 local inspect = require "libs.inspect"
 
-local logfile = io.open("log-generator.txt", "w")
+local logfile = love.filesystem.newFile("log-generator.txt", "w")
 
 local function generate(sig_count, level, gen, cmp)
     local ret = {} -- массив сигналов, который будет сгенерирован и возвращен
