@@ -104,18 +104,18 @@ function List:mousemoved(x, y, dx, dy)
 end
 
 function List:touchpressed(id, x, y)
-    print(":touchpressed(id, x, y)")
+    --print(":touchpressed(id, x, y)")
     self.touches[id] = {x = x, y = y}
 end
 
 function List:touchreleased(id, x, y)
-    print(":touchreleased(id, x, y)")
+    --print(":touchreleased(id, x, y)")
     self.touches[id] = nil
 end
 
 function List:touchmoved(id, x, y, dx, dy)
     self.touches[id] = {x = x, y = y, dx = dx, dy = dy}
-    print("touchmoved", id, x, y, dx, dy)
+    --print("touchmoved", id, x, y, dx, dy)
 end
 
 function List:wheelmoved(x, y)

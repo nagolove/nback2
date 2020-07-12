@@ -84,7 +84,7 @@ function nback:start()
     self.pause = false
     self.signals = generator.generateAll(self.sig_count, self.level, self.dim, 
         #self.signal.sounds, self.map)
-    print("self.signals", inspect(self.signals))
+    --print("self.signals", inspect(self.signals))
     self.current_sig = 1
     self.timestamp = love.timer.getTime() - self.pause_time
     self.show_statistic = false
@@ -97,7 +97,7 @@ function nback:start()
         form = makeFalseArray(signalsCount),
         sound = makeFalseArray(signalsCount),
     }
-    print("self.pressed", inspect(self.pressed))
+    --print("self.pressed", inspect(self.pressed))
 
     -- сигнал, на котором остановилась партия. Используется для рисовки
     -- вертикальной временной черты на графике нажатий
@@ -273,9 +273,9 @@ end
 
 function nback:drawMapIndices()
     local currentHex = self.hexField:get(1, 1)
-    print(inspect(currentHex))
+    --print(inspect(currentHex))
     local currentHex = self.hexField:get(2, 1)
-    print(inspect(currentHex))
+    --print(inspect(currentHex))
 
     g.setColor{1, 0, 0}
     for k, v in pairs(self.hexField) do

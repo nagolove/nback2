@@ -8,27 +8,6 @@ local conbuf = require "kons".new(0, 0)
 local signal = {}
 signal.__index = signal
 
---[[
----------------------------------------
-]]
-local canvas = g.newCanvas(128, 128)
-g.setCanvas(canvas)
-local maxrad = 128 / 2
-for rad = maxrad, 0, -0.1 do
-    local alpha = maxrad - rad / maxrad
-    --g.setColor{0, 0, 0, 0.01}
-    g.setColor{0, 0, 0, 0.01}
-    print(alpha)
-    g.circle("fill", 128 / 2, 128 / 2, rad)
-end
-g.setColor{1, 0, 1}
---g.rectangle("fill", 10, 10, 128 - 10, 128 - 10)
-g.setCanvas()
-canvas:newImageData():encode("png", "circle.png")
---[[
----------------------------------------
-]]
-
 local fragmentCode = g.newShader("vertex1.glsl")
 
 --[[
@@ -56,6 +35,8 @@ function signal.new(hexfield, startcx, startcy, map, width, soundPack)
         borderColor = {0, 0, 0},
         borderLineWidth = 3,
     }
+
+    print("hex", inspect(self.hexfield[1]))
 
     wavePath = "sfx/" .. soundPack
     for k, v in pairs(love.filesystem.getDirectoryItems(wavePath)) do

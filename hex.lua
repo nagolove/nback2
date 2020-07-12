@@ -154,7 +154,7 @@ function newHexField(startcx, startcy, map,rad, color)
 
     function Handler:get(x, y)
         --print(inspect(Handler))
-        print("x, y", x, y, Handler.map[x][y] or nil)
+        --print("x, y", x, y, Handler.map[x][y] or nil)
         return Handler.map[x][y] or nil
     end
 

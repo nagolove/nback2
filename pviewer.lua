@@ -103,7 +103,7 @@ function pviewer:enter()
     local tmp, size = love.filesystem.read(self.save_name)
     if tmp ~= nil then
         ok, self.data = serpent.load(tmp)
-        print("pviewer.data", inspect(self.data))
+        --print("pviewer.data", inspect(self.data))
         if not ok then 
             -- эту строчку с падением при ошибке заменить на показ пустой
             -- статистики.

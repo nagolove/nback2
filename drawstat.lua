@@ -90,7 +90,7 @@ function statisticRender:drawLinks(x, y, type)
         end
     end
 
-    print("points", inspect(points))
+    --print("points", inspect(points))
 
     for k, v in pairs(points) do
         if v[1] and v[2] then

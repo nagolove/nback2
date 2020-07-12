@@ -297,7 +297,7 @@ function Background:update(dt)
       -- поиск индексов нового блока по новым рассчитанным индексам
       local x, y = self:findDirection(xidx, yidx)
       --print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
-      print(string.format("xidx = %d, yidx = %d", xidx, yidx))
+      --print(string.format("xidx = %d, yidx = %d", xidx, yidx))
       --print(string.format("xidx - x = %d, yidx - y = %d", 
       --xidx - x, yidx - y))
 

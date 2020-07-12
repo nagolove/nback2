@@ -94,13 +94,13 @@ function generateAll(sig_count, level, dim, soundsNum, map)
                     end
                 end
                 result.x, result.y = x, y
-                print("result", inspect(result))
+                --print("result", inspect(result))
                 return result
                 --return {math.random(1, dim - 1), math.random(1, dim - 1)} 
             end,
             function(a, b)
-                print("--------", inspect(b))
-                print("a.x, a.y, b.x, b.y", a.x, a.y, b.x, b.y, a.x == b.x and a.y == b.y)
+                --print("--------", inspect(b))
+                --print("a.x, a.y, b.x, b.y", a.x, a.y, b.x, b.y, a.x == b.x and a.y == b.y)
                 return a.x == b.x and a.y == b.y
             end)
 
