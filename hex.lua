@@ -23,6 +23,44 @@ function Hex:getVertices()
     return vertices
 end
 
+function Hex:getDebugCanvas()
+    local polyW = getHexPolygonWidth(self)
+    --local canvas = gr.newCanvas(getHexPolygonWidth(self), 
+        --getHexPolygonHeight(self))
+    local t, w, h = self:getAABB()
+    local screenW, screenH = gr.getDimensions()
+    --[[
+       [local snap = 30
+       [t[1] = t[1] - snap
+       [t[2] = t[2] - snap
+       [t[3] = t[3] + snap
+       [t[4] = t[4] + snap
+       ]]
+    local canvas = gr.newCanvas(gr.getDimensions())
+    --local canvas = gr.newCanvas(w, h)
+
+    gr.setCanvas(canvas)
+    gr.clear(0, 0, 1)
+
+    gr.push()
+    --gr.scale(polyW / screenW, polyW / screenW)
+
+    local vi = 1
+    for i = 1, #self - 2, 2 do
+        gr.setColor{1, 1, 1, 1}
+        gr.print(string.format("(%d)", vi), self[i], self[i+1])
+        vi = vi + 1
+    end
+    gr.line(t[1], t[2], t[3], t[4])
+    gr.setColor{1, 0, 0}
+    gr.rectangle("line", t[1], t[2], w, h)
+
+    gr.pop()
+    gr.setCanvas()
+
+    return canvas
+end
+
 function Hex:setMesh(mesh, endindex)
     self.mesh = mesh
     self.endindex = endindex
@@ -40,6 +78,9 @@ function Hex:setColor(color)
     end
 end
 
+-- [[
+-- return {x1, y1, x2, y2 }, w * 2, h * 2
+-- ]]
 function Hex:getAABB()
     local w, h = getHexPolygonWidth(self) / 2, getHexPolygonHeight(self) / 2
     return {self.cx - w, self.cy - h, self.cx + w, self.cx + h}, w * 2, h * 2
