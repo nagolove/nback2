@@ -2,6 +2,7 @@
 local inspect = require "libs.inspect"
 local serpent = require "serpent"
 local vector = require "libs.vector"
+require "hex"
 
 local conbuf = require "kons".new(0, 0)
 
@@ -36,8 +37,6 @@ function signal.new(hexfield, startcx, startcy, map, width, soundPack)
         borderLineWidth = 3,
     }
 
-    print("hex", inspect(self.hexfield[1]))
-
     wavePath = "sfx/" .. soundPack
     for k, v in pairs(love.filesystem.getDirectoryItems(wavePath)) do
         table.insert(self.sounds, love.audio.newSource(wavePath .. "/" .. v, 
@@ -45,6 +44,9 @@ function signal.new(hexfield, startcx, startcy, map, width, soundPack)
     end
 
     self = setmetatable(self, signal)
+
+    self:exampleFilling()
+
     self:setCorner(0, 0)
     self:resize(self.width)
 
@@ -52,6 +54,52 @@ function signal.new(hexfield, startcx, startcy, map, width, soundPack)
     self:drawBorders2Canvas()
 
     return self
+end
+
+function signal:exampleFilling()
+    local exampleHex = self.hexfield[1]
+    self.exampleCanvas = g.newCanvas(g.getDimensions())
+    --self.exampleCanvas = g.newCanvas(getHexPolygonWidth(exampleHex), 
+        --getHexPolygonHeight(exampleHex))
+    print("exampleCanvas", self.exampleCanvas:getWidth(), 
+        self.exampleCanvas:getHeight())
+
+    print("exampleHex", inspect(exampleHex))
+    print("#exampleHex", #exampleHex)
+
+    local x1, y1 = exampleHex[11], exampleHex[12]
+    local x2, y2 = exampleHex[5], exampleHex[6]
+    local dup_x1, dup_y1, dup_x2, dup_y2 = x1, y1, x2, y2
+    local snap = 10
+
+    local prevWidth = g.getLineWidth()
+    g.setCanvas(self.exampleCanvas)
+    
+    for i = 1, 10 do
+        g.line(dup_x1, dup_y1, dup_x2, dup_y2)
+        dup_x1, dup_y1 = dup_x1 - snap, dup_y1 - snap
+        dup_x2, dup_y2 = dup_x2 - snap, dup_y2 - snap
+
+        g.line(x1, y1, x2, y2)
+        x1, y1 = x1 + snap, y1 + snap
+        x2, y2 = x2 + snap, y2 + snap
+    end
+
+    x1, y1, x2, y2 = exampleHex[3], exampleHex[4], exampleHex[9], exampleHex[10]
+    dup_x1, dup_y1, dup_x2, dup_y2 = x1, y1, x2, y2
+
+    for i = 1, 10 do
+        g.line(dup_x1, dup_y1, dup_x2, dup_y2)
+        dup_x1, dup_y1 = dup_x1 + snap, dup_y1 - snap
+        dup_x2, dup_y2 = dup_x2 + snap, dup_y2 - snap
+
+        g.line(x1, y1, x2, y2)
+        x1, y1 = x1 - snap, y1 + snap
+        x2, y2 = x2 - snap, y2 + snap
+    end
+
+    g.setCanvas()
+    g.setLineWidth(prevWidth)
 end
 
 -- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
@@ -128,6 +176,9 @@ function signal:draw(xd, yd, type_, color)
     end
 
     g.setLineWidth(oldWidth)
+
+    g.setColor{1, 1, 1}
+    g.draw(self.exampleCanvas, 0, 0)
 
     --g.setColor{1, 1, 1}
     --g.draw(self.figureCanvas, 0, 0)
