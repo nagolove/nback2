@@ -59,13 +59,6 @@ end
 function signal:exampleFilling()
     local exampleHex = self.hexfield[1]
     self.exampleCanvas = g.newCanvas(g.getDimensions())
-    --self.exampleCanvas = g.newCanvas(getHexPolygonWidth(exampleHex), 
-        --getHexPolygonHeight(exampleHex))
-    print("exampleCanvas", self.exampleCanvas:getWidth(), 
-        self.exampleCanvas:getHeight())
-
-    print("exampleHex", inspect(exampleHex))
-    print("#exampleHex", #exampleHex)
 
     local x1, y1 = exampleHex[11], exampleHex[12]
     local x2, y2 = exampleHex[5], exampleHex[6]
@@ -73,8 +66,14 @@ function signal:exampleFilling()
     local snap = 10
 
     local prevWidth = g.getLineWidth()
-    g.setCanvas(self.exampleCanvas)
-    
+    g.setCanvas({self.exampleCanvas, stencil=true})
+
+    g.stencil(function()
+        g.polygon("fill", exampleHex)
+    end, "invert", 1)
+
+    g.setStencilTest("greater", 1)
+
     for i = 1, 10 do
         g.line(dup_x1, dup_y1, dup_x2, dup_y2)
         dup_x1, dup_y1 = dup_x1 - snap, dup_y1 - snap
@@ -98,6 +97,7 @@ function signal:exampleFilling()
         x2, y2 = x2 - snap, y2 + snap
     end
 
+    g.setStencilTest()
     g.setCanvas()
     g.setLineWidth(prevWidth)
 end
