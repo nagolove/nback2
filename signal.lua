@@ -15,6 +15,7 @@ local fragmentCode = g.newShader("vertex1.glsl")
 -- Типы сигналов и их порядок в канвасах слева на право:
 -- quad, circle, rhombus, trup, trdown, trupdown
 --]]
+local types = {"quad", "circle", "rhombus", "trup", "trdown", "trupdown"}
 
 -- width - ширина ячейки для фигурки
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
@@ -45,14 +46,10 @@ function signal.new(hexfield, startcx, startcy, map, width, soundPack)
 
     self = setmetatable(self, signal)
 
-    self:exampleFilling()
+    --self:exampleFilling()
 
     self:setCorner(0, 0)
     self:resize(self.width)
-
-    self:drawFigures2Canvas()
-    self:drawBorders2Canvas()
-
     return self
 end
 
@@ -110,21 +107,17 @@ end
 
 function signal:resize(width)
     self.width = width
+
     self.canvas = g.newCanvas(width, width * 6, {msaa = 2})
-    if not self.canvas then
-        error("Could'not create Canvas for signal rendering.")
+    self.canvases = {}
+    for i = 1, 6 do
+        table.insert(self.canvases, g.newCanvas(width, width, {msaa = 2}))
     end
 
-    -- узнай как отражается режим сглаживания при запуске на телефоне
-    self.figureCanvas = g.newCanvas(width, width * 6, {msaa = 2})
-    self.borderCanvas = g.newCanvas(width, width * 6, {msaa = 2})
-
-    if not self.figureCanvas or not self.borderCanvas then
-        error("Could'not create Canvases for signal rendering.")
-    end
+    self:drawFigures2Canvas()
 end
 
-function signal:drawFigures2Canvas()
+function signal:draw2Canvas(index)
     local xd, yd = 1, 1
     local border = 5
     local w, h = self.width - border * 2, self.width - border * 2
@@ -132,13 +125,19 @@ function signal:drawFigures2Canvas()
     local y = self.y0 + yd * self.width + border
 
     g.setColor{1, 1, 1}
-    g.setCanvas(self.figureCanvas)
-    local lx, by = self.figureCanvas:getDimensions()
-    g.line(0, 0, lx, by)
+    g.setCanvas(self.canvases[index])
+    local funcName = types[index] 
+    self[funcName](self, 0, 0, w, h)
     g.setCanvas()
+
+    self.canvases[index]:newImageData():encode("png", "signals/" .. funcName .. ".png")
 end
 
-function signal:drawBorders2Canvas()
+function signal:drawFigures2Canvas()
+    love.filesystem.createDirectory("signals")
+    for k, v in ipairs(types) do
+        self:draw2Canvas(k)
+    end
 end
 
 -- xd, yd - целочисленная позиция фигуры в матрице.
@@ -161,29 +160,31 @@ function signal:draw(xd, yd, type_, color)
 
     if currentHex and type(currentHex) == "table" then
 
-        g.setShader(fragmentCode)
-        safesend(fragmentCode, "iTime", love.timer.getTime())
-        safesend(fragmentCode, "iCount", self.iCount)
+        --g.setShader(fragmentCode)
+        --safesend(fragmentCode, "iTime", love.timer.getTime())
+        --safesend(fragmentCode, "iCount", self.iCount)
 
         local rad = math.floor(getHexPolygonWidth(self.hexfield[1]) / 2)
-        --g.circle("fill", currentHex.cx, currentHex.cy, rad)
-        --print("type_", type_)
-        --self[type_](self, x, y, w, h)
-        g.setShader()
+
+        --g.setShader()
+
+        local idx = 0
+        for k, v in pairs(types) do
+            if v == type_ then
+                idx = k
+                break
+            end
+        end
 
         local x, y = currentHex.cx - w / 2, currentHex.cy - h / 2
-        self[type_](self, x, y, w, h)
+        g.draw(self.canvases[idx], x, y)
     end
 
     g.setLineWidth(oldWidth)
 
     g.setColor{1, 1, 1}
-    g.draw(self.exampleCanvas, 0, 0)
+    --g.draw(self.exampleCanvas, 0, 0)
 
-    --g.setColor{1, 1, 1}
-    --g.draw(self.figureCanvas, 0, 0)
-    --local h = self.figureCanvas:getHeight()
-    --g.draw(self.borderCanvas, 0, h)
 end
 
 -- хорошая идея добавить проигрывание звука, но как ориентироваться в
@@ -195,17 +196,6 @@ function signal:play(index)
     --self.sounds[index]:play()
 end
 
-function signal:quad_internal(x, y, w, h)
-    local delta = 5
-    g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
-end
-
-function signal:quad_border_internal(x, y, w, h)
-    local delta = 5
-    g.setColor(self.borderColor)
-    g.rectangle("line", x + delta, y + delta, w - delta * 2, h - delta * 2)
-end
-
 function signal:quad(x, y, w, h)
     local delta = 5
     g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
@@ -213,48 +203,10 @@ function signal:quad(x, y, w, h)
     g.rectangle("line", x + delta, y + delta, w - delta * 2, h - delta * 2)
 end
 
-function signal:circle_internal(x, y, w, h)
-    g.circle("fill", x + w / 2, y + h / 2, w / 2.3)
-end
-
-function signal:circle_border_internal(x, y, w, h)
-    g.setColor(self.borderColor)
-    g.circle("line", x + w / 2, y + h / 2, w / 2.3)
-end
-
 function signal:circle(x, y, w, h)
     g.circle("fill", x + w / 2, y + h / 2, w / 2.3)
     g.setColor(self.borderColor)
     g.circle("line", x + w / 2, y + h / 2, w / 2.3)
-end
-
-function signal:trdown_internal(x, y, w, h)
-    local magic = 2.64
-    local tri = {}
-    local rad = w / 2
-    for i = 1, 3 do
-        local alpha = 2 * math.pi * i / 3
-        local sx = x + w / 2 + rad * math.sin(alpha)
-        local sy = y + h / magic + rad * math.cos(alpha)
-        tri[#tri + 1] = sx
-        tri[#tri + 1] = sy
-    end
-    g.polygon("fill", tri)
-end
-
-function signal:trdown_border_internal(x, y, w, h)
-    local magic = 2.64
-    local tri = {}
-    local rad = w / 2
-    for i = 1, 3 do
-        local alpha = 2 * math.pi * i / 3
-        local sx = x + w / 2 + rad * math.sin(alpha)
-        local sy = y + h / magic + rad * math.cos(alpha)
-        tri[#tri + 1] = sx
-        tri[#tri + 1] = sy
-    end
-    g.setColor(self.borderColor)
-    g.polygon("line", tri)
 end
 
 function signal:trdown(x, y, w, h)
@@ -269,35 +221,6 @@ function signal:trdown(x, y, w, h)
         tri[#tri + 1] = sy
     end
     g.polygon("fill", tri)
-    g.setColor(self.borderColor)
-    g.polygon("line", tri)
-end
-
-function signal:trup_internal(x, y, w, h)
-    local magic = 1.64
-    local tri = {}
-    local rad = w / 2
-    for i = 1, 3 do
-        local alpha = math.pi + 2 * math.pi * i / 3
-        local sx = x + w / 2 + rad * math.sin(alpha)
-        local sy = y + h / magic + rad * math.cos(alpha)
-        tri[#tri + 1] = sx
-        tri[#tri + 1] = sy
-    end
-    g.polygon("fill", tri)
-end
-
-function signal:trup_border_internal(x, y, w, h)
-    local magic = 1.64
-    local tri = {}
-    local rad = w / 2
-    for i = 1, 3 do
-        local alpha = math.pi + 2 * math.pi * i / 3
-        local sx = x + w / 2 + rad * math.sin(alpha)
-        local sy = y + h / magic + rad * math.cos(alpha)
-        tri[#tri + 1] = sx
-        tri[#tri + 1] = sy
-    end
     g.setColor(self.borderColor)
     g.polygon("line", tri)
 end
@@ -364,70 +287,7 @@ function signal:calculateIntersections(up, down)
     return points
 end
 
-function signal:trupdown_internal(x, y, w, h)
-    local tri_up, tri_down = {}, {}
-    local rad = w / 2
-    for i = 1, 3 do
-        local alpha = 2 * math.pi * i / 3
-        local sx = w / 2 + rad * math.sin(alpha)
-        local sy = h / 2 + rad * math.cos(alpha)
-        tri_up[#tri_up + 1] = sx
-        tri_up[#tri_up + 1] = sy
-        local alpha = math.pi + 2 * math.pi * i / 3
-        local sx = w / 2 + rad * math.sin(alpha)
-        local sy = h / 2 + rad * math.cos(alpha)
-        tri_down[#tri_down + 1] = sx
-        tri_down[#tri_down + 1] = sy
-    end
-
-    g.polygon("fill", tri_up)
-    g.polygon("fill", tri_down)
-end
-
-function signal:trupdown_border_internal(x, y, w, h)
-    local tri_up, tri_down = {}, {}
-    local rad = w / 2
-    for i = 1, 3 do
-        local alpha = 2 * math.pi * i / 3
-        local sx = w / 2 + rad * math.sin(alpha)
-        local sy = h / 2 + rad * math.cos(alpha)
-        tri_up[#tri_up + 1] = sx
-        tri_up[#tri_up + 1] = sy
-        local alpha = math.pi + 2 * math.pi * i / 3
-        local sx = w / 2 + rad * math.sin(alpha)
-        local sy = h / 2 + rad * math.cos(alpha)
-        tri_down[#tri_down + 1] = sx
-        tri_down[#tri_down + 1] = sy
-    end
-
-    local points = self:calculateIntersections(tri_up, tri_down)
-
-    local borderVertices = {
-        tri_up[1], tri_up[2],
-        points[1], points[2],
-        tri_down[3], tri_down[4],
-        points[3], points[4],
-        tri_up[5], tri_up[6],
-        points[5], points[6],
-        tri_down[1], tri_down[2],
-        points[7], points[8],
-        tri_up[3], tri_up[4],
-        points[9], points[10],
-        tri_down[5], tri_down[6],
-        points[11], points[12],
-        tri_up[1], tri_up[2],
-        tri_down[3], tri_down[4],
-    }
-
-    local oldcolor = {g.getColor()}
-    g.setColor(self.borderColor)
-    g.polygon("line", borderVertices)
-    g.setColor(oldcolor)
-end
-
 function signal:trupdown(x, y, w, h)
-    g.setCanvas(self.canvas)
-
     local tri_up, tri_down = {}, {}
     local rad = w / 2
     for i = 1, 3 do
@@ -447,9 +307,6 @@ function signal:trupdown(x, y, w, h)
     g.polygon("fill", tri_down)
 
     local points = self:calculateIntersections(tri_up, tri_down)
-
-    --[[print("#points", #points)]]
-    --[[print("points", inspect(points))]]
 
     local borderVertices = {
         tri_up[1], tri_up[2],
@@ -472,23 +329,6 @@ function signal:trupdown(x, y, w, h)
     g.setColor(self.borderColor)
     g.polygon("line", borderVertices)
     g.setColor(oldcolor)
-
-    g.setCanvas()
-    g.draw(self.canvas, x, y)
-end
-
-function signal:rhombus_internal(x, y, w, h)
-    local delta = 0
-    g.polygon("fill", {x + delta, y + h / 2, x + w / 2, y + h - delta,
-            x + w - delta, y + h / 2,
-            x + w / 2, y + delta})
-end
-
-function signal:rhombus_border_internal(x, y, w, h)
-    local delta = 0
-    g.polygon("line", {x + delta, y + h / 2, x + w / 2, y + h - delta,
-            x + w - delta, y + h / 2,
-            x + w / 2, y + delta})
 end
 
 function signal:rhombus(x, y, w, h)
