@@ -1,4 +1,5 @@
-﻿onAndroid = love.system.getOS() == "Android"
+﻿__DEBUG__ = false
+onAndroid = love.system.getOS() == "Android"
 useKeyboard = true
 preventiveFirstRun = true
 --preventiveFirstRun = false
@@ -97,7 +98,9 @@ function subInit()
 end
 
 function love.load(arg)
-    readSettings()
+    settings = readSettings()
+    print("SUUKA")
+    print(inspect(settings))
     loadLocales()
 
     print("arg", inspect(arg))

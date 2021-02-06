@@ -182,8 +182,8 @@ end
 
 -- map - 2d array
 function newHexField(startcx, startcy, map,rad, color)
-    print(inspect(map))
-    print(#map)
+    --print(inspect(map))
+    --print(#map)
     local xcount = #map
     local ycount = #map[1]
     assert(xcount == ycount)
@@ -283,7 +283,7 @@ function newHexField(startcx, startcy, map,rad, color)
     
     mesh:setVertices(meshData)
 
-    print("result", inspect(result))
+    --print("result", inspect(result))
     return result, mesh
 end
 

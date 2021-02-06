@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-packagename="nback2.zip"
+packagename="nback_hex.zip"
 
 case "$(uname)" in
 Linux*)     

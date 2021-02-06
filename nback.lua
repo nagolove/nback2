@@ -273,9 +273,7 @@ end
 
 function nback:drawMapIndices()
     local currentHex = self.hexField:get(1, 1)
-    --print(inspect(currentHex))
     local currentHex = self.hexField:get(2, 1)
-    --print(inspect(currentHex))
 
     g.setColor{1, 0, 0}
     for k, v in pairs(self.hexField) do
@@ -624,7 +622,9 @@ function nback:draw()
             --self:drawField()
 
             gr.draw(self.hexMesh)
-            self:drawMapIndices()
+            if __DEBUG__ then
+                self:drawMapIndices()
+            end
 
             self:drawActiveSignal()
             --self.processor:update()

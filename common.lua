@@ -149,6 +149,7 @@ function compareDates(now, date)
 end
 
 function getDefaultSettings()
+    print("getDefaultSettings")
     return {
         volume = 0.2,
         firstRun = true,
@@ -160,14 +161,14 @@ function readSettings()
 
     if data then
         ok, data = serpent.load(data)
-        if not ok then
+        if not data then
             data = getDefaultSettings()
         end
     else
         data = getDefaultSettings()
     end
 
-    settings = data
+    return data
 end
 
 function writeSettings()
