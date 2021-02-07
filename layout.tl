@@ -5,38 +5,53 @@ local inspect = require "inspect"
 --[[local ok, _  = pcall(function() inspect = require "inspect" end)]]
 --[[if not ok then inspect = function() return "" end end]]
 
-global type Layout = {}
-Layout.__index = Layout
+local type Table = record
+    x: number
+    y: number
+    w: number
+    h: number
+end
 
-function makeScreenTable()
+global type Layout = record
+    x: number
+    y: number
+    w: number
+    h: number
+end
+
+local Layout_mt: metatable<Layout> = {
+    __index = Layout
+}
+
+function makeScreenTable(): Layout
     return {x = 0, y = 0, w = lg.getWidth(), h = lg.getHeight()}
 end
 
-function assertHelper(tbl)
+function assertHelper(tbl: Layout)
     assert(tbl.x and tbl.y and tbl.w and tbl.h, 
         "not all fields are correct " .. inspect(tbl))
 end
 
-function checkHelper(tbl)
-    return tbl.x and tbl.y and tbl.w and tbl.h
+function checkHelper(tbl: Table): boolean
+    return (tbl.x and tbl.y and tbl.w and tbl.h) ~= nil
 end
 
-function Layout:new(x, y, w, h)
-    local self
+function Layout.new(x: number|Layout, y: number, w: number, h: number): Layout
+    local self: Layout
     if not x and not y and not w and not h then
         self = makeScreenTable()
     else
-        self = {x = x, y = y, w = w, h = h}
+        self = {x = x as number, y = y, w = w, h = h}
     end
     if type(x) == "table" then
-        assertHelper(x)
-        local tbl = x
+        assertHelper(x as Layout)
+        local tbl: Layout = x as Layout
         self = {x = tbl.x, y = tbl.y, w = tbl.w, h = tbl.h}
     end
-    return setmetatable(self, Layout)
+    return setmetatable(self, Layout_mt)
 end
 
-function assertVariadic(...)
+function assertVariadic(...: number)
     local sum = 0
     for i = 1, select("#", ...) do
         sum = sum + select(i, ...)
@@ -44,7 +59,8 @@ function assertVariadic(...)
     assert(math.abs(sum - 1) < 0.01)
 end
 
-function splith(tbl, ...)
+-- функция возвращает переменное количество параметров
+function splith(tbl: Layout, ...: number)
     assertVariadic(...)
     assertHelper(tbl)
     local subTbls = {}
@@ -54,7 +70,7 @@ function splith(tbl, ...)
         table.insert(subTbls, { x = tbl.x, y = lasty, w = tbl.w, h = currenth})
         lasty = lasty + currenth
     end
-    return unpack(subTbls)
+    return table.unpack(subTbls)
 end
 
 function assertAlign(alignMode)

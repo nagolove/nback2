@@ -1,4 +1,5 @@
 require "gooi.gooi"
+require "types"
 
 local inspect = require "libs.inspect"
 local serpent = require "serpent"
@@ -24,10 +25,6 @@ end
 
 function table.copy(t)
     return {unpack(t)}
-end
-
-function pointInRect(px, py, x, y, w, h)
-    return px > x and py > y and px < x + w and py < y + h
 end
 
 function safesend(shader, name, ...)

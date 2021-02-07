@@ -1,4 +1,5 @@
 require "love"
+require "types"
 love.filesystem.setRequirePath("?.lua;?/init.lua;scenes/nback2/?.lua")
 
 global __DEBUG__ = false
@@ -13,13 +14,15 @@ global preventiveFirstRun = true
 --local profi = require "ProFi"
 local lg = love.graphics
 local inspect = require "inspect"
-local pallete = require "pallete"
+--local pallete = require "pallete"
 --local splash = require "splash"
 --local timer = require "libs/Timer"()
 local timer = require "Timer"()
 
 global SETTINGS_FILENAME = "settings.lua"
 global SAVE_NAME = "nback-v0.4.lua"
+global settings: Settings
+
 local keyconfig = require "keyconfig"
 local i18n = require "i18n"
 local linesbuf = require "kons".new()
@@ -27,36 +30,22 @@ local cam = require "camera".new()
 local profiCam = require "camera".new()
 local tiledback = require "tiledbackground":new()
 
-fonts = {
-    help = {
-        font = lg.newFont("gfx/DejaVuSansMono.ttf", 15),
-        gooi = lg.newFont("gfx/DejaVuSansMono.ttf", 13),
-    },
-    profi = lg.newFont("gfx/DejaVuSansMono.ttf", 13),
-    drawstat = {
-        gooi = lg.newFont("gfx/DejaVuSansMono.ttf", 13),
-    },
-    pviewer = lg.newFont("gfx/DejaVuSansMono.ttf", 15),
-    nback = {
-        font = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
-        buttons = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 20),
-        central = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 42),
-        setupmenu = lg.newFont("gfx/DejaVuSansMono.ttf", 30),
-    },
-    languageSelector = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 25),
-    menu = love.graphics.newFont("gfx/DejaVuSansMono.ttf", 32),
-}
+local fonts = require "fonts"
 
 local screenMode = "win" -- or "fs"
-local to_resize = {}
+local type Resizable = record
+    resize: function(any, number, number)
+end
+--local to_resize: {any} = {}
+local to_resize: {Resizable} = {}
 
-function dispatchWindowResize(neww, newh)
-    for k, v in pairs(to_resize) do
+function dispatchWindowResize(neww: number, newh: number)
+    for _, v in ipairs(to_resize) do
         if v and v.resize then v:resize(neww, newh) end
     end
 end
 
-function love.quit()
+local function quit()
     settings.firstRun = false
     writeSettings()
 end
@@ -64,8 +53,8 @@ end
 function loadLocales()
     local files = love.filesystem.getDirectoryItems("locales")
     print("locale files", inspect(files))
-    for _, v in pairs(files) do 
-        i18n.loadFile("locales/" .. v, function(path)
+    for _, v in ipairs(files) do 
+        i18n.loadFile("locales/" .. v, function(path: string): any
             local chunk, errmsg = love.filesystem.load(path)
             if not chunk then
                 error(errmsg)
@@ -75,9 +64,52 @@ function loadLocales()
     end
 end
 
-function setupLocale(locale)
+function setupLocale(locale: string)
     print("setupLocale", locale)
     i18n.setLocale(locale)
+end
+
+function bindKeys()
+    local kc = keyconfig
+
+    kc.bindKeyPressed("linesbufftoggle", {"2"}, function()
+        linesbuf.show = not linesbuf.show 
+    end, "show or hide debug output")
+
+    -- XXX сломано
+    --kc.bindKeyPressed("startprofi", {"9"}, function()
+        --startProfiling()
+        --linesbuf:push(1, "profiler started.")
+    --end, "start program profiling.")
+
+    --kc.bindKeyPressed("stopprofi", {"0"}, function()
+        --local time = stopProfiling()
+        --linesbuf:push(1, "profiler stoped. gathered for %d seconds.", time)
+    --end, "stop program profiling.")
+
+    --kc.bindKeyPressed("dbg", {"d", "lctrl"}, function()
+        --debug.debug()
+    --end, "Start debugger.")
+
+    --kc.bindKeyPressed("savehistory", {"s", "lctrl"}, function()
+        --nback:save_to_history()
+    --end, "save statistic file in history file.")
+
+    --kc.bindKeyPressed("changescreenmode", {"return", "lalt"}, function()
+        ---- код дерьмовый, но работает
+        --if screenMode == "fs" then
+            --love.window.setMode(1024, 768, {fullscreen = false}) screenMode = "win"
+            --dispatchWindowResize(love.graphics.getDimensions())
+        --else
+            --love.window.setMode(0, 0, {fullscreen = true, fullscreentype = "exclusive"})
+            --screenMode = "fs"
+            --dispatchWindowResize(love.graphics.getDimensions())
+        --end
+    --end, "Turn to fullscreen or windowed mode.")
+
+    --kc.bindKeyPressed("screenshot", {"f12"}, function()
+        --make_screenshot()
+    --end, "Save screenshot in data folder.")
 end
 
 function subInit()
@@ -208,49 +240,7 @@ function startProfiling()
     profiStartTime = love.timer.getTime()
 end
 
-function bindKeys()
-    local kc = keyconfig
-
-    kc.bindKeyPressed("linesbufftoggle", {"2"}, function()
-        linesbuf.show = not linesbuf.show 
-    end, "show or hide debug output")
-
-    kc.bindKeyPressed("startprofi", {"9"}, function()
-        startProfiling()
-        linesbuf:push(1, "profiler started.")
-    end, "start program profiling.")
-
-    kc.bindKeyPressed("stopprofi", {"0"}, function()
-        local time = stopProfiling()
-        linesbuf:push(1, "profiler stoped. gathered for %d seconds.", time)
-    end, "stop program profiling.")
-
-    kc.bindKeyPressed("dbg", {"d", "lctrl"}, function()
-        debug.debug()
-    end, "Start debugger.")
-
-    kc.bindKeyPressed("savehistory", {"s", "lctrl"}, function()
-        nback:save_to_history()
-    end, "save statistic file in history file.")
-
-    kc.bindKeyPressed("changescreenmode", {"return", "lalt"}, function()
-        -- код дерьмовый, но работает
-        if screenMode == "fs" then
-            love.window.setMode(1024, 768, {fullscreen = false}) screenMode = "win"
-            dispatchWindowResize(love.graphics.getDimensions())
-        else
-            love.window.setMode(0, 0, {fullscreen = true, fullscreentype = "exclusive"})
-            screenMode = "fs"
-            dispatchWindowResize(love.graphics.getDimensions())
-        end
-    end, "Turn to fullscreen or windowed mode.")
-
-    kc.bindKeyPressed("screenshot", {"f12"}, function()
-        make_screenshot()
-    end, "Save screenshot in data folder.")
-end
-
-function love.keypressed(_, scancode)
+local function keypressed(scancode: string)
     --if onAndroid then return end
     if languageSelector and languageSelector.keypressed then
         languageSelector:keypressed(_, scancode)
@@ -260,18 +250,11 @@ function love.keypressed(_, scancode)
     end
 end
 
-function love.keyreleased(key, scancode)
+local function keyreleased(key: string)
     menu:keyreleased(_, scancode)
 end
 
-fpsCounter = 0
-
-function countAverageFPS()
-    fpsSum = love.timer.getFPS()
-    fpsCounter = fpsCounter + 1
-end
-
-function love.draw()
+local function draw()
     if languageSelector then
         tiledback:draw()
         languageSelector:draw()
@@ -281,7 +264,6 @@ function love.draw()
         cam:detach()
         drawProfilingReport()
         --linesbuf:pushi("average FPS for 30 seconds")
-        countAverageFPS()
     end
     linesbuf:pushi("FPS %d", love.timer.getFPS())
     linesbuf:draw()
@@ -354,6 +336,7 @@ return {
     drawui = drawui,
     update = update,
     keypressed = keypressed,
+    keyreleased = keyreleased,
     mousemoved = mousemoved,
     wheelmoved = wheelmoved
 }

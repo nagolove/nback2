@@ -1,5 +1,9 @@
-local type Splash = record
-    metamethod __call: function(Splash): Splash
+global type LibSplash = record
+    metamethod __call: function(LibSplash): LibSplash
+
+    skip: function()
+    draw: function()
+    update: function(number)
 end
 
-return Splash
+return LibSplash
