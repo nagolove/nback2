@@ -30,6 +30,13 @@ global type Signals = record
         y: number
     end
 
+    enum EqKeys
+        "color"
+        "form"
+        "pos"
+        "sound"
+    end
+
     record Eq
         color: {boolean}
         form: {boolean}
