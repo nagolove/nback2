@@ -5,18 +5,19 @@ local inspect = require "inspect"
 --[[local ok, _  = pcall(function() inspect = require "inspect" end)]]
 --[[if not ok then inspect = function() return "" end end]]
 
-local type Table = record
-    x: number
-    y: number
-    w: number
-    h: number
-end
-
 global type Layout = record
+    enum AlignMode
+        "left"
+        "right"
+        "center"
+    end
     x: number
     y: number
     w: number
     h: number
+
+    top: Layout
+    bottom: Layout
 end
 
 local Layout_mt: metatable<Layout> = {
@@ -32,7 +33,8 @@ function assertHelper(tbl: Layout)
         "not all fields are correct " .. inspect(tbl))
 end
 
-function checkHelper(tbl: Table): boolean
+-- возвращает истину если поля переданной таблички соответствуют Layout
+function checkHelper(tbl: Layout): boolean
     return (tbl.x and tbl.y and tbl.w and tbl.h) ~= nil
 end
 
@@ -60,7 +62,7 @@ function assertVariadic(...: number)
 end
 
 -- функция возвращает переменное количество параметров
-function splith(tbl: Layout, ...: number)
+function splith(tbl: Layout, ...: number): Layout...
     assertVariadic(...)
     assertHelper(tbl)
     local subTbls = {}
@@ -73,13 +75,13 @@ function splith(tbl: Layout, ...: number)
     return table.unpack(subTbls)
 end
 
-function assertAlign(alignMode)
+function assertAlign(alignMode: Layout.AlignMode)
     assert(type(alignMode) == "string")
     assert(alignMode == "left" or alignMode == "right" 
         or alignMode == "center")
 end
 
-function splitv(tbl, ...)
+function splitv(tbl: Layout, ...: number): Layout...
     assertVariadic(...)
     assertHelper(tbl)
     local subTbls = {}
@@ -89,19 +91,20 @@ function splitv(tbl, ...)
         table.insert(subTbls, { x = lastx, y = tbl.y, w = currentw, h = tbl.h})
         lastx = lastx + currentw            
     end
-    return unpack(subTbls)
+    return table.unpack(subTbls)
 end
 
-function splitvAlign(tbl, alignMode, ...)
+function splitvAlign(tbl: Layout, alignMode: Layout.AlignMode, ...: number): Layout...
     assert(false, "Not yet implemented")
     assertHelper(tbl)
     assertAlign(alignMode)
     local subTbls = {}
     for i = 1, select("#", ...) do
     end
+    assert(false, "Not implemented")
 end
 
-function splithByNum(tbl, piecesNum)
+function splithByNum(tbl: Layout, piecesNum: number): Layout...
     assertHelper(tbl)
     local subTbls = {}
     local prevy, h = tbl.y, tbl.h / piecesNum
@@ -109,10 +112,10 @@ function splithByNum(tbl, piecesNum)
         table.insert(subTbls, {x = tbl.x, y = prevy, w = tbl.w, h = h})
         prevy = prevy + h
     end
-    return unpack(subTbls)
+    return table.unpack(subTbls)
 end
 
-function splitvByNum(tbl, piecesNum)
+function splitvByNum(tbl: Layout, piecesNum: number): Layout...
     assertHelper(tbl)
     local subTbls = {}
     local prevx, w = tbl.x, tbl.w / piecesNum
@@ -120,17 +123,17 @@ function splitvByNum(tbl, piecesNum)
         table.insert(subTbls, {x = prevx, y = tbl.y, w = w, h = tbl.h})
         prevx = prevx + w
     end
-    return unpack(subTbls)
+    return table.unpack(subTbls)
 end
 
-function shrink(tbl, value)
+function shrink(tbl: Layout, value: number): Layout
     assertHelper(tbl)
     assert(type(value) == "number", string.format("number expected, but %s is", type(value)))
     return { x = tbl.x + value, y = tbl.y + value, 
         w = tbl.w - value * 2, h = tbl.h - value * 2}
 end
 
-function areaGrowByPixel(tbl, delta)
+function areaGrowByPixel(tbl: Layout, delta: number): Layout
     assertHelper(tbl)
     assert(type(delta) == "number")
     return { x = tbl.x + delta, y = tbl.y + delta, 
@@ -139,7 +142,7 @@ end
 
 -- рисовать переданные таблички. Последним аргументов может идти специальная
 -- табличка с цветом.
-function drawHelper(...)
+function drawHelper(...: Layout)
     --[[local hasColor = 0]]
     --[[local lastArg = select(select("#", ...), ...)]]
     --[[local color = {1, 0, 1}]]
@@ -172,8 +175,10 @@ function drawHelper(...)
             --[[lg.setColor{1, 0, 1, 0.5}]]
             lg.rectangle("line", tbl.x + 1, tbl.y + 1, tbl.w - 1, tbl.h - 1)
         elseif type(tbl) == "table" then
-            for k, v in pairs(tbl) do
-                if checkHelper(v) then
+            -- что делает этот код внутри цикла?
+            -- ищет подтаблицы
+            for _, v in pairs(tbl as {any: any}) do
+                if checkHelper(v as Layout) then
                     drawHelper(v)
                 end
             end
@@ -181,25 +186,27 @@ function drawHelper(...)
     end
 end
 
-function drawHierachy(rootTbl)
+function drawHierachy(rootTbl: Layout)
     --print("drawHierachy", inspect(rootTbl), inspect(color))
     if checkHelper(rootTbl) then
         drawHelper(rootTbl)
     end
-    for k, v in pairs(rootTbl) do
-        if type(v) == "table" and checkHelper(v) then
-            drawHierachy(v)
+    for _, v in pairs(rootTbl as {any:any}) do
+        if type(v) == "table" and checkHelper(v as Layout) then
+            drawHierachy(v as Layout)
         end
     end
 end
 
+-- XXX Сломана проверка типов
+--[[
 function layoutExample()
     local t = areaGrowByPixel(splitv(makeScreenTable(), 1), 10)
     local t1, t2 = splitv(t, 0.5, 0.5)
-    local arr = {splitvByNum(t1, 4)}
-    local arr2 = {splithByNum(arr[1], 3)}
-    local arr3 = {splitv(t2, 0.3, 0.7)}
-    local arr4 = {splith(arr3[2], 0.1, 0.7, 0.2)}
+    local arr = {splitvByNum(t1, 4)} as Layout
+    local arr2 = {splithByNum(arr[1], 3)} as Layout
+    local arr3 = {splitv(t2, 0.3, 0.7)} as Layout
+    local arr4 = {splith(arr3[2], 0.1, 0.7, 0.2)} as Layout
     print("arr3", inspect(arr3))
     arr2[1] = areaGrowByPixel(arr2[1], 10)
     arr[4] = areaGrowByPixel(arr[4], 20)
@@ -216,4 +223,5 @@ function layoutExample()
     end)
     return drawList
 end
+--]]
 

@@ -1,11 +1,19 @@
 local pallete = require "pallete"
 local fonts = require "fonts"
+local i18n = require "i18n"
 
 require "love"
 require "common"
+require "layout"
+local nback = require "nback"
 local gooi = require "gooi.gooi"
 
 local type Help = record
+    record Desc
+        x: number
+        y: number
+        canvas: love.graphics.Canvas
+    end
     new: function(): Help
     init: function()
     buildLayout: function
@@ -14,6 +22,9 @@ local type Help = record
 
     gooi: Gooi
     mainMenuBtn: any
+    layout: Layout
+    desc: Desc
+    font: love.graphics.Font
 end
 
 local Help_mt: metatable<Help> = {
@@ -56,21 +67,21 @@ function Help:buildButtons()
         x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
         w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h
     }):onRelease(function()
-        linesbuf:push(1, "return to main!")
+        --linesbuf:push(1, "return to main!")
         menu:goBack()
     end)
 end
 
-function help:buildLayout()
+function Help:buildLayout()
     self.layout = {}
     self.layout.top, self.layout.bottom = splith(makeScreenTable(), 0.1, 0.9)
 end
 
-function help:resize(neww, newh)
+function Help:resize(_: number, _: number)
     self:buildLayout()
 end
 
-function help:enter()
+function Help:enter()
     print("help:enter()")
     --print("help self.gooi", inspect(self.gooi))
     restoreGooi(self.gooi)
@@ -79,12 +90,12 @@ function help:enter()
     --print("self.gooi", inspect(self.gooi))
 end
 
-function help:leave()
+function Help:leave()
     print("help:leave()")
     self.gooi = storeGooi()
 end
 
-function help:prepareDrawDescription()
+function Help:prepareDrawDescription()
     self.desc = {}
 
     local w, h = g.getDimensions()
@@ -110,12 +121,12 @@ function help:prepareDrawDescription()
     g.setCanvas()
 end
 
-function help:drawDescription()
+function Help:drawDescription()
     g.setColor{1, 1, 1}
-    g.draw(self.desc.canvas, self.desc.x, self.desc.y)
+    g.draw(self.desc.canvas as love.graphics.Drawable, self.desc.x, self.desc.y)
 end
 
-function help:draw()
+function Help:draw()
     g.clear(pallete.background)
     tiledback:draw(0.3)
     self:drawDescription()
@@ -126,21 +137,21 @@ function help:draw()
     --drawHierachy(self.layout)
 end
 
-function help:update(dt)
+function Help:update(dt: number)
     gooi.update(dt)
 end
 
-function help:mousepressed(x, y, btn, istouch)
+function Help:mousepressed(_: number, _: number, _: number, _: boolean)
     print("help:mousepressed()")
     gooi:pressed()
 end
 
-function help:mousereleased(x, y, btn, istouch)
+function Help:mousereleased(_: number, _: number, _: number, _: boolean)
     print("help:mousereleased()")
     gooi:released()
 end
 
-function help:keypressed(key)
+function Help:keypressed(key: string)
     if key == "escape" then
         --restoreGooi(self.gooi)
         menu:goBack()
@@ -148,6 +159,6 @@ function help:keypressed(key)
 end
 
 return {
-    new = help.new
+    new = Help.new
 }
 
