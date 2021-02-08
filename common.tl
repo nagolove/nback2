@@ -1,8 +1,15 @@
-local gooi = require "gooi.gooi"
-require "types"
 require "love"
-
+require "nbtypes"
+require "constants"
+local i18n = require "i18n"
+local gooi = require "gooi.gooi"
 local serpent = require "serpent"
+
+global settings: Settings
+global __DEBUG__ = false
+global onAndroid = love.system.getOS() == "Android"
+global useKeyboard = true
+global preventiveFirstRun = true
 
 function pack(...: any): any
     return {...}
@@ -48,21 +55,21 @@ end
 
 function make_screenshot()
     local i = 0
-    local fname: string
+    local info: love.filesystem.FileInfo
     repeat
         i = i + 1
-        fname = love.filesystem.getInfo("screenshot" .. i .. ".png")
-    until not fname
+        info = love.filesystem.getInfo("screenshot" .. i .. ".png")
+    until not info
     love.graphics.captureScreenshot("screenshot" .. i .. ".png")
 end
 
 -- подсчет процентов успешности за раунд для данного массива.
 -- eq - массив с правильными нажатиями
 -- pressed_arr - массив с нажатиями игрока
-function calcPercent(eq, pressed_arr)
+function calcPercent(eq: {boolean}, pressed_arr: {boolean}): number
     if not eq then return 0 end --0% если не было нажатий
     local succ, mistake, count = 0, 0, 0
-    for k, v in pairs(eq) do
+    for k, v in ipairs(eq) do
         if v then
             count = count + 1
         end
@@ -77,12 +84,13 @@ function calcPercent(eq, pressed_arr)
     return succ / count - mistake / count
 end
 
-function percentage(signals, pressed)
-    local p1, p2, p3, p4 = calcPercent(signals.eq.sound, pressed.sound),
-        calcPercent(signals.eq.color, pressed.color),
-        calcPercent(signals.eq.form, pressed.form),
-        calcPercent(signals.pos.eq, pressed.pos)
-    local percent = {
+function percentage(signals: Signals, pressed: Signals.Eq): Percentage
+    local p1, p2, p3, p4: number, number, number, number
+    p1 = calcPercent(signals.eq.sound, pressed.sound)
+    p2 = calcPercent(signals.eq.color, pressed.color)
+    p3 = calcPercent(signals.eq.form, pressed.form)
+    p4 = calcPercent(signals.eq.pos, pressed.pos)
+    local percent: Percentage = {
         sound = p1 > 0.0 and p1 or 0.0,
         color = p2 > 0.0 and p2 or 0.0,
         form = p3 > 0.0 and p3 or 0.0,
@@ -102,7 +110,7 @@ function storeGooi(): any
     return g
 end
 
-function restoreGooi(g)
+function restoreGooi(g: Gooi)
     if g == nil then
         error("g == nil")
     end
@@ -110,7 +118,7 @@ function restoreGooi(g)
     gooi.components = g.components
 end
 
-function compareDates(now, date)
+function compareDates(now: Date, date: Date): string
     local ranges = {
         {0, 6, i18n("today")},
         {7, 24, i18n("yesterday")},
@@ -131,7 +139,7 @@ function compareDates(now, date)
     else
         diff = (now.year - date.year) * 365 * 24 - (t1 - t2)
     end
-    for k, v in pairs(ranges) do
+    for _, v in ipairs(ranges) do
         local v1, v2 = v[1], v[2]
         if diff >= v1 and diff <= v2 then
             result = v[3]
@@ -142,7 +150,7 @@ function compareDates(now, date)
     return result
 end
 
-function getDefaultSettings()
+function getDefaultSettings(): Settings
     print("getDefaultSettings")
     return {
         volume = 0.2,
@@ -150,30 +158,34 @@ function getDefaultSettings()
     }
 end
 
-function readSettings()
+-- XXX Может быть сломано
+function readSettings(): Settings
     local data, _ = love.filesystem.read(SETTINGS_FILENAME)
+    local result: Settings
 
     if data then
-        ok, data = serpent.load(data)
-        if not data then
-            data = getDefaultSettings()
+        local ok, func = serpent.load(data)
+        if not ok then
+            result = getDefaultSettings()
+        else
+            result = func() as Settings
         end
     else
-        data = getDefaultSettings()
+        result = getDefaultSettings()
     end
 
-    return data
+    return result
 end
 
 function writeSettings()
     local serialized = serpent.dump(settings)
-    ok, msg = love.filesystem.write(SETTINGS_FILENAME, serialized)
+    local ok, msg = love.filesystem.write(SETTINGS_FILENAME, serialized)
     if not ok then
         print("Could write settings to ", SETTINGS_FILENAME, " file", msg)
     end
 end
 
-function isPositionEqual(a, b)
+function isPositionEqual(a: Signals.Pos, b: Signals.Pos): boolean
     return a.x == a.y and b.x == b.y
 end
 

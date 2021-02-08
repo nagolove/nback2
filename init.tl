@@ -1,11 +1,8 @@
 require "love"
-require "types"
+require "nbtypes"
+require "common"
 love.filesystem.setRequirePath("?.lua;?/init.lua;scenes/nback2/?.lua")
 
-global __DEBUG__ = false
-global onAndroid = love.system.getOS() == "Android"
-global useKeyboard = true
-global preventiveFirstRun = true
 --preventiveFirstRun = false
 --onAndroid = true
 
@@ -18,10 +15,6 @@ local inspect = require "inspect"
 --local splash = require "splash"
 --local timer = require "libs/Timer"()
 local timer = require "Timer"()
-
-global SETTINGS_FILENAME = "settings.lua"
-global SAVE_NAME = "nback-v0.4.lua"
-global settings: Settings
 
 local keyconfig = require "keyconfig"
 local i18n = require "i18n"
