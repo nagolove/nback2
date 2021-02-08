@@ -108,10 +108,10 @@ end
 function subInit()
     bindKeys()
 
-    help = require "help".new()
-    menu = require "menu".new()
-    nback = require "nback".new()
-    pviewer = require "pviewer".new()
+    global help = require "help".new()
+    global menu = require "menu".new()
+    global nback = require "nback".new()
+    global pviewer = require "pviewer".new()
 
     nback:init(SAVE_NAME)
     pviewer:init(SAVE_NAME)
