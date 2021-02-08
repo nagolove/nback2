@@ -1,9 +1,11 @@
 require "love"
+require "common"
+
 local g = love.graphics
 local inspect = require "inspect"
 local pallete = require "pallete"
 
-local record Background
+global record Background
     bsize: number
     fragmentCode: string
     tile: love.graphics.Texture

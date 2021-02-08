@@ -1,5 +1,7 @@
 require "love"
 require "common"
+require "cmn"
+require "background"
 
 local g = love.graphics
 
@@ -13,6 +15,9 @@ global record MenuObject
     touchpressed: function(MenuObject, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     touchreleased: function(MenuObject, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     touchmoved: function(MenuObject, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
+    mousemoved: function(MenuObject, number, number, number, number, boolean)
+    mousereleased: function(MenuObject, number, number, number, boolean)
+    mousepressed: function(MenuObject, number, number, number, boolean)
 end
 
 local type menu = record
@@ -27,6 +32,7 @@ local type menu = record
         h: number
     end
     items: {Item}
+    back: Background
     active_item: number
     w: number
     h : number
@@ -44,14 +50,14 @@ local menu_mt: metatable<menu> = {
 }
 
 function menu.new(): menu
-    local self = {
+    local self: menu = {
         items = {},
         active_item = 1, -- указывает индекс выбранного пункта
         active = false,  -- указывает, что запущено какое-то состояние из меню
         font = require "fonts".menu,
         back = require "background".new()
     }
-    return setmetatable(self as menu, menu_mt)
+    return setmetatable(self, menu_mt)
 end
 
 -- вызывается из игрового состояния для возвращения в меню
@@ -175,7 +181,7 @@ function menu:update(dt: number)
     end
 end
 
-function menu:process_menu_selection(x: number, y: number, dx: number, dy: number, istouch: boolean)
+function menu:process_menu_selection(x: number, y: number, _: number, _: number, _: boolean)
     for k, v in ipairs(self.items_rects) do
         if pointInRect(x, y, v.x, v.y, v.w, v.h) then 
             self.active_item = k 
@@ -183,7 +189,7 @@ function menu:process_menu_selection(x: number, y: number, dx: number, dy: numbe
     end
 end
 
-function menu:mousemoved(x, y, dx, dy, istouch)
+function menu:mousemoved(x: number, y: number, dx: number, dy: number, istouch: boolean)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.mousemoved then obj:mousemoved(x, y, dx, dy, istouch) end
@@ -192,14 +198,14 @@ function menu:mousemoved(x, y, dx, dy, istouch)
     end
 end
 
-function menu:mousereleased(x, y, btn, istouch)
+function menu:mousereleased(x: number, y: number, btn: number, istouch: boolean)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.mousereleased then obj:mousereleased(x, y, btn, istouch) end
     end
 end
 
-function menu:mousepressed(x, y, button, istouch)
+function menu:mousepressed(x: number, y: number, button: number, istouch: boolean)
     if self.active then
         local obj = self.items[self.active_item].obj
         assert(obj)
@@ -211,7 +217,7 @@ function menu:mousepressed(x, y, button, istouch)
             self.active = true
             local obj = self.items[self.active_item].obj
             if type(obj) == "table" and obj.enter then obj:enter()
-            elseif type(obj) == "function" then obj() end
+            elseif type(obj) == "function" then (obj as function)() end
         end
     end
 end
