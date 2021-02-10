@@ -39,17 +39,17 @@ end
 -- source http://lua-users.org/wiki/CopyTable 
 function deepcopy<T>(orig: T): T
     local orig_type = type(orig)
-    local copy = {}
     if orig_type == 'table' then
+        local copy = {}
         copy = {}
-        for orig_key, orig_value in next, orig as any, nil do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
+        for orig_key, orig_value in pairs(orig as {any:any}) do
+            copy[deepcopy(orig_key as T)] = deepcopy(orig_value as T)
         end
-        setmetatable(copy, deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
+        return copy as T
+        --setmetatable(copy, deepcopy(getmetatable(orig) as T))
+    else 
+        return orig
     end
-    return copy
 end
 
 function make_screenshot()

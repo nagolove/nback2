@@ -1,10 +1,10 @@
 require "love"
 require "common"
 require "gooi.gooi"
+require "drawstat"
 
 local serpent = require "serpent"
 local timer = require "Timer"
-
 local pallete = require "pallete"
 local g = love.graphics
 local cam = require "camera".new()
@@ -17,6 +17,7 @@ global type pviewer = record
     save_name: string
     timer: Timer
     data: {number}
+    statisticRender: StatisticRender
 
     init:function(pviewer, string)
     leave: function(pviewer)

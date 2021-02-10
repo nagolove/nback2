@@ -1,15 +1,21 @@
 require "love"
 require "nbtypes"
+require "layout"
+require "cmn"
 
 local gooi = require "gooi.gooi"
+
+--local nback = require "nback"
+--local menu = require "menu"
+
 local pallete = require "pallete"
+local i18n = require "i18n"
 local g = love.graphics
 
 local type LinkPoint = {number, string}
 
 global type StatisticRenderData = record
     --signals: 
-    --pressed:
     level: number
     pause_time: number
     font: love.graphics.Font
@@ -19,25 +25,56 @@ global type StatisticRenderData = record
     durationSec: number
 end
 
-global type statisticRender = record
+global type StatisticRender = record
+    record InitData
+        signals: Signals
+        pressed: {string:{boolean}}
+        level: number
+        font: love.graphics.Font
+        pause_time: number
+        x0: number
+        y0: number
+        durationMin: number
+        durationSec: number
+        buttons: boolean
+        border: number
+    end
+    record Info
+        durationStr: string
+        infoStr: string
+        y: number
+        durationX: number
+        infoX: number
+    end
     rect_size: number
     signals: Signals
     width_k: number
     border: number
-    rect_size: number
+    level: number
+    pressed: {string:{boolean}}
+    percent: Percentage
+    font: love.graphics.Font
+    fontHeight: number
+    layout: Layout
+    info: Info
+    pause_time: number
+    durationMin: number
+    durationSec: number
+    buttons: boolean
+    mainMenuBtn: gooi.Component
 end
 
-local statisticRender_mt: metatable<statisticRender> = {
-    __index = statisticRender
+local StatisticRender_mt: metatable<StatisticRender> = {
+    __index = StatisticRender
 }
 
-function statisticRender:getHitQuadLineHeight(): number
+function StatisticRender:getHitQuadLineHeight(): number
     return self.rect_size + 12
 end
 
 -- drawLinks({ idx, "left" }, { idx, "right" })
 -- drawLinks({ idx, "center" }, { idx, "right" })
-function statisticRender:drawLink(x: number, y: number, point1: LinkPoint, point2: LinkPoint)
+function StatisticRender:drawLink(x: number, y: number, point1: LinkPoint, point2: LinkPoint)
     assert(type(point1) == "table")
     assert(type(point2) == "table")
     --assert(type(point1[1]) == "number" and type(point1[2]) == "string")
@@ -79,7 +116,7 @@ function statisticRender:drawLink(x: number, y: number, point1: LinkPoint, point
     --]]
 end
 
-function statisticRender:drawLinks(x: number, y: number, type: Signals.EqKeys)
+function StatisticRender:drawLinks(x: number, y: number, type: Signals.EqKeys): number
     --local rect_size = self.rect_size
     local eq_arr = self.signals.eq[type]
 
@@ -87,12 +124,12 @@ function statisticRender:drawLinks(x: number, y: number, type: Signals.EqKeys)
     -- рисую "скобки" под квадратиками, соединяющие точки сигналов и ответов
     local pressed = self.pressed[type]
 
-    local points = {}
-    for k, v in pairs(pressed) do
+    local points: {{{number, string}}} = {}
+    for k, _ in ipairs(pressed) do
         points[k] = {}
     end
 
-    for k, v in pairs(pressed) do
+    for k, _ in ipairs(pressed) do
         if eq_arr[k] then -- индекс правильного нажатия
             if not points[k][1] then
                 points[k] = { {}, {} }
@@ -117,7 +154,7 @@ function statisticRender:drawLinks(x: number, y: number, type: Signals.EqKeys)
 
     --print("points", inspect(points))
 
-    for k, v in pairs(points) do
+    for _, v in ipairs(points) do
         if v[1] and v[2] then
             self:drawLink(x, y, v[1], v[2])
         end
@@ -126,7 +163,7 @@ function statisticRender:drawLinks(x: number, y: number, type: Signals.EqKeys)
     return maxLinks
 end
 
-function statisticRender:drawBox(x, y, k, border)
+function StatisticRender:drawBox(x: number, y: number, k: number, border: number)
     local rect_size = self.rect_size
     g.setColor(pallete.field)
     g.rectangle("line", x + rect_size * (k - 1), y, rect_size, rect_size) 
@@ -134,13 +171,13 @@ function statisticRender:drawBox(x, y, k, border)
     g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
 end
 
-function statisticRender:drawHitBox(x, y, k, border)
+function StatisticRender:drawHitBox(x: number, y: number, k: number, border: number)
     local rect_size = self.rect_size
     g.setColor(pallete.hit_color)
     g.rectangle("fill", x + rect_size * (k - 1) + border, y + border, rect_size - border * 2, rect_size - border * 2)
 end
 
-function statisticRender:drawHitCirclesPair(x, y, k)
+function StatisticRender:drawHitCirclesPair(x: number, y: number, k: number)
     local rect_size = self.rect_size
     local radius = 4
     g.setColor{0, 0, 0}
@@ -152,11 +189,10 @@ end
 
 -- x, y - координаты левого верхнего угла отрисовываемой картинки.
 -- type - строка "pos", "sound", etc.
-function statisticRender:drawHitQuads(x, y, type, border)
-    local rect_size = self.rect_size
+function StatisticRender:drawHitQuads(x: number, y: number, type: Signals.EqKeys, border: number): number
     local eq_arr = self.signals.eq[type]
 
-    for k, v in pairs(self.pressed[type]) do
+    for k, v in ipairs(self.pressed[type]) do
         self:drawBox(x, y, k, border)
 
         -- отмеченная игроком позиция
@@ -174,27 +210,29 @@ function statisticRender:drawHitQuads(x, y, type, border)
     return self:getHitQuadLineHeight() + maxLinks * 10
 end
 
+-- передвижение двумя пальцами
 function processTouches()
-    local i = 0
-    local tbl = {}
-    for k, v in pairs(touches) do
-        if i < 2 then
-            table.insert(tbl, v)
-            i = i + 1
-        end
-    end
-    if #tbl == 2 then
-        cam:move(-tbl[1].dx, -tbl[1].dy)
-    end
+    --local i = 0
+    --local tbl = {}
+    --for k, v in pairs(touches) do
+        --if i < 2 then
+            --table.insert(tbl, v)
+            --i = i + 1
+        --end
+    --end
+    --if #tbl == 2 then
+        --cam:move(-tbl[1].dx, -tbl[1].dy)
+    --end
 end
 
-function statisticRender:update(dt)
-    processTouches()
+function StatisticRender:update(dt: number)
+    -- XXX disabled
+    --processTouches()
     gooi.update(dt)
 end
 
 -- draw one big letter in left side of hit rects output
-function statisticRender:printSignalType(x, y, signalType)
+function StatisticRender:printSignalType(x: number, y: number, signalType: Signals.EqKeys)
     local loc = i18n(signalType) or ""
     local str =  loc .. "  " 
     local strWidth = g.getFont():getWidth(str)
@@ -204,7 +242,7 @@ function statisticRender:printSignalType(x, y, signalType)
     g.print(string.format("%.3f", self.percent[signalType]), x + strWidth, y)
 end
 
-function statisticRender:drawHits(x, y)
+function StatisticRender:drawHits(x: number, y: number)
     local dy = 0
     g.setFont(self.font)
     self:printSignalType(x, y, "sound") 
@@ -227,19 +265,26 @@ function statisticRender:drawHits(x, y)
     self:drawHitQuads(x, y, "pos", self.border)
 end
 
-function statisticRender:getHitsRectHeight()
+function StatisticRender:getHitsRectHeight(): number
     return (self.fontHeight + self:getHitQuadLineHeight()) * 4
 end
 
-function statisticRender:beforeDraw()
+function StatisticRender:beforeDraw()
     g.setFont(self.font)
     g.setColor(pallete.statistic)
     g.setLineWidth(1)
     self.fontHeight = g.getFont():getHeight()
 end
 
+function StatisticRender:printInfo()
+    local y = self.info.y
+    g.print(self.info.durationStr, self.info.durationX, y)
+    y = y + g.getFont():getHeight()
+    g.print(self.info.infoStr, self.info.infoX, y)
+end
+
 -- рисовать статистику после конца сета
-function statisticRender:draw(noInfo)
+function StatisticRender:draw()
     local w = g.getWidth()
     self:beforeDraw()
     local x = (w - w * self.width_k) / 2 
@@ -251,39 +296,35 @@ function statisticRender:draw(noInfo)
     end
 end
 
-function statisticRender:printInfo()
-    local y = self.info.y
-    g.print(self.info.durationStr, self.info.durationX, y)
-    y = y + g.getFont():getHeight()
-    g.print(self.info.infoStr, self.info.infoX, y)
-end
-
-function statisticRender:buildLayout(border)
+function StatisticRender:buildLayout(border: number)
     border = border or self.border
     local screen = makeScreenTable()
     screen.top, screen.middle, screen.bottom = splith(screen, 0.2, 0.7, 0.1)
     screen.bottom.left, screen.bottom.right = splitv(screen.bottom, 0.5, 0.5)
-    screen.mainMenuBtn = shrink(screen.bottom.right, border)
+
+    local tmp: {any:any} = screen as {any:any}
+    tmp.mainMenuBtn = shrink(screen.bottom.right, border)
+
     self.layout = screen
 end
 
-function statisticRender:keypressed(_, key, isrepeat)
+function StatisticRender:keypressed(key: string, isrepeat: boolean)
     gooi.keypressed(_, key, isrepeat)
 end
 
-function statisticRender:keyreleased(_, key)
+function StatisticRender:keyreleased(key: string)
     gooi.keyreleased(_, key)
 end
 
-function statisticRender:mousepressed(x, y, button)
+function StatisticRender:mousepressed(_: number, _: number, _: number)
     gooi.pressed()
 end
 
-function statisticRender:mousereleased(x, y, button)
+function StatisticRender:mousereleased(_: number, _: number, _utton: number)
     gooi.released()
 end
 
-function statisticRender:preparePrintInfo()
+function StatisticRender:preparePrintInfo()
     self.info = {}
     self.info.durationStr = i18n("levelInfo2_part1", {count = self.level}) .. " " ..
         i18n("levelInfo2_part2", {count = self.pause_time}) 
@@ -297,7 +338,7 @@ function statisticRender:preparePrintInfo()
     self.info.y = (self.layout.top.h - textHeight) / 2
 end
 
-function statisticRender.new(data): statisticRender
+function StatisticRender.new(data: StatisticRender.InitData): StatisticRender
     local self = setmetatable({
         signals = data.signals,
         pressed = data.pressed,
@@ -309,32 +350,35 @@ function statisticRender.new(data): statisticRender
         durationMin = data.durationMin,
         durationSec = data.durationSec,
         buttons = data.buttons,
-    }, statisticRender_mt)
+    } as StatisticRender, StatisticRender_mt)
     -- должен быть минимальный размер, не слишком мелкий если не все 
     --квадраты умещаются в ширину экрана
     self.width_k = 3.9 / 4
     self.border = 2
     self.signals.eq = require "generator".makeEqArrays(self.signals, self.level)
+    local w, _ = love.graphics.getDimensions()
     self.rect_size = math.floor(w * self.width_k / #self.signals.pos)
-    self.percent = percentage(self.signals, self.pressed)
-    self:buildLayout(data.border or nback.border)
+    self.percent = percentage(self.signals, self.pressed as Signals.Eq)
+    --self:buildLayout(data.border or nback.border)
+    self:buildLayout(data.border)
 
     self:preparePrintInfo()
 
     --print("data.border", data.border)
     --print("data.buttons", data.buttons)
     if self.buttons then
-        gooi.setStyle({ font = fonts.drawstat.gooi,
+        gooi.setStyle({ font = require "fonts".drawstat.gooi,
             showBorder = true,
             bgColor = {0.208, 0.220, 0.222},
         })
 
+        local mainMenuBtnLayout: Layout = (self.layout as {any:any}).mainMenuBtn as Layout
         self.mainMenuBtn = gooi.newButton({ 
             text = i18n("backToMainMenu"),
-            x = self.layout.mainMenuBtn.x, y = self.layout.mainMenuBtn.y, 
-            w = self.layout.mainMenuBtn.w, h = self.layout.mainMenuBtn.h
+            x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
+            w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h
         }):onRelease(function()
-            linesbuf:push(1, "return to main!")
+            --linesbuf:push(1, "return to main!")
             menu:goBack()
         end)
     end
@@ -342,5 +386,4 @@ function statisticRender.new(data): statisticRender
     return self
 end
 
-return statisticRender
-
+return StatisticRender
