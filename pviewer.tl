@@ -9,7 +9,7 @@ local pallete = require "pallete"
 local g = love.graphics
 local cam = require "camera".new()
 
-global type pviewer = record
+global type Pviewer = record
     font: love.graphics.Font
     w: number
     h: number
@@ -19,21 +19,21 @@ global type pviewer = record
     data: {number}
     statisticRender: StatisticRender
 
-    init:function(pviewer, string)
-    leave: function(pviewer)
-    resize: function(pviewer, number, number)
-    buildLayout: function(pviewer)
-    enter: function(pviewer)
-    sortByDate: function(pviewer)
-    updateRender: function(pviewer, number)
+    init:function(Pviewer, string)
+    leave: function(Pviewer)
+    resize: function(Pviewer, number, number)
+    buildLayout: function(Pviewer)
+    enter: function(Pviewer)
+    sortByDate: function(Pviewer)
+    updateRender: function(Pviewer, number)
 end
 
-local pviewer_mt: metatable<pviewer> = {
-    __index = pviewer
+local pviewer_mt: metatable<Pviewer> = {
+    __index = Pviewer
 }
 
-function pviewer.new(): pviewer
-    local self: pviewer = {
+function Pviewer.new(): Pviewer
+    local self: Pviewer = {
         font = require "fonts".pviewer,
         activeIndex = 0, -- обработай случаи если таблица истории пустая
     }
@@ -41,7 +41,7 @@ function pviewer.new(): pviewer
     return setmetatable(self, pviewer_mt)
 end
 
-function pviewer:init(save_name: string)
+function Pviewer:init(save_name: string)
     print("save_name", save_name)
     self.save_name = save_name
     self:resize(g.getDimensions())
@@ -50,7 +50,7 @@ end
 
 -- создает новый экземпляр просмотрщика статистики для текущего положения
 -- индекса pviewer.activeIndex
-function pviewer:updateRender(index: number)
+function Pviewer:updateRender(index: number)
     print("updateRender()", index)
     if self.data and index >= 1 and index <= #self.data then
         local data = self.data[index]
@@ -83,7 +83,7 @@ local function removeDataWithoutDateField(data)
     return cleanedData
 end
 
-function pviewer:makeList()
+function Pviewer:makeList()
     if #self.data ~= 0 then
         self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y, 
         self.layout.left.w, self.layout.left.h, fonts.pviewer)
@@ -111,14 +111,14 @@ function pviewer:makeList()
     end
 end
 
-function pviewer:sortByDate()
+function Pviewer:sortByDate()
     table.sort(self.data, function(a, b)
         a, b = a.date, b.date
         return a.year * 365 * 24 + a.yday * 24 + a.hour > b.year * 365 * 24 + b.yday * 24 + b.hour
     end)
 end
 
-function pviewer:enter()
+function Pviewer:enter()
     print("pviewer:enter()")
     local tmp, size = love.filesystem.read(self.save_name)
     if tmp ~= nil then
@@ -179,12 +179,12 @@ function pviewer:enter()
     self:updateRender(1)
 end
 
-function pviewer:leave()
+function Pviewer:leave()
     print("pviewer:leave()")
     self.data = nil
 end
 
-function pviewer:resize(neww: number, newh: number)
+function Pviewer:resize(neww: number, newh: number)
     --print(string.format("pviewer.resize(%d, %d)", neww, newh))
     w, h = neww, newh
     self:buildLayout()
@@ -195,7 +195,7 @@ function pviewer:resize(neww: number, newh: number)
     end
 end
 
-function pviewer:buildLayout()
+function Pviewer:buildLayout()
     local screen = {}
     screen.left, screen.right = splitv(makeScreenTable(), 0.2, 0.8)
     screen.right.x = screen.right.x + 3
@@ -209,14 +209,14 @@ function pviewer:buildLayout()
     self.layout = screen
 end
 
-function pviewer:drawNodata()
+function Pviewer:drawNodata()
     local str = i18n("nodata")
     g.setFont(self.font)
     g.setColor{0, 0, 0, 1}
     g.printf(str, 0, self.layout.nodata.bottom.y, self.layout.nodata.bottom.w, "center")
 end
 
-function pviewer:draw()
+function Pviewer:draw()
     g.push("all")
 
     g.clear(pallete.background)
@@ -250,7 +250,7 @@ function pviewer:draw()
 end
 
 -- добавить клавиши управления для постраничной прокрутки списка результатов.
-function pviewer:keypressed(key)
+function Pviewer:keypressed(key)
     if key == "escape" or key == "acback" then
         menu:goBack()
     elseif key == "return" or key == "space" then
@@ -264,13 +264,13 @@ function pviewer:keypressed(key)
     end
 end
 
-function pviewer:wheelmoved(x, y)
+function Pviewer:wheelmoved(x, y)
     if self.list then
         self.list:wheelmoved(x, y)
     end
 end
 
-function pviewer:mousepressed(x, y, btn, istouch)
+function Pviewer:mousepressed(x, y, btn, istouch)
     if self.list then
         self.list:mousepressed(x, y, btn, istouch)
     else
@@ -278,7 +278,7 @@ function pviewer:mousepressed(x, y, btn, istouch)
     end
 end
 
-function pviewer:mousereleased(x, y, btn, istouch)
+function Pviewer:mousereleased(x, y, btn, istouch)
     if self.list then
         self.list:mousereleased(x, y, btn, istouch)
     else
@@ -286,7 +286,7 @@ function pviewer:mousereleased(x, y, btn, istouch)
     end
 end
 
-function pviewer:mousemoved(x, y, dx, dy)
+function Pviewer:mousemoved(x, y, dx, dy)
     local mouse = love.mouse
     if mouse.isDown(2) then
         cam:move(-dx, -dy)
@@ -296,30 +296,30 @@ function pviewer:mousemoved(x, y, dx, dy)
     end
 end
 
-function pviewer:touchpressed(id, x, y)
+function Pviewer:touchpressed(id, x, y)
     if self.list then
         self.list:touchpressed(id, x, y)
     end
 end
 
-function pviewer:touchreleased(id, x, y)
+function Pviewer:touchreleased(id, x, y)
     if self.list then
         self.list:touchreleased(id, x, y)
     end
 end
 
-function pviewer:touchmoved(id, x, y, dx, dy)
+function Pviewer:touchmoved(id, x, y, dx, dy)
     if self.list then
         self.list:touchmoved(id, x, y, dx, dy)
     end
 end
 
-function pviewer:update(dt)
+function Pviewer:update(dt)
     gooi.update(dt)
     self.timer:update(dt)
 end
 
 return {
-    new = pviewer.new
+    new = Pviewer.new
 }
 

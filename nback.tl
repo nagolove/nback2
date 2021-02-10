@@ -5,16 +5,14 @@ require "layout"
 require "snippets"
 require "hex"
 
-local Timer = require "libs.Timer"
+local Timer = require "Timer"
 local alignedlabels = require "alignedlabels"
 local colorConstants = require "colorconstants"
 local g = love.graphics
 local gr = love.graphics
 local generator = require "generator"
 local getTime = love.timer.getTime
-local inspect = require "libs.inspect"
-local math = require "math"
-local os = require "os"
+local inspect = require "inspect"
 local pallete = require "pallete"
 local serpent = require "serpent"
 local setupmenu = require "setupmenu"

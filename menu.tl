@@ -20,7 +20,7 @@ global record MenuObject
     mousepressed: function(MenuObject, number, number, number, boolean)
 end
 
-local type menu = record
+global type Menu = record
     record Item
         name: string
         obj: MenuObject
@@ -43,31 +43,53 @@ local type menu = record
     canvas: love.graphics.Canvas
     y_pos: number
     items_rects: {ItemRect}
+
+    goBack: function(Menu)
+    compute_rects: function(Menu)
+    resize: function(Menu, number, number)
+    init: function(Menu)
+    searchWidestText: function(Menu)
+    addItem: function(Menu, name: string, object: MenuObject)
+    moveDown: function(Menu)
+    moveUp: function(Menu)
+    keyreleased: function(Menu, string)
+    keypressed: function(Menu, string)
+    update: function(Menu, number)
+    process_menu_selection: function(Menu, number, number, number, number, boolean)
+    mousemoved: function(Menu, number, number, number, number, boolean)
+    mousereleased: function(Menu, number, number, number, boolean)
+    mousepressed: function(Menu, number, number, number, boolean)
+    drawList: function(Menu)
+    drawCursor: function(Menu)
+    draw: function(Menu)
+    touchpressed: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
+    touchreleased: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
+    touchmoved: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
 end
 
-local menu_mt: metatable<menu> = {
-    __index = menu
+local Menu_mt: metatable<Menu> = {
+    __index = Menu
 }
 
-function menu.new(): menu
-    local self: menu = {
+function Menu.new(): Menu
+    local self: Menu = {
         items = {},
         active_item = 1, -- указывает индекс выбранного пункта
         active = false,  -- указывает, что запущено какое-то состояние из меню
         font = require "fonts".menu,
         back = require "background".new()
     }
-    return setmetatable(self, menu_mt)
+    return setmetatable(self, Menu_mt)
 end
 
 -- вызывается из игрового состояния для возвращения в меню
-function menu:goBack()
+function Menu:goBack()
     local obj = self.items[self.active_item].obj
     if obj.leave then obj:leave() end
     self.active = false
 end
 
-function menu:compute_rects()
+function Menu:compute_rects()
     -- позиционирование игрек посредине высоты экрана
     self.y_pos = (self.h - #self.items * self.font:getHeight()) / 2
 
@@ -86,7 +108,7 @@ function menu:compute_rects()
     end
 end
 
-function menu:resize(neww: number, newh: number)
+function Menu:resize(neww: number, newh: number)
     self.w = neww
     self.h = newh
     self:compute_rects()
@@ -97,14 +119,15 @@ end
 
 -- как лучше хранить актиный элемент из списка меню? По индексу?
 -- Важен порядок элементов. Значит добавлять в массив таблички по индексу.
-function menu:init()
+-- TODO перенести в конструктор
+function Menu:init()
     self:resize(g.getDimensions())
     self.alpha = 1
 end
 
 -- ищет наиболее длинный текст в списке пунктов меню и устанавливает
 -- внутреннюю переменную menu.maxWidth по найденному значению(в знаках).
-function menu:searchWidestText()
+function Menu:searchWidestText()
     local maxWidth = 0
     for _, v in ipairs(self.items) do
         local w = self.font:getWidth(v.name)
@@ -116,7 +139,7 @@ end
 -- добавить следующий пункт с заголовком name и обработчиком object.
 -- object - таблица с методами update, draw, keypressed и другими.
 -- Или object может быть функцией(пока не реализовано).
-function menu:addItem(name: string, object: MenuObject)
+function Menu:addItem(name: string, object: MenuObject)
     --print("menu:addItem()", inspect(name), inspect(object))
     assert(type(name) == "string")
     self.items[#self.items + 1] = { name = name, obj= object }
@@ -124,7 +147,7 @@ function menu:addItem(name: string, object: MenuObject)
     self:resize(g.getDimensions())
 end
 
-function menu:moveDown()
+function Menu:moveDown()
     if self.active_item + 1 <= #self.items then
         self.active_item = self.active_item + 1
     else
@@ -132,7 +155,7 @@ function menu:moveDown()
     end
 end
 
-function menu:moveUp()
+function Menu:moveUp()
     if self.active_item - 1 >= 1 then
         self.active_item = self.active_item - 1
     else
@@ -140,7 +163,7 @@ function menu:moveUp()
     end
 end
 
-function menu:keyreleased(key: string)
+function Menu:keyreleased(key: string)
     if self.active then
         --пересылка обработки в активное состояние
         local obj = self.items[self.active_item].obj
@@ -148,7 +171,7 @@ function menu:keyreleased(key: string)
     end
 end
 
-function menu:keypressed(key: string)
+function Menu:keypressed(key: string)
     if self.active then
         --пересылка обработки в активное состояние
         local obj = self.items[self.active_item].obj
@@ -172,7 +195,7 @@ function menu:keypressed(key: string)
     end
 end
 
-function menu:update(dt: number) 
+function Menu:update(dt: number) 
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.update then obj:update(dt) end
@@ -181,7 +204,7 @@ function menu:update(dt: number)
     end
 end
 
-function menu:process_menu_selection(x: number, y: number, _: number, _: number, _: boolean)
+function Menu:process_menu_selection(x: number, y: number, _: number, _: number, _: boolean)
     for k, v in ipairs(self.items_rects) do
         if pointInRect(x, y, v.x, v.y, v.w, v.h) then 
             self.active_item = k 
@@ -189,7 +212,7 @@ function menu:process_menu_selection(x: number, y: number, _: number, _: number,
     end
 end
 
-function menu:mousemoved(x: number, y: number, dx: number, dy: number, istouch: boolean)
+function Menu:mousemoved(x: number, y: number, dx: number, dy: number, istouch: boolean)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.mousemoved then obj:mousemoved(x, y, dx, dy, istouch) end
@@ -198,14 +221,14 @@ function menu:mousemoved(x: number, y: number, dx: number, dy: number, istouch: 
     end
 end
 
-function menu:mousereleased(x: number, y: number, btn: number, istouch: boolean)
+function Menu:mousereleased(x: number, y: number, btn: number, istouch: boolean)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.mousereleased then obj:mousereleased(x, y, btn, istouch) end
     end
 end
 
-function menu:mousepressed(x: number, y: number, button: number, istouch: boolean)
+function Menu:mousepressed(x: number, y: number, button: number, istouch: boolean)
     if self.active then
         local obj = self.items[self.active_item].obj
         assert(obj)
@@ -223,7 +246,7 @@ function menu:mousepressed(x: number, y: number, button: number, istouch: boolea
 end
 
 -- печать вертикального списка меню
-function menu:drawList()
+function Menu:drawList()
     local y = self.y_pos
     g.setFont(self.font)
     for i, k in ipairs(self.items) do
@@ -236,14 +259,14 @@ function menu:drawList()
     end
 end
 
-function menu:drawCursor()
+function Menu:drawCursor()
     local v = self.items_rects[self.active_item]
     g.setLineWidth(3)
     g.setColor{1, 0, 0}
     g.rectangle("line", v.x, v.y, v.w, v.h)
 end
 
-function menu:draw()
+function Menu:draw()
     g.clear(0, 0, 0, 0)
     if self.active then
         local obj = self.items[self.active_item].obj
@@ -271,21 +294,21 @@ function menu:draw()
     end
 end
 
-function menu:touchpressed(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
+function Menu:touchpressed(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.touchpressed then obj:touchpressed(id, x, y, dx, dy, pressure) end
     end
 end
 
-function menu:touchreleased(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
+function Menu:touchreleased(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.touchreleased then obj:touchreleased(id, x, y, dx, dy, pressure) end
     end
 end
 
-function menu:touchmoved(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
+function Menu:touchmoved(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     if self.active then
         local obj = self.items[self.active_item].obj
         if obj.touchmoved then obj:touchmoved(id, x, y, dx, dy, pressure) end
@@ -293,5 +316,5 @@ function menu:touchmoved(id: number, x: number, y: number, dx: number, dy: numbe
 end
 
 return {
-    new = menu.new
+    new = Menu.new
 }

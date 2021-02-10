@@ -1,14 +1,15 @@
+require "love"
+require "common"
+require "layout"
+require "cmn"
+require "globals"
+
+local gooi = require "gooi.gooi"
 local pallete = require "pallete"
 local fonts = require "fonts"
 local i18n = require "i18n"
 
-require "love"
-require "common"
-require "layout"
-local nback = require "nback"
-local gooi = require "gooi.gooi"
-
-local type Help = record
+global type Help = record
     record Desc
         x: number
         y: number

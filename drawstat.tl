@@ -2,6 +2,7 @@ require "love"
 require "nbtypes"
 require "layout"
 require "cmn"
+require "globals"
 
 local gooi = require "gooi.gooi"
 

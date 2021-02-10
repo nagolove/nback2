@@ -1,6 +1,8 @@
 require "love"
 require "nbtypes"
 require "common"
+require "globals"
+
 love.filesystem.setRequirePath("?.lua;?/init.lua;scenes/nback2/?.lua")
 
 --preventiveFirstRun = false
@@ -107,11 +109,7 @@ end
 
 function subInit()
     bindKeys()
-
-    global help = require "help".new()
-    global menu = require "menu".new()
-    global nback = require "nback".new()
-    global pviewer = require "pviewer".new()
+    initGlobals()
 
     nback:init(SAVE_NAME)
     pviewer:init(SAVE_NAME)
