@@ -47,7 +47,8 @@ global type Signals = record
     color: {string}
     form: {string}
     pos: {Pos}
-    sounds: {number}
+    --sounds: {number}
+    sound: {number}
 
     eq: Eq
 end

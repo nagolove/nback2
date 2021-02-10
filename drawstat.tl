@@ -309,11 +309,11 @@ function StatisticRender:buildLayout(border: number)
 end
 
 function StatisticRender:keypressed(key: string, isrepeat: boolean)
-    gooi.keypressed(_, key, isrepeat)
+    gooi.keypressed(nil, key, isrepeat)
 end
 
 function StatisticRender:keyreleased(key: string)
-    gooi.keyreleased(_, key)
+    gooi.keyreleased(nil, key)
 end
 
 function StatisticRender:mousepressed(_: number, _: number, _: number)
