@@ -4,7 +4,7 @@ require "vector"
 
 local g = love.graphics
 
-local type SignalView = record
+global type SignalView = record
     new: function(Hex, number, number, any, number, string): SignalView
     setCorner: function(SignalView, number, number)
     resize: function(SignalView, number, number)

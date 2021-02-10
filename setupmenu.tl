@@ -11,7 +11,7 @@ require "common"
 
 local g = love.graphics
 
-local type Menu = record
+global type SetupMenu = record
     record Rect
         x: number
         y: number
@@ -48,30 +48,30 @@ local type Menu = record
     inactiveMarkerColor: {number}
     freeze: boolean
 
-    new: function(love.graphics.Font, {number}): Menu
-    addItem: function(Menu, Menu.ItemHandler)
-    select: function(Menu)
-    update: function(Menu, number)
-    scrollUp: function(Menu)
-    scrollDown: function(Menu)
-    leftPressed: function(Menu)
-    leftReleased: function(Menu)
-    rightPressed: function(Menu)
-    rightReleased: function(Menu)
-    draw: function(Menu)
-    mousemoved: function(Menu, x: number, y: number, dx: number, dy: number, istouch: boolean)
-    keypressed: function(Menu, string)
-    mousepressed: function(Menu, x: number, y: number, btn: number, istouch: boolean)
+    new: function(love.graphics.Font, {number}): SetupMenu
+    addItem: function(SetupMenu, SetupMenu.ItemHandler)
+    select: function(SetupMenu)
+    update: function(SetupMenu, number)
+    scrollUp: function(SetupMenu)
+    scrollDown: function(SetupMenu)
+    leftPressed: function(SetupMenu)
+    leftReleased: function(SetupMenu)
+    rightPressed: function(SetupMenu)
+    rightReleased: function(SetupMenu)
+    draw: function(SetupMenu)
+    mousemoved: function(SetupMenu, x: number, y: number, dx: number, dy: number, istouch: boolean)
+    keypressed: function(SetupMenu, string)
+    mousepressed: function(SetupMenu, x: number, y: number, btn: number, istouch: boolean)
 end
 
-local Menu_mt: metatable<Menu> = {
-    __index = Menu
+local SetupMenu_mt: metatable<SetupMenu> = {
+    __index = SetupMenu
 }
 
 -- парамертрами могут быть - шрифт и его размер, цвет текста, стиль рамки
 -- выделения пункта
-function Menu.new(font: love.graphics.Font, color: {number}): Menu
-    local self: Menu = {
+function SetupMenu.new(font: love.graphics.Font, color: {number}): Menu
+    local self: SetupMenu = {
         font = font,
         color = color,
         items = {},
@@ -82,10 +82,10 @@ function Menu.new(font: love.graphics.Font, color: {number}): Menu
         activeMarkerColor = {0, 0.8, 0},
         inactiveMarkerColor = {0.5, 0.5, 0.5},
     }
-    return setmetatable(self, Menu_mt)
+    return setmetatable(self, SetupMenu_mt)
 end
 
-local function checkTableMember(t: Menu.ItemHandler, name: string)
+local function checkTableMember(t: SetupMenu.ItemHandler, name: string)
     if (t as {any:any})[name] then
         --print("checking type")
         assert(type((t as {any:any})[name]) == "function", string.format("Field t['%s'] should be function", name))
@@ -98,7 +98,7 @@ end
 -- t["onleft"]
 -- t["onright"]
 -- t["onselect"]
-function Menu:addItem(t: Menu.ItemHandler)
+function SetupMenu:addItem(t: SetupMenu.ItemHandler)
     --print("addItem", inspect(t))
 
     assert(t)
@@ -125,14 +125,14 @@ function Menu:addItem(t: Menu.ItemHandler)
     item.rightPressedKey = false
 end
 
-function Menu:select()
+function SetupMenu:select()
     local item = self.items[self.activeIndex]
     if item and item.onselect then
         item:onselect()
     end
 end
 
-function Menu:update(_: number)
+function SetupMenu:update(_: number)
     --print("menu:update()")
     local item = self.items[self.activeIndex]
     --linesbuf:pushi("item.leftPressedKey = %s", tostring(item.leftPressedKey))
@@ -142,7 +142,7 @@ function Menu:update(_: number)
     end
 end
 
-function Menu:scrollUp()
+function SetupMenu:scrollUp()
     if self.activeIndex - 1 >= 1 then
         self.activeIndex = self.activeIndex - 1
     else
@@ -150,7 +150,7 @@ function Menu:scrollUp()
     end
 end
 
-function Menu:scrollDown()
+function SetupMenu:scrollDown()
     if self.activeIndex + 1 <= #self.items then
         self.activeIndex = self.activeIndex + 1
     else
@@ -159,7 +159,7 @@ function Menu:scrollDown()
 end
 
 -- тут изменение параметра в меньшую стророну
-function Menu:leftPressed()
+function SetupMenu:leftPressed()
     local item = self.items[self.activeIndex]
     if item.onleft then
         item.content, item.isfirst, item.islast = item.onleft()
@@ -173,13 +173,13 @@ function Menu:leftPressed()
     end
 end
 
-function Menu:leftReleased()
+function SetupMenu:leftReleased()
     local item = self.items[self.activeIndex]
     item.leftPressedKey = false
 end
 
 -- тут изменение параметра в большую строну
-function Menu:rightPressed()
+function SetupMenu:rightPressed()
     local item = self.items[self.activeIndex]
     if item.onright then
         item.content, item.isfirst, item.islast = item.onright()
@@ -193,14 +193,14 @@ function Menu:rightPressed()
     end
 end
 
-function Menu:rightReleased()
+function SetupMenu:rightReleased()
     local item = self.items[self.activeIndex]
     item.rightPressedKey = false
 end
 
 -- целевая задача: рисовка одной менюшки, в центре экрана, с выравниманием 
 -- по центру экрана
-function Menu:draw()
+function SetupMenu:draw()
 
     -- XXX может быть какая-то ошибка с переменной h
     local w, h = g.getDimensions()
@@ -309,7 +309,7 @@ function Menu:draw()
     g.setFont(oldfont)
 end
 
-function Menu:mousemoved(x: number, y: number, _: number, _: number, _: boolean)
+function SetupMenu:mousemoved(x: number, y: number, _: number, _: number, _: boolean)
     if not self.freeze then
         for k, v in ipairs(self.items) do
             local rect = v.rect
@@ -331,7 +331,7 @@ function Menu:mousemoved(x: number, y: number, _: number, _: number, _: boolean)
     end
 end
 
-function Menu:keypressed(key: string)
+function SetupMenu:keypressed(key: string)
     if key == "up" or key == "k" then
         self:scrollUp()
     elseif key == "down" or key == "j" then
@@ -339,7 +339,7 @@ function Menu:keypressed(key: string)
     end
 end
 
-function Menu:mousepressed(x: number, y: number, btn: number, _: boolean)
+function SetupMenu:mousepressed(x: number, y: number, btn: number, _: boolean)
     if not self.freeze then
         if btn == 1 then
             for k, v in ipairs(self.items) do
@@ -368,4 +368,4 @@ end
     --return cls.new(...)
 --end})
 
-return Menu
+return SetupMenu

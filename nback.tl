@@ -4,7 +4,12 @@ require "common"
 require "layout"
 require "snippets"
 require "hex"
+require "signal"
+require "gooi.gooi"
+require "drawstat"
+require "coroprocessor"
 
+local i18n = require "i18n"
 local Timer = require "Timer"
 --local alignedlabels = require "alignedlabels"
 local colorConstants = require "colorconstants"
@@ -17,18 +22,79 @@ local pallete = require "pallete"
 local serpent = require "serpent"
 local setupmenu = require "setupmenu"
 local signal = require "signal"
-local string = require "string"
-local table = require "table"
 local w, h = g.getDimensions()
 local yield = coroutine.yield
 
-local function width() return love.graphics.getWidth() end
-local function height() return love.graphics.getHeight() end
+global type Nback = record
+    dim: number
+    cell_width: number
+    current_sig: number
+    sig_count: number
+    level: number
+    is_run: boolean
+    pause_time: number
+    can_press: boolean
+    show_statistic: boolean
+    field_color: {number}
+    font: love.graphics.Font
+    buttonsFont: love.graphics.Font
+    centralFont: love.graphics.Font
+    border: number
+    layout: Layout
+    timer: Timer
+    written: boolean
+    pause: boolean
+    signals: Signals
+    --show_statistic: boolean
+    timestamp: number
+    pressed: Signals.Eq
+    signal: SignalView
+    stopppedSignal: number
+    start_pause_rest: number
+    start_pause: boolean
+    startTime: number
+    shader: love.graphics.Shader
+    setupmenu: SetupMenu
+    gooiState: Gooi
+    shaderTimer: number
+    shaderTimeEnabled: boolean
+    figure_alpha: number
+    bhupur_h: number
+    x0: number
+    y0: number
+    processor: CoroProcessor
+    statisticRender: StatisticRender
+    volume: number
+    save_name: string
+    startcx: number
+    startcy: number
+    hexField: Hex
+    hexMesh: love.graphics.Mesh
+    map: {{number}}
 
-local nback = {}
-nback.__index = nback
+    new: function(): Nback
+    buildLayout: function(Nback)
+    start: function(Nback)
+    initButtons: function(Nback)
+    enter: function(Nback)
+    leave: function(Nback)
+    initShaders: function(Nback)
+    createSetupMenu: function(Nback)
+    initShadersTimer: function(Nback)
+    processSignal: function(Nback)
+    drawMapIndices: function(Nback)
+    init: function(Nback, string)
+    resize: function(Nback, number, number)
+    processSignal: function(Nback)
+end
 
-local nbackSelf = {
+local Nback_mt: metatable<Nback> = {
+    __index = Nback
+}
+
+local fonts = require "fonts"
+
+local nbackSelf: Nback = {
     dim = 8,    -- количество ячеек поля
     cell_width = 100,  -- width of game field in pixels
     current_sig = 1, -- номер текущего сигнала, при начале партии равен 1
@@ -38,20 +104,20 @@ local nbackSelf = {
     pause_time = 2.0, -- задержка между сигналами, в секундах
     can_press = false, -- XXX FIXME зачем нужна эта переменная?
     show_statistic = false, -- индикатор показа статистики в конце сета
-    field_color = table.copy(pallete.field), -- копия таблицы по значению
+    field_color = shallowCopy(pallete.field), -- копия таблицы по значению
     font = fonts.nback.font,
     buttonsFont = fonts.nback.buttons,
     centralFont = fonts.nback.central,
     border = 3,
 }
 
-function nback.new()
+function Nback.new(): Nback
     local self = deepcopy(nbackSelf)
     --print("self.statisticRender", inspect(self.statisticRender))
-    return setmetatable(self, nback)
+    return setmetatable(self, Nback_mt)
 end
 
-function makeFalseArray(len)
+function makeFalseArray(len: number): {boolean}
     local ret = {}
     for i = 1, len do
         ret[#ret + 1] = false
@@ -59,7 +125,7 @@ function makeFalseArray(len)
     return ret
 end
 
-function nback:buildLayout()
+function Nback:buildLayout()
     local screen = makeScreenTable()
     screen.left, screen.center, screen.right = splitv(screen, 0.2, 0.6, 0.2)
     screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
@@ -73,7 +139,7 @@ function nback:buildLayout()
     --print("self.layout", inspect(self.layout))
 end
 
-function nback:start()
+function Nback:start()
     print("nback:start()")
     local q = pallete.field
     -- запуск анимации цвета игрового поля
@@ -117,7 +183,7 @@ function nback:start()
     end
 end
 
-function nback:enter()
+function Nback:enter()
     -- установка альфа канала цвета сетки игрового поля
     self.field_color[4] = 0.2
 
@@ -126,7 +192,7 @@ function nback:enter()
     restoreGooi(self.gooiState)
 end
 
-function nback:leave()
+function Nback:leave()
     print("nback:leave()")
     self.show_statistic = false
     self.gooiState = storeGooi()
@@ -144,12 +210,12 @@ vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
 }
 ]]
 
-function nback:initShaders()
+function Nback:initShaders()
     self.shader = g.newShader(fragmentCode)
 end
 
 -- фигачу кастомную менюшку на лету
-function nback:createSetupMenu()
+function Nback:createSetupMenu()
     -- начальное значение. Можно менять исходя из
     -- предыдущих игр, брать из файла настроек и т.д.
     local nbackLevel = self.level 
@@ -159,22 +225,25 @@ function nback:createSetupMenu()
     local maxLevel = 5   
     
     local dim = 5
-    local minDim, maxDim = 4, 10
+    --local minDim, maxDim = 4, 10
         
     local expositionList = { "1", "2", "3", "4", "5", "6", }
     local activeExpositionItem = 2
 
     local parameterColor = {0, 0.9, 0}
 
-    self.setupmenu = setupmenu(fonts.nback.setupmenu, pallete.signal)
+    self.setupmenu = setupmenu.new(fonts.nback.setupmenu, pallete.signal)
 
     -- пункт меню - поехали!
     self.setupmenu:addItem({
-        oninit = function() return {i18n("setupMenu.start")} end,
+        oninit = function(): {string}, boolean, boolean
+            return {i18n("setupMenu.start")} 
+        end,
         onselect = function() --  точка входа в игру
             self.level = nbackLevel
             self.dim = dim
-            self:resize(g.getDimensions())
+            --self:resize(g.getDimensions())
+            self:resize(w, h)
             self.pause_time = tonumber(expositionList[activeExpositionItem])
             self.setupmenu.freeze = true
             self:start()
@@ -183,7 +252,7 @@ function nback:createSetupMenu()
 
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
-        oninit = function() 
+        oninit = function(): {string}, boolean, boolean
             local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
             local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
             return {pallete.signal, part1, parameterColor, 
@@ -192,7 +261,7 @@ function nback:createSetupMenu()
                 activeExpositionItem == #expositionList
         end,
 
-        onleft = function()
+        onleft = function(): {string}, boolean, boolean
             if activeExpositionItem - 1 >= 1 then
                 activeExpositionItem = activeExpositionItem - 1
             end
@@ -204,7 +273,7 @@ function nback:createSetupMenu()
                 activeExpositionItem == #expositionList
         end,
 
-        onright = function()
+        onright = function(): {string}, boolean, boolean
             if activeExpositionItem + 1 <= #expositionList then
                 activeExpositionItem = activeExpositionItem + 1
             end
@@ -218,10 +287,11 @@ function nback:createSetupMenu()
 
     -- выбор уровня эн-назад
     self.setupmenu:addItem({
-        oninit = function() return {pallete.signal, i18n("setupMenu.diffLevel"),
-            parameterColor, tostring(nbackLevel)}, 
-            nbackLevel == 1,
-            nbackLevel == maxLevel
+        oninit = function(): {string}, boolean, boolean 
+            return {pallete.signal, i18n("setupMenu.diffLevel"),
+                parameterColor, tostring(nbackLevel)}, 
+                nbackLevel == 1,
+                nbackLevel == maxLevel
         end,
 
         onleft = function()
@@ -269,7 +339,7 @@ function nback:createSetupMenu()
 
 end
 
-function nback:drawMapIndices()
+function Nback:drawMapIndices()
     local currentHex = self.hexField:get(1, 1)
     local currentHex = self.hexField:get(2, 1)
 
@@ -283,14 +353,14 @@ function nback:drawMapIndices()
     end
 end
 
-function nback:init(save_name)
+function Nback:init(save_name: string)
     readSettings()
     self.volume = settings.volume
     love.audio.setVolume(settings.volume)
     self.save_name = save_name
     self.timer = Timer()
 
-    local w, h = gr.getDimensions()
+    w, h = gr.getDimensions()
     self.map = {
             {1, 1, 1},
              {1, 1, 0},
@@ -310,16 +380,16 @@ function nback:init(save_name)
         self.cell_width, "alphabet")
 
     self:createSetupMenu()
-    self:resize(g.getDimensions())
+    self:resize(w, h)
     self:initShaders()
     self:initShadersTimer()
     self.gooiState = storeGooi()
 end
 
-function nback:initShadersTimer()
+function Nback:initShadersTimer()
     self.shaderTimer = 0
     self.shaderTimeEnabled = true -- непутевое название переменной
-    self.timer:during(2, function(dt, time, delay) 
+    self.timer:during(2, function(dt: number, _: number, _: number) 
         --print("time, delay, shaderTimer", time, delay, self.shaderTimer)
         local delta = 0.4 * dt
         if self.shaderTimer + delta <= 1 then
@@ -330,7 +400,7 @@ function nback:initShadersTimer()
     end)
 end
 
-function nback:processSignal()
+function Nback:processSignal()
     local time = love.timer.getTime()
     if (time - self.timestamp >= self.pause_time) then
         self.timestamp = time
@@ -363,7 +433,7 @@ function nback:processSignal()
     end
 end
 
-function drawButtonCapture(button, nback)
+local function drawButtonCapture(button, nback)
     g.setColor{0, 0, 0}
     g.setFont(nback.buttonsFont)
     g.printf(button.title, button.textx, button.texty, button.w, "center")
@@ -891,7 +961,7 @@ function nback:check(signalType)
     end
 end
 
-function nback:resize(neww, newh)
+function Nback:resize(neww: number, newh: number)
     print(string.format("resized to %d * %d", neww, newh))
     self:buildLayout()
 

@@ -21,6 +21,13 @@ global type Layout = record
     middle: Layout
     left: Layout
     right: Layout
+    leftTop: Layout
+    leftMiddle: Layout
+    leftBottom: Layout
+    rightTop: Layout
+    rightMiddle: Layout
+    rightBottom: Layout
+    center: Layout
 end
 
 local Layout_mt: metatable<Layout> = {
