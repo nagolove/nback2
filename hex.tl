@@ -14,7 +14,7 @@ function getHexPolygonHeight(hex: {number}): number
     return dist(hex[1], hex[2], hex[7], hex[8])
 end
 
-local record Hex 
+global record Hex 
     {number}
     cx: number
     cy: number

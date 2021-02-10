@@ -6,7 +6,7 @@ require "snippets"
 require "hex"
 
 local Timer = require "Timer"
-local alignedlabels = require "alignedlabels"
+--local alignedlabels = require "alignedlabels"
 local colorConstants = require "colorconstants"
 local g = love.graphics
 local gr = love.graphics
