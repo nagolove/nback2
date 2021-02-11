@@ -279,6 +279,7 @@ function Nback:createSetupMenu()
             end
             local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
             local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
+            -- color, string, color, string
             return {pallete.signal, part1, parameterColor,
                 expositionList[activeExpositionItem], pallete.signal, part2},
                 activeExpositionItem == 1,

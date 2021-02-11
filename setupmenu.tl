@@ -12,6 +12,7 @@ require "common"
 local g = love.graphics
 
 global type SetupMenu = record
+
     record Rect
         x: number
         y: number
@@ -19,10 +20,11 @@ global type SetupMenu = record
         h: number
         k: number
     end
+
     record ItemHandler
-        oninit: function(): {string}, boolean, boolean
-        onleft: function(): {string}, boolean, boolean
-        onright: function(): {string}, boolean, boolean
+        oninit: function(): {any}, boolean, boolean
+        onleft: function(): {any}, boolean, boolean
+        onright: function(): {any}, boolean, boolean
         onselect: function(ItemHandler)
 
         content: {string}
@@ -70,7 +72,7 @@ local SetupMenu_mt: metatable<SetupMenu> = {
 
 -- парамертрами могут быть - шрифт и его размер, цвет текста, стиль рамки
 -- выделения пункта
-function SetupMenu.new(font: love.graphics.Font, color: {number}): Menu
+function SetupMenu.new(font: love.graphics.Font, color: {number}): SetupMenu
     local self: SetupMenu = {
         font = font,
         color = color,
@@ -111,7 +113,7 @@ function SetupMenu:addItem(t: SetupMenu.ItemHandler)
 
     self.items[#self.items + 1] = t
     local item = self.items[#self.items]
-    item.content, item.isfirst, item.islast = item.oninit()
+    item.content, item.isfirst, item.islast = item.oninit() as ({string}, boolean, boolean)
 
     if not item.isfirst then
         item.isfirst = false
@@ -120,7 +122,7 @@ function SetupMenu:addItem(t: SetupMenu.ItemHandler)
         item.islast = false
     end
 
-    assert(type(item.content == "table"), "oninit() should return table.")
+    assert(type(item.content) == "table", "oninit() should return table.")
     item.leftPressedKey = false
     item.rightPressedKey = false
 end
@@ -162,7 +164,7 @@ end
 function SetupMenu:leftPressed()
     local item = self.items[self.activeIndex]
     if item.onleft then
-        item.content, item.isfirst, item.islast = item.onleft()
+        item.content, item.isfirst, item.islast = item.onleft() as ({string}, boolean, boolean)
         if not item.isfirst then
             item.isfirst = false
         end
@@ -182,7 +184,7 @@ end
 function SetupMenu:rightPressed()
     local item = self.items[self.activeIndex]
     if item.onright then
-        item.content, item.isfirst, item.islast = item.onright()
+        item.content, item.isfirst, item.islast = item.onright() as ({string}, boolean, boolean)
         if not item.isfirst then
             item.isfirst = false
         end
@@ -214,7 +216,6 @@ function SetupMenu:draw()
     g.setLineWidth(self.cursorLineWidth)
 
     local leftMarker, rightMarker = "<< ", " >>"
-    local leftMarkerColor, rightMarkerColor
 
     --self.rects = {}
     for k, v in ipairs(self.items) do
