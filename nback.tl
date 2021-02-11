@@ -3,20 +3,23 @@
 require "common"
 require "layout"
 require "snippets"
-require "signal"
 require "gooi.gooi"
 require "drawstat"
 require "coroprocessor"
 require "Timer"
+require "signal_quad_field"
+require "globals"
+require "nbtypes"
+require "cmn"
 
-local hex = require "hex"
+--local hex = require "hex"
 local i18n = require "i18n"
 local colorConstants = require "colorconstants"
 local g = love.graphics
 local gr = love.graphics
 local generator = require "generator"
 local getTime = love.timer.getTime
-local inspect = require "inspect"
+--local inspect = require "inspect"
 local pallete = require "pallete"
 local serpent = require "serpent"
 local setupmenu = require "setupmenu"
@@ -28,6 +31,18 @@ global type Nback = record
     enum Mode
         "quad"
         "hex"
+    end
+
+    record Button
+        x: number
+        y: number
+        w: number
+        h: number
+        title: string
+        coroName: string
+        ontouch: function
+        textx: number
+        texty: number
     end
 
     mode: Mode
@@ -71,10 +86,15 @@ global type Nback = record
     statisticRender: StatisticRender
     volume: number
     save_name: string
-    startcx: number
-    startcy: number
-    hexField: H
-    hexMesh: love.graphics.Mesh
+    buttons: {Button}
+    durationMin: number
+    durationSec: number
+    signalsInspected: boolean
+
+    --startcx: number
+    --startcy: number
+    --hexField: H
+    --hexMesh: love.graphics.Mesh
     map: {{number}}
 
     new: function(): Nback
@@ -91,6 +111,14 @@ global type Nback = record
     init: function(Nback, string)
     resize: function(Nback, number, number)
     processSignal: function(Nback)
+    stop: function(Nback, boolean)
+    loverVolume: function(Nback)
+    raiseVolume: function(Nback)
+    check: function(Nback, signalType: Signals.EqKeys)
+    setupButtonsTextPosition: function(Nback)
+    drawField: function(Nback)
+    printStartPause: function(Nback)
+    drawActiveSignal: function(Nback)
 end
 
 local Nback_mt: metatable<Nback> = {
@@ -145,6 +173,18 @@ function Nback:buildLayout()
     --print("self.layout", inspect(self.layout))
 end
 
+local function genMapByDim(d: number): {{number}}
+    local t: {{number}} = {}
+    for i = 1, d do
+        table.insert(t, {})
+        local p = t[#t]
+        for j = 1, d do
+            table.insert(p, 0)
+        end
+    end
+    return t
+end
+
 function Nback:start()
     print("nback:start()")
     local q = pallete.field
@@ -152,6 +192,7 @@ function Nback:start()
     self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
     self.written = false
     self.pause = false
+    self.map = genMapByDim(self.dim)
     self.signals = generator.generateAll(self.sig_count, self.level, self.dim, 
         #self.signal.sounds, self.map)
     --print("self.signals", inspect(self.signals))
@@ -371,27 +412,22 @@ function Nback:init(save_name: string)
     self.save_name = save_name
     self.timer = require "Timer"()
 
-    w, h = gr.getDimensions()
-    self.map = {
-            {1, 1, 1},
-             {1, 1, 0},
-            {1, 1, 1},
-        }
-    local fieldSize = #self.map
-    local rad = math.floor((math.min(w, h) / fieldSize) / 2)
-    local testHex = hex.newHexPolygon(0, 0, rad)
-    self.startcx = (w - (getHexPolygonWidth(testHex) * fieldSize - rad * 2)) / 2
-    self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 3)) / 2
-
-    print("self.startcx, self.startcy", self.startcx, self.startcy)
-    --self.hexField, self.hexMesh = hex.newHexField(self.startcx,
-        --self.startcy, self.map, rad, {1, 0, 1, 1})
-
     if self.mode == "quad" then
-        self.signal = require "signal_quad_field".new(self.hexField, self.startcx, self.startcy, self.map, 
-            self.cell_width, "alphabet")
+        self.signal = require "signal_quad_field".new(self.cell_width, "alphabet")
     elseif self.mode == "hex" then
         error("not implemented")
+        w, h = gr.getDimensions()
+        self.map = {
+            {1, 1, 1},
+            {1, 1, 0},
+            {1, 1, 1},
+        }
+        --local fieldSize = #self.map
+        --local rad = math.floor((math.min(w, h) / fieldSize) / 2)
+        --local testHex = hex.newHexPolygon(0, 0, rad)
+        --self.startcx = (w - (getHexPolygonWidth(testHex) * fieldSize - rad * 2)) / 2
+        --self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 3)) / 2
+        --print("self.startcx, self.startcy", self.startcx, self.startcy)
     end
 
     self:createSetupMenu()
@@ -410,7 +446,8 @@ function Nback:initShadersTimer()
         if self.shaderTimer + delta <= 1 then
             self.shaderTimer = self.shaderTimer + delta
         end
-    end, function() 
+    end, 
+    function() 
         self.shaderTimeEnabled = false
     end)
 end
@@ -448,19 +485,18 @@ function Nback:processSignal()
     end
 end
 
-local function drawButtonCapture(button, nback)
+local function drawButtonCapture(button: Nback.Button, nback: Nback)
     g.setColor{0, 0, 0}
     g.setFont(nback.buttonsFont)
     g.printf(button.title, button.textx, button.texty, button.w, "center")
 end
 
-local drawButton = function(button, nback)
+local drawButton = function(button: Nback.Button, nback: Nback)
     --yield()
 
-    local ok, errmsg = pcall(function()
+    local ok, errmsg: boolean, string = pcall(function()
 
-    local self = nback
-    local ret
+    local ret: string
     repeat
         local oldwidth = g.getLineWidth()
         g.setColor(pallete.buttonColor)
@@ -471,22 +507,24 @@ local drawButton = function(button, nback)
 
         drawButtonCapture(button, nback)
         g.setLineWidth(oldwidth)
-        ret = yield()
+        ret = yield() as string
     until ret == "exit"
 
     end)
-    --print("ok, errmsg", ok, errmsg)
 
+    if not ok then
+        error(errmsg)
+    end
 end
 
-local drawButtonClicked = function(button, nback)
+local drawButtonClicked = function(button: Nback.Button, nback: Nback)
     --yield()
 
-    local ok, errmsg = pcall(function()
+    local ok, errmsg: boolean, string = pcall(function()
 
-    local btnColor = table.copy(pallete.buttonColor)
+    local btnColor = shallowCopy(pallete.buttonColor)
     --btnColor[4] = 1
-    local ret
+    local ret: string
     local time = getTime()
     local alphaDelta = 0.05
 
@@ -511,7 +549,7 @@ local drawButtonClicked = function(button, nback)
         drawButtonCapture(button, nback)
         g.setLineWidth(oldwidth)
 
-        ret = yield()
+        ret = yield() as string
     until ret == "exit"
 
     if ret == "exit" then
@@ -541,15 +579,17 @@ local drawButtonClicked = function(button, nback)
         drawButtonCapture(button, nback)
         g.setLineWidth(oldwidth)
 
-        ret = yield()
+        ret = yield() as string
     until ret == "exit"
 
     end)
-    --print("ok, errmsg", ok, errmsg)
 
+    if not ok then
+        error(errmsg)
+    end
 end
 
-function nback:initButtons()
+function Nback:initButtons()
     self.buttons = {}
 
     -- клавиша выхода слева
@@ -636,31 +676,32 @@ function nback:initButtons()
 
     self:setupButtonsTextPosition()
 
-    for k, v in pairs(self.buttons) do
+    for _, v in ipairs(self.buttons) do
         self.processor:push(v.coroName, drawButton, v, self)
         --self.processor:push(v.coroName, drawButtonClicked, v, self)
     end
 
-    self.namedButtons = {}
-    for k, v in pairs(self.buttons) do
-        self.namedButtons[v.coroName] = v
-    end
+    -- кнопки с подписями
+    --self.namedButtons = {}
+    --for k, v in pairs(self.buttons) do
+        --self.namedButtons[v.coroName] = v
+    --end
 end
 
-function nback:setupButtonsTextPosition()
-    for k, v in pairs(self.buttons) do
+function Nback:setupButtonsTextPosition()
+    for _, v in ipairs(self.buttons) do
         v.textx = v.x
         v.texty = v.y + (v.h / 2 - self.font:getHeight() / 2)
     end
 end
 
-function nback:drawButtons()
+function Nback:drawButtons()
     -- эта строчка необходима так как initButtons() вызывается не в саммом
     -- подходящем месте. Найдешь место лучше, эта строчка не будет нужна.
     if not self.buttons then return end
 
     local oldwidth = g.getLineWidth()
-    for k, v in pairs(self.buttons) do
+    for _, v in ipairs(self.buttons) do
         g.setColor(pallete.buttonColor)
         g.rectangle("fill", v.x, v.y, v.w, v.h, 6, 6)
         g.setColor{0, 0, 0}
@@ -674,16 +715,16 @@ function nback:drawButtons()
     g.setLineWidth(oldwidth)
 end
 
-function drawTouches()
+local function drawTouches()
     local touches = love.touch.getTouches()
-    for i, id in ipairs(touches) do
+    for _, id in ipairs(touches) do
         local x, y = love.touch.getPosition(id)
         g.setColor{0, 0, 0}
         g.circle("fill", x, y, 20)
     end
 end
 
-function nback:draw()
+function Nback:draw()
     love.graphics.clear(pallete.background)
 
     --g.push("all")
@@ -702,9 +743,14 @@ function nback:draw()
             self:printStartPause()
         else
             tiledback:draw(0.3)
-            --self:drawField()
 
-            gr.draw(self.hexMesh)
+            if self.mode == "quad" then
+                self:drawField()
+            elseif self.mode == "hex" then
+                error("not implemented")
+                --gr.draw(self.hexMesh)
+            end
+
             if __DEBUG__ then
                 --self:drawMapIndices()
             end
@@ -726,7 +772,7 @@ function nback:draw()
     drawTouches()
 
     if useKeyboard then
-        linesbuf:pushi("[a] - sound [f] - color [j] - form [;] - position")
+        --linesbuf:pushi("[a] - sound [f] - color [j] - form [;] - position")
     end
 
     --g.setShader()
@@ -736,9 +782,9 @@ function nback:draw()
     --[[drawHierachy(self.layout)]]
 end
 
-function nback:checkTouchButtons(x, y)
+function Nback:checkTouchButtons(x: number, y: number)
     if self.buttons then
-        for k, v in pairs(self.buttons) do
+        for _, v in ipairs(self.buttons) do
             if pointInRect(x, y, v.x, v.y, v.w, v.h) then
                 v.ontouch()
                 self.processor:sendMessage(v.coroName, "exit")
@@ -748,16 +794,16 @@ function nback:checkTouchButtons(x, y)
     end
 end
 
-function nback:processTouches()
-    local touches = love.touch.getTouches()
-    for i, id in pairs(touches) do
+function Nback:processTouches()
+    local touches: {any} = love.touch.getTouches()
+    for _, id in ipairs(touches) do
         local x, y = love.touch.getPosition(id)
         self:checkTouchButtons(x, y)
     end
 end
 
-function nback:update(dt)
-    self:fillLinesbuf()
+function Nback:update(dt: number)
+    --self:fillLinesbuf()
     self.timer:update(dt)
     self.processor:update()
 
@@ -786,17 +832,18 @@ function nback:update(dt)
     end
 end
 
-function nback:save_to_history()
+function Nback:save_to_history()
     if self.written then
         return
     else
         self.written = true
     end
 
-    local history = {}
-    local data, size = love.filesystem.read(self.save_name)
+    local history: {History} = {}
+    local ok: boolean
+    local data, _ = love.filesystem.read(self.save_name)
     if data ~= nil then
-        ok, history = serpent.load(data)
+        ok, history = serpent.load(data) as boolean, {History}
         -- нужно выходить?
         if not ok then
             return
@@ -810,12 +857,14 @@ function nback:save_to_history()
                             pressed = self.pressed,
                             level = self.level,
                             pause_time = self.pause_time,
-                            percent = self.percent})
+                            -- XXX неизвестные значения
+                            --percent = self.percent
+                        })
     love.filesystem.write(self.save_name, serpent.dump(history))
     collectgarbage()
 end
 
-function nback:stop(byescape)
+function Nback:stop(byescape: boolean)
     print("stop")
     local q = pallete.field
     -- амимация альфа-канала игрового поля
@@ -857,7 +906,7 @@ function nback:stop(byescape)
     end
 end
 
-function nback:quit(byescape)
+function Nback:quit(byescape: boolean)
     self.timer:destroy()
     self:stop(byescape)
     settings.volume = self.volume
@@ -868,7 +917,7 @@ function nback:quit(byescape)
     menu:goBack()
 end
 
-function nback:keyreleased(_, scancode)
+function Nback:keyreleased(scancode: string)
     --print(string.format("nback:keyreleased(%s)", scancode))
     if not self.is_run and not self.show_statistic then
         if scancode == "left" or scancode == "h" then
@@ -879,8 +928,7 @@ function nback:keyreleased(_, scancode)
     end
 end
 
--- use scancode, Luke!
-function nback:keypressed(scancode)
+function Nback:keypressed(scancode: string)
 
     if not useKeyboard then 
         return
@@ -937,14 +985,14 @@ end
 
 local soundVolumeStep = 0.05
 
-function nback:loverVolume()
+function Nback:loverVolume()
     if self.volume - soundVolumeStep >= 0 then
         self.volume = self.volume - soundVolumeStep
         love.audio.setVolume(self.volume)
     end
 end
 
-function nback:raiseVolume()
+function Nback:raiseVolume()
     if self.volume + soundVolumeStep <= 1 then
         self.volume = self.volume + soundVolumeStep
         love.audio.setVolume(self.volume)
@@ -952,14 +1000,16 @@ function nback:raiseVolume()
 end
 
 -- signal type may be "pos", "sound", "color", "form"
-function nback:check(signalType)
+function Nback:check(signalType: Signals.EqKeys)
     -- эта проверка должна выполняться в другом месте, снаружи данной функции.
     if not self.is_run then
         return
     end
 
-    local signals = self.signals[signalType]
-    local cmp = function(a, b) return a == b end
+    local signals: {any} = (self.signals as {any:{any}})[signalType]
+    local cmp = function(a: any, b: any): boolean
+        return a == b 
+    end
     if signalType == "pos" then
         cmp = isPositionEqual
     end
@@ -997,9 +1047,8 @@ function Nback:resize(neww: number, newh: number)
     end
 end
 
-local draw_iteration = 0 -- debug variable
-
-function nback:inspectSignals()
+function Nback:inspectSignals()
+    --[[
     if self.signals then
         self.signalsInspected = {}
         self.signalsInspected.pos = inspect(self.signals.pos)
@@ -1013,9 +1062,10 @@ function nback:inspectSignals()
         table.insert(strings, "color " .. self.signalsInspected.color)
         self.signalsInspected.strings = strings
     end
+    --]]
 end
 
-function nback:fillLinesbuf()
+function Nback:fillLinesbuf()
     if not self.signalsInspected then
         --self:inspectSignals()
     end
@@ -1028,30 +1078,31 @@ function nback:fillLinesbuf()
            ]]
     end
 
-    linesbuf:pushi("current_sig = " .. self.current_sig)
-    linesbuf:pushi("nback.can_press = " .. tostring(self.can_press))
-    linesbuf:pushi("volume %.3f", self.volume)
-    linesbuf:pushi("Mem: %.3f MB", collectgarbage("count") / 1024)
-    linesbuf:pushi("signal.width %d", self.signal.width)
+    -- TODO подключить вывод информации
+    --linesbuf:pushi("current_sig = " .. self.current_sig)
+    --linesbuf:pushi("nback.can_press = " .. tostring(self.can_press))
+    --linesbuf:pushi("volume %.3f", self.volume)
+    --linesbuf:pushi("Mem: %.3f MB", collectgarbage("count") / 1024)
+    --linesbuf:pushi("signal.width %d", self.signal.width)
 end
 
 -- draw active signal quad
-function nback:drawActiveSignal()
+function Nback:drawActiveSignal()
     --local x, y = unpack(self.signals.pos[self.current_sig])
     local pos = self.signals.pos[self.current_sig]
     local x, y = pos.x, pos.y
-    local sig_color = colorConstants[self.signals.color[self.current_sig]]
+    local sig_color = colorConstants.colors[self.signals.color[self.current_sig]]
     if self.figure_alpha then
         sig_color[4] = self.figure_alpha
     else
         print("no self.figure_alpha")
     end
     --print("sig_color[4]", sig_color[4])
-    local type = self.signals.form[self.current_sig]
-    self.signal:draw(x, y, type, sig_color)
+    local curtype: string = self.signals.form[self.current_sig]
+    self.signal:draw(x, y, curtype, sig_color)
 end
 
-function nback:drawField()
+function Nback:drawField()
     local field_h = self.dim * self.cell_width
     g.setColor(self.field_color)
     local oldwidth = g.getLineWidth()
@@ -1062,11 +1113,11 @@ function nback:drawField()
         -- vertical
         g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
     end
-    --g.setLineWidth(oldwidth)
+    g.setLineWidth(oldwidth)
 end
 
 -- draw central_text - Press Space key
-function nback:printStartPause()
+function Nback:printStartPause()
     local central_text = i18n("waitFor", { self.start_pause_rest })
     g.setFont(self.centralFont)
     g.setColor(pallete.signal)
@@ -1075,19 +1126,19 @@ function nback:printStartPause()
     g.print(central_text, x, y)
 end
 
-function nback:mousemoved(x, y, dx, dy, istouch)
+function Nback:mousemoved(x: number, y: number, dx: number, dy: number, istouch: boolean)
     if not self.is_run and not self.show_statistic then
         self.setupmenu:mousemoved(x, y, dx, dy, istouch)
     end
 end
 
-function nback:mousereleased(x, y, btn)
+function Nback:mousereleased(x: number, y: number, btn: number)
     if self.statisticRender then
         self.statisticRender:mousereleased(x, y, btn)
     end
 end
 
-function nback:mousepressed(x, y, btn, istouch)
+function Nback:mousepressed(x: number, y: number, btn: number, istouch: boolean)
     if not self.is_run and not self.show_statistic then
         self.setupmenu:mousepressed(x, y, btn, istouch)
     elseif self.statisticRender then
@@ -1097,15 +1148,15 @@ function nback:mousepressed(x, y, btn, istouch)
     end
 end
 
-function nback:touchpressed(id, x, y, dx, dy, pressure)
-end
+--function Nback:touchpressed(id, x, y, dx, dy, pressure)
+--end
 
-function nback:touchreleased(id, x, y, dx, dy, pressure)
-end
+--function nback:touchreleased(id, x, y, dx, dy, pressure)
+--end
 
-function nback:touchmoved(id, x, y, dx, dy, pressure)
-end
+--function nback:touchmoved(id, x, y, dx, dy, pressure)
+--end
 
 return {
-    new = nback.new,
+    new = Nback.new,
 }

@@ -1,6 +1,7 @@
 require "love"
 require "nbtypes"
 require "constants"
+
 local i18n = require "i18n"
 local gooi = require "gooi.gooi"
 local serpent = require "serpent"

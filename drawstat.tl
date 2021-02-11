@@ -316,7 +316,7 @@ function StatisticRender:keyreleased(key: string)
     gooi.keyreleased(nil, key)
 end
 
-function StatisticRender:mousepressed(_: number, _: number, _: number)
+function StatisticRender:mousepressed(_: number, _: number, _: number, _: boolean)
     gooi.pressed()
 end
 

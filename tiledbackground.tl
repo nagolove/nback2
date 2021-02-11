@@ -1,7 +1,7 @@
 require "love"
 local gr = love.graphics
 
-local type TiledBackround = record
+global type TiledBackround = record
     new: function(TiledBackround): TiledBackround
     prepareDrawing: function(TiledBackround)
     draw: function(TiledBackround, number)

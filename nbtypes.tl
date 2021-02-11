@@ -1,6 +1,9 @@
 global type Settings = record
     volume: number
     firstRun: boolean
+    level: number
+    pause_time: number
+    dim: number
 end
 
 global type Date = record
@@ -45,7 +48,7 @@ global type Signals = record
     end
 
     color: {string}
-    form: {string}
+    form: {Forms}
     pos: {Pos}
     --sounds: {number}
     sound: {number}
@@ -60,4 +63,12 @@ global type Percentage = record
     pos: number
     common: number
 end
---global type Signals = {Signal}
+
+
+global record History
+    date: Date
+    signals: Signals
+    pressed: Signals.Eq
+    level: number
+    pause_time: number
+end

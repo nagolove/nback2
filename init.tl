@@ -23,7 +23,6 @@ local i18n = require "i18n"
 local linesbuf = require "kons".new()
 local cam = require "camera".new()
 local profiCam = require "camera".new()
-local tiledback = require "tiledbackground":new()
 
 local fonts = require "fonts"
 
