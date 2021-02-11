@@ -377,8 +377,8 @@ function Nback:init(save_name: string)
     self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 3)) / 2
 
     print("self.startcx, self.startcy", self.startcx, self.startcy)
-    self.hexField, self.hexMesh = hex.newHexField(self.startcx,
-        self.startcy, self.map, rad, {1, 0, 1, 1})
+    --self.hexField, self.hexMesh = hex.newHexField(self.startcx,
+        --self.startcy, self.map, rad, {1, 0, 1, 1})
 
     self.signal = signal.new(self.hexField, self.startcx, self.startcy, self.map, 
         self.cell_width, "alphabet")
