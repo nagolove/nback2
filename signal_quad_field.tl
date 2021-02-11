@@ -1,24 +1,18 @@
 require "love"
-require "hex"
 require "vector"
+require "nbtypes"
 
 local g = love.graphics
 
 global type SignalView = record
-    new: function(Hex, number, number, any, number, string): SignalView
+    new: function(width: number, soundPack: string): SignalView
     setCorner: function(SignalView, number, number)
     resize: function(SignalView, number, number)
     draw2Canvas: function(SignalView, number)
     drawFigures2Canvas: function(SignalView)
     draw: function(SignalView, number, number, string, {number})
 
-    circleImage: love.graphics.Texture
-    imageQuad: love.graphics.Quad
     iCount: number
-    hexfield: Hex
-    startcx: number
-    startcy: number
-    map: any
     width: number
     sounds: {love.audio.Source}
     canvas: love.graphics.Canvas
@@ -27,26 +21,25 @@ global type SignalView = record
     x0: number
     y0: number
     canvases: {love.graphics.Canvas}
+
+    setCorner: function(x: number, y: number)
+    resize: function(width: number)
+    draw2Canvas: function(index: number)
+    drawFigures2Canvas: function()
+    draw: function(xd: number, yd: number, type_: string, color: {number})
+    play: function(index: number)
+    quad: function(x: number, y: number, w: number, h: number)
+    circle: function(x: number, y: number, w: number, h: number)
+    trdown: function(x: number, y: number, w: number, h: number)
+    trup: function(x: number, y: number, w: number, h: number)
+    calculateIntersections: function(up: {number}, down: {number}): {number}
+    trupdown: function(_: number, _: number, w: number, h: number)
+    rhombus: function(x: number, y: number, w: number, h: number)
 end
 
 local SignalView_mt: metatable<SignalView> = {
     __index = SignalView
 }
-
-local enum Types
-    "quad"
-    "circle"
-    "rhombus"
-    "trup"
-    "trdown"
-    "trupdown"
-end
-
---[[
--- Типы сигналов и их порядок в канвасах слева на право:
--- quad, circle, rhombus, trup, trdown, trupdown
---]]
-local types: {string} = {"quad", "circle", "rhombus", "trup", "trdown", "trupdown"}
 
 -- параметры - hump.vector
 -- источник: https://users.livejournal.com/-winnie/152327.html
@@ -87,18 +80,9 @@ end
 
 -- width - ширина ячейки для фигурки
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
-function SignalView.new(hexfield: H, startcx: number, startcy: number, map: {{number}}, cell_width: number, soundPack: string): SignalView
-    local circleImage = g.newImage("circle.png") as love.graphics.Texture
-    local width = hexfield[1].rad
+function SignalView.new(width: number, soundPack: string): SignalView
     local self: SignalView = {
-        circleImage = circleImage,
-        imageQuad = g.newQuad(0, 0, width, width, 
-            circleImage:getWidth(), circleImage:getHeight()),
         iCount = 10,
-        hexfield = hexfield, 
-        startcx = startcx,
-        startcy = startcy,
-        map = map,
         width = width,
         sounds = {}, 
         canvas = nil,
@@ -121,54 +105,6 @@ function SignalView.new(hexfield: H, startcx: number, startcy: number, map: {{nu
     return self
 end
 
---[[
-function signal:exampleFilling()
-    local exampleHex = self.hexfield[1]
-    self.exampleCanvas = g.newCanvas(g.getDimensions())
-
-    local x1, y1 = exampleHex[11], exampleHex[12]
-    local x2, y2 = exampleHex[5], exampleHex[6]
-    local dup_x1, dup_y1, dup_x2, dup_y2 = x1, y1, x2, y2
-    local snap = 10
-
-    local prevWidth = g.getLineWidth()
-    g.setCanvas({self.exampleCanvas, stencil=true})
-
-    g.stencil(function()
-        g.polygon("fill", exampleHex)
-    end, "invert", 1)
-
-    g.setStencilTest("greater", 1)
-
-    for i = 1, 10 do
-        g.line(dup_x1, dup_y1, dup_x2, dup_y2)
-        dup_x1, dup_y1 = dup_x1 - snap, dup_y1 - snap
-        dup_x2, dup_y2 = dup_x2 - snap, dup_y2 - snap
-
-        g.line(x1, y1, x2, y2)
-        x1, y1 = x1 + snap, y1 + snap
-        x2, y2 = x2 + snap, y2 + snap
-    end
-
-    x1, y1, x2, y2 = exampleHex[3], exampleHex[4], exampleHex[9], exampleHex[10]
-    dup_x1, dup_y1, dup_x2, dup_y2 = x1, y1, x2, y2
-
-    for i = 1, 10 do
-        g.line(dup_x1, dup_y1, dup_x2, dup_y2)
-        dup_x1, dup_y1 = dup_x1 + snap, dup_y1 - snap
-        dup_x2, dup_y2 = dup_x2 + snap, dup_y2 - snap
-
-        g.line(x1, y1, x2, y2)
-        x1, y1 = x1 - snap, y1 + snap
-        x2, y2 = x2 - snap, y2 + snap
-    end
-
-    g.setStencilTest()
-    g.setCanvas()
-    g.setLineWidth(prevWidth)
-end
---]]
-
 -- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
 -- обязательно вызывать перед рисовкой.
 function SignalView:setCorner(x: number, y: number)
@@ -179,38 +115,11 @@ function SignalView:resize(width: number)
     self.width = width
 
     self.canvas = g.newCanvas(width, width * 6, {msaa = 2})
-    self.canvases = {}
-    for i = 1, 6 do
-        table.insert(self.canvases, g.newCanvas(width, width, {msaa = 2}))
-    end
+    --self.canvases = {}
+    --for i = 1, 6 do
+        --table.insert(self.canvases, g.newCanvas(width, width, {msaa = 2}))
+    --end
 
-    self:drawFigures2Canvas()
-end
-
-function SignalView:draw2Canvas(index: number)
-    --local xd, yd = 1, 1
-    --local border = 5
-    --local w, h = self.width - border * 2, self.width - border * 2
-    --local x = self.x0 + xd * self.width + border 
-    --local y = self.y0 + yd * self.width + border
-
-    g.setColor{1, 1, 1}
-    g.setCanvas(self.canvases[index])
-    local funcName: string = types[index] 
-    --(self as {string:function})[funcName](self, 0, 0, w, h)
-    --(self as {string:function})["wf"](self, 0, 0, w, h)
-    --(self as {string:function()})["wf"]()
-    self[funcName as Types](self, 0, 0, w, h)
-    g.setCanvas()
-
-    self.canvases[index]:newImageData():encode("png", "signals/" .. funcName .. ".png")
-end
-
-function SignalView:drawFigures2Canvas()
-    love.filesystem.createDirectory("signals")
-    for k, _ in ipairs(types) do
-        self:draw2Canvas(k)
-    end
 end
 
 -- xd, yd - целочисленная позиция фигуры в матрице.
@@ -219,39 +128,21 @@ end
 -- color - текущий цвет
 function SignalView:draw(xd: number, yd: number, type_: string, color: {number})
 
-    local currentHex = self.hexfield:get(xd, yd)
+    --local currentHex = self.hexfield:get(xd, yd)
 
     local border = 1
     local w, h = self.width - border * 2, self.width - border * 2
-    --local x = self.x0 + xd * self.width + border 
-    --local y = self.y0 + yd * self.width + border
+    local x = self.x0 + xd * self.width + border 
+    local y = self.y0 + yd * self.width + border
 
     self.borderColor[4] = color[4] -- анимирую альфа-канал цвета рамки
     g.setColor(color)
     local oldWidth = g.getLineWidth()
     g.setLineWidth(self.borderLineWidth)
 
-    if currentHex and type(currentHex) == "table" then
-
-        --g.setShader(fragmentCode)
-        --safesend(fragmentCode, "iTime", love.timer.getTime())
-        --safesend(fragmentCode, "iCount", self.iCount)
-
-        --local rad = math.floor(getHexPolygonWidth(self.hexfield[1]) / 2)
-
-        --g.setShader()
-
-        local idx = 0
-        for k, v in ipairs(types) do
-            if v == type_ then
-                idx = k
-                break
-            end
-        end
-
-        local x, y: number, number = currentHex.cx - w / 2, currentHex.cy - h / 2
-        g.draw(self.canvases[idx] as love.graphics.Drawable, x, y)
-    end
+    --self[type_ as Types](self, x, y, w, h)
+    -- XXX скорее всего не будет работать, не передается self
+    self[type_ as Signals.Forms](x, y, w, h)
 
     g.setLineWidth(oldWidth)
 

@@ -20,11 +20,17 @@ local inspect = require "inspect"
 local pallete = require "pallete"
 local serpent = require "serpent"
 local setupmenu = require "setupmenu"
-local signal = require "signal"
 local w, h = g.getDimensions()
 local yield = coroutine.yield
 
 global type Nback = record
+
+    enum Mode
+        "quad"
+        "hex"
+    end
+
+    mode: Mode
     dim: number
     cell_width: number
     current_sig: number
@@ -108,6 +114,7 @@ local nbackSelf: Nback = {
     buttonsFont = fonts.nback.buttons,
     centralFont = fonts.nback.central,
     border = 3,
+    mode = "quad",
 }
 
 function Nback.new(): Nback
@@ -380,8 +387,12 @@ function Nback:init(save_name: string)
     --self.hexField, self.hexMesh = hex.newHexField(self.startcx,
         --self.startcy, self.map, rad, {1, 0, 1, 1})
 
-    self.signal = signal.new(self.hexField, self.startcx, self.startcy, self.map, 
-        self.cell_width, "alphabet")
+    if self.mode == "quad" then
+        self.signal = require "signal_quad_field".new(self.hexField, self.startcx, self.startcy, self.map, 
+            self.cell_width, "alphabet")
+    elseif self.mode == "hex" then
+        error("not implemented")
+    end
 
     self:createSetupMenu()
     self:resize(w, h)
