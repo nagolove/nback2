@@ -279,9 +279,9 @@ function Nback:createSetupMenu()
             end
             local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
             local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
-            -- color, string, color, string
+            -- XXX может не работать из-за различий в типах
             return {pallete.signal, part1, parameterColor,
-                expositionList[activeExpositionItem], pallete.signal, part2},
+                expositionList[activeExpositionItem], pallete.signal, part2} as {string},
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end})
@@ -290,23 +290,23 @@ function Nback:createSetupMenu()
     self.setupmenu:addItem({
         oninit = function(): {string}, boolean, boolean 
             return {pallete.signal, i18n("setupMenu.diffLevel"),
-                parameterColor, tostring(nbackLevel)}, 
+                parameterColor, tostring(nbackLevel)} as {string}, 
                 nbackLevel == 1,
                 nbackLevel == maxLevel
         end,
 
-        onleft = function()
+        onleft = function(): {string}, boolean, boolean
             if nbackLevel - 1 >= 1 then nbackLevel = nbackLevel - 1 end
             return {pallete.signal, i18n("setupMenu.diffLevel"), parameterColor,
-                tostring(nbackLevel)},
+                tostring(nbackLevel)} as {string},
                 nbackLevel == 1,
                 nbackLevel == maxLevel
         end,
 
-        onright = function()
+        onright = function(): {string}, boolean, boolean
             if nbackLevel + 1 <= maxLevel then nbackLevel = nbackLevel + 1 end
-            return {signal.color, i18n("setupMenu.diffLevel"), parameterColor,
-                tostring(nbackLevel)},
+            return {pallete.signal, i18n("setupMenu.diffLevel"), parameterColor,
+                tostring(nbackLevel)} as {string},
                 nbackLevel == 1,
                 nbackLevel == maxLevel
         end})
@@ -340,6 +340,7 @@ function Nback:createSetupMenu()
 
 end
 
+--[[
 function Nback:drawMapIndices()
     local currentHex = self.hexField:get(1, 1)
     local currentHex = self.hexField:get(2, 1)
@@ -353,6 +354,7 @@ function Nback:drawMapIndices()
         g.print(string.format("%dx%d", mapx, mapy), x + 20, y)
     end
 end
+--]]
 
 function Nback:init(save_name: string)
     readSettings()
@@ -692,7 +694,7 @@ function nback:draw()
 
             gr.draw(self.hexMesh)
             if __DEBUG__ then
-                self:drawMapIndices()
+                --self:drawMapIndices()
             end
 
             self:drawActiveSignal()

@@ -5,10 +5,6 @@ require "cmn"
 require "globals"
 
 local gooi = require "gooi.gooi"
-
---local nback = require "nback"
---local menu = require "menu"
-
 local pallete = require "pallete"
 local i18n = require "i18n"
 local g = love.graphics
@@ -27,6 +23,7 @@ global type StatisticRenderData = record
 end
 
 global type StatisticRender = record
+
     record InitData
         signals: Signals
         pressed: {string:{boolean}}
@@ -40,6 +37,7 @@ global type StatisticRender = record
         buttons: boolean
         border: number
     end
+
     record Info
         durationStr: string
         infoStr: string
@@ -47,6 +45,7 @@ global type StatisticRender = record
         durationX: number
         infoX: number
     end
+
     rect_size: number
     signals: Signals
     width_k: number
