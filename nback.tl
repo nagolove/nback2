@@ -3,15 +3,14 @@
 require "common"
 require "layout"
 require "snippets"
-require "hex"
 require "signal"
 require "gooi.gooi"
 require "drawstat"
 require "coroprocessor"
+require "Timer"
 
+local hex = require "hex"
 local i18n = require "i18n"
-local Timer = require "Timer"
---local alignedlabels = require "alignedlabels"
 local colorConstants = require "colorconstants"
 local g = love.graphics
 local gr = love.graphics
@@ -68,7 +67,7 @@ global type Nback = record
     save_name: string
     startcx: number
     startcy: number
-    hexField: Hex
+    hexField: H
     hexMesh: love.graphics.Mesh
     map: {{number}}
 
@@ -168,7 +167,8 @@ function Nback:start()
     self.stopppedSignal = 0 
     self.start_pause_rest = 3 -- время паузы перед раундом
     self.start_pause = true
-    self.timer:every(1, function() 
+    local delay = 1
+    self.timer:every(delay, function() 
         self.start_pause_rest = self.start_pause_rest - 1 
     end, 
     self.start_pause_rest, function()
@@ -176,7 +176,7 @@ function Nback:start()
         self.is_run = true
         -- фиксирую время начала игры
         self.startTime = love.timer.getTime()
-    end)
+    end, "notag")
 
     if onAndroid or not useKeyboard then
         self:initButtons()
@@ -255,8 +255,9 @@ function Nback:createSetupMenu()
         oninit = function(): {string}, boolean, boolean
             local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
             local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
+            -- XXX may be harmful type conversion
             return {pallete.signal, part1, parameterColor, 
-                expositionList[activeExpositionItem], pallete.signal, part2},
+                expositionList[activeExpositionItem], pallete.signal, part2} as {string},
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end,
@@ -268,7 +269,7 @@ function Nback:createSetupMenu()
             local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
             local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
             return {pallete.signal, part1, parameterColor,
-                expositionList[activeExpositionItem], pallete.signal, part2}, 
+                expositionList[activeExpositionItem], pallete.signal, part2} as {string}, 
                 activeExpositionItem == 1,
                 activeExpositionItem == #expositionList
         end,
@@ -361,7 +362,7 @@ function Nback:init(save_name: string)
     self.volume = settings.volume
     love.audio.setVolume(settings.volume)
     self.save_name = save_name
-    self.timer = Timer()
+    self.timer = require "Timer"()
 
     w, h = gr.getDimensions()
     self.map = {
@@ -371,12 +372,12 @@ function Nback:init(save_name: string)
         }
     local fieldSize = #self.map
     local rad = math.floor((math.min(w, h) / fieldSize) / 2)
-    local testHex = newHexPolygon(0, 0, rad)
+    local testHex = hex.newHexPolygon(0, 0, rad)
     self.startcx = (w - (getHexPolygonWidth(testHex) * fieldSize - rad * 2)) / 2
     self.startcy = (h - (getHexPolygonHeight(testHex) * fieldSize - rad * 3)) / 2
 
     print("self.startcx, self.startcy", self.startcx, self.startcy)
-    self.hexField, self.hexMesh = newHexField(self.startcx,
+    self.hexField, self.hexMesh = hex.newHexField(self.startcx,
         self.startcy, self.map, rad, {1, 0, 1, 1})
 
     self.signal = signal.new(self.hexField, self.startcx, self.startcy, self.map, 

@@ -15,7 +15,9 @@ function getHexPolygonHeight(hex: {number}): number
 end
 
 global record Hex 
+    -- массив вершин
     {number}
+    -- центр шестиугольника
     cx: number
     cy: number
     endindex: number
@@ -102,7 +104,7 @@ function Hex:setColor(color: {number})
     end
 end
 
-function newHexPolygon(cx: number, cy: number, rad: number): Hex
+local function newHexPolygon(cx: number, cy: number, rad: number): Hex
     local hex = setmetatable({} as Hex, Hex_mt)
 
     local d = math.pi * 2 / 6
@@ -196,25 +198,25 @@ function addBorder(data: {{number}}, hex: Hex)
     addLine(data, hex[11], hex[12], hex[1], hex[2])
 end
 
-local record H
+global record HexField
     map:{{number}}
-    __index: metatable<H>
+    __index: metatable<HexField>
 
-    get: function(H, number, number): number
+    get: function(HexField, number, number): number
 end
 
 -- map - 2d array
-function newHexField(startcx: number, startcy: number, map: {{number}},rad: number, color: {number}): H, love.graphics.Mesh
+local function newHexField(startcx: number, startcy: number, map: {{number}},rad: number, color: {number}): HexField, love.graphics.Mesh
     --print(inspect(map))
     --print(#map)
     local xcount = #map
     local ycount = #map[1]
     assert(xcount == ycount)
 
-    local Handler: H = {
+    local Handler: HexField = {
         map = {}
     }
-    Handler.__index = Handler as metatable<H>
+    Handler.__index = Handler as metatable<HexField>
 
     for k, v in ipairs(map) do
         Handler.map[k] = {}
@@ -227,8 +229,8 @@ function newHexField(startcx: number, startcy: number, map: {{number}},rad: numb
         return Handler.map[x][y] or nil
     end
 
-    local result = {}
-    setmetatable(result as H, Handler as metatable<H>)
+    local result: HexField = {}
+    setmetatable(result, Handler as metatable<HexField>)
 
     local mesh = gr.newMesh((6 * 3 + 6 * 6) * xcount * ycount, "triangles", "dynamic")
     local meshData = {}

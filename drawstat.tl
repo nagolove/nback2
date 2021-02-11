@@ -2,7 +2,7 @@ require "love"
 require "nbtypes"
 require "layout"
 require "cmn"
-require "globals"
+--require "globals"
 
 local gooi = require "gooi.gooi"
 local pallete = require "pallete"
@@ -74,7 +74,7 @@ end
 
 -- drawLinks({ idx, "left" }, { idx, "right" })
 -- drawLinks({ idx, "center" }, { idx, "right" })
-function StatisticRender:drawLink(x: number, y: number, point1: LinkPoint, point2: LinkPoint)
+function StatisticRender:drawLink(_: number, _: number, point1: LinkPoint, point2: LinkPoint)
     assert(type(point1) == "table")
     assert(type(point2) == "table")
     --assert(type(point1[1]) == "number" and type(point1[2]) == "string")
@@ -379,7 +379,9 @@ function StatisticRender.new(data: StatisticRender.InitData): StatisticRender
             w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h
         }):onRelease(function()
             --linesbuf:push(1, "return to main!")
-            menu:goBack()
+            error("global variable confusion")
+            -- XXX fixme
+            --menu:goBack()
         end)
     end
 

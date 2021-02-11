@@ -5,7 +5,7 @@ require "vector"
 local g = love.graphics
 
 global type SignalView = record
-    new: function(Hex, number, number, any, number, string): SignalView
+    new: function(H, number, number, any, number, string): SignalView
     setCorner: function(SignalView, number, number)
     resize: function(SignalView, number, number)
     draw2Canvas: function(SignalView, number)
@@ -87,7 +87,7 @@ end
 
 -- width - ширина ячейки для фигурки
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
-function SignalView.new(hexfield: Hex, startcx: number, startcy: number, map: {{number}}, cell_width: number, soundPack: string): SignalView
+function SignalView.new(hexfield: H, startcx: number, startcy: number, map: {{number}}, cell_width: number, soundPack: string): SignalView
     local circleImage = g.newImage("circle.png") as love.graphics.Texture
     local width = hexfield[1].rad
     local self: SignalView = {
