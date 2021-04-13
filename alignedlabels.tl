@@ -78,19 +78,20 @@ function AlignedLabels:draw(x: number, y: number)
     g.setFont(self.font)
     for k, v in pairs(self.data as {any:any}) do
         if type(v) == "string" then
-            g.setColor(self.colors[k as number])
+            g.setColor(self.colors[k as integer])
             g.print(v as string, i - self.font:getWidth(v as string) / 2, y)
             i = i + dw
         elseif type(v) == "table" then
-            local width = 0
+            local width = 0.
             for _, g in ipairs(v as {string}) do
                 width = width + self.font:getWidth(g)
             end
-            assert(#(v as {string}) == #self.colors[k as number])
+            --assert(#(v as {string}) == #self.colors[k as number])
+            assert(#(v as {string}) == #self.colors[math.floor(k as number)])
             local xpos = i - width / 2
             for j, p in pairs(v as {any:any}) do
                 --print(type(self.colors[k]), inspect(self.colors[k]), k, j)
-                g.setColor(self.colors[k as number][j as number])
+                g.setColor(self.colors[math.floor(k as number)][math.floor(j as number)])
                 g.print(p as string, xpos, y)
                 xpos = xpos + self.font:getWidth(p as string)
             end

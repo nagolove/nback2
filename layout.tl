@@ -64,7 +64,7 @@ function Layout.new(x: number|Layout, y: number, w: number, h: number): Layout
 end
 
 function assertVariadic(...: number)
-    local sum = 0
+    local sum = 0.
     for i = 1, select("#", ...) do
         sum = sum + select(i, ...)
     end
@@ -104,13 +104,14 @@ function splitv(tbl: Layout, ...: number): Layout...
     return table.unpack(subTbls)
 end
 
-function splitvAlign(tbl: Layout, alignMode: Layout.AlignMode, ...: number): Layout...
+--function splitvAlign(tbl: Layout, alignMode: Layout.AlignMode, ...: number): Layout...
+function splitvAlign(tbl: Layout, alignMode: Layout.AlignMode): Layout...
     assert(false, "Not yet implemented")
     assertHelper(tbl)
     assertAlign(alignMode)
-    local subTbls = {}
-    for i = 1, select("#", ...) do
-    end
+    --local subTbls = {}
+    --for i = 1, select("#", ...) do
+    --end
     assert(false, "Not implemented")
 end
 
@@ -118,7 +119,7 @@ function splithByNum(tbl: Layout, piecesNum: number): Layout...
     assertHelper(tbl)
     local subTbls = {}
     local prevy, h = tbl.y, tbl.h / piecesNum
-    for i = 1, piecesNum do
+    for _ = 1, piecesNum do
         table.insert(subTbls, {x = tbl.x, y = prevy, w = tbl.w, h = h})
         prevy = prevy + h
     end
@@ -129,7 +130,7 @@ function splitvByNum(tbl: Layout, piecesNum: number): Layout...
     assertHelper(tbl)
     local subTbls = {}
     local prevx, w = tbl.x, tbl.w / piecesNum
-    for i = 1, piecesNum do
+    for _ = 1, piecesNum do
         table.insert(subTbls, {x = prevx, y = tbl.y, w = w, h = tbl.h})
         prevx = prevx + w
     end

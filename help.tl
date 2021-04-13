@@ -4,7 +4,7 @@ require "layout"
 require "cmn"
 require "globals"
 
-local gooi = require "gooi.gooi"
+--local gooi = require "gooi.gooi"
 local pallete = require "pallete"
 local fonts = require "fonts"
 local i18n = require "i18n"

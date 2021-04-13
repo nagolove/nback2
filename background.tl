@@ -173,9 +173,9 @@ function Block:process(dt: number): boolean
     -- приехали
     -- флаг ничего не делает, влияет только на рисовку обводки блока.
     self.active = false 
-    self.back.blocks[self.xidx][self.yidx] = {}
+    self.back.blocks[math.floor(self.xidx)][math.floor(self.yidx)] = {}
     --print("self.newXidx, self.newYidx", self.newXidx, self.newYidx)
-    self.back.blocks[self.newXidx][self.newYidx] = self
+    self.back.blocks[math.floor(self.newXidx)][math.floor(self.newYidx)] = self
     self.oldXidx, self.oldYidx = self.xidx, self.yidx
     self.xidx = self.newXidx
     self.yidx = self.newYidx
@@ -186,7 +186,7 @@ function Block:process(dt: number): boolean
   return ret
 end
 
-function Background:get(xidx: number, yidx: number): Block
+function Background:get(xidx: integer, yidx: integer): Block
   local firstColumn = self.blocks[1]
   --print("xidx, yidx", xidx, yidx)
   if xidx >= 1 and xidx <= #self.blocks and 
@@ -203,7 +203,7 @@ end
 -- Как можно разделить функцию на две части?
 -- Скажем одна делает обращение к массиву с проверкой границ и отладочным
 -- выводом, а другая - занимается поиском подходящей ячейки.
-function Background:findDirection(xidx: number, yidx: number): number, number
+function Background:findDirection(xidx: integer, yidx: integer): integer, integer
   local x, y = xidx, yidx
   -- почему-то иногда возвращает не измененный результат, тот же, что и ввод.
   -- приводит к падению программы
@@ -291,7 +291,7 @@ function Background:fillGrid()
 
   local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
   self.execList = {}
-  for i = 1, self.emptyNum do
+  for _ = 1, self.emptyNum do
     -- случайный пустой блок, куда будет двигаться сосед
     local xidx = math.random(1, fieldWidth)
     local yidx = math.random(1, fieldHeight)
@@ -325,7 +325,7 @@ function Background:update(dt: number)
       print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
       -- поиск индексов нового блока по новым рассчитанным индексам
-      local x, y = self:findDirection(xidx, yidx)
+      local x, y = self:findDirection(math.floor(xidx), math.floor(yidx))
       --print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
       --print(string.format("xidx = %d, yidx = %d", xidx, yidx))
       --print(string.format("xidx - x = %d, yidx - y = %d", 

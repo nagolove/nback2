@@ -3,7 +3,7 @@ require "nbtypes"
 require "constants"
 
 local i18n = require "i18n"
-local gooi = require "gooi.gooi"
+--local gooi = require "gooi.gooi"
 local serpent = require "serpent"
 
 global settings: Settings
@@ -11,6 +11,29 @@ global __DEBUG__ = false
 global onAndroid = love.system.getOS() == "Android"
 global useKeyboard = true
 global preventiveFirstRun = true
+
+require "pviewer"
+require "menu"
+require "help"
+require "tiledbackground"
+
+global menu: Menu
+global pviewer: Pviewer
+global help: Help
+global tiledback: TiledBackround
+--global nback: Nback
+
+function initGlobals()
+    menu = require "menu".new()
+    pviewer = require "pviewer".new()
+    help = require "help".new()
+    --nback = require "nback".new()
+    tiledback = require "tiledbackground":new()
+end
+
+--return {
+    --initGlobals = initGlobals,
+--}
 
 function pack(...: any): any
     return {...}
@@ -101,6 +124,7 @@ function percentage(signals: Signals, pressed: Signals.Eq): Percentage
 end
 --require "deepcopy"
 
+--[[
 function storeGooi(): Gooi
     --local g = { components = deepcopy(gooi.components) }
     --print("gooi.components", inspect(gooi.components))
@@ -116,6 +140,24 @@ function restoreGooi(g: Gooi)
     end
     --assert(g)
     gooi.components = g.components
+end
+--]]
+
+function storeUI(): any
+    --local g = { components = deepcopy(gooi.components) }
+    --print("gooi.components", inspect(gooi.components))
+    --local g = { components = table.deepcopy(gooi.components) }
+    --local g = { components = gooi.components }
+    --gooi.components = {}
+    return {}
+end
+
+function restoreUI(g: any)
+    if g == nil then
+        error("g == nil")
+    end
+    --assert(g)
+    --gooi.components = g.components
 end
 
 function compareDates(now: Date, date: Date): string
@@ -133,7 +175,7 @@ function compareDates(now: Date, date: Date): string
     local result = i18n("moreTime")
     --print("now", inspect(os.date("*t")))
     --print("date", inspect(date))
-    local t1, t2, diff = now.yday * 24 + now.hour, date.yday * 24 + date.hour, 0
+    local t1, t2, diff = now.yday * 24 + now.hour, date.yday * 24 + date.hour, 0.
     if date.year == now.year then
         diff = t1 - t2
     else
@@ -164,11 +206,11 @@ function readSettings(): Settings
     local result: Settings
 
     if data then
-        local ok, func = serpent.load(data)
+        local ok, res = serpent.load(data)
         if not ok then
             result = getDefaultSettings()
         else
-            result = func() as Settings
+            result = res as Settings
         end
     else
         result = getDefaultSettings()

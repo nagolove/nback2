@@ -1,4 +1,4 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; require("love")
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; require("love")
 
 local g = love.graphics
 
@@ -82,15 +82,16 @@ function AlignedLabels:draw(x, y)
          g.print(v, i - self.font:getWidth(v) / 2, y)
          i = i + dw
       elseif type(v) == "table" then
-         local width = 0
+         local width = 0.
          for _, g in ipairs(v) do
             width = width + self.font:getWidth(g)
          end
-         assert(#(v) == #self.colors[k])
+
+         assert(#(v) == #self.colors[math.floor(k)])
          local xpos = i - width / 2
          for j, p in pairs(v) do
 
-            g.setColor(self.colors[k][j])
+            g.setColor(self.colors[math.floor(k)][math.floor(j)])
             g.print(p, xpos, y)
             xpos = xpos + self.font:getWidth(p)
          end

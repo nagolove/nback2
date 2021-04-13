@@ -4,11 +4,15 @@ require "vector"
 
 local g = love.graphics
 
+--[[
+Что делает этот класс?
+--]]
+--[[
 global type SignalView = record
     new: function(Hex, number, number, any, number, string): SignalView
     setCorner: function(SignalView, number, number)
     resize: function(SignalView, number, number)
-    draw2Canvas: function(SignalView, number)
+    draw2Canvas: function(SignalView, integer)
     drawFigures2Canvas: function(SignalView)
     draw: function(SignalView, number, number, string, {number})
 
@@ -42,10 +46,8 @@ local enum Types
     "trupdown"
 end
 
---[[
 -- Типы сигналов и их порядок в канвасах слева на право:
 -- quad, circle, rhombus, trup, trdown, trupdown
---]]
 local types: {string} = {"quad", "circle", "rhombus", "trup", "trdown", "trupdown"}
 
 -- параметры - hump.vector
@@ -120,6 +122,7 @@ function SignalView.new(hexfield: H, startcx: number, startcy: number, map: {{nu
     self:resize(self.width)
     return self
 end
+--]]
 
 --[[
 function signal:exampleFilling()
@@ -171,6 +174,7 @@ end
 
 -- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
 -- обязательно вызывать перед рисовкой.
+--[[
 function SignalView:setCorner(x: number, y: number)
     self.x0, self.y0 = x, y
 end
@@ -187,7 +191,7 @@ function SignalView:resize(width: number)
     self:drawFigures2Canvas()
 end
 
-function SignalView:draw2Canvas(index: number)
+function SignalView:draw2Canvas(index: integer)
     --local xd, yd = 1, 1
     --local border = 5
     --local w, h = self.width - border * 2, self.width - border * 2
@@ -421,3 +425,5 @@ return {
     new = SignalView.new,
 }
 
+
+--]]

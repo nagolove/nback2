@@ -1,4 +1,5 @@
 --require "nback"
+--[[
 require "menu"
 require "pviewer"
 require "help"
@@ -21,3 +22,4 @@ end
 return {
     initGlobals = initGlobals,
 }
+--]]

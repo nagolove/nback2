@@ -1,6 +1,5 @@
 require "love"
 require "common"
-require "gooi.gooi"
 require "drawstat"
 
 local serpent = require "serpent"
@@ -25,7 +24,7 @@ global type Pviewer = record
     buildLayout: function(Pviewer)
     enter: function(Pviewer)
     sortByDate: function(Pviewer)
-    updateRender: function(Pviewer, number)
+    updateRender: function(Pviewer, integer)
 end
 
 local pviewer_mt: metatable<Pviewer> = {
@@ -50,7 +49,7 @@ end
 
 -- создает новый экземпляр просмотрщика статистики для текущего положения
 -- индекса pviewer.activeIndex
-function Pviewer:updateRender(index: number)
+function Pviewer:updateRender(index: integer)
     print("updateRender()", index)
     if self.data and index >= 1 and index <= #self.data then
         local data = self.data[index]

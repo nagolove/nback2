@@ -1,8 +1,9 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; require("love")
 require("nbtypes")
 require("constants")
+
 local i18n = require("i18n")
-local gooi = require("gooi.gooi")
+
 local serpent = require("serpent")
 
 
@@ -10,6 +11,29 @@ __DEBUG__ = false
 onAndroid = love.system.getOS() == "Android"
 useKeyboard = true
 preventiveFirstRun = true
+
+require("pviewer")
+require("menu")
+require("help")
+require("tiledbackground")
+
+
+
+
+
+
+
+function initGlobals()
+   menu = require("menu").new()
+   pviewer = require("pviewer").new()
+   help = require("help").new()
+
+   tiledback = require("tiledbackground"):new()
+end
+
+
+
+
 
 function pack(...)
    return { ... }
@@ -100,21 +124,40 @@ function percentage(signals, pressed)
 end
 
 
-function storeGooi()
 
 
 
-   local g = { components = gooi.components }
-   gooi.components = {}
-   return g
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function storeUI()
+
+
+
+
+
+   return {}
 end
 
-function restoreGooi(g)
+function restoreUI(g)
    if g == nil then
       error("g == nil")
    end
 
-   gooi.components = g.components
+
 end
 
 function compareDates(now, date)
@@ -132,7 +175,7 @@ function compareDates(now, date)
    local result = i18n("moreTime")
 
 
-   local t1, t2, diff = now.yday * 24 + now.hour, date.yday * 24 + date.hour, 0
+   local t1, t2, diff = now.yday * 24 + now.hour, date.yday * 24 + date.hour, 0.
    if date.year == now.year then
       diff = t1 - t2
    else
@@ -163,11 +206,11 @@ function readSettings()
    local result
 
    if data then
-      local ok, func = serpent.load(data)
+      local ok, res = serpent.load(data)
       if not ok then
          result = getDefaultSettings()
       else
-         result = func()
+         result = res
       end
    else
       result = getDefaultSettings()

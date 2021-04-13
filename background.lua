@@ -173,9 +173,9 @@ function Block:process(dt)
 
 
       self.active = false
-      self.back.blocks[self.xidx][self.yidx] = {}
+      self.back.blocks[math.floor(self.xidx)][math.floor(self.yidx)] = {}
 
-      self.back.blocks[self.newXidx][self.newYidx] = self
+      self.back.blocks[math.floor(self.newXidx)][math.floor(self.newYidx)] = self
       self.oldXidx, self.oldYidx = self.xidx, self.yidx
       self.xidx = self.newXidx
       self.yidx = self.newYidx
@@ -291,7 +291,7 @@ function Background:fillGrid()
 
    local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
    self.execList = {}
-   for i = 1, self.emptyNum do
+   for _ = 1, self.emptyNum do
 
       local xidx = math.random(1, fieldWidth)
       local yidx = math.random(1, fieldHeight)
@@ -325,7 +325,7 @@ function Background:update(dt)
          print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
 
-         local x, y = self:findDirection(xidx, yidx)
+         local x, y = self:findDirection(math.floor(xidx), math.floor(yidx))
 
 
 
