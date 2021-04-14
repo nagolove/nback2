@@ -10,7 +10,7 @@ local record Language
     locale: string
 end
 
-local record LanguageSelector 
+global record LanguageSelector 
 
     record Rect
         x: number
@@ -23,20 +23,20 @@ local record LanguageSelector
     prepareDraw: function
     draw: function
     resize: function
-    update: function(number)
-    touchpressed: function(any, number, number)
-    touchreleased: function(any, number, number)
-    touchmoved: function(any, number, number, number, number)
+    update: function(LanguageSelector, number)
+    touchpressed: function(LanguageSelector, any, number, number)
+    touchreleased: function(LanguageSelector, any, number, number)
+    touchmoved: function(LanguageSelector, any, number, number, number, number)
     up: function
     down: function
-    keypressed: function(string)
-    mousepressed: function(number, number, number, boolean)
-    mousemoved: function(number, number, number, number, boolean)
+    keypressed: function(LanguageSelector, string)
+    mousepressed: function(LanguageSelector, number, number, number, boolean)
+    mousemoved: function(LanguageSelector, number, number, number, number, boolean)
 
     languages: {Language}
     font: love.graphics.Font
     locale: string
-    selected: number
+    selected: integer
     beetweenClicks: number
     x: number
     y: number
@@ -75,7 +75,7 @@ function LanguageSelector:prepareDraw()
     local w, h = gr.getDimensions()
     local menuItemHeight = self.font:getHeight() + 6
     local menuHeight = #self.languages * menuItemHeight
-    local menuWidth = 0
+    local menuWidth = 0.
 
     for _, v in ipairs(self.languages) do
         local width = self.font:getWidth(v.id)
@@ -84,7 +84,7 @@ function LanguageSelector:prepareDraw()
         end
     end
 
-    local x0, y0 = 0, 0
+    local x0, y0 = 0., 0.
     self.x, self.y = (w - menuWidth) / 2, (h - menuHeight) / 2
     self.canvas = gr.newCanvas(menuWidth, menuHeight)
     gr.setFont(self.font)

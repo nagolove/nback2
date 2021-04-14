@@ -1,7 +1,8 @@
 require "love"
 require "common"
 require "drawstat"
-require "globals"
+require "nback"
+--require "globals"
 
 local serpent = require "serpent"
 local timer = require "Timer"
@@ -16,7 +17,7 @@ global type Pviewer = record
     activeIndex: integer
     save_name: string
     timer: Timer
-    data: {number}
+    data: {History}
     statisticRender: StatisticRender
 
     init:function(Pviewer, string)
@@ -73,9 +74,9 @@ function Pviewer:updateRender(index: integer)
     end
 end
 
-local function removeDataWithoutDateField(data)
+local function removeDataWithoutDateField(data: {History}): {History}
     local cleanedData = {}
-    for k, v in pairs(data) do
+    for _, v in ipairs(data) do
         if v.date then
             cleanedData[#cleanedData + 1] = v
         end
@@ -319,7 +320,8 @@ function Pviewer:update(dt)
     self.timer:update(dt)
 end
 
-return {
-    new = Pviewer.new
-}
+--return {
+    --new = Pviewer.new
+--}
 
+global pviewer: Pviewer = Pviewer.new()

@@ -315,6 +315,7 @@ function Menu:touchmoved(id: number, x: number, y: number, dx: number, dy: numbe
     end
 end
 
-return {
-    new = Menu.new
-}
+--return {
+    --new = Menu.new
+--}
+global menu: Menu = Menu.new()

@@ -315,6 +315,7 @@ function Menu:touchmoved(id, x, y, dx, dy, pressure)
    end
 end
 
-return {
-   new = Menu.new,
-}
+
+
+
+menu = Menu.new()

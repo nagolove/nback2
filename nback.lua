@@ -3,14 +3,16 @@ local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 th
 require("common")
 require("layout")
 require("snippets")
-require("gooi.gooi")
+require("button")
 require("drawstat")
 require("coroprocessor")
 require("Timer")
 require("signal_quad_field")
-require("globals")
+
 require("nbtypes")
 require("cmn")
+require("menu")
+require("tiledbackground")
 
 
 local i18n = require("i18n")
@@ -27,6 +29,8 @@ local w, h = g.getDimensions()
 local yield = coroutine.yield
 
  Nback = {Button = {}, }
+
+
 
 
 
@@ -153,7 +157,7 @@ end
 
 function makeFalseArray(len)
    local ret = {}
-   for i = 1, len do
+   for _ = 1, len do
       ret[#ret + 1] = false
    end
    return ret
@@ -175,10 +179,10 @@ end
 
 local function genMapByDim(d)
    local t = {}
-   for i = 1, d do
+   for _ = 1, d do
       table.insert(t, {})
       local p = t[#t]
-      for j = 1, d do
+      for _ = 1, d do
          table.insert(p, 0)
       end
    end
@@ -237,13 +241,13 @@ function Nback:enter()
 
    print("nback:enter()")
 
-   restoreGooi(self.gooiState)
+   restoreUI(self.uiState)
 end
 
 function Nback:leave()
    print("nback:leave()")
    self.show_statistic = false
-   self.gooiState = storeGooi()
+   self.uiState = storeUI()
 end
 
 
@@ -434,7 +438,7 @@ function Nback:init(save_name)
    self:resize(w, h)
    self:initShaders()
    self:initShadersTimer()
-   self.gooiState = storeGooi()
+   self.uiState = storeUI()
 end
 
 function Nback:initShadersTimer()
@@ -1157,6 +1161,8 @@ end
 
 
 
-return {
-   new = Nback.new,
-}
+
+
+
+
+nback = Nback.new()

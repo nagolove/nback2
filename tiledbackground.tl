@@ -2,7 +2,7 @@ require "love"
 local gr = love.graphics
 
 global type TiledBackround = record
-    new: function(TiledBackround): TiledBackround
+    new: function(): TiledBackround
     prepareDrawing: function(TiledBackround)
     draw: function(TiledBackround, number)
     resize: function(TiledBackround, number, number)
@@ -16,7 +16,7 @@ local TiledBackround_mt: metatable<TiledBackround> = {
 }
 --TiledBackround.__index = TiledBackround
 
-function TiledBackround:new(): TiledBackround
+function TiledBackround.new(): TiledBackround
     --local self: TiledBackround = setmetatable({}, TiledBackround)
     --local self: TiledBackround = setmetatable({} as TiledBackround, {})
     local self = setmetatable({} as TiledBackround, TiledBackround_mt)
@@ -53,9 +53,10 @@ function TiledBackround:draw(alpha: number)
     gr.draw(self.canvas as love.graphics.Drawable, 0, 0)
 end
 
-function TiledBackround:resize(neww: number, newh: number)
+function TiledBackround:resize(_: number, _: number)
     self:prepareDrawing()
 end
 
-return TiledBackround
+--return TiledBackround
+global tiledback: TiledBackround = TiledBackround.new()
 

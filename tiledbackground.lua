@@ -16,7 +16,7 @@ local TiledBackround_mt = {
 }
 
 
-function TiledBackround:new()
+function TiledBackround.new()
 
 
    local self = setmetatable({}, TiledBackround_mt)
@@ -53,8 +53,9 @@ function TiledBackround:draw(alpha)
    gr.draw(self.canvas, 0, 0)
 end
 
-function TiledBackround:resize(neww, newh)
+function TiledBackround:resize(_, _)
    self:prepareDrawing()
 end
 
-return TiledBackround
+
+tiledback = TiledBackround.new()

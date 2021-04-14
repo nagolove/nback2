@@ -42,7 +42,7 @@ global type SetupMenu = record
     font: love.graphics.Font
     color: {number}
     items: {ItemHandler}
-    activeIndex: number
+    activeIndex: integer
     cursorLineWidth: number
     cursorColor: {number}
     markerColor: {number}

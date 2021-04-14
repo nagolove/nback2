@@ -2,6 +2,9 @@ require "love"
 require "nbtypes"
 require "common"
 require "globals"
+require "pviewer"
+require "help"
+require "languageselector"
 
 love.filesystem.setRequirePath("?.lua;?/init.lua;scenes/nback2/?.lua")
 
@@ -32,6 +35,7 @@ local type Resizable = record
 end
 --local to_resize: {any} = {}
 local to_resize: {Resizable} = {}
+global languageSelector: LanguageSelector
 
 function dispatchWindowResize(neww: number, newh: number)
     for _, v in ipairs(to_resize) do
@@ -66,9 +70,11 @@ end
 function bindKeys()
     local kc = keyconfig
 
-    kc.bindKeyPressed("linesbufftoggle", {"2"}, function()
+    local Shortcut = KeyConfig.Shortcut
+    kc.bind("keypressed", { key = "2" }, function(_: Shortcut): boolean, Shortcut
         linesbuf.show = not linesbuf.show 
-    end, "show or hide debug output")
+        return false
+    end, "show or hide debug output", "linesbufftoggle")
 
     -- XXX сломано
     --kc.bindKeyPressed("startprofi", {"9"}, function()
@@ -108,19 +114,23 @@ end
 
 function subInit()
     bindKeys()
-    initGlobals()
+    --initGlobals()
 
     nback:init(SAVE_NAME)
     pviewer:init(SAVE_NAME)
     menu:init()
     help:init()
 
-    menu:addItem(i18n("mainMenu.play"), nback)
-    menu:addItem(i18n("mainMenu.viewProgress"), pviewer)
-    menu:addItem(i18n("mainMenu.help"), help)
-    if not onAndroid then
-        menu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
-    end
+    -- XXX не работает!
+    --menu:addItem(i18n("mainMenu.play"), nback)
+    --menu:addItem(i18n("mainMenu.viewProgress"), pviewer)
+    --menu:addItem(i18n("mainMenu.help"), help)
+
+    -- XXX не работает!
+    --if not onAndroid then
+        --menu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
+    --end
+
 end
 
 local function init()

@@ -3,6 +3,7 @@ require "common"
 require "layout"
 require "cmn"
 require "globals"
+require "button"
 
 --local gooi = require "gooi.gooi"
 local pallete = require "pallete"
@@ -21,8 +22,9 @@ global type Help = record
     buildButtons: function
     prepareDrawDescription: function
 
-    gooi: Gooi
-    mainMenuBtn: any
+    ui: any
+
+    mainMenuBtn: Button
     layout: Layout
     desc: Desc
     font: love.graphics.Font
@@ -49,13 +51,10 @@ function Help:init()
     --print("gooi", inspect(gooi))
     --print("gooi.setStyle", inspect(gooi.setStyle))
 
-    gooi.setStyle({ font = fonts.help.gooi,
-        showBorder = true,
-        bgColor = {0.208, 0.220, 0.222},
-    })
-
     self:buildButtons()
-    self.gooi = storeGooi() as Gooi
+
+    --self.gooi = storeGooi() as Gooi
+    self.ui = storeUI()
 
     --gooi.components = {}
     self:prepareDrawDescription()
@@ -63,14 +62,26 @@ end
 
 function Help:buildButtons()
     local mainMenuBtnLayout = shrink(self.layout.top, nback.border)
-    self.mainMenuBtn = gooi.newButton({ 
-        text = i18n("help.backButton"),
-        x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
-        w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h
-    }):onRelease(function()
-        --linesbuf:push(1, "return to main!")
-        menu:goBack()
-    end)
+
+    --gooi.setStyle({ font = fonts.help.gooi,
+        --showBorder = true,
+        --bgColor = {0.208, 0.220, 0.222},
+    --})
+
+    --self.mainMenuBtn = gooi.newButton({ 
+        --text = i18n("help.backButton"),
+        --x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
+        --w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h
+    --}):onRelease(function()
+        ----linesbuf:push(1, "return to main!")
+        --menu:goBack()
+    --end)
+
+    self.mainMenuBtn = Button.new(i18n("help.backButton"), 
+        mainMenuBtnLayout.x, mainMenuBtnLayout.y, 
+        mainMenuBtnLayout.w, mainMenuBtnLayout.h)
+    self.mainMenuBtn.font = fonts.help.gooi
+    self.mainMenuBtn.bgColor = {0.208, 0.220, 0.222}
 end
 
 function Help:buildLayout()
@@ -84,16 +95,12 @@ end
 
 function Help:enter()
     print("help:enter()")
-    --print("help self.gooi", inspect(self.gooi))
-    restoreGooi(self.gooi)
-
-    --print("gooi.components", inspect(gooi.components))
-    --print("self.gooi", inspect(self.gooi))
+    restoreUI(self.ui)
 end
 
 function Help:leave()
     print("help:leave()")
-    self.gooi = storeGooi()
+    self.ui = storeUI()
 end
 
 function Help:prepareDrawDescription()
@@ -132,24 +139,24 @@ function Help:draw()
     tiledback:draw(0.3)
     self:drawDescription()
 
-    gooi.draw()
+    self.mainMenuBtn:draw()
 
     --g.setColor{0.3, 0.3, 0.34}
     --drawHierachy(self.layout)
 end
 
 function Help:update(dt: number)
-    gooi.update(dt)
+    self.mainMenuBtn:update(dt)
 end
 
 function Help:mousepressed(_: number, _: number, _: number, _: boolean)
     print("help:mousepressed()")
-    gooi:pressed()
+    self.mainMenuBtn:mousePressed()
 end
 
 function Help:mousereleased(_: number, _: number, _: number, _: boolean)
     print("help:mousereleased()")
-    gooi:released()
+    self.mainMenuBtn:mouseReleased()
 end
 
 function Help:keypressed(key: string)
@@ -159,7 +166,8 @@ function Help:keypressed(key: string)
     end
 end
 
-return {
-    new = Help.new
-}
+--return {
+    --new = Help.new
+--}
+global help = Help.new()
 

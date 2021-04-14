@@ -8,9 +8,11 @@ require "drawstat"
 require "coroprocessor"
 require "Timer"
 require "signal_quad_field"
-require "globals"
+--require "globals"
 require "nbtypes"
 require "cmn"
+require "menu"
+require "tiledbackground"
 
 --local hex = require "hex"
 local i18n = require "i18n"
@@ -46,11 +48,11 @@ global type Nback = record
     end
 
     mode: Mode
-    dim: number
+    dim: integer
     cell_width: number
-    current_sig: number
-    sig_count: number
-    level: number
+    current_sig: integer
+    sig_count: integer
+    level: integer
     is_run: boolean
     pause_time: number
     can_press: boolean
@@ -75,7 +77,9 @@ global type Nback = record
     startTime: number
     shader: love.graphics.Shader
     setupmenu: SetupMenu
-    gooiState: Gooi
+
+    uiState: any
+
     shaderTimer: number
     shaderTimeEnabled: boolean
     figure_alpha: number
@@ -153,7 +157,7 @@ end
 
 function makeFalseArray(len: number): {boolean}
     local ret = {}
-    for i = 1, len do
+    for _ = 1, len do
         ret[#ret + 1] = false
     end
     return ret
@@ -175,10 +179,10 @@ end
 
 local function genMapByDim(d: number): {{number}}
     local t: {{number}} = {}
-    for i = 1, d do
+    for _ = 1, d do
         table.insert(t, {})
         local p = t[#t]
-        for j = 1, d do
+        for _ = 1, d do
             table.insert(p, 0)
         end
     end
@@ -237,13 +241,13 @@ function Nback:enter()
 
     print("nback:enter()")
     -- setup Gooi
-    restoreGooi(self.gooiState)
+    restoreUI(self.uiState)
 end
 
 function Nback:leave()
     print("nback:leave()")
     self.show_statistic = false
-    self.gooiState = storeGooi()
+    self.uiState = storeUI()
 end
 
 -- time изменяется в пределах 0..1
@@ -434,7 +438,7 @@ function Nback:init(save_name: string)
     self:resize(w, h)
     self:initShaders()
     self:initShadersTimer()
-    self.gooiState = storeGooi()
+    self.uiState = storeUI()
 end
 
 function Nback:initShadersTimer()
@@ -1157,6 +1161,8 @@ end
 --function nback:touchmoved(id, x, y, dx, dy, pressure)
 --end
 
-return {
-    new = Nback.new,
-}
+--return {
+    --new = Nback.new,
+--}
+
+global nback: Nback = Nback.new()
