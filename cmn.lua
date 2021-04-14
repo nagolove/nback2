@@ -12,29 +12,6 @@ onAndroid = love.system.getOS() == "Android"
 useKeyboard = true
 preventiveFirstRun = true
 
-require("pviewer")
-require("menu")
-require("help")
-require("tiledbackground")
-
-
-
-
-
-
-
-function initGlobals()
-   menu = require("menu").new()
-   pviewer = require("pviewer").new()
-   help = require("help").new()
-
-   tiledback = require("tiledbackground"):new()
-end
-
-
-
-
-
 function pack(...)
    return { ... }
 end

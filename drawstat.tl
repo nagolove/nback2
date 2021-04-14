@@ -2,9 +2,10 @@ require "love"
 require "nbtypes"
 require "layout"
 require "cmn"
+require "button"
 --require "globals"
 
-local gooi = require "gooi.gooi"
+
 local pallete = require "pallete"
 local i18n = require "i18n"
 local g = love.graphics
@@ -13,7 +14,7 @@ local type LinkPoint = {number, string}
 
 global type StatisticRenderData = record
     --signals: 
-    level: number
+    level: integer
     pause_time: number
     font: love.graphics.Font
     x0: number
@@ -50,7 +51,7 @@ global type StatisticRender = record
     signals: Signals
     width_k: number
     border: number
-    level: number
+    level: integer
     pressed: {string:{boolean}}
     percent: Percentage
     font: love.graphics.Font
@@ -61,7 +62,7 @@ global type StatisticRender = record
     durationMin: number
     durationSec: number
     buttons: boolean
-    mainMenuBtn: gooi.Component
+    mainMenuBtn: Button
 end
 
 local StatisticRender_mt: metatable<StatisticRender> = {
@@ -137,12 +138,12 @@ function StatisticRender:drawLinks(x: number, y: number, type: Signals.EqKeys): 
             points[k][1][1] = k - self.level
             points[k][2][1] = k
 
-            local leftIndex = k - self.level
+            local leftIndex = math.floor(k - self.level)
             if leftIndex >= 1 and eq_arr[leftIndex] then
                 points[k][1][2] = "right"
             end
 
-            local rightIndex = k + self.level
+            local rightIndex = math.floor(k + self.level)
             if rightIndex <= #pressed and eq_arr[rightIndex] then
                 points[k][2][2] = "left"
             end
@@ -228,7 +229,9 @@ end
 function StatisticRender:update(dt: number)
     -- XXX disabled
     --processTouches()
-    gooi.update(dt)
+
+    --gooi.update(dt)
+    self.mainMenuBtn:update(dt)
 end
 
 -- draw one big letter in left side of hit rects output
@@ -243,7 +246,7 @@ function StatisticRender:printSignalType(x: number, y: number, signalType: Signa
 end
 
 function StatisticRender:drawHits(x: number, y: number)
-    local dy = 0
+    local dy = 0.
     g.setFont(self.font)
     self:printSignalType(x, y, "sound") 
     y = y + self.fontHeight
@@ -292,7 +295,7 @@ function StatisticRender:draw()
     self:drawHits(x, y)
     self:printInfo()
     if self.buttons then
-        gooi.draw()
+        self.mainMenuBtn:draw()
     end
 end
 
@@ -308,20 +311,20 @@ function StatisticRender:buildLayout(border: number)
     self.layout = screen
 end
 
-function StatisticRender:keypressed(key: string, isrepeat: boolean)
-    gooi.keypressed(nil, key, isrepeat)
+function StatisticRender:keypressed(key: string)
+    self.mainMenuBtn:keyPressed(key)
 end
 
 function StatisticRender:keyreleased(key: string)
-    gooi.keyreleased(nil, key)
+    self.mainMenuBtn:keyReleased(key)
 end
 
 function StatisticRender:mousepressed(_: number, _: number, _: number, _: boolean)
-    gooi.pressed()
+    self.mainMenuBtn:mousePressed()
 end
 
 function StatisticRender:mousereleased(_: number, _: number, _utton: number)
-    gooi.released()
+    self.mainMenuBtn:mouseReleased()
 end
 
 function StatisticRender:preparePrintInfo()
@@ -367,12 +370,25 @@ function StatisticRender.new(data: StatisticRender.InitData): StatisticRender
     --print("data.border", data.border)
     --print("data.buttons", data.buttons)
     if self.buttons then
-        gooi.setStyle({ font = require "fonts".drawstat.gooi,
-            showBorder = true,
-            bgColor = {0.208, 0.220, 0.222},
-        })
+        --gooi.setStyle({ font = require "fonts".drawstat.gooi,
+            --showBorder = true,
+            --bgColor = {0.208, 0.220, 0.222},
+        --})
 
+        -- что делает следущая строка?
         local mainMenuBtnLayout: Layout = (self.layout as {any:any}).mainMenuBtn as Layout
+        self.mainMenuBtn = Button.new(i18n("backToMainMenu"), 
+            mainMenuBtnLayout.x, mainMenuBtnLayout.y, 
+            mainMenuBtnLayout.w, mainMenuBtnLayout.h)
+        self.mainMenuBtn.onMouseReleased = function(_: Button)
+            --menu:goBack()
+            --linesbuf:push(1, "return to main!")
+            error("global variable confusion")
+            -- XXX fixme
+            --menu:goBack()
+        end
+
+        --[[
         self.mainMenuBtn = gooi.newButton({ 
             text = i18n("backToMainMenu"),
             x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y, 
@@ -383,6 +399,8 @@ function StatisticRender.new(data: StatisticRender.InitData): StatisticRender
             -- XXX fixme
             --menu:goBack()
         end)
+        --]]
+
     end
 
     return self

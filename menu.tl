@@ -33,7 +33,7 @@ global type Menu = record
     end
     items: {Item}
     back: Background
-    active_item: number
+    active_item: integer
     w: number
     h : number
     active: boolean
@@ -128,7 +128,7 @@ end
 -- ищет наиболее длинный текст в списке пунктов меню и устанавливает
 -- внутреннюю переменную menu.maxWidth по найденному значению(в знаках).
 function Menu:searchWidestText()
-    local maxWidth = 0
+    local maxWidth = 0.
     for _, v in ipairs(self.items) do
         local w = self.font:getWidth(v.name)
         if w > maxWidth then maxWidth = w end
@@ -251,7 +251,7 @@ function Menu:drawList()
     g.setFont(self.font)
     for i, k in ipairs(self.items) do
         --local q = self.active_item == i and pallete.active or pallete.inactive 
-        local q = self.active_item == i and {1, 1, 1, 1} or {0, 0, 0, 1}
+        local q = self.active_item == i and {1., 1., 1., 1.} or {0., 0., 0., 1.}
         q[4] = self.alpha
         g.setColor(q)
         g.printf(k.name, 0, y, self.w, "center")

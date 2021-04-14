@@ -2,9 +2,10 @@ local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 th
 require("nbtypes")
 require("layout")
 require("cmn")
+require("button")
 
 
-local gooi = require("gooi.gooi")
+
 local pallete = require("pallete")
 local i18n = require("i18n")
 local g = love.graphics
@@ -137,12 +138,12 @@ function StatisticRender:drawLinks(x, y, type)
          points[k][1][1] = k - self.level
          points[k][2][1] = k
 
-         local leftIndex = k - self.level
+         local leftIndex = math.floor(k - self.level)
          if leftIndex >= 1 and eq_arr[leftIndex] then
             points[k][1][2] = "right"
          end
 
-         local rightIndex = k + self.level
+         local rightIndex = math.floor(k + self.level)
          if rightIndex <= #pressed and eq_arr[rightIndex] then
             points[k][2][2] = "left"
          end
@@ -228,7 +229,9 @@ end
 function StatisticRender:update(dt)
 
 
-   gooi.update(dt)
+
+
+   self.mainMenuBtn:update(dt)
 end
 
 
@@ -243,7 +246,7 @@ function StatisticRender:printSignalType(x, y, signalType)
 end
 
 function StatisticRender:drawHits(x, y)
-   local dy = 0
+   local dy = 0.
    g.setFont(self.font)
    self:printSignalType(x, y, "sound")
    y = y + self.fontHeight
@@ -292,7 +295,7 @@ function StatisticRender:draw()
    self:drawHits(x, y)
    self:printInfo()
    if self.buttons then
-      gooi.draw()
+      self.mainMenuBtn:draw()
    end
 end
 
@@ -308,20 +311,20 @@ function StatisticRender:buildLayout(border)
    self.layout = screen
 end
 
-function StatisticRender:keypressed(key, isrepeat)
-   gooi.keypressed(nil, key, isrepeat)
+function StatisticRender:keypressed(key)
+   self.mainMenuBtn:keyPressed(key)
 end
 
 function StatisticRender:keyreleased(key)
-   gooi.keyreleased(nil, key)
+   self.mainMenuBtn:keyReleased(key)
 end
 
-function StatisticRender:mousepressed(_, _, _)
-   gooi.pressed()
+function StatisticRender:mousepressed(_, _, _, _)
+   self.mainMenuBtn:mousePressed()
 end
 
 function StatisticRender:mousereleased(_, _, _utton)
-   gooi.released()
+   self.mainMenuBtn:mouseReleased()
 end
 
 function StatisticRender:preparePrintInfo()
@@ -367,22 +370,37 @@ function StatisticRender.new(data)
 
 
    if self.buttons then
-      gooi.setStyle({ font = require("fonts").drawstat.gooi,
-showBorder = true,
-bgColor = { 0.208, 0.220, 0.222 },
-      })
+
+
+
+
+
 
       local mainMenuBtnLayout = (self.layout).mainMenuBtn
-      self.mainMenuBtn = gooi.newButton({
-         text = i18n("backToMainMenu"),
-         x = mainMenuBtnLayout.x, y = mainMenuBtnLayout.y,
-         w = mainMenuBtnLayout.w, h = mainMenuBtnLayout.h,
-      }):onRelease(function()
+      self.mainMenuBtn = Button.new(i18n("backToMainMenu"),
+      mainMenuBtnLayout.x, mainMenuBtnLayout.y,
+      mainMenuBtnLayout.w, mainMenuBtnLayout.h)
+      self.mainMenuBtn.onMouseReleased = function(_)
+
 
          error("global variable confusion")
 
 
-      end)
+      end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    end
 
    return self

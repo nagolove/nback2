@@ -12,29 +12,6 @@ global onAndroid = love.system.getOS() == "Android"
 global useKeyboard = true
 global preventiveFirstRun = true
 
-require "pviewer"
-require "menu"
-require "help"
-require "tiledbackground"
-
-global menu: Menu
-global pviewer: Pviewer
-global help: Help
-global tiledback: TiledBackround
---global nback: Nback
-
-function initGlobals()
-    menu = require "menu".new()
-    pviewer = require "pviewer".new()
-    help = require "help".new()
-    --nback = require "nback".new()
-    tiledback = require "tiledbackground":new()
-end
-
---return {
-    --initGlobals = initGlobals,
---}
-
 function pack(...: any): any
     return {...}
 end

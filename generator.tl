@@ -9,13 +9,13 @@ local logfile = love.filesystem.newFile("log-generator.txt", "w")
 local type GenFunction = function<T>(): T
 local type CmpFunction = function<T>(T, T): boolean
 
-local function generate<T>(sig_count: number, level: number, gen: GenFunction<T>, cmp: CmpFunction<T>): {T}
+local function generate<T>(sig_count: number, level: integer, gen: GenFunction<T>, cmp: CmpFunction<T>): {T}
     local ret: {T} = {} -- массив сигналов, который будет сгенерирован и возвращен
     local ratio = 5 
     local range = {1, 3} 
     local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
 
-    for i = 1, ratio * sig_count do
+    for _ = 1, ratio * sig_count do
         table.insert(ret, null as T)
     end
 
@@ -56,7 +56,7 @@ local function generate<T>(sig_count: number, level: number, gen: GenFunction<T>
     return ret
 end
 
-local function make_hit_arr<T>(signals: {T}, level: number, comparator: CmpFunction<T>): {boolean}
+local function make_hit_arr<T>(signals: {T}, level: integer, comparator: CmpFunction<T>): {boolean}
     local ret: {boolean} = {}
     if signals then
         for k, v in ipairs(signals) do
@@ -66,7 +66,7 @@ local function make_hit_arr<T>(signals: {T}, level: number, comparator: CmpFunct
     return ret
 end
 
-local function makeEqArrays(signals: Signals, level: number): Signals.Eq
+local function makeEqArrays(signals: Signals, level: integer): Signals.Eq
     local ret = {
         pos = make_hit_arr(signals.pos, level, isPositionEqual),
         sound = make_hit_arr(signals.sound, level, 
@@ -76,18 +76,18 @@ local function makeEqArrays(signals: Signals, level: number): Signals.Eq
         color = make_hit_arr(signals.color, level, function(a: string, b: string): boolean
             return a == b 
         end),
-        form = make_hit_arr(signals.form, level, function(a: string, b: string): boolean
+        form = make_hit_arr(signals.form, level, function(a: Signals.Forms, b: Signals.Forms): boolean
             return a == b 
         end),
     }
     return ret
 end
 
-function generateAll(sig_count: number, level: number, dim: number, soundsNum: number, map: {{number}}): Signals
+function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum: integer, map: {{number}}): Signals
 
     local colorArr = require "colorconstants".makeNamesArray()
 
-    function genArrays(sig_count: number, level: number, _: number, soundsNum: number): Signals
+    function genArrays(sig_count: number, level: integer, _: number, soundsNum: number): Signals
         local signals: Signals = {}
 
         logfile:write("--pos gen--\n")
@@ -114,11 +114,11 @@ function generateAll(sig_count: number, level: number, dim: number, soundsNum: n
         logfile:write("--pos gen--\n")
 
         signals.form = generate(sig_count, level,
-            function(): string
+            function(): Signals.Forms
                 local arr = {"trup", "trdown", "trupdown", "quad", "circle", "rhombus"}
                 return arr[math.random(1, 6)]
             end,
-            function(a: string, b: string): boolean 
+            function(a: Signals.Forms, b: Signals.Forms): boolean 
                 return a == b 
             end)
 

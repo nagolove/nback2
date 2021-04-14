@@ -15,7 +15,7 @@ local function generate(sig_count, level, gen, cmp)
    local range = { 1, 3 }
    local null = {}
 
-   for i = 1, ratio * sig_count do
+   for _ = 1, ratio * sig_count do
       table.insert(ret, null)
    end
 

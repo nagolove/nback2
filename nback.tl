@@ -3,7 +3,7 @@
 require "common"
 require "layout"
 require "snippets"
-require "gooi.gooi"
+require "button"
 require "drawstat"
 require "coroprocessor"
 require "Timer"

@@ -1,6 +1,7 @@
 require "love"
 require "common"
 require "drawstat"
+require "globals"
 
 local serpent = require "serpent"
 local timer = require "Timer"
@@ -12,7 +13,7 @@ global type Pviewer = record
     font: love.graphics.Font
     w: number
     h: number
-    activeIndex: number
+    activeIndex: integer
     save_name: string
     timer: Timer
     data: {number}

@@ -2,7 +2,7 @@ require "love"
 require "hex"
 require "vector"
 
-local g = love.graphics
+--local g = love.graphics
 
 --[[
 Что делает этот класс?
