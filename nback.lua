@@ -280,7 +280,7 @@ function Nback:createSetupMenu()
 
 
    local expositionList = { "1", "2", "3", "4", "5", "6" }
-   local activeExpositionItem = 2
+   local activeExpositionItem = 3
 
    local parameterColor = { 0, 0.9, 0 }
 
@@ -306,6 +306,8 @@ function Nback:createSetupMenu()
    self.setupmenu:addItem({
       oninit = function()
          local fullStr = i18n("setupMenu.expTime_plural", { count = tonumber(expositionList[activeExpositionItem]) })
+         print("------", tonumber(expositionList[activeExpositionItem]))
+         print("------", i18n("setupMenu.expTime_plural", { count = tonumber(expositionList[activeExpositionItem]) }))
          local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
 
          return { pallete.signal, part1, parameterColor,
@@ -414,7 +416,7 @@ function Nback:init(save_name)
    self.volume = settings.volume
    love.audio.setVolume(settings.volume)
    self.save_name = save_name
-   self.timer = require("Timer")()
+   self.timer = require("Timer").new()
 
    if self.mode == "quad" then
       self.signal = require("signal_quad_field").new(self.cell_width, "alphabet")

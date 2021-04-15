@@ -23,6 +23,7 @@
 
             expTime_plural = {
                 one = "Exposition time %{count} second",
+                two = "Exposition time %{count} seconds",
                 few = "Exposition time %{count} seconds",
                 many = "Exposition time %{count} seconds",
                 other = "Exposition time %{count} seconds",

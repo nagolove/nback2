@@ -44,17 +44,20 @@ global record LanguageSelector
     items: {Rect}
 end
 
-local LanguageSelector_mt: metatable<LanguageSelector> = {}
---LanguageSelector.__index = LanguageSelector
+local LanguageSelector_mt: metatable<LanguageSelector> = {
+    __index = LanguageSelector,
+}
+
+local prefix = "scenes/nback2/"
 
 function LanguageSelector.new(): LanguageSelector
     local self = setmetatable({} as LanguageSelector, LanguageSelector_mt)
     self.languages = {}
     self.font = require "fonts".languageSelector
     self.locale = nil
-    for _, v in ipairs(love.filesystem.getDirectoryItems("locales")) do 
-        local chunk, errmsg: function, string = love.filesystem.load("locales/" .. v)
-        --print(chunk().language, errmsg)
+    for _, v in ipairs(love.filesystem.getDirectoryItems(prefix .. "locales")) do 
+        local chunk, errmsg: function, string = love.filesystem.load(prefix .. "locales/" .. v)
+        print("--", chunk(), errmsg)
         if not errmsg and type(chunk) == "function" then
             -- FIXME setfenv not work in Teal
             --setfenv(chunk, {})

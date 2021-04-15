@@ -44,17 +44,20 @@ local Language = {}
 
 
 
-local LanguageSelector_mt = {}
+local LanguageSelector_mt = {
+   __index = LanguageSelector,
+}
 
+local prefix = "scenes/nback2/"
 
 function LanguageSelector.new()
    local self = setmetatable({}, LanguageSelector_mt)
    self.languages = {}
    self.font = require("fonts").languageSelector
    self.locale = nil
-   for _, v in ipairs(love.filesystem.getDirectoryItems("locales")) do
-      local chunk, errmsg = love.filesystem.load("locales/" .. v)
-
+   for _, v in ipairs(love.filesystem.getDirectoryItems(prefix .. "locales")) do
+      local chunk, errmsg = love.filesystem.load(prefix .. "locales/" .. v)
+      print("--", chunk(), errmsg)
       if not errmsg and type(chunk) == "function" then
 
 
