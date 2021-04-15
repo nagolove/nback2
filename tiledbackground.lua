@@ -1,6 +1,8 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local math = _tl_compat and _tl_compat.math or math; require("love")
 local gr = love.graphics
 
+local prefix = "scenes/nback2/"
+
  TiledBackround = {}
 
 
@@ -17,10 +19,8 @@ local TiledBackround_mt = {
 
 
 function TiledBackround.new()
-
-
    local self = setmetatable({}, TiledBackround_mt)
-   self.img = gr.newImage("gfx/tile1.png")
+   self.img = gr.newImage(prefix .. "gfx/tile1.png")
    self:prepareDrawing()
    return self
 end

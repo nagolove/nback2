@@ -1,3 +1,5 @@
+love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";?.lua;?/init.lua;scenes/nback2/?.lua")
+
 require "love"
 require "nbtypes"
 require "common"
@@ -5,8 +7,6 @@ require "globals"
 require "pviewer"
 require "help"
 require "languageselector"
-
-love.filesystem.setRequirePath("?.lua;?/init.lua;scenes/nback2/?.lua")
 
 --preventiveFirstRun = false
 --onAndroid = true
@@ -19,7 +19,7 @@ local inspect = require "inspect"
 --local pallete = require "pallete"
 --local splash = require "splash"
 --local timer = require "libs/Timer"()
-local timer = require "Timer"()
+local timer = require "Timer".new()
 
 local keyconfig = require "keyconfig"
 local i18n = require "i18n"
