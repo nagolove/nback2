@@ -33,6 +33,7 @@ local record List
     end
 
     type Item = record 
+        data: any
         message: string
         colors: {number}
         --tooltip: string
@@ -61,7 +62,7 @@ local record List
     getBarRect: function(List, number, number, number, number)
     onclick: function(self: List, index: number, button: number)
 
-    new: function(x: number, y: number): List
+    new: function(x: number, y: number, w: number, h: number, fnt: gr.Font): List
 
     --[[
     Добавить в список клавишу.
@@ -93,9 +94,10 @@ function inside(mx: number, my: number, x: number, y: number, w: number, h: numb
     return mx >= x and mx <= (x+w) and my >= y and my <= (y+h)
 end
 
-function List.new(x: number, y: number): List
+function List.new(x: number, y: number, w: number, h: number, fnt: gr.Font): List
     local self: List = {
-        font = gr.newFont("fonts/DroidSansMono.ttf", fontsize)
+        --font = gr.newFont("fonts/DroidSansMono.ttf", fontsize)
+        font = fnt, 
     }
 
     self = setmetatable(self, { __index = List })
@@ -107,8 +109,8 @@ function List.new(x: number, y: number): List
     self.x = x
     self.y = y
 
-    self.width = 1
-    self.height = 1
+    self.width = w
+    self.height = h
 
     --self.item_height = 23
     print("self.item_height", self.font:getHeight())

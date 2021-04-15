@@ -69,6 +69,6 @@ global record History
     date: Date
     signals: Signals
     pressed: Signals.Eq
-    level: number
+    level: integer
     pause_time: number
 end

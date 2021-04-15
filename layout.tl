@@ -28,6 +28,8 @@ global type Layout = record
     rightMiddle: Layout
     rightBottom: Layout
     center: Layout
+
+    new: function(x: number|Layout, y: number, w: number, h: number): Layout
 end
 
 local Layout_mt: metatable<Layout> = {

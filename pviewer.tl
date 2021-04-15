@@ -2,13 +2,19 @@ require "love"
 require "common"
 require "drawstat"
 require "nback"
---require "globals"
+require "layout"
+require "button"
 
+local i18n = require "i18n"
 local serpent = require "serpent"
 local timer = require "Timer"
 local pallete = require "pallete"
 local g = love.graphics
 local cam = require "camera".new()
+local List = require "pviewer_list"
+local fonts = require "fonts"
+
+global __MORE_DATA__ = false
 
 global type Pviewer = record
     font: love.graphics.Font
@@ -19,6 +25,11 @@ global type Pviewer = record
     timer: Timer
     data: {History}
     statisticRender: StatisticRender
+    list: List
+    layout: Layout
+    layout_nodata: Layout
+    backButton: Button
+    rt: g.Canvas
 
     init:function(Pviewer, string)
     leave: function(Pviewer)
@@ -86,14 +97,14 @@ end
 
 function Pviewer:makeList()
     if #self.data ~= 0 then
-        self.list = require "pviewer_list":new(self.layout.left.x, self.layout.left.y, 
-        self.layout.left.w, self.layout.left.h, fonts.pviewer)
-        self.list.onclick = function(item, idx)
-            self:updateRender(idx)
+        self.list = List.new(self.layout.left.x, self.layout.left.y, 
+            self.layout.left.w, self.layout.left.h, fonts.pviewer)
+        self.list.onclick = function(_: List, idx: number, _: number)
+            self:updateRender(math.floor(idx))
         end
 
-        local str
-        for k, v in pairs(self.data) do
+        local str: string
+        for _, v in ipairs(self.data) do
             str = compareDates(os.date("*t"), v.date)
 
             --if k == 1 then
@@ -104,7 +115,8 @@ function Pviewer:makeList()
             
             local item = self.list:add(str)
             item.data = v
-            item.color = pallete.levelColors[v.level]
+            --item.color = pallete.levelColors[v.level]
+            item.colors = pallete.levelColors[v.level]
         end
 
         self.list:done()
@@ -113,18 +125,19 @@ function Pviewer:makeList()
 end
 
 function Pviewer:sortByDate()
-    table.sort(self.data, function(a, b)
-        a, b = a.date, b.date
+    table.sort(self.data, function(h1: History, h2: History): boolean
+        local a, b = h1.date, h2.date
         return a.year * 365 * 24 + a.yday * 24 + a.hour > b.year * 365 * 24 + b.yday * 24 + b.hour
     end)
 end
 
 function Pviewer:enter()
     print("pviewer:enter()")
-    local tmp, size = love.filesystem.read(self.save_name)
+    local tmp, _ = love.filesystem.read(self.save_name)
     if tmp ~= nil then
-        ok, self.data = serpent.load(tmp)
-        --print("pviewer.data", inspect(self.data))
+        --local ok, self.data = serpent.load(tmp) as (boolean, {History})
+        local ok, t = serpent.load(tmp) as (boolean, {History})
+        self.data = t
         if not ok then 
             -- эту строчку с падением при ошибке заменить на показ пустой
             -- статистики.
@@ -138,16 +151,17 @@ function Pviewer:enter()
     __MORE_DATA__ = false
     --__MORE_DATA__ = true
     if __MORE_DATA__ then
-        local tmp = {}
-        for i = 1, 6 do
-            for k, v in pairs(self.data) do
-                table.insert(tmp, v)
+        local tmp2 = {}
+        for _ = 1, 6 do
+            for _, v in ipairs(self.data) do
+                table.insert(tmp2, v)
             end
         end
-        self.data = tmp
+        self.data = tmp2
     end
     -------------------------------------------
-  
+ 
+    --[[
     gooi.components = {}
     gooi.setStyle({ font = self.font,
         showBorder = true,
@@ -172,6 +186,29 @@ function Pviewer:enter()
             menu:goBack()
         end)
     end
+    --]]
+
+    if #self.data == 0 then
+        self.backButton = Button.new(
+            i18n("backToMainMenu"),
+            ((self.layout as {any:any}).nodata as Layout).top.x,
+            ((self.layout as {any:any}).nodata as Layout).top.y,
+            ((self.layout as {any:any}).nodata as Layout).top.w,
+            ((self.layout as {any:any}).nodata as Layout).top.h)
+    else
+        self.backButton = Button.new(
+            i18n("backToMainMenu"),
+            self.layout.top.x,
+            self.layout.top.x,
+            self.layout.top.x,
+            self.layout.top.x)
+    end
+
+    self.backButton.onMouseReleased = function()
+        menu:goBack()
+    end
+    self.backButton.bgColor = {0.208, 0.220, 0.222}
+    self.backButton.font = self.font
 
     self:sortByDate()
     self:makeList()
@@ -187,7 +224,7 @@ end
 
 function Pviewer:resize(neww: number, newh: number)
     --print(string.format("pviewer.resize(%d, %d)", neww, newh))
-    w, h = neww, newh
+    local w, h = neww, newh
     self:buildLayout()
     -- обрати внимание на размер создаваемого полотна. Взят от балды.
     self.rt = g.newCanvas(w, h, {format = "normal", msaa = 4})
@@ -197,15 +234,15 @@ function Pviewer:resize(neww: number, newh: number)
 end
 
 function Pviewer:buildLayout()
-    local screen = {}
+    local screen: Layout = {}
     screen.left, screen.right = splitv(makeScreenTable(), 0.2, 0.8)
     screen.right.x = screen.right.x + 3
     screen.right.w = screen.right.w - 3
     screen.top, screen.bottom = splith(screen.right, 0.1, 0.9)
 
-    screen.nodata = {}
-    screen.nodata.top, screen.nodata.bottom = splith(makeScreenTable(), 0.2, 0.8)
-    screen.nodata.top = shrink(screen.nodata.top, 3)
+    self.layout_nodata = {}
+    self.layout_nodata.top, self.layout_nodata.bottom = splith(makeScreenTable(), 0.2, 0.8)
+    self.layout_nodata.top = shrink(self.layout_nodata.top, 3)
 
     self.layout = screen
 end
@@ -214,7 +251,7 @@ function Pviewer:drawNodata()
     local str = i18n("nodata")
     g.setFont(self.font)
     g.setColor{0, 0, 0, 1}
-    g.printf(str, 0, self.layout.nodata.bottom.y, self.layout.nodata.bottom.w, "center")
+    g.printf(str, 0, self.layout_nodata.bottom.y, self.layout_nodata.bottom.w, "center")
 end
 
 function Pviewer:draw()
@@ -226,7 +263,7 @@ function Pviewer:draw()
 
     if #self.data == 0 then
         self:drawNodata()
-        gooi.draw()
+        self.backButton:draw()
     else
         self.list:draw()
 
@@ -244,14 +281,14 @@ function Pviewer:draw()
 
         g.setColor{1, 1, 1}
 
-        g.draw(self.rt)
+        g.draw(self.rt as g.Drawable)
     end
 
     g.pop()
 end
 
 -- добавить клавиши управления для постраничной прокрутки списка результатов.
-function Pviewer:keypressed(key)
+function Pviewer:keypressed(key: string)
     if key == "escape" or key == "acback" then
         menu:goBack()
     elseif key == "return" or key == "space" then
@@ -259,35 +296,37 @@ function Pviewer:keypressed(key)
     elseif key == "home" or key == "kp7" then
     elseif key == "end" or key == "kp1" then
     elseif key == "up" or key == "k" then
-        self.list:scrollUp()
+        -- TODO
+        --self.list:scrollUp()
     elseif key == "down" or key == "j" then
-        self.list:scrollDown()
+        -- TODO
+        --self.list:scrollDown()
     end
 end
 
-function Pviewer:wheelmoved(x, y)
+function Pviewer:wheelmoved(x: number, y: number)
     if self.list then
         self.list:wheelmoved(x, y)
     end
 end
 
-function Pviewer:mousepressed(x, y, btn, istouch)
+function Pviewer:mousepressed(x: number, y: number, btn: number, _: boolean)
     if self.list then
-        self.list:mousepressed(x, y, btn, istouch)
+        self.list:mousepressed(x, y, btn)
     else
-        gooi.pressed()
+        self.backButton:mousePressed()
     end
 end
 
-function Pviewer:mousereleased(x, y, btn, istouch)
+function Pviewer:mousereleased(x: number, y: number, btn: number, _: boolean)
     if self.list then
-        self.list:mousereleased(x, y, btn, istouch)
+        self.list:mousereleased(x, y, btn)
     else
-        gooi.released()
+        self.backButton:mouseReleased()
     end
 end
 
-function Pviewer:mousemoved(x, y, dx, dy)
+function Pviewer:mousemoved(x: number, y: number, dx: number, dy: number)
     local mouse = love.mouse
     if mouse.isDown(2) then
         cam:move(-dx, -dy)
@@ -297,6 +336,7 @@ function Pviewer:mousemoved(x, y, dx, dy)
     end
 end
 
+--[[
 function Pviewer:touchpressed(id, x, y)
     if self.list then
         self.list:touchpressed(id, x, y)
@@ -314,9 +354,10 @@ function Pviewer:touchmoved(id, x, y, dx, dy)
         self.list:touchmoved(id, x, y, dx, dy)
     end
 end
+--]]
 
-function Pviewer:update(dt)
-    gooi.update(dt)
+function Pviewer:update(dt: number)
+    self.backButton:update(dt)
     self.timer:update(dt)
 end
 

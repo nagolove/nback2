@@ -14,7 +14,7 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;scenes/nback2/?.lua")
 --require "common"
 
 --local profi = require "ProFi"
-local lg = love.graphics
+--local lg = love.graphics
 local inspect = require "inspect"
 --local pallete = require "pallete"
 --local splash = require "splash"
@@ -27,7 +27,7 @@ local linesbuf = require "kons".new()
 local cam = require "camera".new()
 local profiCam = require "camera".new()
 
-local fonts = require "fonts"
+--local fonts = require "fonts"
 
 local screenMode = "win" -- or "fs"
 local type Resizable = record
@@ -70,10 +70,10 @@ end
 function bindKeys()
     local kc = keyconfig
 
-    local Shortcut = KeyConfig.Shortcut
-    kc.bind("keypressed", { key = "2" }, function(_: Shortcut): boolean, Shortcut
+    --local Shortcut = KeyConfig.Shortcut
+    kc.bind("keypressed", { key = "2" }, function(sc: kc.Shortcut): boolean, kc.Shortcut
         linesbuf.show = not linesbuf.show 
-        return false
+        return false, sc
     end, "show or hide debug output", "linesbufftoggle")
 
     -- XXX сломано
@@ -157,12 +157,12 @@ local function init()
     
     subInit()
     
-    table.insert(to_resize, nback)
-    table.insert(to_resize, menu)
-    table.insert(to_resize, pviewer)
-    table.insert(to_resize, help)
-    table.insert(to_resize, languageSelector)
-    table.insert(to_resize, tiledback)
+    table.insert(to_resize, nback as Resizable)
+    table.insert(to_resize, menu as Resizable)
+    table.insert(to_resize, pviewer as Resizable)
+    table.insert(to_resize, help as Resizable)
+    table.insert(to_resize, languageSelector as Resizable)
+    table.insert(to_resize, tiledback as Resizable)
 
     if onAndroid then
         love.window.setMode(0, 0, {fullscreen = true})
@@ -172,11 +172,11 @@ local function init()
         dispatchWindowResize(love.graphics.getDimensions())
     end
 
-    profiReportFont = fonts.profi
+    --profiReportFont = fonts.profi
     linesbuf.show = false
 end
 
-function love.update(dt)
+function update(dt: number)
     if languageSelector then
         languageSelector:update(dt)
         if languageSelector.locale then
@@ -188,9 +188,10 @@ function love.update(dt)
         menu:update(dt)
         timer:update(dt)
     end
-    linesbuf:update(dt)
+    linesbuf:update()
 end
 
+--[[
 function stopProfiling()
     if profiStartTime then
         local res = love.timer.getTime() - profiStartTime
@@ -223,7 +224,9 @@ function stopProfiling()
 
     return res or 0
 end
+--]]
 
+--[[
 function drawProfilingReport()
     if profiReportText then
         profiCam:attach()
@@ -234,24 +237,27 @@ function drawProfilingReport()
         profiCam:detach()
     end
 end
+--]]
 
+--[[
 function startProfiling()
     profi:start("once")
     profiStartTime = love.timer.getTime()
 end
+--]]
 
 local function keypressed(scancode: string)
     --if onAndroid then return end
     if languageSelector and languageSelector.keypressed then
-        languageSelector:keypressed(_, scancode)
+        languageSelector:keypressed(scancode)
     else
-        keyconfig.checkPressedKeys(scancode)
-        menu:keypressed(scancode, scancode)
+        keyconfig.keypressed(scancode)
+        menu:keypressed(scancode)
     end
 end
 
 local function keyreleased(key: string)
-    menu:keyreleased(_, scancode)
+    menu:keyreleased(key)
 end
 
 local function draw()
@@ -262,7 +268,7 @@ local function draw()
         cam:attach()
         menu:draw()
         cam:detach()
-        drawProfilingReport()
+        --drawProfilingReport()
         --linesbuf:pushi("average FPS for 30 seconds")
     end
     linesbuf:pushi("FPS %d", love.timer.getFPS())
@@ -270,7 +276,7 @@ local function draw()
     love.timer.sleep(0.01)
 end
 
-function love.wheelmoved(_, y)
+local function wheelmoved(_, y: number)
     if y == 1 then
         profiCam:zoom(0.98)
     elseif y == -1 then
@@ -278,8 +284,8 @@ function love.wheelmoved(_, y)
     end
 end
 
-function love.mousemoved(x, y, dx, dy, istouch)
-    if love.keyboard.isDown("lshift") and love.mouse.isDown("1") then
+local function mousemoved(x: number, y: number, dx: number, dy: number, istouch: boolean)
+    if love.keyboard.isDown("lshift") and love.mouse.isDown(1) then
         profiCam:move(-dx, -dy)
     end
     if languageSelector then
@@ -289,7 +295,7 @@ function love.mousemoved(x, y, dx, dy, istouch)
     end
 end
 
-function love.mousepressed(x, y, button, istouch)
+local function mousepressed(x: number, y: number, button: number, istouch: boolean)
     if languageSelector then
         languageSelector:mousepressed(x, y, button, istouch)
     else
@@ -297,33 +303,33 @@ function love.mousepressed(x, y, button, istouch)
     end
 end
 
-function love.mousereleased(x, y, button, istouch)
+local function mousereleased(x: number, y: number, button: number, istouch: boolean)
     if languageSelector then
-        languageSelector:mousereleased(x, y, button, istouch)
+        --languageSelector:mousereleased(x, y, button, istouch)
     else
         menu:mousereleased(x, y, button, istouch)
     end
 end
 
-function love.touchpressed(id, x, y, dx, dy, pressure)
+local function touchpressed(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     if languageSelector then
-        languageSelector:touchpressed(id, x, y, dx, dy, pressure)
+        languageSelector:touchpressed(id, x, y)
     else
         menu:touchpressed(id, x, y, dx, dy, pressure)
     end
 end
 
-function love.touchreleased(id, x, y, dx, dy, pressure)
+local function touchreleased(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     if languageSelector then
-        languageSelector:touchreleased(id, x, y, dx, dy, pressure)
+        languageSelector:touchreleased(id as any, x, y)
     else
         menu:touchreleased(id, x, y, dx, dy, pressure)
     end
 end
 
-function love.touchmoved(id, x, y, dx, dy, pressure)
+local function touchmoved(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     if languageSelector then
-        languageSelector:touchmoved(id, x, y, dx, dy, pressure)
+        languageSelector:touchmoved(id as any, x, y)
     else
         menu:touchmoved(id, x, y, dx, dy, pressure)
     end
@@ -333,11 +339,16 @@ return {
     init = init,
     quit = quit,
     draw = draw,
-    drawui = drawui,
+    --drawui = drawui,
     update = update,
     keypressed = keypressed,
     keyreleased = keyreleased,
     mousemoved = mousemoved,
-    wheelmoved = wheelmoved
+    wheelmoved = wheelmoved, 
+    mousereleased = mousereleased, 
+    mousepressed = mousepressed, 
+    touchpressed = touchpressed, 
+    touchreleased = touchreleased,
+    touchmoved = touchmoved,
 }
 
