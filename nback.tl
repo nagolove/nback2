@@ -1,27 +1,26 @@
 -- vim: set foldmethod=indent
 
-require "common"
-require "layout"
-require "snippets"
-require "button"
-require "drawstat"
-require "coroprocessor"
 require "Timer"
-require "signal_quad_field"
---require "globals"
-require "nbtypes"
+require "button"
 require "cmn"
+require "common"
+require "coroprocessor"
+require "drawstat"
+require "layout"
 require "menu"
+require "nbtypes"
+require "signal_quad_field"
+require "snippets"
 require "tiledbackground"
 
 --local hex = require "hex"
-local i18n = require "i18n"
+--local inspect = require "inspect"
 local colorConstants = require "colorconstants"
 local g = love.graphics
-local gr = love.graphics
 local generator = require "generator"
 local getTime = love.timer.getTime
---local inspect = require "inspect"
+local gr = love.graphics
+local i18n = require "i18n"
 local pallete = require "pallete"
 local serpent = require "serpent"
 local setupmenu = require "setupmenu"
@@ -67,7 +66,6 @@ global type Nback = record
     written: boolean
     pause: boolean
     signals: Signals
-    --show_statistic: boolean
     timestamp: number
     pressed: Signals.Eq
     signal: SignalView
@@ -95,10 +93,6 @@ global type Nback = record
     durationSec: number
     signalsInspected: boolean
 
-    --startcx: number
-    --startcy: number
-    --hexField: H
-    --hexMesh: love.graphics.Mesh
     map: {{number}}
 
     new: function(): Nback
@@ -305,6 +299,7 @@ function Nback:createSetupMenu()
     -- выбор продолжительности экспозиции
     self.setupmenu:addItem({
         oninit = function(): {string}, boolean, boolean
+            --debug.debug()
             local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
             print("------", tonumber(expositionList[activeExpositionItem]))
             print("------", i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])}))

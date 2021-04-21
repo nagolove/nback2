@@ -1,27 +1,26 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local coroutine = _tl_compat and _tl_compat.coroutine or coroutine; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local os = _tl_compat and _tl_compat.os or os; local pcall = _tl_compat and _tl_compat.pcall or pcall; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table
 
-require("common")
-require("layout")
-require("snippets")
-require("button")
-require("drawstat")
-require("coroprocessor")
 require("Timer")
-require("signal_quad_field")
-
-require("nbtypes")
+require("button")
 require("cmn")
+require("common")
+require("coroprocessor")
+require("drawstat")
+require("layout")
 require("menu")
+require("nbtypes")
+require("signal_quad_field")
+require("snippets")
 require("tiledbackground")
 
 
-local i18n = require("i18n")
+
 local colorConstants = require("colorconstants")
 local g = love.graphics
-local gr = love.graphics
 local generator = require("generator")
 local getTime = love.timer.getTime
-
+local gr = love.graphics
+local i18n = require("i18n")
 local pallete = require("pallete")
 local serpent = require("serpent")
 local setupmenu = require("setupmenu")
@@ -29,11 +28,6 @@ local w, h = g.getDimensions()
 local yield = coroutine.yield
 
  Nback = {Button = {}, }
-
-
-
-
-
 
 
 
@@ -280,7 +274,7 @@ function Nback:createSetupMenu()
 
 
    local expositionList = { "1", "2", "3", "4", "5", "6" }
-   local activeExpositionItem = 3
+   local activeExpositionItem = 2
 
    local parameterColor = { 0, 0.9, 0 }
 
@@ -305,6 +299,7 @@ function Nback:createSetupMenu()
 
    self.setupmenu:addItem({
       oninit = function()
+
          local fullStr = i18n("setupMenu.expTime_plural", { count = tonumber(expositionList[activeExpositionItem]) })
          print("------", tonumber(expositionList[activeExpositionItem]))
          print("------", i18n("setupMenu.expTime_plural", { count = tonumber(expositionList[activeExpositionItem]) }))
