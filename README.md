@@ -1,5 +1,6 @@
 # README #
 
+Игра - попытка воссоздать эксперимент "эн-назад".
 This is a [nback](https://en.wikipedia.org/wiki/N-back) training game.
 Original [article](http://www.pnas.org/content/pnas/105/19/6829.full.pdf)
 
