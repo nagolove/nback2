@@ -166,9 +166,11 @@ function List:done()
 
 
    self.width = self.font:getWidth(self.items[maxLenIdx].message)
-   print("self.sum_item_height", self.sum_item_height)
-   print("self.width", self.width)
-   print("self.height", self.height)
+
+
+
+
+
 end
 
 function List:hasBar()

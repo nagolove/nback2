@@ -36,24 +36,24 @@
             many = "Wait for %d seconds",
         },
 
+        levelInfo1 = "Уровень %d Экспозиция %d секунд",
+        levelInfo2 = "Продолжительность %d минут %d секунд",
         settingsBtn = "Settings",
-        --backToMainMenu = "Back to menu",
-        backToMainMenu = "Main menu",
-        --quitBtn = "Back to main", -- лучше назвать - "в главное меню?"
-        quitBtn = "Main menu", -- лучше назвать - "в главное меню?"
+        backToMainMenu = "Back to menu",
+        quitBtn = "Back to main", -- лучше назвать - "в главное меню?"
 
         nodata = "No fineshed games yet. Try to play.",
         today = "today",
         yesterday = "yesterday",
-        twoDays  = "two days ago",
-        threeDays  = "three days ago",
-        fourDays  = "four days ago",
+        twoDays = "two days ago",
+        threeDays = "three days ago",
+        fourDays = "four days ago",
         fiveDays = "five days ago",
         sixDays = "six days ago",
-        lastWeek  = "last week",
-        lastTwoWeek  = "last two week",
-        lastMonth  = "last month",
-        lastYear  = "last year",
+        lastWeek = "last week",
+        lastTwoWeek = "last two week",
+        lastMonth = "last month",
+        lastYear = "last year",
         moreTime = "more year ago",
 
         levelInfo1_part1 = {

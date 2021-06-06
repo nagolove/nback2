@@ -166,9 +166,11 @@ function List:done()
     --local longestStr = self.items[maxLenIdx].message .. string.rep(" ", 10)
     --self.width = love.graphics.getFont():getWidth(longestStr)
     self.width = self.font:getWidth(self.items[maxLenIdx].message)
+    --[[
     print("self.sum_item_height", self.sum_item_height)
     print("self.width", self.width)
     print("self.height", self.height)
+    --]]
 end
 
 function List:hasBar(): boolean

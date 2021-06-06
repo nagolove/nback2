@@ -35,88 +35,44 @@ global type Nback = record
     end
 
     record Button
-        x: number
-        y: number
-        w: number
-        h: number
-        title: string
-        coroName: string
+        x, y, w, h: number
+        title, coroName: string
         ontouch: function
-        textx: number
-        texty: number
+        textx, texty: number
     end
 
     mode: Mode
-    dim: integer
-    cell_width: number
-    current_sig: integer
-    sig_count: integer
-    level: integer
-    is_run: boolean
-    pause_time: number
-    can_press: boolean
-    show_statistic: boolean
+
+    dim, current_sig, sig_count, level: integer
+    border, cell_width, pause_time, startTime, start_pause_rest, stopppedSignal, timestamp: number
+    durationMin, durationSec, volume, x0, y0, figure_alpha, bhupur_h, shaderTimer: number
+    signalsInspected, shaderTimeEnabled, is_run, can_press, show_statistic, written, pause, start_pause: boolean
     field_color: {number}
-    font: love.graphics.Font
-    buttonsFont: love.graphics.Font
-    centralFont: love.graphics.Font
-    border: number
+    font, buttonsFont, buildLayout: love.graphics.Font
     layout: Layout
     timer: Timer
-    written: boolean
-    pause: boolean
     signals: Signals
-    timestamp: number
     pressed: Signals.Eq
     signal: SignalView
-    stopppedSignal: number
-    start_pause_rest: number
-    start_pause: boolean
-    startTime: number
     shader: love.graphics.Shader
     setupmenu: SetupMenu
-
-    uiState: any
-
-    shaderTimer: number
-    shaderTimeEnabled: boolean
-    figure_alpha: number
-    bhupur_h: number
-    x0: number
-    y0: number
     processor: CoroProcessor
     statisticRender: StatisticRender
-    volume: number
     save_name: string
     buttons: {Button}
-    durationMin: number
-    durationSec: number
-    signalsInspected: boolean
-
+    uiState: any
     map: {{number}}
 
     new: function(): Nback
-    buildLayout: function(Nback)
-    start: function(Nback)
-    initButtons: function(Nback)
-    enter: function(Nback)
-    leave: function(Nback)
-    initShaders: function(Nback)
-    createSetupMenu: function(Nback)
-    initShadersTimer: function(Nback)
-    processSignal: function(Nback)
-    drawMapIndices: function(Nback)
+
+    drawActiveSignal, printStartPause, setupButtonsTextPosition, drawField: function(Nback)
+    enter, leave, initShaders, createSetupMenu, initShadersTimer, processSignal: function(Nback)
+    processSignal, loverVolume, buildLayout, start, drawMapIndices, initButtons: function(Nback)
+
     init: function(Nback, string)
     resize: function(Nback, number, number)
-    processSignal: function(Nback)
     stop: function(Nback, boolean)
-    loverVolume: function(Nback)
-    raiseVolume: function(Nback)
     check: function(Nback, signalType: Signals.EqKeys)
-    setupButtonsTextPosition: function(Nback)
-    drawField: function(Nback)
-    printStartPause: function(Nback)
-    drawActiveSignal: function(Nback)
 end
 
 local Nback_mt: metatable<Nback> = {
@@ -300,32 +256,9 @@ function Nback:createSetupMenu()
     self.setupmenu:addItem({
         oninit = function(): {string}, boolean, boolean
             --debug.debug()
-            local fullStr = i18n("setupMenu.expTime_plural", {
-                count = tonumber(expositionList[activeExpositionItem])
-            })
-
+            local fullStr = i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])})
             print("------", tonumber(expositionList[activeExpositionItem]))
-            print("------", i18n("setupMenu.expTime_plural_stub", {
-                count = tonumber(expositionList[activeExpositionItem])
-            }))
-
-            --print("------", i18n("setupMenu.expTime_plural", {
-                --count = tonumber(expositionList[activeExpositionItem])
-            --}))
-
-            --[[
-  local colors = require 'ansicolors'
-  print(colors('%{red}hello'))
-  print(colors('%{redbg}hello%{reset}'))
-  print(colors('%{bright red underline}hello'))
-  --]]
-
-            --local ansicolors = require 'ansicolors'
-            --print(ansicolors(string.format("%{red}fullStr = %s", fullStr)))
-
-            --print(string.format("\%{red}fullStr = %s", fullStr))
-            print("fullStr = ", fullStr)
-
+            print("------", i18n("setupMenu.expTime_plural", {count = tonumber(expositionList[activeExpositionItem])}))
             local part1, _, part2 = string.match(fullStr, "(.+)(%d)(.+)")
             -- XXX may be harmful type conversion
             return {pallete.signal, part1, parameterColor, 
