@@ -40,7 +40,7 @@ local help = require "help"
 local menu = require "menu"
 local nback = require "nback"
 local pviewer = require "pviewer"
-local colorpicker = require "colorpicker"
+--local colorpicker = require "colorpicker"
 
 local picker = nil
 local to_resize = {}
@@ -112,12 +112,14 @@ function love.keypressed(key)
         lurker.scan()
     elseif key == "f12" then make_screenshot()
     elseif key == "1" then
+        --[[
         if not picker then
             picker = colorpicker:new()
         else
             picker = nil
             print("picker deleted")
         end
+        --]]
     else
         states.top().keypressed(key)
     end

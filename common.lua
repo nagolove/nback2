@@ -18,14 +18,16 @@ function table.copy(t)
 end
 
 -- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 
+-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 -- shit stuff
-local newunit = require "newunit"
+--local newunit = require "newunit"
 
-example1()
+--example1()
 --example2_local()
 print("xx", _G["xx"])
 print("yy", _G["yy"])
 
+--[[
 local var1 = newunit.new()
 var1.do_something()
 var1.do_something()
@@ -34,4 +36,5 @@ var1:do_something2()
 newunit.do_something()
 newunit:do_something2()
 newunit:do_something2()
--- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+--
+--]]
