@@ -104,8 +104,11 @@ function make_screenshot()
     love.graphics.captureScreenshot("screenshot" .. i .. ".png")
 end
 
-function love.keypressed(key)
+function love.keypressed(_, key)
     print(key)
+    if key == "1" then
+        linesbuf.show = not linesbuf.show
+    end
     if love.keyboard.isDown("ralt", "lalt") and key == "return" then
         love.window.setFullscreen(not love.window.getFullscreen())
     elseif key == "`" then
