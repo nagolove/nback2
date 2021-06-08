@@ -300,6 +300,7 @@ function Nback:createSetupMenu()
     self.setupmenu:addItem({
         oninit = function(): {string}, boolean, boolean
             --debug.debug()
+            print('count', tonumber(expositionList[activeExpositionItem]))
             local fullStr = i18n("setupMenu.expTime_plural", {
                 count = tonumber(expositionList[activeExpositionItem])
             })
