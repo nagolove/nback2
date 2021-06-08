@@ -319,3 +319,5 @@ end
     --new = Menu.new
 --}
 global menu: Menu = Menu.new()
+global menu2: Menu = Menu.new()
+print('global menu = ', menu)

@@ -6,8 +6,9 @@ require("layout")
 require("button")
 
 local i18n = require("i18n")
+local inspect = require("inspect")
 local serpent = require("serpent")
-local timer = require("Timer")
+
 local pallete = require("pallete")
 local g = love.graphics
 local cam = require("camera").new()
@@ -57,7 +58,9 @@ function Pviewer:init(save_name)
    print("save_name", save_name)
    self.save_name = save_name
    self:resize(g.getDimensions())
-   self.timer = timer()
+
+
+   self.timer = require('Timer').new()
 end
 
 

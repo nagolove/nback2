@@ -5,6 +5,7 @@ require "nbtypes"
 require "common"
 require "globals"
 require "pviewer"
+require "menu"
 require "help"
 require "languageselector"
 
@@ -118,6 +119,11 @@ function subInit()
 
     nback:init(SAVE_NAME)
     pviewer:init(SAVE_NAME)
+
+    print('menu2', menu2)
+    --menu2:init()
+
+    print('menu', menu)
     menu:init()
     help:init()
 
