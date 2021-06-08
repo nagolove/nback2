@@ -305,6 +305,9 @@ function Nback:createSetupMenu()
                 count = tonumber(expositionList[activeExpositionItem])
             })
 
+            --XXX костыль
+            fullStr = 'fullStr'
+
             print("------", tonumber(expositionList[activeExpositionItem]))
             print("------", i18n("setupMenu.expTime_plural_stub", {
                 count = tonumber(expositionList[activeExpositionItem])
