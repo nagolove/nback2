@@ -1,4 +1,6 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; require("love")
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; print('hello from top of Menu module.')
+
+require("love")
 require("common")
 require("cmn")
 require("background")
@@ -319,5 +321,7 @@ end
 
 
 menu = Menu.new()
-menu2 = Menu.new()
+menu2 = 0.4
 print('global menu = ', menu)
+
+print('hello from bottom of Menu module.')

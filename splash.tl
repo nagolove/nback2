@@ -12,7 +12,7 @@ end
 local splash: Splash = {}
 
 function splash.init()
-    local ok, t: boolean, any = pcall(require "libs.splashes.o-ten-one")
+    --local ok, t: boolean, any = pcall(require "libs.splashes.o-ten-one")
     -- XXX Not work
     --[[ 
     if ok then
@@ -27,7 +27,7 @@ function splash.init()
     --]]
 end
 
-function splash.keypressed(key: string)
+function splash.keypressed(_: string)
     --(splash._splash as LibSplash):skip()
 end
 
@@ -35,7 +35,7 @@ function splash.draw()
     --(splash._splash as LibSplash):draw()
 end
 
-function splash.update(dt: number)
+function splash.update(_: number)
     --(splash._splash as LibSplash):update(dt)
 end
 

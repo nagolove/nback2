@@ -1,4 +1,6 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local math = _tl_compat and _tl_compat.math or math; require("love")
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local math = _tl_compat and _tl_compat.math or math; print('hello from top of Help module.')
+
+require("love")
 require("common")
 require("layout")
 require("cmn")
@@ -113,6 +115,10 @@ function Help:prepareDrawDescription()
 
 
    local descText = i18n("help.desc")
+
+
+   descText = descText or ""
+
    self.desc.x, self.desc.y = x, y
    self.desc.canvas = g.newCanvas(w, h)
    g.setCanvas(self.desc.canvas)
@@ -170,3 +176,4 @@ end
 
 
 help = Help.new()
+print('hello from bottom of Help module.')

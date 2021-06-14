@@ -5,8 +5,8 @@ require("nbtypes")
 require("common")
 require("globals")
 require("pviewer")
-require("menu")
 require("help")
+require("menu")
 require("languageselector")
 
 
@@ -124,8 +124,8 @@ function subInit()
 
 
    print('menu', menu)
-   menu:init()
    help:init()
+   menu:init()
 
 
 

@@ -1,3 +1,5 @@
+print('hello from top of Menu module.')
+
 require "love"
 require "common"
 require "cmn"
@@ -319,5 +321,7 @@ end
     --new = Menu.new
 --}
 global menu: Menu = Menu.new()
-global menu2: Menu = Menu.new()
+global menu2: number = 0.4
 print('global menu = ', menu)
+
+print('hello from bottom of Menu module.')

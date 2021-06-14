@@ -5,8 +5,8 @@ require "nbtypes"
 require "common"
 require "globals"
 require "pviewer"
-require "menu"
 require "help"
+require "menu"
 require "languageselector"
 
 --preventiveFirstRun = false
@@ -124,8 +124,8 @@ function subInit()
     --menu2:init()
 
     print('menu', menu)
-    menu:init()
     help:init()
+    menu:init()
 
     -- XXX не работает!
     --menu:addItem(i18n("mainMenu.play"), nback)

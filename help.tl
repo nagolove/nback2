@@ -1,3 +1,5 @@
+print('hello from top of Help module.')
+
 require "love"
 require "common"
 require "layout"
@@ -113,6 +115,10 @@ function Help:prepareDrawDescription()
         --print("x, y", x, y)
     --end
     local descText = i18n("help.desc")
+
+    -- XXX костыль
+    descText = descText or ""
+
     self.desc.x, self.desc.y = x, y
     self.desc.canvas = g.newCanvas(w, h)
     g.setCanvas(self.desc.canvas)
@@ -170,4 +176,4 @@ end
     --new = Help.new
 --}
 global help = Help.new()
-
+print('hello from bottom of Help module.')
