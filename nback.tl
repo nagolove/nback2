@@ -2,9 +2,9 @@
 
 require "Timer"
 require "button"
-require "cmn"
 require "common"
 require "coroprocessor"
+require "cmn"
 require "drawstat"
 require "layout"
 require "menu"
