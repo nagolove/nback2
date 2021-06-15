@@ -37,3 +37,14 @@
 "Значительный прогресс в сравнении с предыдущим запуском. Действительно вы за компьютером, а не другой человек?"
 
 Скриншоты:
+
+scenes/nback3/shoots/10.png
+scenes/nback3/shoots/11.png
+scenes/nback3/shoots/12.png
+scenes/nback3/shoots/13.png
+scenes/nback3/shoots/14.png
+scenes/nback3/shoots/15.png
+scenes/nback3/shoots/16.png
+scenes/nback3/shoots/17.png
+scenes/nback3/shoots/18.png
+scenes/nback3/shoots/9.png
