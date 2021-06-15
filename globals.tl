@@ -2,19 +2,19 @@
 --require "pviewer"
 --require "help"
 --require "tiledbackground"
-require "nback"
+--require "nback"
 
---global pviewer: Pviewer
---global help: Help
+----global pviewer: Pviewer
+----global help: Help
 
-local function initGlobals()
-    --menu = require "menu".new()
-    --help = require "help".new()
-    --nback = Nback.new()
-    --tiledback = require "tiledbackground".new()
-end
+--local function initGlobals()
+    ----menu = require "menu".new()
+    ----help = require "help".new()
+    ----nback = Nback.new()
+    ----tiledback = require "tiledbackground".new()
+--end
 
-return {
-    initGlobals = initGlobals,
-}
---]]
+--return {
+    --initGlobals = initGlobals,
+--}
+----]]

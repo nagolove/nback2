@@ -1,4 +1,5 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local os = _tl_compat and _tl_compat.os or os; local pcall = _tl_compat and _tl_compat.pcall or pcall; local string = _tl_compat and _tl_compat.string or string; require("love")
+require("fonts")
 require("common")
 
 local g = love.graphics
@@ -48,18 +49,20 @@ local Block_mt = {
 }
 
 function Background.new()
+   print('Background.new()')
+
    local self = {
       bsize = 128,
 
       fragmentCode = [[
-  extern float time;
-  vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
-      vec4 pixel = Texel(image, uvs);
-      float av = (pixel.r + pixel.g + pixel.b) / time;
-      return pixel * color;
-  }
-  ]],
-      tile = love.graphics.newImage("gfx/IMG_20190111_115755.png"),
+extern float time;
+vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
+    vec4 pixel = Texel(image, uvs);
+    float av = (pixel.r + pixel.g + pixel.b) / time;
+    return pixel * color;
+}
+]],
+      tile = love.graphics.newImage(SCENEPREFIX .. "gfx/IMG_20190111_115755.png"),
       blockSize = 128,
       emptyNum = 1,
 
@@ -69,6 +72,7 @@ function Background.new()
       execList = {},
       paused = false,
    }
+   print('Background.new() self', inspect(self))
    setmetatable(self, Background_mt)
 
    local blocksPath = "gfx/blocks"
@@ -87,6 +91,8 @@ function Background.new()
 
    self:fillGrid()
    self:resize(g.getDimensions())
+
+   print('Background.new() self', inspect(self))
 
    return self
 end
@@ -277,6 +283,7 @@ function Background:fillGrid()
 
 
 
+   print('Background', inspect(Background))
    local xcount, ycount = math.floor(w / Background.bsize) + 1,
    math.floor(h / Background.bsize) + 1
    for i = 1, xcount do
