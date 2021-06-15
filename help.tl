@@ -1,11 +1,12 @@
 print('hello from top of Help module.')
 
-require "love"
-require "common"
-require "layout"
-require "cmn"
-require "globals"
 require "button"
+require "cmn"
+require "common"
+require "globals"
+require "layout"
+require "love"
+require "menu-new"
 
 --local gooi = require "gooi.gooi"
 local pallete = require "pallete"

@@ -1,4 +1,4 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local pcall = _tl_compat and _tl_compat.pcall or pcall; require("libs.splashes.o-ten-one")
+require("libs.splashes.o-ten-one")
 
 local Splash = {}
 
@@ -12,7 +12,7 @@ local Splash = {}
 local splash = {}
 
 function splash.init()
-   local ok, t = pcall(require("libs.splashes.o-ten-one"))
+
 
 
 
@@ -27,7 +27,7 @@ function splash.init()
 
 end
 
-function splash.keypressed(key)
+function splash.keypressed(_)
 
 end
 
@@ -35,7 +35,7 @@ function splash.draw()
 
 end
 
-function splash.update(dt)
+function splash.update(_)
 
 end
 

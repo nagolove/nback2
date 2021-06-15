@@ -4,9 +4,10 @@ require("drawstat")
 require("nback")
 require("layout")
 require("button")
+require("menu-new")
 
 local i18n = require("i18n")
-local inspect = require("inspect")
+
 local serpent = require("serpent")
 
 local pallete = require("pallete")

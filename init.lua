@@ -1,13 +1,13 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local os = _tl_compat and _tl_compat.os or os; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table; love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";?.lua;?/init.lua;scenes/nback2/?.lua")
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local os = _tl_compat and _tl_compat.os or os; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table; love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";?.lua;?/init.lua;scenes/nback3/?.lua")
 
-require("love")
-require("nbtypes")
 require("common")
 require("globals")
-require("pviewer")
 require("help")
-require("menu")
 require("languageselector")
+require("love")
+require("menu-new")
+require("nbtypes")
+require("pviewer")
 
 
 

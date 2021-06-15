@@ -1,13 +1,13 @@
-love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";?.lua;?/init.lua;scenes/nback2/?.lua")
+love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";?.lua;?/init.lua;scenes/nback3/?.lua")
 
-require "love"
-require "nbtypes"
 require "common"
 require "globals"
-require "pviewer"
 require "help"
-require "menu"
 require "languageselector"
+require "love"
+require "menu-new"
+require "nbtypes"
+require "pviewer"
 
 --preventiveFirstRun = false
 --onAndroid = true

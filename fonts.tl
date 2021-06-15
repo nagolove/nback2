@@ -1,7 +1,8 @@
 require "love"
 local lg = love.graphics
-local prefix = "scenes/nback2/"
-return {
+local prefix = "scenes/nback3/"
+print('Fonts module loading..')
+local t = {
     help = {
         font = lg.newFont(prefix .. "gfx/DejaVuSansMono.ttf", 15),
         gooi = lg.newFont(prefix .. "gfx/DejaVuSansMono.ttf", 13),
@@ -20,3 +21,5 @@ return {
     languageSelector = love.graphics.newFont(prefix .. "gfx/DejaVuSansMono.ttf", 25),
     menu = love.graphics.newFont(prefix .. "gfx/DejaVuSansMono.ttf", 32),
 }
+print('Fonts module loading done.')
+return t
