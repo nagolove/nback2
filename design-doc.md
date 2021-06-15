@@ -39,7 +39,7 @@
 Скриншоты:
 
 
-![9](scenes/nback3/shoots/9.png)
+![9](https://github.com/nagolove/nback2/blob/master/shoots/10.png?raw=true)
 ![10](scenes/nback3/shoots/10.png?raw=true)
 ![11](scenes/nback3/shoots/11.png?raw=true)
 ![12](scenes/nback3/shoots/12.png?raw=true)
