@@ -320,8 +320,8 @@ end
 --return {
     --new = Menu.new
 --}
---global menu: Menu = Menu.new()
---global menu2: number = 0.4
+global menu: Menu = Menu.new()
+global menu2: number = 0.4
 print('global menu = ', menu)
 
 print('hello from bottom of Menu module.')
