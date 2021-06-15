@@ -38,13 +38,13 @@
 
 Скриншоты:
 
-![scenes/nback3/shoots/9.png]
-![scenes/nback3/shoots/10.png]
-![scenes/nback3/shoots/11.png]
-![scenes/nback3/shoots/12.png]
-![scenes/nback3/shoots/13.png]
-![scenes/nback3/shoots/14.png]
-![scenes/nback3/shoots/15.png]
-![scenes/nback3/shoots/16.png]
-![scenes/nback3/shoots/17.png]
-![scenes/nback3/shoots/18.png]
+![9](scenes/nback3/shoots/9.png)
+![10](scenes/nback3/shoots/10.png)
+![11](scenes/nback3/shoots/11.png)
+![12](scenes/nback3/shoots/12.png)
+![13](scenes/nback3/shoots/13.png)
+![14](scenes/nback3/shoots/14.png)
+![15](scenes/nback3/shoots/15.png)
+![16](scenes/nback4/shoots/16.png)
+![17](scenes/nback3/shoots/17.png)
+![18](scenes/nback3/shoots/18.png)
