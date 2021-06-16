@@ -72,8 +72,7 @@ vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
       execList = {},
       paused = false,
    }
-   print('Background.new() self', inspect(self))
-   setmetatable(self, Background_mt)
+   self = setmetatable(self, Background_mt)
 
    local blocksPath = "gfx/blocks"
    local files = love.filesystem.getDirectoryItems(blocksPath)
@@ -92,8 +91,6 @@ vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
    self:fillGrid()
    self:resize(g.getDimensions())
 
-   print('Background.new() self', inspect(self))
-
    return self
 end
 
@@ -103,8 +100,8 @@ function Block.new(back, img, xidx,
    local self = {
       back = back,
       img = img,
-      x = (xidx - 1) * Background.bsize,
-      y = (yidx - 1) * Background.bsize,
+      x = (xidx - 1) * back.bsize,
+      y = (yidx - 1) * back.bsize,
       xidx = xidx,
       yidx = yidx,
       active = false,
@@ -124,8 +121,8 @@ function Block:draw()
 
 
 
-   g.draw(self.img, quad, self.x, self.y, 0, Background.bsize /
-   self.img:getWidth(), Background.bsize / self.img:getHeight())
+   g.draw(self.img, quad, self.x, self.y, 0, self.back.bsize /
+   self.img:getWidth(), self.back.bsize / self.img:getHeight())
 
    if self.active then
       g.setColor({ 1, 1, 1 })
@@ -156,7 +153,7 @@ function Block:move(dirx, diry)
    self.newYidx = self.yidx + diry
    self.active = true
 
-   self.animCounter = Background.bsize
+   self.animCounter = self.back.bsize
 end
 
 
@@ -283,9 +280,8 @@ function Background:fillGrid()
 
 
 
-   print('Background', inspect(Background))
-   local xcount, ycount = math.floor(w / Background.bsize) + 1,
-   math.floor(h / Background.bsize) + 1
+   local xcount, ycount = math.floor(w / self.bsize) + 1,
+   math.floor(h / self.bsize) + 1
    for i = 1, xcount do
       local column = {}
       for j = 1, ycount do

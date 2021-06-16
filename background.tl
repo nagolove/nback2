@@ -72,9 +72,7 @@ vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
         execList = {}, 
         paused = false,
     }
-    print('Background.new() self', inspect(self))
-    -- XXX исчезают поля в self
-    setmetatable(self, Background_mt)
+    self = setmetatable(self, Background_mt)
 
     local blocksPath = "gfx/blocks"
     local files = love.filesystem.getDirectoryItems(blocksPath)
@@ -93,8 +91,6 @@ vec4 effect(vec4 color, Image image, vec2 uvs, vec2 screen_coords) {
     self:fillGrid()
     self:resize(g.getDimensions())
 
-    print('Background.new() self', inspect(self))
-
     return self
 end
 
@@ -104,8 +100,8 @@ function Block.new(back: Background, img: love.graphics.Texture, xidx: number,
     local self: Block = {
         back = back,
         img = img,
-        x = (xidx - 1) * Background.bsize,
-        y = (yidx - 1) * Background.bsize,
+        x = (xidx - 1) * back.bsize,
+        y = (yidx - 1) * back.bsize,
         xidx = xidx,
         yidx = yidx,
         active = false,
@@ -125,8 +121,8 @@ function Block:draw()
     --Background.size / self.img:getHeight(), self.img:getWidth() / 2, 
     --self.img:getHeight() / 2)
 
-    g.draw(self.img, quad, self.x, self.y, 0, Background.bsize / 
-    self.img:getWidth(), Background.bsize / self.img:getHeight())
+    g.draw(self.img, quad, self.x, self.y, 0, self.back.bsize / 
+    self.img:getWidth(), self.back.bsize / self.img:getHeight())
 
     if self.active then
         g.setColor{1, 1, 1}
@@ -157,7 +153,7 @@ function Block:move(dirx: number, diry: number)
     self.newYidx = self.yidx + diry
     self.active = true
     -- счетчик анимации в пикселях. Уменьшается до 0
-    self.animCounter = Background.bsize
+    self.animCounter = self.back.bsize
 end
 
 -- возвращает true если обработка движения еще не закончена. false если 
@@ -284,9 +280,8 @@ function Background:fillGrid()
 
     --print("w / Background.size", w / Background.bsize)
 
-    print('Background', inspect(Background))
-    local xcount, ycount = math.floor(w / Background.bsize) + 1, 
-    math.floor(h / Background.bsize) + 1
+    local xcount, ycount = math.floor(w / self.bsize) + 1, 
+    math.floor(h / self.bsize) + 1
     for i = 1, xcount do
         local column = {}
         for j = 1, ycount do
@@ -297,90 +292,90 @@ function Background:fillGrid()
 
     math.randomseed(os.time())
 
-            local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
-            self.execList = {}
-            for _ = 1, self.emptyNum do
-                -- случайный пустой блок, куда будет двигаться сосед
-                local xidx = math.random(1, fieldWidth)
-                local yidx = math.random(1, fieldHeight)
-                self.blocks[xidx][yidx] = {}
+    local fieldWidth, fieldHeight = #self.blocks, #self.blocks[1]
+    self.execList = {}
+    for _ = 1, self.emptyNum do
+        -- случайный пустой блок, куда будет двигаться сосед
+        local xidx = math.random(1, fieldWidth)
+        local yidx = math.random(1, fieldHeight)
+        self.blocks[xidx][yidx] = {}
 
-                -- поиск соседа пустого блока. Сосед будет двигаться на пустое место.
-                local x, y = self:findDirection(xidx, yidx)
+        -- поиск соседа пустого блока. Сосед будет двигаться на пустое место.
+        local x, y = self:findDirection(xidx, yidx)
 
+        self.blocks[x][y]:move(xidx - x, yidx - y)
+        self.execList[#self.execList + 1] = self.blocks[x][y]
+    end
+end
+
+function Background:update(dt: number)
+if self.paused then return end
+
+for k, v in ipairs(self.execList) do
+    local block = v
+    --print(inspect(v))
+    -- блок двигается
+    local ret = block:process(dt)
+    -- начинаю новое движение
+    if not ret then
+        --local xidx, yidx = v.xidx, v.yidx
+        --local xidx, yidx = math.floor(block.x / Background.bsize),
+        --math.floor(block.y / Background.bsize)
+
+            local xidx, yidx = block.oldXidx or block.xidx, 
+            block.oldYidx or block.yidx
+
+            print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
+
+            -- поиск индексов нового блока по новым рассчитанным индексам
+            local x, y = self:findDirection(math.floor(xidx), math.floor(yidx))
+            --print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
+            --print(string.format("xidx = %d, yidx = %d", xidx, yidx))
+            --print(string.format("xidx - x = %d, yidx - y = %d", 
+            --xidx - x, yidx - y))
+
+            -- запуск нового движения
+            -- здесь какие-то неправильные индексы используются. При
+            -- первом движении работает нормально, а следущие - генерируются
+            -- совсем не так, как должны.
+            --self.blocks[x][y]:move(x - xidx, y - yidx)
+            if self.blocks[x][y].move then
                 self.blocks[x][y]:move(xidx - x, yidx - y)
-                self.execList[#self.execList + 1] = self.blocks[x][y]
+            elseif self.blocks[x][y] == {} then
+                error("{} block")
+            else
+                error("Ououou " .. inspect(self.blocks[x][y]))
             end
+
+            self.execList[k] = self.blocks[x][y]
+            -- обновляю индексы блока
+            --v.xidx = x
+            --v.yidx = y
         end
+    end
+end
 
-        function Background:update(dt: number)
-            if self.paused then return end
-
-            for k, v in ipairs(self.execList) do
-                local block = v
-                --print(inspect(v))
-                -- блок двигается
-                local ret = block:process(dt)
-                -- начинаю новое движение
-                if not ret then
-                    --local xidx, yidx = v.xidx, v.yidx
-                    --local xidx, yidx = math.floor(block.x / Background.bsize),
-                    --math.floor(block.y / Background.bsize)
-
-                        local xidx, yidx = block.oldXidx or block.xidx, 
-                        block.oldYidx or block.yidx
-
-                        print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
-
-                        -- поиск индексов нового блока по новым рассчитанным индексам
-                        local x, y = self:findDirection(math.floor(xidx), math.floor(yidx))
-                        --print(string.format("x - xidx = %d, y - yidx = %d", xidx, yidx))
-                        --print(string.format("xidx = %d, yidx = %d", xidx, yidx))
-                        --print(string.format("xidx - x = %d, yidx - y = %d", 
-                        --xidx - x, yidx - y))
-
-                        -- запуск нового движения
-                        -- здесь какие-то неправильные индексы используются. При
-                        -- первом движении работает нормально, а следущие - генерируются
-                        -- совсем не так, как должны.
-                        --self.blocks[x][y]:move(x - xidx, y - yidx)
-                        if self.blocks[x][y].move then
-                            self.blocks[x][y]:move(xidx - x, yidx - y)
-                        elseif self.blocks[x][y] == {} then
-                            error("{} block")
-                        else
-                            error("Ououou " .. inspect(self.blocks[x][y]))
-                        end
-
-                        self.execList[k] = self.blocks[x][y]
-                        -- обновляю индексы блока
-                        --v.xidx = x
-                        --v.yidx = y
-                    end
-                end
-            end
-
-            function Background:draw()
-                g.clear(pallete.background)
-                --print("self.blocks", inspect(self.blocks))
-                for _, v in ipairs(self.blocks) do
-                    for _, p in ipairs(v) do
-                        if p.draw then p:draw() end
-                    end
-                end
-            end
+function Background:draw()
+    g.clear(pallete.background)
+    --print("self.blocks", inspect(self.blocks))
+    for _, v in ipairs(self.blocks) do
+        for _, p in ipairs(v) do
+            if p.draw then p:draw() end
+        end
+    end
+end
 
 -- Не работает. Нужно сделать так, чтобы при увеличении размера экрана
 -- добавлялись новые блоки, а при уменьшении - стирались невидимые(хотя
 -- необязательно их стирать, пусть остаются. Хм, если не стирать, то анимация
 -- сможет происходить на невидимой пользователю части экрана)
-            function Background:resize(_: number, _: number)
-                --print("Background:resize()")
-                -- увеличиваем размер плиточного поля
-                self:fillGrid()
-            end
+function Background:resize(_: number, _: number)
+    --print("Background:resize()")
+    -- увеличиваем размер плиточного поля
+    self:fillGrid()
+end
 
-            return {
-                new = Background.new,
-            }
+return {
+    new = Background.new,
+}
 
