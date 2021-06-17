@@ -5,7 +5,7 @@ require("globals")
 require("help")
 require("languageselector")
 require("love")
-require("menu-new")
+require("menu-main")
 require("nbtypes")
 require("pviewer")
 require("tiledbackground")
@@ -51,11 +51,11 @@ local function quit()
 end
 
 function loadLocales()
-   local files = love.filesystem.getDirectoryItems("locales")
+   local files = love.filesystem.getDirectoryItems(SCENEPREFIX .. "locales")
    print("locale files", inspect(files))
    for _, v in ipairs(files) do
       i18n.loadFile("locales/" .. v, function(path)
-         local chunk, errmsg = love.filesystem.load(path)
+         local chunk, errmsg = love.filesystem.load(SCENEPREFIX .. path)
          if not chunk then
             error(errmsg)
          end
@@ -120,29 +120,23 @@ function subInit()
 
    nback:init(SAVE_NAME)
    pviewer:init(SAVE_NAME)
-
-   print('menu2', menu2)
-
-
-   print('menu', menu)
    help:init()
-   menu:init()
+
+   mainMenu:init()
 
 
 
+   mainMenu:addItem(i18n("mainMenu.play"), nback)
+   mainMenu:addItem(i18n("mainMenu.viewProgress"), pviewer)
+   mainMenu:addItem(i18n("mainMenu.help"), help)
 
-
-
-
-
-
-
-
+   if not onAndroid then
+      mainMenu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
+   end
 end
 
 local function init()
    settings = readSettings()
-   print("SUUKA")
    print(inspect(settings))
    loadLocales()
 
@@ -165,7 +159,7 @@ local function init()
    subInit()
 
    table.insert(to_resize, nback)
-   table.insert(to_resize, menu)
+   table.insert(to_resize, mainMenu)
    table.insert(to_resize, pviewer)
    table.insert(to_resize, help)
    table.insert(to_resize, languageSelector)
@@ -192,7 +186,7 @@ function update(dt)
          languageSelector = nil
       end
    else
-      menu:update(dt)
+      mainMenu:update(dt)
       timer:update(dt)
    end
    linesbuf:update()
@@ -259,12 +253,12 @@ local function keypressed(scancode)
       languageSelector:keypressed(scancode)
    else
       keyconfig.keypressed(scancode)
-      menu:keypressed(scancode)
+      mainMenu:keypressed(scancode)
    end
 end
 
 local function keyreleased(key)
-   menu:keyreleased(key)
+   mainMenu:keyreleased(key)
 end
 
 local function draw()
@@ -273,7 +267,7 @@ local function draw()
       languageSelector:draw()
    else
       cam:attach()
-
+      mainMenu:draw()
       cam:detach()
 
 
@@ -298,7 +292,7 @@ local function mousemoved(x, y, dx, dy, istouch)
    if languageSelector then
       languageSelector:mousemoved(x, y, dx, dy, istouch)
    else
-      menu:mousemoved(x, y, dx, dy, istouch)
+      mainMenu:mousemoved(x, y, dx, dy, istouch)
    end
 end
 
@@ -306,15 +300,16 @@ local function mousepressed(x, y, button, istouch)
    if languageSelector then
       languageSelector:mousepressed(x, y, button, istouch)
    else
-      menu:mousepressed(x, y, button, istouch)
+      mainMenu:mousepressed(x, y, button, istouch)
    end
 end
 
 local function mousereleased(x, y, button, istouch)
    if languageSelector then
 
+
    else
-      menu:mousereleased(x, y, button, istouch)
+      mainMenu:mousereleased(x, y, button, istouch)
    end
 end
 
@@ -322,7 +317,7 @@ local function touchpressed(id, x, y, dx, dy, pressure)
    if languageSelector then
       languageSelector:touchpressed(id, x, y)
    else
-      menu:touchpressed(id, x, y, dx, dy, pressure)
+      mainMenu:touchpressed(id, x, y, dx, dy, pressure)
    end
 end
 
@@ -330,7 +325,7 @@ local function touchreleased(id, x, y, dx, dy, pressure)
    if languageSelector then
       languageSelector:touchreleased(id, x, y)
    else
-      menu:touchreleased(id, x, y, dx, dy, pressure)
+      mainMenu:touchreleased(id, x, y, dx, dy, pressure)
    end
 end
 
@@ -338,7 +333,7 @@ local function touchmoved(id, x, y, dx, dy, pressure)
    if languageSelector then
       languageSelector:touchmoved(id, x, y)
    else
-      menu:touchmoved(id, x, y, dx, dy, pressure)
+      mainMenu:touchmoved(id, x, y, dx, dy, pressure)
    end
 end
 

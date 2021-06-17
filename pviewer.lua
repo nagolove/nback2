@@ -3,7 +3,7 @@ require("common")
 require("drawstat")
 require("layout")
 require("love")
-require("menu-new")
+require("menu-main")
 require("nback")
 require("tiledbackground")
 
@@ -210,7 +210,7 @@ function Pviewer:enter()
    end
 
    self.backButton.onMouseReleased = function()
-      menu:goBack()
+      mainMenu:goBack()
    end
    self.backButton.bgColor = { 0.208, 0.220, 0.222 }
    self.backButton.font = self.font
@@ -295,7 +295,7 @@ end
 
 function Pviewer:keypressed(key)
    if key == "escape" or key == "acback" then
-      menu:goBack()
+      mainMenu:goBack()
    elseif key == "return" or key == "space" then
 
    elseif key == "home" or key == "kp7" then

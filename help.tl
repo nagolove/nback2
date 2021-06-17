@@ -6,7 +6,7 @@ require "common"
 require "globals"
 require "layout"
 require "love"
-require "menu-new"
+require "menu-main"
 require "nback"
 require "tiledbackground"
 
@@ -170,7 +170,7 @@ end
 function Help:keypressed(key: string)
     if key == "escape" then
         --restoreGooi(self.gooi)
-        menu:goBack()
+        mainMenu:goBack()
     end
 end
 

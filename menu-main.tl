@@ -23,6 +23,8 @@ global record MenuObject
     mousepressed: function(MenuObject, number, number, number, boolean)
 end
 
+global type MenuFunction = function()
+
 global type Menu = record
     record Item
         name: string
@@ -52,7 +54,7 @@ global type Menu = record
     resize: function(Menu, number, number)
     init: function(Menu)
     searchWidestText: function(Menu)
-    addItem: function(Menu, name: string, object: MenuObject)
+    addItem: function(Menu, name: string, object: MenuObject|MenuFunction)
     moveDown: function(Menu)
     moveUp: function(Menu)
     keyreleased: function(Menu, string)
@@ -145,8 +147,9 @@ end
 -- Или object может быть функцией(пока не реализовано).
 function Menu:addItem(name: string, object: MenuObject)
     --print("menu:addItem()", inspect(name), inspect(object))
-    assert(type(name) == "string")
-    self.items[#self.items + 1] = { name = name, obj= object }
+    print('name', name)
+    assert(type(name) == "string", string.format('Type should be string, not %s', type(name)))
+    self.items[#self.items + 1] = { name = name, obj = object as MenuObject}
     self:searchWidestText()
     self:resize(g.getDimensions())
 end
@@ -265,33 +268,33 @@ function Menu:drawList()
 end
 
 function Menu:draw()
-    print("Menu:draw() self", inspect(self))
+    --print("Menu:draw() self", inspect(self))
     g.clear(0, 0, 0, 0)
-    --if self.active then
-        --local obj = self.items[self.active_item].obj
-        --if obj.draw then 
+    if self.active then
+        local obj = self.items[self.active_item].obj
+        if obj.draw then 
 
-            ----g.setCanvas{self.canvas, stencil = true}
-            ----g.setColor{1, 1, 1, 1}
-            ----g.clear{1, 1, 1, 1}
+            --g.setCanvas{self.canvas, stencil = true}
+            --g.setColor{1, 1, 1, 1}
+            --g.clear{1, 1, 1, 1}
 
-            --obj:draw() 
+            obj:draw() 
 
-            ----g.setCanvas()
-            ----g.setColor{1, 1, 1, 0.2}
-            ----g.clear(pallete.background)
-            ----g.setColor{1, 1, 1, 1}
-            ----g.draw(self.canvas)
+            --g.setCanvas()
+            --g.setColor{1, 1, 1, 0.2}
+            --g.clear(pallete.background)
+            --g.setColor{1, 1, 1, 1}
+            --g.draw(self.canvas)
 
-        --end
-    --else
-        --g.push("all")
-        --self.back:draw()
+        end
+    else
+        g.push("all")
+        self.back:draw()
         self:drawList()
         --self:drawCursor()
         self:cursorDraw()
-        --g.pop()
-    --end
+        g.pop()
+    end
 end
 
 --function Menu:drawCursor()

@@ -186,8 +186,8 @@ function i18n.loadFile(path, callback)
   end
   local data = chunk()
   i18n.load(data)
-  print("i18n", inspect(i18n))
-  print("locale", inspect(locale))
+  --print("i18n", inspect(i18n))
+  --print("i18n.loadFile", inspect(locale))
 end
 
 setmetatable(i18n, {__call = function(_, ...) return i18n.translate(...) end})

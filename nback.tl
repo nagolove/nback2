@@ -7,7 +7,7 @@ require "coroprocessor"
 require "cmn"
 require "drawstat"
 require "layout"
-require "menu-new"
+require "menu-main"
 require "nbtypes"
 require "signal_quad_field"
 require "snippets"
@@ -629,7 +629,7 @@ function Nback:initButtons()
         title = i18n("quitBtn"),
         coroName = "quitBtn",
         ontouch = function() 
-            menu:goBack()
+            mainMenu:goBack()
         end})
 
     -- клавиша дополнительных настроек справа
@@ -942,7 +942,7 @@ function Nback:quit(byescape: boolean)
     settings.pause_time = self.pause_time
     settings.dim = self.dim
     writeSettings()
-    menu:goBack()
+    mainMenu:goBack()
 end
 
 function Nback:keyreleased(scancode: string)
