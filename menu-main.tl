@@ -1,41 +1,44 @@
 print('hello from top of main menu module.')
 
-require "love"
-require "common"
-require "cmn"
 require "background"
+require "cmn"
+require "common"
+require "love"
 
 local inspect = require "inspect"
 local g = love.graphics
 
 global record MenuObject
-    leave: function(MenuObject)
-    keyreleased: function(MenuObject, string)
-    keypressed: function(MenuObject, string)
-    enter: function(MenuObject)
-    update: function(MenuObject, number)
     draw: function(MenuObject)
+    enter: function(MenuObject)
+    keypressed: function(MenuObject, string)
+    keyreleased: function(MenuObject, string)
+    leave: function(MenuObject)
+    mousemoved: function(MenuObject, number, number, number, number, boolean)
+    mousepressed: function(MenuObject, number, number, number, boolean)
+    mousereleased: function(MenuObject, number, number, number, boolean)
+    touchmoved: function(MenuObject, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     touchpressed: function(MenuObject, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     touchreleased: function(MenuObject, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
-    touchmoved: function(MenuObject, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
-    mousemoved: function(MenuObject, number, number, number, number, boolean)
-    mousereleased: function(MenuObject, number, number, number, boolean)
-    mousepressed: function(MenuObject, number, number, number, boolean)
+    update: function(MenuObject, number)
 end
 
 global type MenuFunction = function()
 
 global type Menu = record
+
     record Item
         name: string
         obj: MenuObject
     end
+
     record ItemRect
         x: number
         y: number
         w: number
         h: number
     end
+
     items: {Item}
     back: Background
     active_item: integer
@@ -49,28 +52,29 @@ global type Menu = record
     y_pos: number
     items_rects: {ItemRect}
 
-    goBack: function(Menu)
-    compute_rects: function(Menu)
-    resize: function(Menu, number, number)
-    init: function(Menu)
-    searchWidestText: function(Menu)
-    addItem: function(Menu, name: string, object: MenuObject|MenuFunction)
-    moveDown: function(Menu)
-    moveUp: function(Menu)
-    keyreleased: function(Menu, string)
-    keypressed: function(Menu, string)
-    update: function(Menu, number)
-    process_menu_selection: function(Menu, number, number, number, number, boolean)
-    mousemoved: function(Menu, number, number, number, number, boolean)
-    mousereleased: function(Menu, number, number, number, boolean)
-    mousepressed: function(Menu, number, number, number, boolean)
-    drawList: function(Menu)
     --drawCursor: function(Menu)
+    addItem: function(Menu, name: string, object: MenuObject|MenuFunction)
+    clear: function(Menu)
+    compute_rects: function(Menu)
     cursorDraw: function(Menu)
     draw: function(Menu)
+    drawList: function(Menu)
+    goBack: function(Menu)
+    init: function(Menu)
+    keypressed: function(Menu, string)
+    keyreleased: function(Menu, string)
+    mousemoved: function(Menu, number, number, number, number, boolean)
+    mousepressed: function(Menu, number, number, number, boolean)
+    mousereleased: function(Menu, number, number, number, boolean)
+    moveDown: function(Menu)
+    moveUp: function(Menu)
+    process_menu_selection: function(Menu, number, number, number, number, boolean)
+    resize: function(Menu, number, number)
+    searchWidestText: function(Menu)
+    touchmoved: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     touchpressed: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     touchreleased: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
-    touchmoved: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
+    update: function(Menu, number)
 end
 
 local Menu_mt: metatable<Menu> = {
@@ -142,12 +146,17 @@ function Menu:searchWidestText()
     self.maxWidth = maxWidth
 end
 
+function Menu:clear()
+    self.items = {}
+    self:searchWidestText()
+    self:resize(g.getDimensions())
+end
+
 -- добавить следующий пункт с заголовком name и обработчиком object.
 -- object - таблица с методами update, draw, keypressed и другими.
 -- Или object может быть функцией(пока не реализовано).
 function Menu:addItem(name: string, object: MenuObject)
-    --print("menu:addItem()", inspect(name), inspect(object))
-    print('name', name)
+    print("menu:addItem()", name, inspect(object))
     assert(type(name) == "string", string.format('Type should be string, not %s', type(name)))
     self.items[#self.items + 1] = { name = name, obj = object as MenuObject}
     self:searchWidestText()
@@ -256,6 +265,10 @@ end
 function Menu:drawList()
     local y = self.y_pos
     g.setFont(self.font)
+
+    --print('Menu:drawList()', inspect(self.items))
+    --os.exit()
+
     for i, k in ipairs(self.items) do
         --local q = self.active_item == i and pallete.active or pallete.inactive 
         local q = self.active_item == i and {1., 1., 1., 1.} or {0., 0., 0., 1.}
@@ -299,8 +312,8 @@ end
 
 --function Menu:drawCursor()
 function Menu:cursorDraw()
-    print("Menu:drawCursor() self", self.items_rects[self.active_item])
-    print(debug.traceback())
+    --print("Menu:drawCursor() self", self.items_rects[self.active_item])
+    --print(debug.traceback())
 
     local v = self.items_rects[self.active_item]
     g.setLineWidth(3)
@@ -329,10 +342,5 @@ function Menu:touchmoved(id: number, x: number, y: number, dx: number, dy: numbe
     end
 end
 
---return {
-    --new = Menu.new
---}
 global mainMenu: Menu = Menu.new()
-print('global mainMenu = ', mainMenu)
-
 print('hello from bottom of main menu module.')

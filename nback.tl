@@ -1,5 +1,5 @@
 -- vim: set foldmethod=indent
-
+print('hello from begin of nback module')
 require "Timer"
 require "button"
 require "common"
@@ -1190,3 +1190,4 @@ end
 --}
 
 global nback: Nback = Nback.new()
+print('hello from end of nback module')

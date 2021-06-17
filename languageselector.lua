@@ -55,7 +55,7 @@ function LanguageSelector.new()
    self.locale = nil
    for _, v in ipairs(love.filesystem.getDirectoryItems(SCENEPREFIX .. "locales")) do
       local chunk, errmsg = love.filesystem.load(SCENEPREFIX .. "locales/" .. v)
-      print("--", chunk(), errmsg)
+
       if not errmsg and type(chunk) == "function" then
 
 
@@ -174,9 +174,9 @@ function LanguageSelector:keypressed(key)
 end
 
 function LanguageSelector:mousepressed(x, y, _, _)
-   print("LanguageSelector:mousepressed")
+
    for k, v in ipairs(self.items) do
-      print("v", inspect(v))
+
       if pointInRect(x, y, v.x, v.y, v.w, v.h) then
          self.locale = self.languages[k].locale
       end

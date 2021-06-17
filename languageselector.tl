@@ -55,7 +55,7 @@ function LanguageSelector.new(): LanguageSelector
     self.locale = nil
     for _, v in ipairs(love.filesystem.getDirectoryItems(SCENEPREFIX .. "locales")) do 
         local chunk, errmsg: function, string = love.filesystem.load(SCENEPREFIX .. "locales/" .. v)
-        print("--", chunk(), errmsg)
+        --print("--", chunk(), errmsg)
         if not errmsg and type(chunk) == "function" then
             -- FIXME setfenv not work in Teal
             --setfenv(chunk, {})
@@ -174,9 +174,9 @@ function LanguageSelector:keypressed(key: string)
 end
 
 function LanguageSelector:mousepressed(x: number, y: number, _: number, _: boolean)
-    print("LanguageSelector:mousepressed")
+    --print("LanguageSelector:mousepressed")
     for k, v in ipairs(self.items) do
-        print("v", inspect(v))
+        --print("v", inspect(v))
         if pointInRect(x, y, v.x, v.y, v.w, v.h) then
             self.locale = self.languages[k].locale
         end

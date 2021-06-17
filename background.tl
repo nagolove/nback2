@@ -324,7 +324,7 @@ function Background:update(dt: number)
             local xidx, yidx = block.oldXidx or block.xidx, 
             block.oldYidx or block.yidx
 
-            print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
+            --print(string.format("v.xidx = %d, v.yidx = %d", v.xidx, v.yidx))
 
             -- поиск индексов нового блока по новым рассчитанным индексам
             local x, y = self:findDirection(math.floor(xidx), math.floor(yidx))

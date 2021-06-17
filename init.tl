@@ -1,11 +1,11 @@
 love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";?.lua;?/init.lua;scenes/nback3/?.lua")
 
-require "common"
 require "globals"
+require "menu-main"
+require "common"
 require "help"
 require "languageselector"
 require "love"
-require "menu-main"
 require "nbtypes"
 require "pviewer"
 require "tiledbackground"
@@ -114,6 +114,8 @@ function bindKeys()
     --end, "Save screenshot in data folder.")
 end
 
+local subInitCounter = 0
+
 function subInit()
     bindKeys()
     --initGlobals()
@@ -121,11 +123,12 @@ function subInit()
     nback:init(SAVE_NAME)
     pviewer:init(SAVE_NAME)
     help:init()
-    --print('main menu', mainMenu)
+    print('main menu', mainMenu)
     mainMenu:init()
 
     --print('i18n("mainMenu.play)"', i18n("mainMenu.play"))
 
+    mainMenu:clear()
     mainMenu:addItem(i18n("mainMenu.play"), nback as MenuObject)
     mainMenu:addItem(i18n("mainMenu.viewProgress"), pviewer as MenuObject)
     mainMenu:addItem(i18n("mainMenu.help"), help as MenuObject)
@@ -133,6 +136,12 @@ function subInit()
     if not onAndroid then
         mainMenu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end as MenuObject)
     end
+
+    subInitCounter = subInitCounter + 1
+    --if subInitCounter > 1 then
+        --error("Function 'subInit' called more than once.")
+    --end
+    print('subInitCounter', subInitCounter)
 end
 
 local function init()

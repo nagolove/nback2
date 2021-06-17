@@ -1,9 +1,9 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local debug = _tl_compat and _tl_compat.debug or debug; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local string = _tl_compat and _tl_compat.string or string; print('hello from top of main menu module.')
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local string = _tl_compat and _tl_compat.string or string; print('hello from top of main menu module.')
 
-require("love")
-require("common")
-require("cmn")
 require("background")
+require("cmn")
+require("common")
+require("love")
 
 local inspect = require("inspect")
 local g = love.graphics
@@ -26,6 +26,10 @@ local g = love.graphics
  MenuFunction = {}
 
  Menu = {Item = {}, ItemRect = {}, }
+
+
+
+
 
 
 
@@ -142,12 +146,17 @@ function Menu:searchWidestText()
    self.maxWidth = maxWidth
 end
 
+function Menu:clear()
+   self.items = {}
+   self:searchWidestText()
+   self:resize(g.getDimensions())
+end
+
 
 
 
 function Menu:addItem(name, object)
-
-   print('name', name)
+   print("menu:addItem()", name, inspect(object))
    assert(type(name) == "string", string.format('Type should be string, not %s', type(name)))
    self.items[#self.items + 1] = { name = name, obj = object }
    self:searchWidestText()
@@ -256,6 +265,10 @@ end
 function Menu:drawList()
    local y = self.y_pos
    g.setFont(self.font)
+
+
+
+
    for i, k in ipairs(self.items) do
 
       local q = self.active_item == i and { 1., 1., 1., 1. } or { 0., 0., 0., 1. }
@@ -299,8 +312,8 @@ end
 
 
 function Menu:cursorDraw()
-   print("Menu:drawCursor() self", self.items_rects[self.active_item])
-   print(debug.traceback())
+
+
 
    local v = self.items_rects[self.active_item]
    g.setLineWidth(3)
@@ -329,10 +342,5 @@ function Menu:touchmoved(id, x, y, dx, dy, pressure)
    end
 end
 
-
-
-
 mainMenu = Menu.new()
-print('global mainMenu = ', mainMenu)
-
 print('hello from bottom of main menu module.')

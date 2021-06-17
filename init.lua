@@ -1,11 +1,11 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local os = _tl_compat and _tl_compat.os or os; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table; love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";?.lua;?/init.lua;scenes/nback3/?.lua")
 
-require("common")
 require("globals")
+require("menu-main")
+require("common")
 require("help")
 require("languageselector")
 require("love")
-require("menu-main")
 require("nbtypes")
 require("pviewer")
 require("tiledbackground")
@@ -114,6 +114,8 @@ function bindKeys()
 
 end
 
+local subInitCounter = 0
+
 function subInit()
    bindKeys()
 
@@ -121,11 +123,12 @@ function subInit()
    nback:init(SAVE_NAME)
    pviewer:init(SAVE_NAME)
    help:init()
-
+   print('main menu', mainMenu)
    mainMenu:init()
 
 
 
+   mainMenu:clear()
    mainMenu:addItem(i18n("mainMenu.play"), nback)
    mainMenu:addItem(i18n("mainMenu.viewProgress"), pviewer)
    mainMenu:addItem(i18n("mainMenu.help"), help)
@@ -133,6 +136,12 @@ function subInit()
    if not onAndroid then
       mainMenu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
    end
+
+   subInitCounter = subInitCounter + 1
+
+
+
+   print('subInitCounter', subInitCounter)
 end
 
 local function init()
