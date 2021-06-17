@@ -68,7 +68,7 @@ global type Nback = record
     signals: Signals
     timestamp: number
     pressed: Signals.Eq
-    signal: SignalView
+    signalView: SignalView
     stopppedSignal: number
     start_pause_rest: number
     start_pause: boolean
@@ -192,7 +192,7 @@ function Nback:start()
     self.pause = false
     self.map = genMapByDim(self.dim)
     self.signals = generator.generateAll(self.sig_count, self.level, self.dim, 
-        #self.signal.sounds, self.map)
+        #self.signalView.sounds, self.map)
     --print("self.signals", inspect(self.signals))
     self.current_sig = 1
     self.timestamp = love.timer.getTime() - self.pause_time
@@ -441,7 +441,7 @@ function Nback:init(save_name: string)
     self.timer = require "Timer".new()
 
     if self.mode == "quad" then
-        self.signal = require "signal_quad_field".new(self.cell_width, "alphabet")
+        self.signalView = require "signal_quad_field".new(self.cell_width, "alphabet")
     elseif self.mode == "hex" then
         error("not implemented")
         w, h = gr.getDimensions()
@@ -509,7 +509,7 @@ function Nback:processSignal()
             print("figure_alpha after", self.figure_alpha)
         end)
 
-        self.signal:play(self.signals.sound[self.current_sig])
+        self.signalView:play(self.signals.sound[self.current_sig])
     end
 end
 
@@ -1065,9 +1065,9 @@ function Nback:resize(neww: number, newh: number)
     self.x0, self.y0 = self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2, self.layout.center.y
     self.processor = require "coroprocessor".new()
 
-    if self.signal then
-        self.signal:setCorner(self.x0, self.y0)
-        self.signal:resize(self.cell_width)
+    if self.signalView then
+        self.signalView:setCorner(self.x0, self.y0)
+        self.signalView:resize(self.cell_width)
     end
 
     if self.statisticRender then
@@ -1127,7 +1127,7 @@ function Nback:drawActiveSignal()
     end
     --print("sig_color[4]", sig_color[4])
     local curtype: string = self.signals.form[self.current_sig]
-    self.signal:draw(x, y, curtype, sig_color)
+    self.signalView:draw(x, y, curtype, sig_color)
 end
 
 function Nback:drawField()

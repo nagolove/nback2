@@ -11,13 +11,19 @@ local CmpFunction = {}
 
 local function generate(sig_count, level, gen, cmp)
    local ret = {}
+
+
    local ratio = 5
+
+
    local range = { 1, 3 }
+
    local null = {}
 
    for _ = 1, ratio * sig_count do
       table.insert(ret, null)
    end
+
 
    repeat
       local i = 1
@@ -83,7 +89,25 @@ local function makeEqArrays(signals, level)
    return ret
 end
 
+
+
+
+
+
+
+
+
+
+
+
+
 function generateAll(sig_count, level, dim, soundsNum, map)
+   print('generateAll()')
+   print('sig_count:', sig_count)
+   print('level:', level)
+   print('dim:', dim)
+   print('soundsNum', soundsNum)
+   print('map:', inspect(map))
 
    local colorArr = require("colorconstants").makeNamesArray()
 
@@ -93,17 +117,35 @@ function generateAll(sig_count, level, dim, soundsNum, map)
       logfile:write("--pos gen--\n")
 
       signals.pos = generate(sig_count, level,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       function()
          local result = {}
          local x, y = math.random(1, #map), math.random(1, #map[1])
-         local i = 0
-         while map[x][y] ~= 1 do
-            x, y = math.random(1, #map), math.random(1, #map[1])
-            i = i + 1
-            if i > 31 then
-               error("Something goes wrong, hmm")
-            end
-         end
+
+
+
+
+
+
+
+
+
          result.x, result.y = x, y
          return result
       end,

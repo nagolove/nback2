@@ -7,15 +7,15 @@ require "menu-main"
 require "nback"
 require "tiledbackground"
 
-local i18n = require "i18n"
---local inspect = require "inspect"
-local serpent = require "serpent"
+local inspect = require "inspect"
 --local timer = require "Timer"
-local pallete = require "pallete"
-local g = love.graphics
-local cam = require "camera".new()
 local List = require "pviewer_list"
+local cam = require "camera".new()
 local fonts = require "fonts"
+local g = love.graphics
+local i18n = require "i18n"
+local pallete = require "pallete"
+local serpent = require "serpent"
 
 global __MORE_DATA__ = false
 
@@ -194,8 +194,10 @@ function Pviewer:enter()
     --]]
 
     if #self.data == 0 then
+        print('self.layout', inspect(self.layout))
         self.backButton = Button.new(
             i18n("backToMainMenu"),
+            -- что здесь происходит?
             ((self.layout as {any:any}).nodata as Layout).top.x,
             ((self.layout as {any:any}).nodata as Layout).top.y,
             ((self.layout as {any:any}).nodata as Layout).top.w,

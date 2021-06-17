@@ -126,8 +126,6 @@ function subInit()
    print('main menu', mainMenu)
    mainMenu:init()
 
-
-
    mainMenu:clear()
    mainMenu:addItem(i18n("mainMenu.play"), nback)
    mainMenu:addItem(i18n("mainMenu.viewProgress"), pviewer)

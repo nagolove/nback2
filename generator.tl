@@ -11,20 +11,26 @@ local type CmpFunction = function<T>(T, T): boolean
 
 local function generate<T>(sig_count: number, level: integer, gen: GenFunction<T>, cmp: CmpFunction<T>): {T}
     local ret: {T} = {} -- массив сигналов, который будет сгенерирован и возвращен
+
+    -- значение взято с потолка
     local ratio = 5 
+
+    -- значение взято с потолка
     local range = {1, 3} 
+
     local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
 
     for _ = 1, ratio * sig_count do
         table.insert(ret, null as T)
     end
 
+    -- расстановка удачных сигналов
     repeat
         local i = 1
         repeat
             if sig_count > 0 then
                 -- вероятность выпадения значения
-                -- помоему здесб написана хрень
+                -- помоему здесь написана хрень
                 local prob = math.random(table.unpack(range))
                 --[[print("prob", prob)]]
                 if prob == range[2] then
@@ -83,7 +89,25 @@ local function makeEqArrays(signals: Signals, level: integer): Signals.Eq
     return ret
 end
 
+--[[
+-- пример новой сигнатуры функции с расширенными параметрами:
+function generateAll(
+    sig_count: integer,
+    level: integer,
+    dim: integer,
+    maxSimultaneousSignals: integer, -- 1, 2, 3,4
+    soundsNum: integer,
+    map: {{number}} -- опциональный параметр для шестигранного поля, игнорируется на квадром поле.
+
+    ): Signals
+--]]
 function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum: integer, map: {{number}}): Signals
+    print 'generateAll()'
+    print('sig_count:', sig_count)
+    print('level:', level)
+    print('dim:', dim)
+    print('soundsNum', soundsNum)
+    print('map:', inspect(map))
 
     local colorArr = require "colorconstants".makeNamesArray()
 
@@ -93,17 +117,35 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
         logfile:write("--pos gen--\n")
 
         signals.pos = generate(sig_count, level,
+
+            --function(): Signals.Pos
+                --local result: Signals.Pos = {}
+                --local x, y = math.random(1, #map), math.random(1, #map[1])
+                --local i = 0
+                --while map[x][y] ~= 1 do
+                    --x, y = math.random(1, #map), math.random(1, #map[1])
+                    --i = i + 1
+                    --if i > 31 then
+                    ----if i > 31 then
+                        --error("Something goes wrong, hmm")
+                    --end
+                --end
+                --result.x, result.y = x, y
+                --return result
+            --end,
+
             function(): Signals.Pos
                 local result: Signals.Pos = {}
                 local x, y = math.random(1, #map), math.random(1, #map[1])
-                local i = 0
-                while map[x][y] ~= 1 do
-                    x, y = math.random(1, #map), math.random(1, #map[1])
-                    i = i + 1
-                    if i > 31 then
-                        error("Something goes wrong, hmm")
-                    end
-                end
+                --local i = 0
+                --while map[x][y] ~= 1 do
+                    --x, y = math.random(1, #map), math.random(1, #map[1])
+                    --i = i + 1
+                    --if i > 31 then
+                    ----if i > 31 then
+                        --error("Something goes wrong, hmm")
+                    --end
+                --end
                 result.x, result.y = x, y
                 return result
             end,
