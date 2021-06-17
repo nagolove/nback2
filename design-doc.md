@@ -39,13 +39,15 @@
 Скриншоты:
 
 
-![9](scenes/nback3/shoots/9.png)
-![10](scenes/nback3/shoots/10.png)
-![11](scenes/nback3/shoots/11.png)
-![12](scenes/nback3/shoots/12.png)
-![13](scenes/nback3/shoots/13.png)
-![14](scenes/nback3/shoots/14.png)
-![15](scenes/nback3/shoots/15.png)
-![16](scenes/nback4/shoots/16.png)
-![17](scenes/nback3/shoots/17.png)
-![18](scenes/nback3/shoots/18.png)
+![9](https://github.com/nagolove/nback2/blob/master/shoots/10.png?raw=true)
+![9](https://github.com/nagolove/nback2/blob/master/shoots/10.png?raw=true)
+
+![10](scenes/nback3/shoots/10.png?raw=true)
+![11](scenes/nback3/shoots/11.png?raw=true)
+![12](scenes/nback3/shoots/12.png?raw=true)
+![13](scenes/nback3/shoots/13.png?raw=true)
+![14](scenes/nback3/shoots/14.png?raw=true)
+![15](scenes/nback3/shoots/15.png?raw=true)
+![16](scenes/nback4/shoots/16.png?raw=true)
+![17](scenes/nback3/shoots/17.png?raw=true)
+![18](scenes/nback3/shoots/18.png?raw=true)
