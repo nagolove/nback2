@@ -8,6 +8,7 @@ require "love"
 require "menu-new"
 require "nbtypes"
 require "pviewer"
+require "tiledbackground"
 
 --preventiveFirstRun = false
 --onAndroid = true

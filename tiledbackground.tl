@@ -1,7 +1,7 @@
+require "globals"
 require "love"
-local gr = love.graphics
 
-local prefix = "scenes/nback2/"
+local gr = love.graphics
 
 global type TiledBackround = record
     new: function(): TiledBackround
@@ -20,7 +20,7 @@ local TiledBackround_mt: metatable<TiledBackround> = {
 
 function TiledBackround.new(): TiledBackround
     local self = setmetatable({} as TiledBackround, TiledBackround_mt)
-    self.img = gr.newImage(prefix .. "gfx/tile1.png") as love.graphics.Texture
+    self.img = gr.newImage(SCENEPREFIX .. "gfx/tile1.png") as love.graphics.Texture
     self:prepareDrawing()
     return self
 end

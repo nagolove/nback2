@@ -5,6 +5,7 @@ require("common")
 require("cmn")
 require("background")
 
+local inspect = require("inspect")
 local g = love.graphics
 
  MenuObject = {}
@@ -259,9 +260,12 @@ function Menu:drawList()
       g.printf(k.name, 0, y, self.w, "center")
       y = y + self.font:getHeight()
    end
+
 end
 
 function Menu:drawCursor()
+   print("Menu:drawCursor() self", self.items_rects[self.active_item])
+
    local v = self.items_rects[self.active_item]
    g.setLineWidth(3)
    g.setColor({ 1, 0, 0 })
@@ -269,6 +273,7 @@ function Menu:drawCursor()
 end
 
 function Menu:draw()
+   print("Menu:draw() self", inspect(self))
    g.clear(0, 0, 0, 0)
    if self.active then
       local obj = self.items[self.active_item].obj

@@ -1,3 +1,6 @@
+
+global SCENEPREFIX = "scenes/nback3/"
+
 --require "menu"
 --require "pviewer"
 --require "help"

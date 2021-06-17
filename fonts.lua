@@ -1,6 +1,6 @@
 require("love")
+require("globals")
 local lg = love.graphics
-SCENEPREFIX = "scenes/nback3/"
 print('Fonts module loading..')
 local t = {
    help = {

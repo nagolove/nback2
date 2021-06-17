@@ -48,15 +48,13 @@ local LanguageSelector_mt: metatable<LanguageSelector> = {
     __index = LanguageSelector,
 }
 
-local prefix = "scenes/nback2/"
-
 function LanguageSelector.new(): LanguageSelector
     local self = setmetatable({} as LanguageSelector, LanguageSelector_mt)
     self.languages = {}
     self.font = require "fonts".languageSelector
     self.locale = nil
-    for _, v in ipairs(love.filesystem.getDirectoryItems(prefix .. "locales")) do 
-        local chunk, errmsg: function, string = love.filesystem.load(prefix .. "locales/" .. v)
+    for _, v in ipairs(love.filesystem.getDirectoryItems(SCENEPREFIX .. "locales")) do 
+        local chunk, errmsg: function, string = love.filesystem.load(SCENEPREFIX .. "locales/" .. v)
         print("--", chunk(), errmsg)
         if not errmsg and type(chunk) == "function" then
             -- FIXME setfenv not work in Teal
@@ -82,6 +80,7 @@ function LanguageSelector:prepareDraw()
 
     for _, v in ipairs(self.languages) do
         local width = self.font:getWidth(v.id)
+        print('in cycle width = ', width)
         if width > menuWidth then
             menuWidth = width
         end
@@ -89,6 +88,7 @@ function LanguageSelector:prepareDraw()
 
     local x0, y0 = 0., 0.
     self.x, self.y = (w - menuWidth) / 2, (h - menuHeight) / 2
+    print("menuWidth, menuHeight", menuWidth, menuHeight)
     self.canvas = gr.newCanvas(menuWidth, menuHeight)
     gr.setFont(self.font)
     gr.setColor(pallete.languageMenuText)

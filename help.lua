@@ -8,7 +8,7 @@ require("layout")
 require("love")
 require("menu-new")
 require("nback")
-
+require("tiledbackground")
 
 local pallete = require("pallete")
 local fonts = require("fonts")
