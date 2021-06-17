@@ -309,18 +309,17 @@ function Background:fillGrid()
 end
 
 function Background:update(dt: number)
-if self.paused then return end
-
-for k, v in ipairs(self.execList) do
-    local block = v
-    --print(inspect(v))
-    -- блок двигается
-    local ret = block:process(dt)
-    -- начинаю новое движение
-    if not ret then
-        --local xidx, yidx = v.xidx, v.yidx
-        --local xidx, yidx = math.floor(block.x / Background.bsize),
-        --math.floor(block.y / Background.bsize)
+    if self.paused then return end
+    for k, v in ipairs(self.execList) do
+        local block = v
+        --print(inspect(v))
+        -- блок двигается
+        local ret = block:process(dt)
+        -- начинаю новое движение
+        if not ret then
+            --local xidx, yidx = v.xidx, v.yidx
+            --local xidx, yidx = math.floor(block.x / Background.bsize),
+            --math.floor(block.y / Background.bsize)
 
             local xidx, yidx = block.oldXidx or block.xidx, 
             block.oldYidx or block.yidx

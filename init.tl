@@ -5,7 +5,7 @@ require "globals"
 require "help"
 require "languageselector"
 require "love"
-require "menu-new"
+require "menu-main"
 require "nbtypes"
 require "pviewer"
 require "tiledbackground"
@@ -121,12 +121,12 @@ function subInit()
     nback:init(SAVE_NAME)
     pviewer:init(SAVE_NAME)
 
-    print('menu2', menu2)
+    --print('menu2', menu2)
     --menu2:init()
 
     print('menu', menu)
     help:init()
-    menu:init()
+    mainMenu:init()
 
     -- XXX не работает!
     --menu:addItem(i18n("mainMenu.play"), nback)
@@ -273,7 +273,7 @@ local function draw()
         languageSelector:draw()
     else
         cam:attach()
-        menu:draw()
+        --menu:draw()
         cam:detach()
         --drawProfilingReport()
         --linesbuf:pushi("average FPS for 30 seconds")

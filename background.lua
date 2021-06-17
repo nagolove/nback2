@@ -310,7 +310,6 @@ end
 
 function Background:update(dt)
    if self.paused then return end
-
    for k, v in ipairs(self.execList) do
       local block = v
 

@@ -273,7 +273,7 @@ local function draw()
       languageSelector:draw()
    else
       cam:attach()
-      menu:draw()
+
       cam:detach()
 
 

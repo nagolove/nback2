@@ -1,4 +1,4 @@
-print('hello from top of Menu module.')
+print('hello from top of main menu module.')
 
 require "love"
 require "common"
@@ -63,7 +63,8 @@ global type Menu = record
     mousereleased: function(Menu, number, number, number, boolean)
     mousepressed: function(Menu, number, number, number, boolean)
     drawList: function(Menu)
-    drawCursor: function(Menu)
+    --drawCursor: function(Menu)
+    cursorDraw: function(Menu)
     draw: function(Menu)
     touchpressed: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
     touchreleased: function(Menu, id: number, x: number, y: number, dx: number, dy: number, pressure: number)
@@ -263,42 +264,45 @@ function Menu:drawList()
     --print("Menu:drawList() self", inspect(self))
 end
 
-function Menu:drawCursor()
+function Menu:draw()
+    print("Menu:draw() self", inspect(self))
+    g.clear(0, 0, 0, 0)
+    --if self.active then
+        --local obj = self.items[self.active_item].obj
+        --if obj.draw then 
+
+            ----g.setCanvas{self.canvas, stencil = true}
+            ----g.setColor{1, 1, 1, 1}
+            ----g.clear{1, 1, 1, 1}
+
+            --obj:draw() 
+
+            ----g.setCanvas()
+            ----g.setColor{1, 1, 1, 0.2}
+            ----g.clear(pallete.background)
+            ----g.setColor{1, 1, 1, 1}
+            ----g.draw(self.canvas)
+
+        --end
+    --else
+        --g.push("all")
+        --self.back:draw()
+        self:drawList()
+        --self:drawCursor()
+        self:cursorDraw()
+        --g.pop()
+    --end
+end
+
+--function Menu:drawCursor()
+function Menu:cursorDraw()
     print("Menu:drawCursor() self", self.items_rects[self.active_item])
+    print(debug.traceback())
 
     local v = self.items_rects[self.active_item]
     g.setLineWidth(3)
     g.setColor{1, 0, 0}
     g.rectangle("line", v.x, v.y, v.w, v.h)
-end
-
-function Menu:draw()
-    print("Menu:draw() self", inspect(self))
-    g.clear(0, 0, 0, 0)
-    if self.active then
-        local obj = self.items[self.active_item].obj
-        if obj.draw then 
-
-            --g.setCanvas{self.canvas, stencil = true}
-            --g.setColor{1, 1, 1, 1}
-            --g.clear{1, 1, 1, 1}
-
-            obj:draw() 
-
-            --g.setCanvas()
-            --g.setColor{1, 1, 1, 0.2}
-            --g.clear(pallete.background)
-            --g.setColor{1, 1, 1, 1}
-            --g.draw(self.canvas)
-
-        end
-    else
-        g.push("all")
-        self.back:draw()
-        self:drawList()
-        self:drawCursor()
-        g.pop()
-    end
 end
 
 function Menu:touchpressed(id: number, x: number, y: number, dx: number, dy: number, pressure: number)
@@ -325,8 +329,7 @@ end
 --return {
     --new = Menu.new
 --}
-global menu: Menu = Menu.new()
-global menu2: number = 0.4
-print('global menu = ', menu)
+global mainMenu: Menu = Menu.new()
+print('global mainMenu = ', mainMenu)
 
-print('hello from bottom of Menu module.')
+print('hello from bottom of main menu module.')
