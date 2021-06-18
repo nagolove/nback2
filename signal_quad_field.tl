@@ -1,8 +1,10 @@
 require "love"
+require "globals"
 require "vector"
 require "nbtypes"
 
 local g = love.graphics
+local inspect = require "inspect"
 
 global type SignalView = record
     new: function(width: number, soundPack: string): SignalView
@@ -12,7 +14,6 @@ global type SignalView = record
     drawFigures2Canvas: function(SignalView)
     draw: function(SignalView, number, number, string, {number})
 
-    iCount: number
     width: number
     sounds: {love.audio.Source}
     canvas: love.graphics.Canvas
@@ -27,7 +28,7 @@ global type SignalView = record
     draw2Canvas: function(index: number)
     drawFigures2Canvas: function()
     draw: function(xd: number, yd: number, type_: string, color: {number})
-    play: function(index: number)
+    play: function(index: integer)
     quad: function(x: number, y: number, w: number, h: number)
     circle: function(x: number, y: number, w: number, h: number)
     trdown: function(x: number, y: number, w: number, h: number)
@@ -82,7 +83,6 @@ end
 -- soundPack - имя подкаталога в 'sfx' с набором звуков
 function SignalView.new(width: number, soundPack: string): SignalView
     local self: SignalView = {
-        iCount = 10,
         width = width,
         sounds = {}, 
         canvas = nil,
@@ -90,7 +90,7 @@ function SignalView.new(width: number, soundPack: string): SignalView
         borderLineWidth = 3,
     }
 
-    local wavePath = "sfx/" .. soundPack
+    local wavePath = SCENEPREFIX .. "sfx/" .. soundPack
     for _, v in ipairs(love.filesystem.getDirectoryItems(wavePath)) do
         table.insert(self.sounds, love.audio.newSource(wavePath .. "/" .. v, 
             "static"))
@@ -127,6 +127,7 @@ end
 -- треугольник вверх, пересечение треугольников, ромб)
 -- color - текущий цвет
 function SignalView:draw(xd: number, yd: number, type_: string, color: {number})
+    print('SignalView:draw()', xd, yd, type_, color)
 
     --local currentHex = self.hexfield:get(xd, yd)
 
@@ -155,12 +156,21 @@ end
 -- сэмплах? На стадии создания сигнала загрузить набор сэмплов и
 -- ориентироваться по их номерам? Тогда нужно предоставить пользователю
 -- сигнала диапазон возможных значений номеров сэмпла 1..samplesCount
-function SignalView:play(index: number)
+function SignalView:play(index: integer)
+    if type(index) ~= 'number' then
+        error(string.format(
+            'SignalView:play() got not a number "index", it is type(%s), value %s',
+            type(index),
+            inspect(index)
+        ))
+    end
+    print('SignalView:play()', index, #self.sounds)
     assert(index <= #self.sounds)
     --self.sounds[index]:play()
 end
 
 function SignalView:quad(x: number, y: number, w: number, h: number)
+    print('SignalView:quad()', x, y, w, h)
     local delta = 5
     g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
     g.setColor(self.borderColor)
@@ -298,6 +308,7 @@ function SignalView:trupdown(_: number, _: number, w: number, h: number)
 end
 
 function SignalView:rhombus(x: number, y: number, w: number, h: number)
+    print('SignalView:rhombus()', x, y, w, h)
     local delta = 6
     g.polygon("fill", {x + delta, y + h / 2, x + w / 2, y + h - delta,
             x + w - delta, y + h / 2,

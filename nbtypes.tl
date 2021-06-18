@@ -1,9 +1,9 @@
 global type Settings = record
     volume: number
     firstRun: boolean
-    level: number
+    level: integer
     pause_time: number
-    dim: number
+    dim: integer
 end
 
 global type Date = record
@@ -29,8 +29,8 @@ global type Signals = record
     end
 
     record Pos
-        x: number
-        y: number
+        x: integer
+        y: integer
     end
 
     enum EqKeys
@@ -51,7 +51,7 @@ global type Signals = record
     form: {Forms}
     pos: {Pos}
     --sounds: {number}
-    sound: {number}
+    sound: {integer}
 
     eq: Eq
 end

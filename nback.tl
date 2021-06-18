@@ -14,7 +14,7 @@ require "snippets"
 require "tiledbackground"
 
 --local hex = require "hex"
---local inspect = require "inspect"
+local inspect = require "inspect"
 local colorConstants = require "colorconstants"
 local g = love.graphics
 local generator = require "generator"
@@ -1128,10 +1128,21 @@ end
 
 -- draw active signal quad
 function Nback:drawActiveSignal()
+    print('Nback:drawActiveSignal()')
     --local x, y = unpack(self.signals.pos[self.current_sig])
     local pos = self.signals.pos[self.current_sig]
+    print('pos', inspect(pos))
     local x, y = pos.x, pos.y
+
+    print('self.current_sig', inspect(self.current_sig))
+    print('self.signals.color', inspect(self.signals.color))
+    print('colorConstants.colors', inspect(colorConstants.colors))
+
+    print('hmm', inspect(self.signals.color[self.current_sig]))
+
     local sig_color = colorConstants.colors[self.signals.color[self.current_sig]]
+    print('sig_color', sig_color)
+
     if self.figure_alpha then
         sig_color[4] = self.figure_alpha
     else

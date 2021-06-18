@@ -1,11 +1,12 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local table = _tl_compat and _tl_compat.table or table; require("love")
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local assert = _tl_compat and _tl_compat.assert or assert; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table; require("love")
+require("globals")
 require("vector")
 require("nbtypes")
 
 local g = love.graphics
+local inspect = require("inspect")
 
  SignalView = {}
-
 
 
 
@@ -82,7 +83,6 @@ end
 
 function SignalView.new(width, soundPack)
    local self = {
-      iCount = 10,
       width = width,
       sounds = {},
       canvas = nil,
@@ -90,7 +90,7 @@ function SignalView.new(width, soundPack)
       borderLineWidth = 3,
    }
 
-   local wavePath = "sfx/" .. soundPack
+   local wavePath = SCENEPREFIX .. "sfx/" .. soundPack
    for _, v in ipairs(love.filesystem.getDirectoryItems(wavePath)) do
       table.insert(self.sounds, love.audio.newSource(wavePath .. "/" .. v,
       "static"))
@@ -127,6 +127,7 @@ end
 
 
 function SignalView:draw(xd, yd, type_, color)
+   print('SignalView:draw()', xd, yd, type_, color)
 
 
 
@@ -156,11 +157,20 @@ end
 
 
 function SignalView:play(index)
+   if type(index) ~= 'number' then
+      error(string.format(
+      'SignalView:play() got not a number "index", it is type(%s), value %s',
+      type(index),
+      inspect(index)))
+
+   end
+   print('SignalView:play()', index, #self.sounds)
    assert(index <= #self.sounds)
 
 end
 
 function SignalView:quad(x, y, w, h)
+   print('SignalView:quad()', x, y, w, h)
    local delta = 5
    g.rectangle("fill", x + delta, y + delta, w - delta * 2, h - delta * 2)
    g.setColor(self.borderColor)
@@ -298,6 +308,7 @@ function SignalView:trupdown(_, _, w, h)
 end
 
 function SignalView:rhombus(x, y, w, h)
+   print('SignalView:rhombus()', x, y, w, h)
    local delta = 6
    g.polygon("fill", { x + delta, y + h / 2, x + w / 2, y + h - delta,
 x + w - delta, y + h / 2,

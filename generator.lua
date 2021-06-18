@@ -9,15 +9,18 @@ local logfile = love.filesystem.newFile("log-generator.txt", "w")
 local GenFunction = {}
 local CmpFunction = {}
 
-local function generate(sig_count, level, gen, cmp)
-   local ret = {}
+local function generate(
+   sig_count,
+   level,
+   gen,
+   cmp)
 
+
+   local ret = {}
 
    local ratio = 5
 
-
    local range = { 1, 3 }
-
    local null = {}
 
    for _ = 1, ratio * sig_count do
@@ -46,18 +49,30 @@ local function generate(sig_count, level, gen, cmp)
             end
          end
          i = i + 1
+         print('i, #ret', i, #ret)
       until i > #ret
+      print('sig_count', sig_count)
    until sig_count == 0
 
+   print('done1')
+
+   local __COUNTER = 0
 
 
-   for i = 1, #ret do
-      if ret[i] == null then
-         repeat
-            ret[i] = gen()
-         until not (i + level <= #ret and cmp(ret[i], ret[i + level]))
-      end
-   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+   print('done2')
 
    return ret
 end
@@ -137,6 +152,7 @@ function generateAll(sig_count, level, dim, soundsNum, map)
       function()
          local result = {}
          local x, y = math.random(1, #map), math.random(1, #map[1])
+         print('x, y', x, y)
 
 
 

@@ -9,15 +9,18 @@ local logfile = love.filesystem.newFile("log-generator.txt", "w")
 local type GenFunction = function<T>(): T
 local type CmpFunction = function<T>(T, T): boolean
 
-local function generate<T>(sig_count: number, level: integer, gen: GenFunction<T>, cmp: CmpFunction<T>): {T}
-    local ret: {T} = {} -- массив сигналов, который будет сгенерирован и возвращен
+local function generate<T>(
+    sig_count: number,
+    level: integer,
+    gen: GenFunction<T>,
+    cmp: CmpFunction<T>
+): {T}
 
+    local ret: {T} = {} -- массив сигналов, который будет возвращен
     -- значение взято с потолка
     local ratio = 5 
-
     -- значение взято с потолка
     local range = {1, 3} 
-
     local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
 
     for _ = 1, ratio * sig_count do
@@ -46,9 +49,16 @@ local function generate<T>(sig_count: number, level: integer, gen: GenFunction<T
                 end
             end
             i = i + 1
+            print('i, #ret', i, #ret)
         until i > #ret
+        print('sig_count', sig_count)
     until sig_count == 0
 
+    print('done1')
+
+    local __COUNTER = 0
+
+    --[[ FIXME not work
     -- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
     -- он не совпадал на текущем уровне n-назад
     for i = 1, #ret do
@@ -56,8 +66,13 @@ local function generate<T>(sig_count: number, level: integer, gen: GenFunction<T
             repeat
                 ret[i] = gen()
             until not (i + level <= #ret and cmp(ret[i], ret[i + level]))
+            print('__COUNTER', __COUNTER)
+            __COUNTER = __COUNTER + 1
         end
     end
+    --]]
+
+    print('done2')
 
     return ret
 end
@@ -76,7 +91,7 @@ local function makeEqArrays(signals: Signals, level: integer): Signals.Eq
     local ret = {
         pos = make_hit_arr(signals.pos, level, isPositionEqual),
         sound = make_hit_arr(signals.sound, level, 
-            function(a: number, b: number): boolean
+            function(a: integer, b: integer): boolean
                 return a == b 
             end),
         color = make_hit_arr(signals.color, level, function(a: string, b: string): boolean
@@ -137,6 +152,7 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
             function(): Signals.Pos
                 local result: Signals.Pos = {}
                 local x, y = math.random(1, #map), math.random(1, #map[1])
+                print('x, y', x, y)
                 --local i = 0
                 --while map[x][y] ~= 1 do
                     --x, y = math.random(1, #map), math.random(1, #map[1])
@@ -165,10 +181,10 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
             end)
 
         signals.sound = generate(sig_count, level, 
-            function(): number 
+            function(): integer 
                 return math.random(1, soundsNum) 
             end,
-            function(a: number, b: number): boolean
+            function(a: integer, b: integer): boolean
                 return a == b 
             end)
 
