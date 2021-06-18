@@ -119,6 +119,22 @@ local yield = coroutine.yield
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 local Nback_mt = {
    __index = Nback,
 }
@@ -149,7 +165,7 @@ function Nback.new()
    return setmetatable(self, Nback_mt)
 end
 
-function makeFalseArray(len)
+local function makeFalseArray(len)
    local ret = {}
    for _ = 1, len do
       ret[#ret + 1] = false
@@ -521,6 +537,7 @@ function Nback:processSignal()
          print("figure_alpha after", self.figure_alpha)
       end)
 
+      colprint(inspect(self.signals.sound[self.current_sig]))
       self.signalView:play(self.signals.sound[self.current_sig])
    end
 end
@@ -1131,6 +1148,7 @@ function Nback:drawActiveSignal()
    print('Nback:drawActiveSignal()')
 
    local pos = self.signals.pos[self.current_sig]
+   print("self.signals.pos", inspect(self.signals.pos[self.current_sig]))
    print('pos', inspect(pos))
    local x, y = pos.x, pos.y
 

@@ -93,30 +93,46 @@ global type Nback = record
     durationSec: number
     signalsInspected: boolean
 
+    -- вроде не используется
     map: {{number}}
 
-    new: function(): Nback
-    buildLayout: function(Nback)
-    start: function(Nback)
-    initButtons: function(Nback)
-    enter: function(Nback)
-    leave: function(Nback)
-    initShaders: function(Nback)
-    createSetupMenu: function(Nback)
-    initShadersTimer: function(Nback)
-    processSignal: function(Nback)
-    drawMapIndices: function(Nback)
-    init: function(Nback, string)
-    resize: function(Nback, number, number)
-    processSignal: function(Nback)
-    stop: function(Nback, boolean)
-    loverVolume: function(Nback)
-    raiseVolume: function(Nback)
-    check: function(Nback, signalType: Signals.EqKeys)
-    setupButtonsTextPosition: function(Nback)
-    drawField: function(Nback)
-    printStartPause: function(Nback)
-    drawActiveSignal: function(Nback)
+    new:                            function():Nback
+
+    buildLayout:                    function(Nback)
+    check:                          function(Nback, signalType: Signals.EqKeys)
+    checkTouchButtons:              function(Nback, x: number, y: number)
+    createSetupMenu:                function(Nback)
+    draw:                           function(Nback)
+    drawActiveSignal:               function(Nback)
+    drawButtons:                    function(Nback)
+    drawField:                      function(Nback)
+    drawMapIndices:                 function(Nback)
+    enter:                          function(Nback)
+    fillLinesbuf:                   function(Nback)
+    init:                           function(Nback, string)
+    initButtons:                    function(Nback)
+    initShaders:                    function(Nback)
+    initShadersTimer:               function(Nback)
+    inspectSignals:                 function(Nback)
+    keypressed:                     function(Nback, scancode: string)
+    keyreleased:                    function(Nback, scancode: string)
+    leave:                          function(Nback)
+    loverVolume:                    function(Nback)
+    mousemoved:                     function(Nback, x: number, y: number, dx: number, dy: number, istouch: boolean)
+    mousepressed:                   function(Nback, x: number, y: number, btn: number, istouch: boolean)
+    mousereleased:                  function(Nback, x: number, y: number, btn: number)
+    printStartPause:                function(Nback)
+    processSignal:                  function(Nback)
+    processSignal:                  function(Nback)
+    processTouches:                 function(Nback)
+    quit:                           function(Nback, byescape: boolean)
+    raiseVolume:                    function(Nback)
+    resize:                         function(Nback, number, number)
+    save_to_history:                function(Nback)
+    setupButtonsTextPosition:       function(Nback)
+    start:                          function(Nback)
+    stop:                           function(Nback, boolean)
+    update:                         function(Nback, dt: number)
 end
 
 local Nback_mt: metatable<Nback> = {
@@ -149,7 +165,7 @@ function Nback.new(): Nback
     return setmetatable(self, Nback_mt)
 end
 
-function makeFalseArray(len: number): {boolean}
+local function makeFalseArray(len: number): {boolean}
     local ret = {}
     for _ = 1, len do
         ret[#ret + 1] = false
@@ -521,6 +537,7 @@ function Nback:processSignal()
             print("figure_alpha after", self.figure_alpha)
         end)
 
+        colprint(inspect(self.signals.sound[self.current_sig]))
         self.signalView:play(self.signals.sound[self.current_sig])
     end
 end
@@ -1131,14 +1148,16 @@ function Nback:drawActiveSignal()
     print('Nback:drawActiveSignal()')
     --local x, y = unpack(self.signals.pos[self.current_sig])
     local pos = self.signals.pos[self.current_sig]
+    print("self.signals", inspect(self.signals))
+    print("self.signals.pos", inspect(self.signals.pos[self.current_sig]))
     print('pos', inspect(pos))
+
     local x, y = pos.x, pos.y
 
-    print('self.current_sig', inspect(self.current_sig))
-    print('self.signals.color', inspect(self.signals.color))
-    print('colorConstants.colors', inspect(colorConstants.colors))
-
-    print('hmm', inspect(self.signals.color[self.current_sig]))
+    print('self.current_sig',       inspect(self.current_sig))
+    print('self.signals.color',     inspect(self.signals.color))
+    print('colorConstants.colors',  inspect(colorConstants.colors))
+    print('hmm',                    inspect(self.signals.color[self.current_sig]))
 
     local sig_color = colorConstants.colors[self.signals.color[self.current_sig]]
     print('sig_color', sig_color)
