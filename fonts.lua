@@ -11,7 +11,7 @@ local t = {
    help = {
       font = lg.newFont(
       SCENEPREFIX .. "gfx/DejaVuSansMono.ttf",
-      baseSize + 2),
+      baseSize + 20),
 
       gooi = lg.newFont(
       SCENEPREFIX .. "gfx/DejaVuSansMono.ttf",
@@ -33,6 +33,7 @@ local t = {
    baseSize + 2),
 
    nback = {
+
       font = love.graphics.newFont(
       SCENEPREFIX .. "gfx/DejaVuSansMono.ttf",
       baseSize + 12),
@@ -47,16 +48,17 @@ local t = {
 
       setupmenu = lg.newFont(
       SCENEPREFIX .. "gfx/DejaVuSansMono.ttf",
-      baseSize + 17),
+      baseSize + 35),
 
    },
+
    languageSelector = love.graphics.newFont(
    SCENEPREFIX .. "gfx/DejaVuSansMono.ttf",
-   baseSize + 12),
+   baseSize + 35),
 
    menu = love.graphics.newFont(
    SCENEPREFIX .. "gfx/DejaVuSansMono.ttf",
-   baseSize + 19),
+   baseSize + 35),
 
 }
 

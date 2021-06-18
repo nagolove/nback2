@@ -170,6 +170,8 @@ function LanguageSelector:keypressed(key: string)
     elseif key == "space" or key == "return" then
         print("select")
         self.locale = self.languages[self.selected].locale
+    elseif key == "escape" then
+        love.event.quit()
     end
 end
 

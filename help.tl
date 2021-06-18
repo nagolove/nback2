@@ -159,12 +159,16 @@ end
 
 function Help:mousepressed(_: number, _: number, _: number, _: boolean)
     print("help:mousepressed()")
-    self.mainMenuBtn:mousePressed()
+    if self.mainMenuBtn.mousePressed then
+        self.mainMenuBtn:mousePressed()
+    end
 end
 
 function Help:mousereleased(_: number, _: number, _: number, _: boolean)
     print("help:mousereleased()")
-    self.mainMenuBtn:mouseReleased()
+    if self.mainMenuBtn.mouseReleased then
+        self.mainMenuBtn:mouseReleased()
+    end
 end
 
 function Help:keypressed(key: string)
@@ -174,8 +178,5 @@ function Help:keypressed(key: string)
     end
 end
 
---return {
-    --new = Help.new
---}
 global help = Help.new()
 print('hello from bottom of Help module.')
