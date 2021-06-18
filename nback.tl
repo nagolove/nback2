@@ -159,12 +159,20 @@ end
 
 function Nback:buildLayout()
     local screen = makeScreenTable()
-    screen.left, screen.center, screen.right = splitv(screen, 0.2, 0.6, 0.2)
-    screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
-    screen.rightTop, screen.rightMiddle, screen.rightBottom = splith(screen.right, 0.2, 0.4, 0.4)
-
-    screen.leftTop, screen.leftMiddle, screen.leftBottom = shrink(screen.leftTop, self.border), shrink(screen.leftMiddle, self.border), shrink(screen.leftBottom, self.border)
-    screen.rightTop, screen.rightMiddle, screen.rightBottom = shrink(screen.rightTop, self.border), shrink(screen.rightMiddle, self.border), shrink(screen.rightBottom, self.border)
+    screen.left, screen.center, screen.right = 
+        splitv(screen, 0.2, 0.6, 0.2)
+    screen.leftTop, screen.leftMiddle, screen.leftBottom = 
+        splith(screen.left, 0.2, 0.4, 0.4)
+    screen.rightTop, screen.rightMiddle, screen.rightBottom = 
+        splith(screen.right, 0.2, 0.4, 0.4)
+    screen.leftTop, screen.leftMiddle, screen.leftBottom = 
+        shrink(screen.leftTop, self.border), 
+        shrink(screen.leftMiddle, self.border), 
+        shrink(screen.leftBottom, self.border)
+    screen.rightTop, screen.rightMiddle, screen.rightBottom = 
+        shrink(screen.rightTop, self.border), 
+        shrink(screen.rightMiddle, self.border), 
+        shrink(screen.rightBottom, self.border)
     screen.center = shrink(screen.center, self.border)
 
     self.layout = screen
@@ -1176,18 +1184,16 @@ function Nback:mousepressed(x: number, y: number, btn: number, istouch: boolean)
     end
 end
 
---function Nback:touchpressed(id, x, y, dx, dy, pressure)
---end
+--[[
+function Nback:touchpressed(id, x, y, dx, dy, pressure)
+end
 
---function nback:touchreleased(id, x, y, dx, dy, pressure)
---end
+function nback:touchreleased(id, x, y, dx, dy, pressure)
+end
 
---function nback:touchmoved(id, x, y, dx, dy, pressure)
---end
-
---return {
-    --new = Nback.new,
---}
+function nback:touchmoved(id, x, y, dx, dy, pressure)
+end
+--]]
 
 global nback: Nback = Nback.new()
 print('hello from end of nback module')

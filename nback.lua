@@ -159,12 +159,20 @@ end
 
 function Nback:buildLayout()
    local screen = makeScreenTable()
-   screen.left, screen.center, screen.right = splitv(screen, 0.2, 0.6, 0.2)
-   screen.leftTop, screen.leftMiddle, screen.leftBottom = splith(screen.left, 0.2, 0.4, 0.4)
-   screen.rightTop, screen.rightMiddle, screen.rightBottom = splith(screen.right, 0.2, 0.4, 0.4)
-
-   screen.leftTop, screen.leftMiddle, screen.leftBottom = shrink(screen.leftTop, self.border), shrink(screen.leftMiddle, self.border), shrink(screen.leftBottom, self.border)
-   screen.rightTop, screen.rightMiddle, screen.rightBottom = shrink(screen.rightTop, self.border), shrink(screen.rightMiddle, self.border), shrink(screen.rightBottom, self.border)
+   screen.left, screen.center, screen.right = 
+   splitv(screen, 0.2, 0.6, 0.2)
+   screen.leftTop, screen.leftMiddle, screen.leftBottom = 
+   splith(screen.left, 0.2, 0.4, 0.4)
+   screen.rightTop, screen.rightMiddle, screen.rightBottom = 
+   splith(screen.right, 0.2, 0.4, 0.4)
+   screen.leftTop, screen.leftMiddle, screen.leftBottom = 
+   shrink(screen.leftTop, self.border),
+   shrink(screen.leftMiddle, self.border),
+   shrink(screen.leftBottom, self.border)
+   screen.rightTop, screen.rightMiddle, screen.rightBottom = 
+   shrink(screen.rightTop, self.border),
+   shrink(screen.rightMiddle, self.border),
+   shrink(screen.rightBottom, self.border)
    screen.center = shrink(screen.center, self.border)
 
    self.layout = screen
@@ -1175,8 +1183,6 @@ function Nback:mousepressed(x, y, btn, istouch)
       self:checkTouchButtons(x, y)
    end
 end
-
-
 
 
 
