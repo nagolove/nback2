@@ -1,11 +1,3 @@
---
--- * уровень н-назад
--- * временя паузы
--- * длина раунда
---
--- * вывод расчетного значения времени раунда(Почему "раунд"? Бокс что-ли?
--- Попробуй заменить на время концентрации
-
 require "love"
 require "common"
 
@@ -22,9 +14,15 @@ global type SetupMenu = record
     end
 
     record ItemHandler
-        oninit: function(): {any}, boolean, boolean
-        onleft: function(): {any}, boolean, boolean
-        onright: function(): {any}, boolean, boolean
+        -- функция возвращает что угодно(содержимое поля), 
+        -- первый-ли элемент списка, последний-ли элеменет списка.
+        type OnAction = function(): {any}, boolean, boolean
+        --oninit: function(): {any}, boolean, boolean
+        --onleft: function(): {any}, boolean, boolean
+        --onright: function(): {any}, boolean, boolean
+        oninit: OnAction
+        onleft: OnAction
+        onright: OnAction
         onselect: function(ItemHandler)
 
         content: {string}
@@ -48,6 +46,8 @@ global type SetupMenu = record
     markerColor: {number}
     activeMarkerColor: {number}
     inactiveMarkerColor: {number}
+
+    -- что за флаг?
     freeze: boolean
 
     new: function(love.graphics.Font, {number}): SetupMenu

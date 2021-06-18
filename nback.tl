@@ -314,12 +314,16 @@ function Nback:createSetupMenu()
             })
 
             --XXX костыль
-            fullStr = 'fullStr'
+            --if not fullStr then
+                --print('fullStr', fullStr)
+                --os.exit()
+            --end
+            --fullStr = 'fullStr'
 
-            print("------", tonumber(expositionList[activeExpositionItem]))
-            print("------", i18n("setupMenu.expTime_plural_stub", {
-                count = tonumber(expositionList[activeExpositionItem])
-            }))
+            --print("------", tonumber(expositionList[activeExpositionItem]))
+            --print("------", i18n("setupMenu.expTime_plural_stub", {
+                --count = tonumber(expositionList[activeExpositionItem])
+            --}))
 
             --print("------", i18n("setupMenu.expTime_plural", {
                 --count = tonumber(expositionList[activeExpositionItem])
