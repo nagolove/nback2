@@ -46,7 +46,7 @@ function dispatchWindowResize(neww, newh)
 end
 
 local function quit()
-   settings.firstRun = false
+   SETTINGS.firstRun = false
    writeSettings()
 end
 
@@ -131,7 +131,7 @@ function subInit()
    mainMenu:addItem(i18n("mainMenu.viewProgress"), pviewer)
    mainMenu:addItem(i18n("mainMenu.help"), help)
 
-   if not onAndroid then
+   if not ON_ANDROID then
       mainMenu:addItem(i18n("mainMenu.exit"), function() love.event.quit() end)
    end
 
@@ -143,8 +143,8 @@ function subInit()
 end
 
 local function init()
-   settings = readSettings()
-   print(inspect(settings))
+   SETTINGS = readSettings()
+   print('settings:', inspect(SETTINGS))
    loadLocales()
 
 
@@ -154,7 +154,7 @@ local function init()
       locale = string.match(arg[1], "locale=(%S+)") or "en"
    end
 
-   if settings.firstRun or preventiveFirstRun then
+   if SETTINGS.firstRun or PREVENTIVE_FIRST_RUN then
       languageSelector = require("languageselector").new()
    end
 
@@ -172,7 +172,7 @@ local function init()
    table.insert(to_resize, languageSelector)
    table.insert(to_resize, tiledback)
 
-   if onAndroid then
+   if ON_ANDROID then
       love.window.setMode(0, 0, { fullscreen = true })
 
       cam = require("camera").new()

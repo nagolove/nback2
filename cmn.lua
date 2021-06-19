@@ -1,16 +1,10 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; require("love")
 require("nbtypes")
-require("constants")
+require("globals")
 
 local i18n = require("i18n")
 
 local serpent = require("serpent")
-
-
-__DEBUG__ = false
-onAndroid = love.system.getOS() == "Android"
-useKeyboard = true
-preventiveFirstRun = true
 
 function pack(...)
    return { ... }
@@ -197,7 +191,7 @@ function readSettings()
 end
 
 function writeSettings()
-   local serialized = serpent.dump(settings)
+   local serialized = serpent.dump(SETTINGS)
    local ok, msg = love.filesystem.write(SETTINGS_FILENAME, serialized)
    if not ok then
       print("Could write settings to ", SETTINGS_FILENAME, " file", msg)

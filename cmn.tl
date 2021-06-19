@@ -1,6 +1,5 @@
 require "love"
 require "nbtypes"
-require "constants"
 require "globals"
 
 local i18n = require "i18n"
@@ -192,7 +191,7 @@ function readSettings(): Settings
 end
 
 function writeSettings()
-    local serialized = serpent.dump(settings)
+    local serialized = serpent.dump(SETTINGS)
     local ok, msg = love.filesystem.write(SETTINGS_FILENAME, serialized)
     if not ok then
         print("Could write settings to ", SETTINGS_FILENAME, " file", msg)

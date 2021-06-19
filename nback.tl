@@ -293,7 +293,7 @@ function Nback:start()
         "notag"
     )
 
-    if onAndroid or not useKeyboard then
+    if ON_ANDROID or not USE_KEYBOARD then
         self:initButtons()
     end
 end
@@ -508,8 +508,8 @@ end
 
 function Nback:init(saveName: string)
     readSettings()
-    self.volume = settings.volume
-    love.audio.setVolume(settings.volume)
+    self.volume = SETTINGS.volume
+    love.audio.setVolume(SETTINGS.volume)
     self.saveName = saveName
     self.timer = require "Timer".new()
 
@@ -873,7 +873,7 @@ function Nback:draw()
 
     drawTouches()
 
-    if useKeyboard then
+    if USE_KEYBOARD then
         --linesbuf:pushi("[a] - sound [f] - color [j] - form [;] - position")
     end
 
@@ -921,7 +921,7 @@ function Nback:update(dt: number)
         return 
     end
 
-    if onAndroid then
+    if ON_ANDROID then
         self:processTouches()
     end
 
@@ -1015,10 +1015,10 @@ end
 function Nback:quit(byescape: boolean)
     self.timer:destroy()
     self:stop(byescape)
-    settings.volume = self.volume
-    settings.level = self.level
-    settings.pause_time = self.pauseTime
-    settings.dim = self.dim
+    SETTINGS.volume = self.volume
+    SETTINGS.level = self.level
+    SETTINGS.pause_time = self.pauseTime
+    SETTINGS.dim = self.dim
     writeSettings()
     mainMenu:goBack()
 end
@@ -1036,7 +1036,7 @@ end
 
 function Nback:keypressed(scancode: string)
 
-    if not useKeyboard then 
+    if not USE_KEYBOARD then 
         return
     end
 
@@ -1265,7 +1265,7 @@ function Nback:mousepressed(x: number, y: number, btn: number, istouch: boolean)
         self.setupmenu:mousepressed(x, y, btn, istouch)
     elseif self.statisticRender then
         self.statisticRender:mousepressed(x, y, btn, istouch)
-    elseif not onAndroid then
+    elseif not ON_ANDROID then
         self:checkTouchButtons(x, y)
     end
 end
