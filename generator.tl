@@ -10,7 +10,7 @@ local type GenFunction = function<T>(): T
 local type CmpFunction = function<T>(T, T): boolean
 
 local function generate<T>(
-    sig_count: number,
+    sig_count: integer,
     level: integer,
     gen: GenFunction<T>,
     cmp: CmpFunction<T>
@@ -22,57 +22,65 @@ local function generate<T>(
     -- значение взято с потолка
     local range = {1, 3} 
     local null = {} -- обозначает пустой элемент массива, отсутствие сигнала.
+    local retLen = ratio * sig_count
 
-    for _ = 1, ratio * sig_count do
+    for _ = 1, retLen do
         table.insert(ret, null as T)
     end
 
-    -- расстановка удачных сигналов
-    repeat
-        local i = 1
-        repeat
-            if sig_count > 0 then
-                -- вероятность выпадения значения
-                -- помоему здесь написана хрень
-                local prob = math.random(table.unpack(range))
-                --[[print("prob", prob)]]
-                if prob == range[2] then
-                    if i + level <= #ret and ret[i] == null and ret[i + level] == null then
-                        ret[i] = gen()
-                        if type(ret[i]) == "table" then
-                            ret[i + level] = shallowCopy(ret[i])
-                        else
-                            ret[i + level] = ret[i]
-                        end
-                        sig_count = sig_count - 1
-                    end
-                end
-            end
-            i = i + 1
-            print('i, #ret', i, #ret)
-        until i > #ret
-        print('sig_count', sig_count)
-    until sig_count == 0
-
-    print('done1')
-
-    local __COUNTER = 0
-
-    --[[ FIXME not work
-    -- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
-    -- он не совпадал на текущем уровне n-назад
-    for i = 1, #ret do
-        if ret[i] == null then
-            repeat
-                ret[i] = gen()
-            until not (i + level <= #ret and cmp(ret[i], ret[i + level]))
-            print('__COUNTER', __COUNTER)
-            __COUNTER = __COUNTER + 1
+    for i = 1, retLen do
+        if math.random() > 0.5 then
+            ret[i] = gen()
         end
     end
-    --]]
 
-    print('done2')
+    ---- расстановка удачных сигналов
+    --repeat
+        --local i = 1
+        --repeat
+            --if sig_count > 0 then
+                ---- вероятность выпадения значения
+                ---- помоему здесь написана хрень
+                --local prob = math.random(table.unpack(range))
+                ----[[print("prob", prob)]]
+                --if prob == range[2] then
+                    --if i + level <= #ret and ret[i] == null and ret[i + level] == null then
+                        --ret[i] = gen()
+                        --if type(ret[i]) == "table" then
+                            --ret[i + level] = shallowCopy(ret[i])
+                        --else
+                            --ret[i + level] = ret[i]
+                        --end
+                        --sig_count = sig_count - 1
+                    --end
+                --end
+            --end
+            --i = i + 1
+            --print('i, #ret', i, #ret)
+        --until i > #ret
+        --print('sig_count', sig_count)
+    --until sig_count == 0
+
+    --print('done1')
+
+    --local __COUNTER = 0
+
+    ----[[ FIXME not work
+    ---- замена пустых мест в массиве случайно сгенерированным сигналом так, что-бы 
+    ---- он не совпадал на текущем уровне n-назад
+    ----]]
+    --for i = 1, #ret do
+        --if ret[i] == null then
+            --repeat
+                --ret[i] = gen()
+            --until not (i + level <= #ret and cmp(ret[i], ret[i + level]))
+            --print('__COUNTER', __COUNTER)
+            --__COUNTER = __COUNTER + 1
+        --end
+    --end
+    ----]]
+
+    --print('done2')
 
     return ret
 end
@@ -112,7 +120,7 @@ function generateAll(
     dim: integer,
     maxSimultaneousSignals: integer, -- 1, 2, 3,4
     soundsNum: integer,
-    map: {{number}} -- опциональный параметр для шестигранного поля, игнорируется на квадром поле.
+    map: {{number}} -- опциональный параметр для шестигранного поля, игнорируется на квадром поле??
 
     ): Signals
 --]]
@@ -126,29 +134,28 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
 
     local colorArr = require "colorconstants".makeNamesArray()
 
-    function genArrays(sig_count: number, level: integer, _: number, soundsNum: number): Signals
+    function genArrays(sig_count: integer, level: integer, _: number, soundsNum: number): Signals
         local signals: Signals = {}
 
         logfile:write("--pos gen--\n")
 
-        signals.pos = generate(sig_count, level,
-
-            --function(): Signals.Pos
-                --local result: Signals.Pos = {}
-                --local x, y = math.random(1, #map), math.random(1, #map[1])
-                --local i = 0
-                --while map[x][y] ~= 1 do
-                    --x, y = math.random(1, #map), math.random(1, #map[1])
-                    --i = i + 1
-                    --if i > 31 then
-                    ----if i > 31 then
-                        --error("Something goes wrong, hmm")
-                    --end
+        --function(): Signals.Pos
+            --local result: Signals.Pos = {}
+            --local x, y = math.random(1, #map), math.random(1, #map[1])
+            --local i = 0
+            --while map[x][y] ~= 1 do
+                --x, y = math.random(1, #map), math.random(1, #map[1])
+                --i = i + 1
+                --if i > 31 then
+                ----if i > 31 then
+                    --error("Something goes wrong, hmm")
                 --end
-                --result.x, result.y = x, y
-                --return result
-            --end,
+            --end
+            --result.x, result.y = x, y
+            --return result
+        --end,
 
+        signals.pos = generate(sig_count, level,
             function(): Signals.Pos
                 local result: Signals.Pos = {}
                 local x, y = math.random(1, #map), math.random(1, #map[1])

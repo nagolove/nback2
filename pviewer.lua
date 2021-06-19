@@ -67,6 +67,7 @@ end
 
 
 
+
 function Pviewer:updateRender(index)
    print("updateRender()", index)
    if self.data and index >= 1 and index <= #self.data then
@@ -86,6 +87,7 @@ function Pviewer:updateRender(index)
          durationSec = 0,
       })
    else
+      colprint("no self.data or 'index' out of range")
       self.statisticRender = nil
    end
 end
@@ -153,17 +155,18 @@ function Pviewer:enter()
    end
 
 
-   __MORE_DATA__ = false
 
-   if __MORE_DATA__ then
-      local tmp2 = {}
-      for _ = 1, 6 do
-         for _, v in ipairs(self.data) do
-            table.insert(tmp2, v)
-         end
-      end
-      self.data = tmp2
-   end
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -194,7 +197,7 @@ function Pviewer:enter()
 
 
    if #self.data == 0 then
-      print('self.layout', inspect(self.layout))
+      print("self.layout", inspect(self.layout))
       self.backButton = Button.new(
       i18n("backToMainMenu"),
 

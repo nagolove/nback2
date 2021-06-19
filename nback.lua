@@ -1,5 +1,6 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local coroutine = _tl_compat and _tl_compat.coroutine or coroutine; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local os = _tl_compat and _tl_compat.os or os; local pcall = _tl_compat and _tl_compat.pcall or pcall; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table
 print('hello from begin of nback module')
+
 require("Timer")
 require("button")
 require("common")
@@ -28,6 +29,7 @@ local w, h = g.getDimensions()
 local yield = coroutine.yield
 
  Nback = {Button = {}, }
+
 
 
 
@@ -859,6 +861,10 @@ function Nback:processTouches()
    end
 end
 
+function Nback:isRoundFinished()
+   return self.current_sig < #self.signals.pos
+end
+
 function Nback:update(dt)
 
    self.timer:update(dt)
@@ -877,7 +883,7 @@ function Nback:update(dt)
    end
 
    if self.is_run then
-      if self.current_sig < #self.signals.pos then
+      if not self:isRoundFinished() then
          self:processSignal()
       else
          self:stop()
@@ -1143,19 +1149,18 @@ function Nback:fillLinesbuf()
 
 end
 
-
 function Nback:drawActiveSignal()
    print('Nback:drawActiveSignal()')
-
    local pos = self.signals.pos[self.current_sig]
+   print("self.signals", inspect(self.signals))
    print("self.signals.pos", inspect(self.signals.pos[self.current_sig]))
    print('pos', inspect(pos))
+
    local x, y = pos.x, pos.y
 
    print('self.current_sig', inspect(self.current_sig))
    print('self.signals.color', inspect(self.signals.color))
    print('colorConstants.colors', inspect(colorConstants.colors))
-
    print('hmm', inspect(self.signals.color[self.current_sig]))
 
    local sig_color = colorConstants.colors[self.signals.color[self.current_sig]]

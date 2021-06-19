@@ -3,8 +3,8 @@ require "nbtypes"
 require "layout"
 require "cmn"
 require "button"
+require "menu-main"
 --require "globals"
-
 
 local pallete = require "pallete"
 local i18n = require "i18n"
@@ -35,6 +35,7 @@ global type StatisticRender = record
         y0: number
         durationMin: number
         durationSec: number
+        -- запущен из меню pviewer или после раунда?
         buttons: boolean
         border: number
     end
@@ -320,7 +321,9 @@ function StatisticRender:keyreleased(key: string)
 end
 
 function StatisticRender:mousepressed(_: number, _: number, _: number, _: boolean)
-    self.mainMenuBtn:mousePressed()
+    if self.mainMenuBtn.mousePressed then
+        self.mainMenuBtn:mousePressed()
+    end
 end
 
 function StatisticRender:mousereleased(_: number, _: number, _utton: number)
@@ -369,6 +372,8 @@ function StatisticRender.new(data: StatisticRender.InitData): StatisticRender
 
     --print("data.border", data.border)
     --print("data.buttons", data.buttons)
+
+    -- зачем это условие??
     if self.buttons then
         --gooi.setStyle({ font = require "fonts".drawstat.gooi,
             --showBorder = true,
@@ -383,9 +388,9 @@ function StatisticRender.new(data: StatisticRender.InitData): StatisticRender
         self.mainMenuBtn.onMouseReleased = function(_: Button)
             --menu:goBack()
             --linesbuf:push(1, "return to main!")
-            error("global variable confusion")
+            --error("global variable confusion")
             -- XXX fixme
-            --menu:goBack()
+            --mainMenu:goBack()
         end
 
         --[[

@@ -1,5 +1,6 @@
 -- vim: set foldmethod=indent
 print('hello from begin of nback module')
+
 require "Timer"
 require "button"
 require "common"
@@ -114,6 +115,7 @@ global type Nback = record
     initShaders:                    function(Nback)
     initShadersTimer:               function(Nback)
     inspectSignals:                 function(Nback)
+    isRoundFinished:                function(Nback):boolean
     keypressed:                     function(Nback, scancode: string)
     keyreleased:                    function(Nback, scancode: string)
     leave:                          function(Nback)
@@ -859,6 +861,10 @@ function Nback:processTouches()
     end
 end
 
+function Nback:isRoundFinished(): boolean
+    return self.current_sig < #self.signals.pos
+end
+
 function Nback:update(dt: number)
     --self:fillLinesbuf()
     self.timer:update(dt)
@@ -877,7 +883,7 @@ function Nback:update(dt: number)
     end
 
     if self.is_run then
-        if self.current_sig < #self.signals.pos then
+        if not self:isRoundFinished() then
             self:processSignal()
         else
             self:stop()
@@ -1143,10 +1149,8 @@ function Nback:fillLinesbuf()
     --linesbuf:pushi("signal.width %d", self.signal.width)
 end
 
--- draw active signal quad
 function Nback:drawActiveSignal()
     print('Nback:drawActiveSignal()')
-    --local x, y = unpack(self.signals.pos[self.current_sig])
     local pos = self.signals.pos[self.current_sig]
     print("self.signals", inspect(self.signals))
     print("self.signals.pos", inspect(self.signals.pos[self.current_sig]))

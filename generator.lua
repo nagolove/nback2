@@ -1,4 +1,4 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local table = _tl_compat and _tl_compat.table or table; local _tl_table_unpack = unpack or table.unpack; require("common")
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local table = _tl_compat and _tl_compat.table or table; require("common")
 require("cmn")
 require("nbtypes")
 
@@ -22,41 +22,17 @@ local function generate(
 
    local range = { 1, 3 }
    local null = {}
+   local retLen = ratio * sig_count
 
-   for _ = 1, ratio * sig_count do
+   for _ = 1, retLen do
       table.insert(ret, null)
    end
 
-
-   repeat
-      local i = 1
-      repeat
-         if sig_count > 0 then
-
-
-            local prob = math.random(_tl_table_unpack(range))
-
-            if prob == range[2] then
-               if i + level <= #ret and ret[i] == null and ret[i + level] == null then
-                  ret[i] = gen()
-                  if type(ret[i]) == "table" then
-                     ret[i + level] = shallowCopy(ret[i])
-                  else
-                     ret[i + level] = ret[i]
-                  end
-                  sig_count = sig_count - 1
-               end
-            end
-         end
-         i = i + 1
-         print('i, #ret', i, #ret)
-      until i > #ret
-      print('sig_count', sig_count)
-   until sig_count == 0
-
-   print('done1')
-
-   local __COUNTER = 0
+   for i = 1, retLen do
+      if math.random() > 0.5 then
+         ret[i] = gen()
+      end
+   end
 
 
 
@@ -72,7 +48,39 @@ local function generate(
 
 
 
-   print('done2')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    return ret
 end
@@ -131,24 +139,23 @@ function generateAll(sig_count, level, dim, soundsNum, map)
 
       logfile:write("--pos gen--\n")
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       signals.pos = generate(sig_count, level,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       function()
          local result = {}
          local x, y = math.random(1, #map), math.random(1, #map[1])

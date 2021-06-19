@@ -3,7 +3,7 @@ require("nbtypes")
 require("layout")
 require("cmn")
 require("button")
-
+require("menu-main")
 
 
 local pallete = require("pallete")
@@ -24,6 +24,7 @@ local LinkPoint = {}
 
 
  StatisticRender = {InitData = {}, Info = {}, }
+
 
 
 
@@ -320,7 +321,9 @@ function StatisticRender:keyreleased(key)
 end
 
 function StatisticRender:mousepressed(_, _, _, _)
-   self.mainMenuBtn:mousePressed()
+   if self.mainMenuBtn.mousePressed then
+      self.mainMenuBtn:mousePressed()
+   end
 end
 
 function StatisticRender:mousereleased(_, _, _utton)
@@ -369,6 +372,8 @@ function StatisticRender.new(data)
 
 
 
+
+
    if self.buttons then
 
 
@@ -383,7 +388,7 @@ function StatisticRender.new(data)
       self.mainMenuBtn.onMouseReleased = function(_)
 
 
-         error("global variable confusion")
+
 
 
       end

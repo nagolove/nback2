@@ -6,7 +6,7 @@ local gr = love.graphics
 global type TiledBackround = record
     new: function(): TiledBackround
     prepareDrawing: function(TiledBackround)
-    draw: function(TiledBackround, number)
+    draw: function(TiledBackround, alpha: number)
     resize: function(TiledBackround, number, number)
 
     img: love.graphics.Texture

@@ -67,6 +67,7 @@ end
 
 -- создает новый экземпляр просмотрщика статистики для текущего положения
 -- индекса pviewer.activeIndex
+-- что за index?
 function Pviewer:updateRender(index: integer)
     print("updateRender()", index)
     if self.data and index >= 1 and index <= #self.data then
@@ -86,6 +87,7 @@ function Pviewer:updateRender(index: integer)
             durationSec = 0,
         })
     else
+        colprint("no self.data or 'index' out of range")
         self.statisticRender = nil
     end
 end
@@ -153,6 +155,7 @@ function Pviewer:enter()
     end
 
     -------------------------------------------
+    --[[
     __MORE_DATA__ = false
     --__MORE_DATA__ = true
     if __MORE_DATA__ then
@@ -162,8 +165,8 @@ function Pviewer:enter()
                 table.insert(tmp2, v)
             end
         end
-        self.data = tmp2
     end
+    --]]
     -------------------------------------------
  
     --[[
@@ -194,7 +197,7 @@ function Pviewer:enter()
     --]]
 
     if #self.data == 0 then
-        print('self.layout', inspect(self.layout))
+        print("self.layout", inspect(self.layout))
         self.backButton = Button.new(
             i18n("backToMainMenu"),
             -- что здесь происходит?
