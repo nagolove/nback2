@@ -11,10 +11,10 @@ global type Layout = record
         "right"
         "center"
     end
-    x: number
-    y: number
-    w: number
-    h: number
+    x: integer
+    y: integer
+    w: integer
+    h: integer
 
     top: Layout
     bottom: Layout
@@ -50,12 +50,12 @@ function checkHelper(tbl: Layout): boolean
     return (tbl.x and tbl.y and tbl.w and tbl.h) ~= nil
 end
 
-function Layout.new(x: number|Layout, y: number, w: number, h: number): Layout
+function Layout.new(x: integer|Layout, y: integer, w: integer, h: integer): Layout
     local self: Layout
     if not x and not y and not w and not h then
         self = makeScreenTable()
     else
-        self = {x = x as number, y = y, w = w, h = h}
+        self = {x = x as integer, y = y, w = w, h = h}
     end
     if type(x) == "table" then
         assertHelper(x as Layout)
@@ -80,7 +80,7 @@ function splith(tbl: Layout, ...: number): Layout...
     local subTbls = {}
     local lasty = tbl.y
     for i = 1, select("#", ...) do
-        local currenth = tbl.h * select(i, ...)
+        local currenth: integer = tbl.h * math.floor(select(i, ...))
         table.insert(subTbls, { x = tbl.x, y = lasty, w = tbl.w, h = currenth})
         lasty = lasty + currenth
     end
@@ -99,7 +99,7 @@ function splitv(tbl: Layout, ...: number): Layout...
     local subTbls = {}
     local lastx = tbl.x
     for i = 1, select("#", ...) do
-        local currentw = tbl.w * select(i, ...)
+        local currentw = tbl.w * math.floor(select(i, ...))
         table.insert(subTbls, { x = lastx, y = tbl.y, w = currentw, h = tbl.h})
         lastx = lastx + currentw            
     end
@@ -117,10 +117,10 @@ function splitvAlign(tbl: Layout, alignMode: Layout.AlignMode): Layout...
     assert(false, "Not implemented")
 end
 
-function splithByNum(tbl: Layout, piecesNum: number): Layout...
+function splithByNum(tbl: Layout, piecesNum: integer): Layout...
     assertHelper(tbl)
     local subTbls = {}
-    local prevy, h = tbl.y, tbl.h / piecesNum
+    local prevy, h = tbl.y, tbl.h // piecesNum
     for _ = 1, piecesNum do
         table.insert(subTbls, {x = tbl.x, y = prevy, w = tbl.w, h = h})
         prevy = prevy + h
@@ -128,10 +128,10 @@ function splithByNum(tbl: Layout, piecesNum: number): Layout...
     return table.unpack(subTbls)
 end
 
-function splitvByNum(tbl: Layout, piecesNum: number): Layout...
+function splitvByNum(tbl: Layout, piecesNum: integer): Layout...
     assertHelper(tbl)
     local subTbls = {}
-    local prevx, w = tbl.x, tbl.w / piecesNum
+    local prevx, w = tbl.x, tbl.w // piecesNum
     for _ = 1, piecesNum do
         table.insert(subTbls, {x = prevx, y = tbl.y, w = w, h = tbl.h})
         prevx = prevx + w
