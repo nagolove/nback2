@@ -573,7 +573,7 @@ function Nback:processSignal()
         print("after", after)
 
         --self.timer:tween(tween_time, self, {figure_alpha = 0}, "out-linear")
-        self.timer:tween(self.pauseTime / 3, self, {figure_alpha = 1}, "out-linear")
+        self.timer:tween(self.pauseTime / 3, self, {figureAlpha = 1}, "out-linear")
 
         self.timer:after(after, function()
             print("figureAlpha before", self.figureAlpha)
@@ -905,7 +905,12 @@ function Nback:processTouches()
 end
 
 function Nback:isRoundFinished(): boolean
-    return self.currentSig < #self.signals.pos
+    print('Nback:isRoundFinished()')
+    print('self.currentSig, #self.signals.pos', 
+        self.currentSig, 
+        #self.signals.pos
+    )
+    return self.currentSig >= #self.signals.pos
 end
 
 function Nback:update(dt: number)
@@ -926,6 +931,7 @@ function Nback:update(dt: number)
     end
 
     if self.isRun then
+        print('Nback:update()')
         if not self:isRoundFinished() then
             self:processSignal()
         else
