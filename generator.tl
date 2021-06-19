@@ -89,12 +89,15 @@ local function generate<T>(
     return ret
 end
 
+-- возвращает массив булеанов. Истина если в этот момент нужно нажать "сигнал"
 local function make_hit_arr<T>(signals: {T}, level: integer, comparator: CmpFunction<T>): {boolean}
     local ret: {boolean} = {}
     if signals then
         for k, v in ipairs(signals) do
             ret[#ret + 1] = k > level and comparator(v, signals[k - level])
         end
+    else
+        error('Something gone wrong, signals is nil')
     end
     return ret
 end
@@ -113,6 +116,7 @@ local function makeEqArrays(signals: Signals, level: integer): Signals.Eq
             return a == b 
         end),
     }
+    logfile:write("makeEqArrays: " .. inspect(ret) .. "\n")
     return ret
 end
 
@@ -140,22 +144,6 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
 
     function genArrays(sig_count: integer, level: integer, _: number, soundsNum: number): Signals
         local signals: Signals = {}
-
-        --function(): Signals.Pos
-            --local result: Signals.Pos = {}
-            --local x, y = math.random(1, #map), math.random(1, #map[1])
-            --local i = 0
-            --while map[x][y] ~= 1 do
-                --x, y = math.random(1, #map), math.random(1, #map[1])
-                --i = i + 1
-                --if i > 31 then
-                ----if i > 31 then
-                    --error("Something goes wrong, hmm")
-                --end
-            --end
-            --result.x, result.y = x, y
-            --return result
-        --end,
 
         logfile:write("--begin pos\n")
 

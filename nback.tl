@@ -96,8 +96,13 @@ global type Nback = record
     pressed: Signals.Eq
     signalView: SignalView
     stopppedSignal: number
+
+    -- время в секундах от нажатия "старт" до первого сигнала
     start_pause_rest: number
+
+    -- что за переменная?
     start_pause: boolean
+
     startTime: number
     shader: love.graphics.Shader
     setupmenu: SetupMenu
@@ -275,15 +280,18 @@ function Nback:start()
 
     -- задержка измеряется в секундах?
     local delay = 1
-    self.timer:every(delay, function() 
-        self.start_pause_rest = self.start_pause_rest - 1 
-    end, 
-    self.start_pause_rest, function()
-        self.start_pause = false
-        self.isRun = true
-        -- фиксирую время начала игры
-        self.startTime = love.timer.getTime()
-    end, "notag")
+    self.timer:every(delay, 
+        function() 
+            self.start_pause_rest = self.start_pause_rest - 1 
+        end, 
+        self.start_pause_rest, function()
+            self.start_pause = false
+            self.isRun = true
+            -- фиксирую время начала игры
+            self.startTime = love.timer.getTime()
+        end, 
+        "notag"
+    )
 
     if onAndroid or not useKeyboard then
         self:initButtons()
@@ -526,7 +534,7 @@ function Nback:init(saveName: string)
     self:createSetupMenu()
     self:resize(w, h)
     self:initShaders()
-    self:initShadersTimer()
+    --self:initShadersTimer()
     self.uiState = storeUI()
 end
 
@@ -1231,6 +1239,7 @@ end
 
 -- draw central_text - Press Space key
 function Nback:printStartPause()
+    print('Nback:printStartPause')
     local central_text = i18n("waitFor", { self.start_pause_rest })
     g.setFont(self.centralFont)
     g.setColor(pallete.signal)

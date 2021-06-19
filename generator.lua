@@ -89,12 +89,15 @@ local function generate(
    return ret
 end
 
+
 local function make_hit_arr(signals, level, comparator)
    local ret = {}
    if signals then
       for k, v in ipairs(signals) do
          ret[#ret + 1] = k > level and comparator(v, signals[k - level])
       end
+   else
+      error('Something gone wrong, signals is nil')
    end
    return ret
 end
@@ -113,6 +116,7 @@ local function makeEqArrays(signals, level)
          return a == b
       end),
    }
+   logfile:write("makeEqArrays: " .. inspect(ret) .. "\n")
    return ret
 end
 
@@ -140,22 +144,6 @@ function generateAll(sig_count, level, dim, soundsNum, map)
 
    function genArrays(sig_count, level, _, soundsNum)
       local signals = {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       logfile:write("--begin pos\n")
 

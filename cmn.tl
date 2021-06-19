@@ -1,16 +1,11 @@
 require "love"
 require "nbtypes"
 require "constants"
+require "globals"
 
 local i18n = require "i18n"
 --local gooi = require "gooi.gooi"
 local serpent = require "serpent"
-
-global settings: Settings
-global __DEBUG__ = false
-global onAndroid = love.system.getOS() == "Android"
-global useKeyboard = true
-global preventiveFirstRun = true
 
 function pack(...: any): any
     return {...}

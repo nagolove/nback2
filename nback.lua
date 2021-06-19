@@ -162,6 +162,11 @@ local yield = coroutine.yield
 
 
 
+
+
+
+
+
 local Nback_mt = {
    __index = Nback,
 }
@@ -275,7 +280,8 @@ function Nback:start()
 
 
    local delay = 1
-   self.timer:every(delay, function()
+   self.timer:every(delay,
+   function()
       self.start_pause_rest = self.start_pause_rest - 1
    end,
    self.start_pause_rest, function()
@@ -283,7 +289,9 @@ function Nback:start()
       self.isRun = true
 
       self.startTime = love.timer.getTime()
-   end, "notag")
+   end,
+   "notag")
+
 
    if onAndroid or not useKeyboard then
       self:initButtons()
@@ -526,7 +534,7 @@ function Nback:init(saveName)
    self:createSetupMenu()
    self:resize(w, h)
    self:initShaders()
-   self:initShadersTimer()
+
    self.uiState = storeUI()
 end
 
@@ -1231,6 +1239,7 @@ end
 
 
 function Nback:printStartPause()
+   print('Nback:printStartPause')
    local central_text = i18n("waitFor", { self.start_pause_rest })
    g.setFont(self.centralFont)
    g.setColor(pallete.signal)
