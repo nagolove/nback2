@@ -137,6 +137,31 @@ local yield = coroutine.yield
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 local Nback_mt = {
    __index = Nback,
 }
@@ -145,15 +170,15 @@ local fonts = require("fonts")
 
 local nbackSelf = {
    dim = 8,
-   cell_width = 100,
-   current_sig = 1,
-   sig_count = 8,
+   cellWidth = 100,
+   currentSig = 1,
+   sigCount = 8,
    level = 1,
-   is_run = false,
-   pause_time = 2.0,
-   can_press = false,
-   show_statistic = false,
-   field_color = shallowCopy(pallete.field),
+   isRun = false,
+   pauseTime = 2.0,
+   canPress = false,
+   showStatistic = false,
+   fieldColor = shallowCopy(pallete.field),
    font = fonts.nback.font,
    buttonsFont = fonts.nback.buttons,
    centralFont = fonts.nback.central,
@@ -213,16 +238,24 @@ function Nback:start()
    print("nback:start()")
    local q = pallete.field
 
-   self.timer:tween(3, self, { field_color = { q[1], q[2], q[3], 1 } }, "linear")
+
+   self.timer:tween(3, self, { fieldColor = { q[1], q[2], q[3], 1 } }, "linear")
    self.written = false
    self.pause = false
    self.map = genMapByDim(self.dim)
-   self.signals = generator.generateAll(self.sig_count, self.level, self.dim,
-   #self.signalView.sounds, self.map)
 
-   self.current_sig = 1
-   self.timestamp = love.timer.getTime() - self.pause_time
-   self.show_statistic = false
+   self.signals = generator.generateAll(
+   self.sigCount,
+   self.level,
+   self.dim,
+   #self.signalView.sounds,
+   self.map)
+
+
+
+   self.currentSig = 1
+   self.timestamp = love.timer.getTime() - self.pauseTime
+   self.showStatistic = false
 
 
    local signalsCount = #self.signals.pos
@@ -239,13 +272,15 @@ function Nback:start()
    self.stopppedSignal = 0
    self.start_pause_rest = 3
    self.start_pause = true
+
+
    local delay = 1
    self.timer:every(delay, function()
       self.start_pause_rest = self.start_pause_rest - 1
    end,
    self.start_pause_rest, function()
       self.start_pause = false
-      self.is_run = true
+      self.isRun = true
 
       self.startTime = love.timer.getTime()
    end, "notag")
@@ -257,7 +292,7 @@ end
 
 function Nback:enter()
 
-   self.field_color[4] = 0.2
+   self.fieldColor[4] = 0.2
 
    print("nback:enter()")
 
@@ -266,7 +301,7 @@ end
 
 function Nback:leave()
    print("nback:leave()")
-   self.show_statistic = false
+   self.showStatistic = false
    self.uiState = storeUI()
 end
 
@@ -316,7 +351,7 @@ function Nback:createSetupMenu()
          self.dim = dim
 
          self:resize(w, h)
-         self.pause_time = tonumber(expositionList[activeExpositionItem])
+         self.pauseTime = tonumber(expositionList[activeExpositionItem])
          self.setupmenu.freeze = true
          self:start()
          self.setupmenu.freeze = false
@@ -463,15 +498,15 @@ end
 
 
 
-function Nback:init(save_name)
+function Nback:init(saveName)
    readSettings()
    self.volume = settings.volume
    love.audio.setVolume(settings.volume)
-   self.save_name = save_name
+   self.saveName = saveName
    self.timer = require("Timer").new()
 
    if self.mode == "quad" then
-      self.signalView = require("signal_quad_field").new(self.cell_width, "alphabet")
+      self.signalView = require("signal_quad_field").new(self.cellWidth, "alphabet")
    elseif self.mode == "hex" then
       error("not implemented")
       w, h = gr.getDimensions()
@@ -512,35 +547,35 @@ end
 
 function Nback:processSignal()
    local time = love.timer.getTime()
-   if (time - self.timestamp >= self.pause_time) then
+   if (time - self.timestamp >= self.pauseTime) then
       self.timestamp = time
 
-      self.current_sig = self.current_sig + 1
-      self.can_press = true
+      self.currentSig = self.currentSig + 1
+      self.canPress = true
 
 
 
-      self.figure_alpha = 0.1
+      self.figureAlpha = 0.1
 
-      local tween_time = self.pause_time / 2
+      local tween_time = self.pauseTime / 2
       print("tween_time", tween_time)
-      print("time delta = " .. self.pause_time - tween_time)
-      local after = self.pause_time - tween_time - 0.1
+      print("time delta = " .. self.pauseTime - tween_time)
+      local after = self.pauseTime - tween_time - 0.1
 
       print("after", after)
 
 
-      self.timer:tween(self.pause_time / 3, self, { figure_alpha = 1 }, "out-linear")
+      self.timer:tween(self.pauseTime / 3, self, { figure_alpha = 1 }, "out-linear")
 
       self.timer:after(after, function()
-         print("figure_alpha before", self.figure_alpha)
+         print("figureAlpha before", self.figureAlpha)
          print("tween_time", tween_time)
          self.timer:tween(tween_time, self, { figure_alpha = 0 }, "out-linear")
-         print("figure_alpha after", self.figure_alpha)
+         print("figure_alpha after", self.figureAlpha)
       end)
 
-      colprint(inspect(self.signals.sound[self.current_sig]))
-      self.signalView:play(self.signals.sound[self.current_sig])
+      colprint(inspect(self.signals.sound[self.currentSig]))
+      self.signalView:play(self.signals.sound[self.currentSig])
    end
 end
 
@@ -686,7 +721,7 @@ function Nback:initButtons()
       title = i18n("sound"),
       coroName = "soundBtn",
       ontouch = function()
-         if self.is_run then
+         if self.isRun then
             self:check("sound")
          end
       end, })
@@ -700,7 +735,7 @@ function Nback:initButtons()
       title = i18n("pos"),
       coroName = "posBtn",
       ontouch = function()
-         if self.is_run then
+         if self.isRun then
             self:check("pos")
          end
       end, })
@@ -714,7 +749,7 @@ function Nback:initButtons()
       title = i18n("form"),
       coroName = "formBtn",
       ontouch = function()
-         if self.is_run then
+         if self.isRun then
             self:check("form")
          end
       end, })
@@ -728,7 +763,7 @@ function Nback:initButtons()
       title = i18n("color"),
       coroName = "colorBtn",
       ontouch = function()
-         if self.is_run then
+         if self.isRun then
             self:check("color")
          end
       end, })
@@ -795,7 +830,7 @@ function Nback:draw()
 
 
 
-   if self.is_run then
+   if self.isRun then
       if self.start_pause then
          tiledback:draw(0.3)
          self:drawField()
@@ -819,7 +854,7 @@ function Nback:draw()
 
       end
    else
-      if self.show_statistic then
+      if self.showStatistic then
          tiledback:draw(0.3)
          self.statisticRender:draw()
       else
@@ -862,7 +897,7 @@ function Nback:processTouches()
 end
 
 function Nback:isRoundFinished()
-   return self.current_sig < #self.signals.pos
+   return self.currentSig < #self.signals.pos
 end
 
 function Nback:update(dt)
@@ -871,7 +906,7 @@ function Nback:update(dt)
    self.processor:update()
 
    if self.pause or self.start_pause then
-      self.timestamp = love.timer.getTime() - self.pause_time
+      self.timestamp = love.timer.getTime() - self.pauseTime
 
 
 
@@ -882,14 +917,14 @@ function Nback:update(dt)
       self:processTouches()
    end
 
-   if self.is_run then
+   if self.isRun then
       if not self:isRoundFinished() then
          self:processSignal()
       else
          self:stop()
       end
    else
-      if not self.show_statistic then
+      if not self.showStatistic then
          self.setupmenu:update(dt)
       end
    end
@@ -904,7 +939,7 @@ function Nback:save_to_history()
 
    local history = {}
    local ok
-   local data, _ = love.filesystem.read(self.save_name)
+   local data, _ = love.filesystem.read(self.saveName)
    if data ~= nil then
       ok, history = serpent.load(data), { History }
 
@@ -919,11 +954,11 @@ function Nback:save_to_history()
 signals = self.signals,
 pressed = self.pressed,
 level = self.level,
-pause_time = self.pause_time,
+pause_time = self.pauseTime,
 
 
    })
-   love.filesystem.write(self.save_name, serpent.dump(history))
+   love.filesystem.write(self.saveName, serpent.dump(history))
    collectgarbage()
 end
 
@@ -931,14 +966,14 @@ function Nback:stop(byescape)
    print("stop")
    local q = pallete.field
 
-   self.timer:tween(2, self.field_color, { q[1], q[2], q[3], 0.1 }, "linear")
+   self.timer:tween(2, self.fieldColor, { q[1], q[2], q[3], 0.1 }, "linear")
 
-   self.is_run = false
-   self.show_statistic = true
+   self.isRun = false
+   self.showStatistic = true
 
 
    if self.signals and self.signals.pos then
-      self.stopppedSignal = self.current_sig
+      self.stopppedSignal = self.currentSig
    end
 
    print("byescape", byescape)
@@ -949,7 +984,7 @@ function Nback:stop(byescape)
       print(string.format("durationMin %f, durationSec %f", self.durationMin, self.durationSec))
 
 
-      if self.signals and self.current_sig == #self.signals.pos then
+      if self.signals and self.currentSig == #self.signals.pos then
          self:save_to_history()
       end
 
@@ -957,7 +992,7 @@ function Nback:stop(byescape)
          signals = self.signals,
          pressed = self.pressed,
          level = self.level,
-         pause_time = self.pause_time,
+         pause_time = self.pauseTime,
 
          x0 = self.x0,
          y0 = self.y0,
@@ -974,7 +1009,7 @@ function Nback:quit(byescape)
    self:stop(byescape)
    settings.volume = self.volume
    settings.level = self.level
-   settings.pause_time = self.pause_time
+   settings.pause_time = self.pauseTime
    settings.dim = self.dim
    writeSettings()
    mainMenu:goBack()
@@ -982,7 +1017,7 @@ end
 
 function Nback:keyreleased(scancode)
 
-   if not self.is_run and not self.show_statistic then
+   if not self.isRun and not self.showStatistic then
       if scancode == "left" or scancode == "h" then
          self.setupmenu:leftReleased()
       elseif scancode == "right" or scancode == "l" then
@@ -997,7 +1032,7 @@ function Nback:keypressed(scancode)
       return
    end
 
-   if self.is_run then
+   if self.isRun then
       if scancode == "a" then
          self:check("sound")
 
@@ -1016,7 +1051,7 @@ function Nback:keypressed(scancode)
 
       end
    else
-      if not self.show_statistic then
+      if not self.showStatistic then
          if scancode == "space" or scancode == "return" then
             print("select")
             self.setupmenu:select()
@@ -1037,7 +1072,7 @@ function Nback:keypressed(scancode)
       self:raiseVolume()
    end
    if scancode == "escape" or scancode == "achome" then
-      if self.is_run then
+      if self.isRun then
          print("stop by escape")
          self:stop()
       else
@@ -1065,7 +1100,7 @@ end
 
 function Nback:check(signalType)
 
-   if not self.is_run then
+   if not self.isRun then
       return
    end
 
@@ -1077,13 +1112,13 @@ function Nback:check(signalType)
       cmp = isPositionEqual
    end
 
-   self.pressed[signalType][self.current_sig] = true
-   if self.current_sig - self.level > 1 then
-      if cmp(signals[self.current_sig], signals[self.current_sig - self.level]) then
+   self.pressed[signalType][self.currentSig] = true
+   if self.currentSig - self.level > 1 then
+      if cmp(signals[self.currentSig], signals[self.currentSig - self.level]) then
 
-         if self.can_press then
+         if self.canPress then
             print(signalType .. " hit!")
-            self.can_press = false
+            self.canPress = false
          end
       end
    end
@@ -1095,14 +1130,16 @@ function Nback:resize(neww, newh)
 
    w, h = neww, newh
 
-   self.cell_width = self.layout.center.h / self.dim
-   self.bhupur_h = self.cell_width * self.dim
+
+   self.cellWidth = math.ceil(self.layout.center.h / self.dim)
+
+   self.bhupur_h = self.cellWidth * self.dim
    self.x0, self.y0 = self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2, self.layout.center.y
    self.processor = require("coroprocessor").new()
 
    if self.signalView then
       self.signalView:setCorner(self.x0, self.y0)
-      self.signalView:resize(self.cell_width)
+      self.signalView:resize(self.cellWidth)
    end
 
    if self.statisticRender then
@@ -1151,41 +1188,43 @@ end
 
 function Nback:drawActiveSignal()
    print('Nback:drawActiveSignal()')
-   local pos = self.signals.pos[self.current_sig]
+   local pos = self.signals.pos[self.currentSig]
    print("self.signals", inspect(self.signals))
-   print("self.signals.pos", inspect(self.signals.pos[self.current_sig]))
+   print("self.signals.pos", inspect(self.signals.pos[self.currentSig]))
    print('pos', inspect(pos))
 
    local x, y = pos.x, pos.y
 
-   print('self.current_sig', inspect(self.current_sig))
+   print('self.current_sig', inspect(self.currentSig))
    print('self.signals.color', inspect(self.signals.color))
    print('colorConstants.colors', inspect(colorConstants.colors))
-   print('hmm', inspect(self.signals.color[self.current_sig]))
+   print('hmm', inspect(self.signals.color[self.currentSig]))
 
-   local sig_color = colorConstants.colors[self.signals.color[self.current_sig]]
+   local sig_color = colorConstants.colors[self.signals.color[self.currentSig]]
    print('sig_color', sig_color)
 
-   if self.figure_alpha then
-      sig_color[4] = self.figure_alpha
+   if self.figureAlpha then
+      sig_color[4] = self.figureAlpha
    else
       print("no self.figure_alpha")
    end
 
-   local curtype = self.signals.form[self.current_sig]
+   local curtype = self.signals.form[self.currentSig]
    self.signalView:draw(x, y, curtype, sig_color)
 end
 
 function Nback:drawField()
-   local field_h = self.dim * self.cell_width
-   g.setColor(self.field_color)
+   local field_h = self.dim * self.cellWidth
+   g.setColor(self.fieldColor)
    local oldwidth = g.getLineWidth()
    g.setLineWidth(2)
    for i = 0, self.dim do
 
-      g.line(self.x0, self.y0 + i * self.cell_width, self.x0 + field_h, self.y0 + i * self.cell_width)
+      g.line(self.x0, self.y0 + i * self.cellWidth,
+      self.x0 + field_h, self.y0 + i * self.cellWidth)
 
-      g.line(self.x0 + i * self.cell_width, self.y0, self.x0 + i * self.cell_width, self.y0 + field_h)
+      g.line(self.x0 + i * self.cellWidth,
+      self.y0, self.x0 + i * self.cellWidth, self.y0 + field_h)
    end
    g.setLineWidth(oldwidth)
 end
@@ -1196,12 +1235,12 @@ function Nback:printStartPause()
    g.setFont(self.centralFont)
    g.setColor(pallete.signal)
    local x = (w - self.centralFont:getWidth(central_text)) / 2
-   local y = self.y0 + (self.dim - 1) * self.cell_width
+   local y = self.y0 + (self.dim - 1) * self.cellWidth
    g.print(central_text, x, y)
 end
 
 function Nback:mousemoved(x, y, dx, dy, istouch)
-   if not self.is_run and not self.show_statistic then
+   if not self.isRun and not self.showStatistic then
       self.setupmenu:mousemoved(x, y, dx, dy, istouch)
    end
 end
@@ -1213,7 +1252,7 @@ function Nback:mousereleased(x, y, btn)
 end
 
 function Nback:mousepressed(x, y, btn, istouch)
-   if not self.is_run and not self.show_statistic then
+   if not self.isRun and not self.showStatistic then
       self.setupmenu:mousepressed(x, y, btn, istouch)
    elseif self.statisticRender then
       self.statisticRender:mousepressed(x, y, btn, istouch)

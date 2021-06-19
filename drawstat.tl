@@ -28,7 +28,7 @@ global type StatisticRender = record
     record InitData
         signals: Signals
         pressed: {string:{boolean}}
-        level: number
+        level: integer
         font: love.graphics.Font
         pause_time: number
         x0: number

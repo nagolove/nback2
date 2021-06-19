@@ -80,7 +80,7 @@ function splith(tbl, ...)
    local subTbls = {}
    local lasty = tbl.y
    for i = 1, select("#", ...) do
-      local currenth = tbl.h * select(i, ...)
+      local currenth = tbl.h * math.floor(select(i, ...))
       table.insert(subTbls, { x = tbl.x, y = lasty, w = tbl.w, h = currenth })
       lasty = lasty + currenth
    end
@@ -99,7 +99,7 @@ function splitv(tbl, ...)
    local subTbls = {}
    local lastx = tbl.x
    for i = 1, select("#", ...) do
-      local currentw = tbl.w * select(i, ...)
+      local currentw = tbl.w * math.floor(select(i, ...))
       table.insert(subTbls, { x = lastx, y = tbl.y, w = currentw, h = tbl.h })
       lastx = lastx + currentw
    end
@@ -120,7 +120,7 @@ end
 function splithByNum(tbl, piecesNum)
    assertHelper(tbl)
    local subTbls = {}
-   local prevy, h = tbl.y, tbl.h / piecesNum
+   local prevy, h = tbl.y, math.floor(tbl.h / piecesNum)
    for _ = 1, piecesNum do
       table.insert(subTbls, { x = tbl.x, y = prevy, w = tbl.w, h = h })
       prevy = prevy + h
@@ -131,7 +131,7 @@ end
 function splitvByNum(tbl, piecesNum)
    assertHelper(tbl)
    local subTbls = {}
-   local prevx, w = tbl.x, tbl.w / piecesNum
+   local prevx, w = tbl.x, math.floor(tbl.w / piecesNum)
    for _ = 1, piecesNum do
       table.insert(subTbls, { x = prevx, y = tbl.y, w = w, h = tbl.h })
       prevx = prevx + w

@@ -120,7 +120,7 @@ end
 function splithByNum(tbl: Layout, piecesNum: integer): Layout...
     assertHelper(tbl)
     local subTbls = {}
-    local prevy, h = tbl.y, tbl.h // piecesNum
+    local prevy, h = tbl.y, math.floor(tbl.h / piecesNum)
     for _ = 1, piecesNum do
         table.insert(subTbls, {x = tbl.x, y = prevy, w = tbl.w, h = h})
         prevy = prevy + h
@@ -131,7 +131,7 @@ end
 function splitvByNum(tbl: Layout, piecesNum: integer): Layout...
     assertHelper(tbl)
     local subTbls = {}
-    local prevx, w = tbl.x, tbl.w // piecesNum
+    local prevx, w = tbl.x, math.floor(tbl.w / piecesNum)
     for _ = 1, piecesNum do
         table.insert(subTbls, {x = prevx, y = tbl.y, w = w, h = tbl.h})
         prevx = prevx + w

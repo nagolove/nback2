@@ -3,6 +3,7 @@ require "cmn"
 require "nbtypes"
 
 local inspect = require "inspect"
+local serpent = require "serpent"
 
 local logfile = love.filesystem.newFile("log-generator.txt", "w")
 
@@ -15,7 +16,6 @@ local function generate<T>(
     gen: GenFunction<T>,
     cmp: CmpFunction<T>
 ): {T}
-
     local ret: {T} = {} -- массив сигналов, который будет возвращен
     -- значение взято с потолка
     local ratio = 5 
@@ -28,8 +28,11 @@ local function generate<T>(
         table.insert(ret, null as T)
     end
 
+    logfile:write('retLen: ' .. tonumber(retLen) .. '\n')
+    logfile:write('empty ret: ' .. inspect(ret) .. '\n')
+
     for i = 1, retLen do
-        if math.random() > 0.5 then
+        if i < 5 then
             ret[i] = gen()
         end
     end
@@ -81,6 +84,7 @@ local function generate<T>(
     ----]]
 
     --print('done2')
+    logfile:write('ret after: ' .. serpent.block(ret) .. '\n')
 
     return ret
 end
@@ -137,8 +141,6 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
     function genArrays(sig_count: integer, level: integer, _: number, soundsNum: number): Signals
         local signals: Signals = {}
 
-        logfile:write("--pos gen--\n")
-
         --function(): Signals.Pos
             --local result: Signals.Pos = {}
             --local x, y = math.random(1, #map), math.random(1, #map[1])
@@ -154,6 +156,8 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
             --result.x, result.y = x, y
             --return result
         --end,
+
+        logfile:write("--begin pos\n")
 
         signals.pos = generate(sig_count, level,
             function(): Signals.Pos
@@ -176,7 +180,8 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
                 return a.x == b.x and a.y == b.y
             end)
 
-        logfile:write("--pos gen--\n")
+        logfile:write("--end pos\n\n")
+        logfile:write("--begin form\n")
 
         signals.form = generate(sig_count, level,
             function(): Signals.Forms
@@ -187,6 +192,9 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
                 return a == b 
             end)
 
+        logfile:write("--end form\n\n")
+        logfile:write("--begin sound\n")
+
         signals.sound = generate(sig_count, level, 
             function(): integer 
                 return math.random(1, soundsNum) 
@@ -195,6 +203,9 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
                 return a == b 
             end)
 
+        logfile:write("--end sound\n\n")
+        logfile:write("--begin color\n")
+
         signals.color = generate(sig_count, level,
             function(): string return colorArr[math.random(1, 6)] end,
             function(a: string, b: string): boolean
@@ -202,13 +213,15 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
             end)
         --print("color", inspect(signals.color))
 
+        logfile:write("--end color\n\n")
+
         signals.eq = makeEqArrays(signals, level)
         return signals
     end
 
     -- попытка балансировки массивов от множественного совпадения(более двух сигналов на фрейм)
     -- случайной перегенерацией
-    function balance(forIterCount: number): Signals
+    function balance(forIterCount: integer): Signals
         local i, changed = 0, false
         local signals: Signals
         repeat
@@ -233,9 +246,9 @@ function generateAll(sig_count: integer, level: integer, dim: integer, soundsNum
 
     local result =  balance(1)
 
-    logfile:write("\n")
-    logfile:write(inspect(result))
-    logfile:write("\n")
+    --logfile:write("\n")
+    --logfile:write('result: ' .. serpent.block(result))
+    --logfile:write("\n")
     logfile:close()
 
     return result

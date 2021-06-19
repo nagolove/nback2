@@ -3,6 +3,7 @@ require("cmn")
 require("nbtypes")
 
 local inspect = require("inspect")
+local serpent = require("serpent")
 
 local logfile = love.filesystem.newFile("log-generator.txt", "w")
 
@@ -14,7 +15,6 @@ local function generate(
    level,
    gen,
    cmp)
-
 
    local ret = {}
 
@@ -28,8 +28,11 @@ local function generate(
       table.insert(ret, null)
    end
 
+   logfile:write('retLen: ' .. tonumber(retLen) .. '\n')
+   logfile:write('empty ret: ' .. inspect(ret) .. '\n')
+
    for i = 1, retLen do
-      if math.random() > 0.5 then
+      if i < 5 then
          ret[i] = gen()
       end
    end
@@ -81,6 +84,7 @@ local function generate(
 
 
 
+   logfile:write('ret after: ' .. serpent.block(ret) .. '\n')
 
    return ret
 end
@@ -137,7 +141,6 @@ function generateAll(sig_count, level, dim, soundsNum, map)
    function genArrays(sig_count, level, _, soundsNum)
       local signals = {}
 
-      logfile:write("--pos gen--\n")
 
 
 
@@ -154,6 +157,7 @@ function generateAll(sig_count, level, dim, soundsNum, map)
 
 
 
+      logfile:write("--begin pos\n")
 
       signals.pos = generate(sig_count, level,
       function()
@@ -176,7 +180,8 @@ function generateAll(sig_count, level, dim, soundsNum, map)
          return a.x == b.x and a.y == b.y
       end)
 
-      logfile:write("--pos gen--\n")
+      logfile:write("--end pos\n\n")
+      logfile:write("--begin form\n")
 
       signals.form = generate(sig_count, level,
       function()
@@ -187,6 +192,9 @@ function generateAll(sig_count, level, dim, soundsNum, map)
          return a == b
       end)
 
+      logfile:write("--end form\n\n")
+      logfile:write("--begin sound\n")
+
       signals.sound = generate(sig_count, level,
       function()
          return math.random(1, soundsNum)
@@ -195,12 +203,17 @@ function generateAll(sig_count, level, dim, soundsNum, map)
          return a == b
       end)
 
+      logfile:write("--end sound\n\n")
+      logfile:write("--begin color\n")
+
       signals.color = generate(sig_count, level,
       function() return colorArr[math.random(1, 6)] end,
       function(a, b)
          return a == b
       end)
 
+
+      logfile:write("--end color\n\n")
 
       signals.eq = makeEqArrays(signals, level)
       return signals
@@ -233,9 +246,9 @@ function generateAll(sig_count, level, dim, soundsNum, map)
 
    local result = balance(1)
 
-   logfile:write("\n")
-   logfile:write(inspect(result))
-   logfile:write("\n")
+
+
+
    logfile:close()
 
    return result

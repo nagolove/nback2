@@ -238,7 +238,8 @@ function Nback:start()
     print("nback:start()")
     local q = pallete.field
     -- запуск анимации цвета игрового поля
-    self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
+    --self.timer:tween(3, self, { field_color = {q[1], q[2], q[3], 1}}, "linear")
+    self.timer:tween(3, self, { fieldColor = {q[1], q[2], q[3], 1}}, "linear")
     self.written = false
     self.pause = false
     self.map = genMapByDim(self.dim)
@@ -1130,7 +1131,7 @@ function Nback:resize(neww: integer, newh: integer)
     w, h = neww, newh
 
     --self.cellWidth = self.layout.center.h / self.dim
-    self.cellWidth = self.layout.center.h // self.dim
+    self.cellWidth = math.ceil(self.layout.center.h / self.dim)
 
     self.bhupur_h = self.cellWidth * self.dim 
     self.x0, self.y0 = self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2, self.layout.center.y
