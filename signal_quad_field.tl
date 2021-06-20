@@ -8,11 +8,25 @@ local inspect = require "inspect"
 
 global type SignalView = record
     new: function(width: number, soundPack: string): SignalView
-    setCorner: function(SignalView, number, number)
-    resize: function(SignalView, number, number)
+
+    calculateIntersections: function(SignalView, up: {number}, down: {number}): {number}
+    circle: function(SignalView, x: number, y: number, w: number, h: number)
+    draw2Canvas: function(SignalView, index: number)
     draw2Canvas: function(SignalView, number)
-    drawFigures2Canvas: function(SignalView)
     draw: function(SignalView, number, number, string, {number})
+    draw: function(SignalView, xd: number, yd: number, type_: string, color: {number})
+    drawFigures2Canvas: function(SignalView)
+    drawFigures2Canvas: function(SignalView)
+    play: function(SignalView, index: integer)
+    quad: function(SignalView, x: number, y: number, w: number, h: number)
+    resize: function(SignalView, number, number)
+    resize: function(SignalView, width: number)
+    rhombus: function(SignalView, x: number, y: number, w: number, h: number)
+    setCorner: function(SignalView, number, number)
+    setCorner: function(SignalView, x: number, y: number)
+    trdown: function(SignalView, x: number, y: number, w: number, h: number)
+    trup: function(SignalView, x: number, y: number, w: number, h: number)
+    trupdown: function(SignalView, _: number, _: number, w: number, h: number)
 
     width: number
     sounds: {love.audio.Source}
@@ -23,19 +37,6 @@ global type SignalView = record
     y0: number
     canvases: {love.graphics.Canvas}
 
-    setCorner: function(x: number, y: number)
-    resize: function(width: number)
-    draw2Canvas: function(index: number)
-    drawFigures2Canvas: function()
-    draw: function(xd: number, yd: number, type_: string, color: {number})
-    play: function(index: integer)
-    quad: function(x: number, y: number, w: number, h: number)
-    circle: function(x: number, y: number, w: number, h: number)
-    trdown: function(x: number, y: number, w: number, h: number)
-    trup: function(x: number, y: number, w: number, h: number)
-    calculateIntersections: function(up: {number}, down: {number}): {number}
-    trupdown: function(_: number, _: number, w: number, h: number)
-    rhombus: function(x: number, y: number, w: number, h: number)
 end
 
 local SignalView_mt: metatable<SignalView> = {
@@ -143,7 +144,9 @@ function SignalView:draw(xd: number, yd: number, type_: string, color: {number})
 
     --self[type_ as Types](self, x, y, w, h)
     -- XXX скорее всего не будет работать, не передается self
-    self[type_ as Signals.Forms](x, y, w, h)
+    print('SignalView:draw()', x, y, w, h)
+
+    self[type_ as Signals.Forms](self, x, y, w, h)
 
     g.setLineWidth(oldWidth)
 
@@ -159,7 +162,7 @@ end
 function SignalView:play(index: integer)
     if type(index) ~= 'number' then
         error(string.format(
-            'SignalView:play() got not a number "index", it is type(%s), value %s',
+            'SignalView:play() "index" is not a number, type(%s) == %s',
             type(index),
             inspect(index)
         ))
@@ -221,40 +224,41 @@ end
 function SignalView:calculateIntersections(up: {number}, down: {number}): {number}
     local points: {number} = {}
     local p: vector
+    local vec2 = vector.new
 
     -- 1
-    p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
-        vector(down[5], down[6]), vector(down[3], down[4]))
+    p = intersection(vec2(up[5], up[6]), vec2(up[1], up[2]),
+        vec2(down[5], down[6]), vec2(down[3], down[4]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
 
     -- 2
-    p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
-        vector(down[3], down[4]), vector(down[1], down[2]))
+    p = intersection(vec2(up[5], up[6]), vec2(up[1], up[2]),
+        vec2(down[3], down[4]), vec2(down[1], down[2]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
 
     -- 3
-    p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
-        vector(down[3], down[4]), vector(down[1], down[2]))
+    p = intersection(vec2(up[3], up[4]), vec2(up[5], up[6]),
+        vec2(down[3], down[4]), vec2(down[1], down[2]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
 
     -- 4
-    p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
-        vector(down[1], down[2]), vector(down[5], down[6]))
+    p = intersection(vec2(up[3], up[4]), vec2(up[5], up[6]),
+        vec2(down[1], down[2]), vec2(down[5], down[6]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
 
     -- 5
-    p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
-        vector(down[1], down[2]), vector(down[5], down[6]))
+    p = intersection(vec2(up[3], up[4]), vec2(up[1], up[2]),
+        vec2(down[1], down[2]), vec2(down[5], down[6]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
 
     -- 6
-    p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
-        vector(down[3], down[4]), vector(down[5], down[6]))
+    p = intersection(vec2(up[3], up[4]), vec2(up[1], up[2]),
+        vec2(down[3], down[4]), vec2(down[5], down[6]))
     points[#points + 1] = p.x
     points[#points + 1] = p.y
 

@@ -578,12 +578,16 @@ function Nback:processSignal()
       self.timer:after(after, function()
          print("figureAlpha before", self.figureAlpha)
          print("tween_time", tween_time)
-         self.timer:tween(tween_time, self, { figure_alpha = 0 }, "out-linear")
+         self.timer:tween(tween_time, self, { figureAlpha = 0 }, "out-linear")
          print("figure_alpha after", self.figureAlpha)
       end)
 
-      colprint(inspect(self.signals.sound[self.currentSig]))
-      self.signalView:play(self.signals.sound[self.currentSig])
+      if type(self.signals.sound[self.currentSig]) == 'number' then
+         self.signalView:play(self.signals.sound[self.currentSig])
+      else
+         colprint('self.signals.sound[self.currentSig] is not a number')
+
+      end
    end
 end
 

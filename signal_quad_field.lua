@@ -38,6 +38,7 @@ local inspect = require("inspect")
 
 
 
+
 local SignalView_mt = {
    __index = SignalView,
 }
@@ -143,7 +144,9 @@ function SignalView:draw(xd, yd, type_, color)
 
 
 
-   self[type_](x, y, w, h)
+   print('SignalView:draw()', x, y, w, h)
+
+   self[type_](self, x, y, w, h)
 
    g.setLineWidth(oldWidth)
 
@@ -159,7 +162,7 @@ end
 function SignalView:play(index)
    if type(index) ~= 'number' then
       error(string.format(
-      'SignalView:play() got not a number "index", it is type(%s), value %s',
+      'SignalView:play() "index" is not a number, type(%s) == %s',
       type(index),
       inspect(index)))
 
@@ -221,40 +224,41 @@ end
 function SignalView:calculateIntersections(up, down)
    local points = {}
    local p
+   local vec2 = vector.new
 
 
-   p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
-   vector(down[5], down[6]), vector(down[3], down[4]))
+   p = intersection(vec2(up[5], up[6]), vec2(up[1], up[2]),
+   vec2(down[5], down[6]), vec2(down[3], down[4]))
    points[#points + 1] = p.x
    points[#points + 1] = p.y
 
 
-   p = intersection(vector(up[5], up[6]), vector(up[1], up[2]),
-   vector(down[3], down[4]), vector(down[1], down[2]))
+   p = intersection(vec2(up[5], up[6]), vec2(up[1], up[2]),
+   vec2(down[3], down[4]), vec2(down[1], down[2]))
    points[#points + 1] = p.x
    points[#points + 1] = p.y
 
 
-   p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
-   vector(down[3], down[4]), vector(down[1], down[2]))
+   p = intersection(vec2(up[3], up[4]), vec2(up[5], up[6]),
+   vec2(down[3], down[4]), vec2(down[1], down[2]))
    points[#points + 1] = p.x
    points[#points + 1] = p.y
 
 
-   p = intersection(vector(up[3], up[4]), vector(up[5], up[6]),
-   vector(down[1], down[2]), vector(down[5], down[6]))
+   p = intersection(vec2(up[3], up[4]), vec2(up[5], up[6]),
+   vec2(down[1], down[2]), vec2(down[5], down[6]))
    points[#points + 1] = p.x
    points[#points + 1] = p.y
 
 
-   p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
-   vector(down[1], down[2]), vector(down[5], down[6]))
+   p = intersection(vec2(up[3], up[4]), vec2(up[1], up[2]),
+   vec2(down[1], down[2]), vec2(down[5], down[6]))
    points[#points + 1] = p.x
    points[#points + 1] = p.y
 
 
-   p = intersection(vector(up[3], up[4]), vector(up[1], up[2]),
-   vector(down[3], down[4]), vector(down[5], down[6]))
+   p = intersection(vec2(up[3], up[4]), vec2(up[1], up[2]),
+   vec2(down[3], down[4]), vec2(down[5], down[6]))
    points[#points + 1] = p.x
    points[#points + 1] = p.y
 
