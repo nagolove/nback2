@@ -22,7 +22,6 @@ global type SignalView = record
     resize: function(SignalView, number, number)
     resize: function(SignalView, width: number)
     rhombus: function(SignalView, x: number, y: number, w: number, h: number)
-    setCorner: function(SignalView, number, number)
     setCorner: function(SignalView, x: number, y: number)
     trdown: function(SignalView, x: number, y: number, w: number, h: number)
     trup: function(SignalView, x: number, y: number, w: number, h: number)
@@ -109,6 +108,7 @@ end
 -- установить координаты левого верхнего угла, от которого идет отсчет ячеек.
 -- обязательно вызывать перед рисовкой.
 function SignalView:setCorner(x: number, y: number)
+    print('SignalView:setCorner()', x, y)
     self.x0, self.y0 = x, y
 end
 
@@ -128,7 +128,7 @@ end
 -- треугольник вверх, пересечение треугольников, ромб)
 -- color - текущий цвет
 function SignalView:draw(xd: number, yd: number, type_: string, color: {number})
-    print('SignalView:draw()', xd, yd, type_, color)
+    --print('SignalView:draw()', xd, yd, inspect(type_), inspect(color))
 
     --local currentHex = self.hexfield:get(xd, yd)
 

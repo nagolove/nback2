@@ -167,6 +167,9 @@ local yield = coroutine.yield
 
 
 
+
+
+
 local Nback_mt = {
    __index = Nback,
 }
@@ -1143,6 +1146,7 @@ function Nback:check(signalType)
 end
 
 function Nback:resize(neww, newh)
+   colprint('Nback:resize()')
    print(string.format("resized to %d * %d", neww, newh))
    self:buildLayout()
 
@@ -1152,6 +1156,13 @@ function Nback:resize(neww, newh)
    self.cellWidth = math.ceil(self.layout.center.h / self.dim)
 
    self.bhupur_h = self.cellWidth * self.dim
+
+   print(inspect(self.layout))
+
+   print('Nback:resize() x0, y0',
+   self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2,
+   self.layout.center.y)
+
    self.x0, self.y0 = self.layout.center.x + (self.layout.center.w - self.layout.center.h) / 2, self.layout.center.y
    self.processor = require("coroprocessor").new()
 
@@ -1206,20 +1217,35 @@ end
 
 function Nback:drawActiveSignal()
    print('Nback:drawActiveSignal()')
+
    local pos = self.signals.pos[self.currentSig]
+
    print("self.signals", inspect(self.signals))
    print("self.signals.pos", inspect(self.signals.pos[self.currentSig]))
    print('pos', inspect(pos))
 
    local x, y = pos.x, pos.y
 
-   print('self.current_sig', inspect(self.currentSig))
-   print('self.signals.color', inspect(self.signals.color))
-   print('colorConstants.colors', inspect(colorConstants.colors))
-   print('hmm', inspect(self.signals.color[self.currentSig]))
+   if (not x) or (not y) then
+      x, y = 1, 1
+      colprint('No right position, using default (1, 1)')
+   end
+
+   print('x, y', x, y)
+
+
+
+
+
+
+
+
 
    local sig_color = colorConstants.colors[self.signals.color[self.currentSig]]
-   print('sig_color', sig_color)
+   if not sig_color then
+      colprint('Not right color, using default.')
+      sig_color = colorConstants.colors['black']
+   end
 
    if self.figureAlpha then
       sig_color[4] = self.figureAlpha
@@ -1228,6 +1254,7 @@ function Nback:drawActiveSignal()
    end
 
    local curtype = self.signals.form[self.currentSig]
+   print(x, y, inspect(curtype), inspect(sig_color))
    self.signalView:draw(x, y, curtype, sig_color)
 end
 
@@ -1236,6 +1263,7 @@ function Nback:drawField()
    g.setColor(self.fieldColor)
    local oldwidth = g.getLineWidth()
    g.setLineWidth(2)
+   print('self.x0, self.y0', self.x0, self.y0)
    for i = 0, self.dim do
 
       g.line(self.x0, self.y0 + i * self.cellWidth,

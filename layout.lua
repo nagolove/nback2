@@ -139,6 +139,7 @@ function splitvByNum(tbl, piecesNum)
    return _tl_table_unpack(subTbls)
 end
 
+-- что делает эта функция?
 function shrink(tbl, value)
    assertHelper(tbl)
    assert(type(value) == "number", string.format("number expected, but %s is", type(value)))

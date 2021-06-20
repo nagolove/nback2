@@ -38,7 +38,6 @@ local inspect = require("inspect")
 
 
 
-
 local SignalView_mt = {
    __index = SignalView,
 }
@@ -109,6 +108,7 @@ end
 
 
 function SignalView:setCorner(x, y)
+   print('SignalView:setCorner()', x, y)
    self.x0, self.y0 = x, y
 end
 
@@ -128,7 +128,7 @@ end
 
 
 function SignalView:draw(xd, yd, type_, color)
-   print('SignalView:draw()', xd, yd, type_, color)
+
 
 
 
